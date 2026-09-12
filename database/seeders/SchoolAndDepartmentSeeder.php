@@ -859,6 +859,33 @@ class SchoolAndDepartmentSeeder extends Seeder
                     ],
                 ],
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 10. CENTER FOR CIVIL SERVICES
+            |--------------------------------------------------------------------------
+            */
+            [
+                'code' => 'sc_cs',
+                'name' => 'CENTER FOR CIVIL SERVICES',
+
+                'departments' => [
+
+                    [
+                        'code' => 'dep_cs',
+                        'name' => 'Department of Civil Services',
+
+                        'programs' => [
+                            [
+                                'code' => 'prog_cs',
+                                'name' => 'Civil Services Coaching & Training',
+                                'level' => 'UG',
+                                'duration_years' => 1,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         /*

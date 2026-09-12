@@ -60,7 +60,11 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ $course->name }}</h1>
-                        <p class="text-sm text-gray-500 mt-1">{{ $course->code }} | Year {{ $course->year }}, Sem {{ $course->semester }}</p>
+                        @if($course->department_id === 'dep_cs')
+                            <p class="text-sm text-blue-600 font-medium mt-1">{{ $course->code }} &bull; {{ $course->semester ?? 'General Studies' }} &bull; Civil Services Academy</p>
+                        @else
+                            <p class="text-sm text-gray-500 mt-1">{{ $course->code }} | Year {{ $course->year }}, Sem {{ $course->semester }}</p>
+                        @endif
                     </div>
                 </div>
 

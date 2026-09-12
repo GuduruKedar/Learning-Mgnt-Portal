@@ -45,6 +45,7 @@ class DatabaseSeeder extends Seeder
         \Illuminate\Support\Facades\DB::table('roles')->insertOrIgnore([
             ['name' => 'sta', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'stu', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'civil_admin', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         $superAdminProfileId = \Illuminate\Support\Facades\DB::table('profiles')->insertGetId([
@@ -125,6 +126,28 @@ class DatabaseSeeder extends Seeder
             'username' => 'student1',
             'password' => \Illuminate\Support\Facades\Hash::make('Student#963'),
             'profile_id' => $studentProfileId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Create a default Civil Admin for Civil Services
+        $civilAdminProfileId = \Illuminate\Support\Facades\DB::table('profiles')->insertGetId([
+            'first_name' => 'Civil',
+            'last_name' => 'Admin',
+            'username' => 'civiladmin',
+            'email' => 'civiladmin@example.com',
+            'schools_id' => 'sc_cs',
+            'departments_id' => 'dep_cs',
+            'roles_id' => 'civil_admin',
+            'designation' => 'Civil Services Coordinator',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('users')->insert([
+            'username' => 'civiladmin',
+            'password' => \Illuminate\Support\Facades\Hash::make('CivilAdmin@741'),
+            'profile_id' => $civilAdminProfileId,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

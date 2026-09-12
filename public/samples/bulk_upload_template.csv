@@ -1,0 +1,3 @@
+first_name,middle_name,last_name,email,username,phone,school_code,department_code,designation
+John,,Doe,john.doe@example.com,johndoe123,1234567890,sc_ceng,dep_cse,Professor
+Jane,A,Smith,jane.smith@example.com,janesmith456,0987654321,sc_ceng,dep_mech,Assistant Professor

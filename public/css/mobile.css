@@ -1,0 +1,366 @@
+/* Base */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.container,
+.main-content {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* Responsive grid */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+/* Responsive forms */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+input,
+select,
+textarea,
+button {
+    max-width: 100%;
+}
+
+/* Ensure long text in select dropdowns does not overflow horizontally */
+select {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+select option {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Responsive tables */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Tablet (iPad, Large Android) */
+@media screen and (max-width: 1024px) {
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .container,
+    .main-content {
+        padding: 20px;
+    }
+}
+
+/* Mobile (Landscape, Smaller Tablets) */
+@media screen and (max-width: 768px) {
+    .card-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .container,
+    .main-content {
+        padding: 16px;
+    }
+
+    .page-title {
+        font-size: 22px;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .action-buttons button,
+    .action-buttons a,
+    .btn, 
+    input, 
+    select, 
+    textarea {
+        width: 100%;
+        /* Accessibility: Minimum touch target size for iOS/Android */
+        min-height: 48px; 
+        font-size: 16px; /* Prevents iOS auto-zoom on inputs */
+    }
+
+    .sidebar {
+        position: fixed !important;
+        transform: translateX(-100%) !important;
+        left: 0 !important; /* Ensure left is 0 for transform to work correctly relative to edge */
+        width: 280px !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        z-index: 100 !important;
+        bottom: 0;
+        top: 0;
+    }
+
+    /* Force sidebar text to show on mobile, ignoring desktop collapse state */
+    .nav-text, #logo-text {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    #logo-container {
+        justify-content: space-between !important;
+    }
+
+    /* Hide desktop sidebar toggle inside the mobile drawer and show close button */
+    #toggle-sidebar {
+        display: none !important;
+    }
+
+    #mobile-close-sidebar {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar.open {
+        transform: translateX(0) !important;
+        box-shadow: 4px 0 25px rgba(0,0,0,0.5);
+    }
+
+    .mobile-menu-button {
+        display: block !important;
+        min-height: 48px;
+        min-width: 48px;
+    }
+    
+    body > .flex-1, .main-content-wrapper { 
+        margin-left: 0 !important; 
+        width: 100% !important; 
+    }
+
+    /* Fix horizontal scrolling for table containers on mobile */
+    .table-wrapper,
+    .overflow-x-auto,
+    div:has(> table) {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table, table.min-w-full {
+        display: table !important;
+        width: 100% !important;
+        border-collapse: collapse;
+    }
+
+    /* Mobile table cell padding: compact and readable on small screens */
+    table th, 
+    table td {
+        padding: 10px 12px !important;
+        font-size: 0.8125rem !important; /* ~13px */
+    }
+
+    /* Mobile Pagination Adjustments */
+    nav[role="navigation"] {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    nav[role="navigation"] > div:first-child {
+        display: none !important; /* Hide the "Showing 1 to 10 of x results" text on small mobile screens if present */
+    }
+    
+    nav[role="navigation"] > div:last-child,
+    nav[role="navigation"] > div:last-child > div,
+    nav[role="navigation"] ul.pagination {
+        display: flex !important;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 4px;
+        margin-top: 8px;
+    }
+
+    nav[role="navigation"] span.relative,
+    nav[role="navigation"] a.relative {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+    }
+}
+
+/* Large Mobile (iPhone Max/Plus, Large Android) */
+@media screen and (max-width: 480px) {
+    .container,
+    .main-content {
+        padding: 12px;
+    }
+
+    .card {
+        width: 100%;
+    }
+
+    .page-title {
+        font-size: 20px;
+    }
+
+    /* Login page mobile adjustments */
+    body.bg-image {
+        justify-content: flex-start !important;
+        padding: 40px 16px !important;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+
+    .glass-panel {
+        padding: 28px 20px !important;
+        border-radius: 24px !important;
+    }
+
+    .glass-panel .mb-10 {
+        margin-bottom: 24px !important;
+    }
+
+    .glass-panel .mt-10 {
+        margin-top: 24px !important;
+    }
+
+    .glass-panel .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+        margin-top: 16px !important;
+    }
+
+    h1.drop-shadow-md {
+        margin-bottom: 24px !important;
+        font-size: 2.25rem !important;
+    }
+}
+
+/* Standard/Small Mobile (iPhone SE, smaller Android devices) */
+@media screen and (max-width: 390px) {
+    .container,
+    .main-content {
+        padding: 10px;
+    }
+    
+    .page-title {
+        font-size: 18px;
+    }
+}
+/* Extra Global Mobile Overrides */
+@media screen and (max-width: 768px) {
+    /* Modal Constraints */
+    #passwordModal > div,
+    #editRegulationModal > div,
+    #bulkUploadModal > div,
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    /* Prevent Sidebar Overlay Horizontal Scroll */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+    
+    /* Breadcrumbs Truncation */
+    .breadcrumb-item {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
+    }
+}
+
+/* Ensure inputs never overflow */
+input, select, textarea {
+    max-width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Ensure action buttons don't break layout */
+    .flex.space-x-3 {
+        flex-wrap: wrap;
+    }
+}
+
+/* TomSelect Global Overrides for Tailwind Aesthetic */
+.ts-wrapper {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+.ts-wrapper .ts-control {
+    border: 1px solid #e5e7eb !important; /* border-gray-200 */
+    border-radius: 0.5rem !important; /* rounded-lg */
+    padding: 0.625rem 0.75rem !important; /* py-2.5 */
+    box-shadow: none !important;
+    background-color: #f9fafb !important; /* bg-gray-50 */
+    min-height: 42px !important;
+    transition: all 0.2s ease;
+}
+/* Tailwind SVG Chevron for Single Selects */
+.ts-wrapper.single .ts-control {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right 0.5rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.5em 1.5em !important;
+    padding-right: 2.5rem !important;
+}
+/* Hide default TomSelect border caret */
+.ts-wrapper.single .ts-control::after {
+    display: none !important;
+}
+.ts-wrapper.focus .ts-control,
+.ts-wrapper .ts-control.focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 1px #6366f1 !important;
+}
+.ts-wrapper .ts-dropdown {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    margin-top: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    left: 0 !important;
+    overflow: hidden !important; /* Fixes sharp corners bleeding */
+    background-color: #ffffff !important;
+}
+.ts-wrapper .ts-dropdown .option {
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    color: #374151 !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease;
+}
+.ts-wrapper .ts-dropdown .option:hover,
+.ts-wrapper .ts-dropdown .option.active {
+    background-color: #e0e7ff !important;
+    color: #4338ca !important;
+}
+.ts-wrapper {
+    width: 100% !important;
+}

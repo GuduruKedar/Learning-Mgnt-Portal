@@ -35,6 +35,13 @@ class ComprehensiveSystemTest extends TestCase
             'password' => 'Vu_Super@123',
         ]);
         $saLogin->assertRedirect('/dashboard');
+
+        // 4. Civil Admin Login
+        $civilLogin = $this->post('/authenticate', [
+            'emp_id' => 'civiladmin',
+            'password' => 'CivilAdmin@741',
+        ]);
+        $civilLogin->assertRedirect('/dashboard');
     }
 
     /**
@@ -183,5 +190,34 @@ class ComprehensiveSystemTest extends TestCase
         // 6. Profile & Password
         $this->actingAs($student)->get('/profile')->assertStatus(200);
         $this->actingAs($student)->get('/password')->assertStatus(200);
+    }
+
+    /**
+     * Test Civil Services Admin role flows.
+     */
+    public function test_civil_admin_flow()
+    {
+        $civilAdmin = User::where('username', 'civiladmin')->first();
+        $this->assertNotNull($civilAdmin, 'Civil Admin user civiladmin must exist');
+
+        // 1. Dashboard
+        $resp = $this->actingAs($civilAdmin)->get('/dashboard');
+        $resp->assertStatus(200);
+        $resp->assertSee('Civil Services Academy');
+
+        // 2. Civil Students Roster & Create
+        $this->actingAs($civilAdmin)->get('/civil-services/students')->assertStatus(200);
+        $this->actingAs($civilAdmin)->get('/civil-services/students/create')->assertStatus(200);
+
+        // 3. Civil Courses & Modules
+        $this->actingAs($civilAdmin)->get('/civil-services/courses')->assertStatus(200);
+        $course = Course::where('department_id', 'dep_cs')->first();
+        if ($course) {
+            $this->actingAs($civilAdmin)->get("/civil-services/courses/{$course->id}/modules")->assertStatus(200);
+        }
+
+        // 4. Restricted routes
+        $deniedCoord = $this->actingAs($civilAdmin)->get('/coordinators');
+        $this->assertTrue(in_array($deniedCoord->getStatusCode(), [302, 403]));
     }
 }

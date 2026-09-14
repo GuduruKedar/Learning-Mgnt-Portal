@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Learning Management System</title>
+    <title>Student Login - Learning Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     <script src="{{ asset('js/main.js') }}"></script>
@@ -22,35 +22,35 @@
     <div class="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-6 lg:py-8">
 
         <!-- =============================================================== -->
-        <!-- LEFT SIDE: What is this LMS & Point-Wise Value / Utility Guide  -->
+        <!-- LEFT SIDE: Student-Focused Value, Information & Portal Guide   -->
         <!-- =============================================================== -->
         <div class="lg:col-span-7 flex flex-col justify-center text-white space-y-6 lg:pr-4">
             
-            <!-- Institution & Portal Tag -->
+            <!-- Student Portal Badge -->
             <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-200 text-xs sm:text-sm font-semibold w-fit tracking-wide shadow-sm">
-                <span class="flex h-2 w-2 rounded-full bg-indigo-400 animate-pulse"></span>
-                <span>University Academic & Career Portal</span>
+                <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Student Academic & Learning Portal</span>
             </div>
 
-            <!-- Main Heading & What is this LMS -->
+            <!-- Student Heading & Overview -->
             <div class="space-y-3">
                 <h1 class="heading-font text-3xl sm:text-4xl xl:text-5xl font-extrabold tracking-tight leading-tight text-white drop-shadow-sm">
-                    Learning Management <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">System (LMS)</span>
+                    Your Complete <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">Academic Hub</span> & Learning Companion
                 </h1>
                 
                 <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-                    <p class="text-xs uppercase font-bold tracking-wider text-indigo-300 mb-1">What is this System?</p>
+                    <p class="text-xs uppercase font-bold tracking-wider text-indigo-300 mb-1">What is this Portal for Students?</p>
                     <p class="text-slate-200 text-sm sm:text-base leading-relaxed font-normal">
-                        This is the university's centralized digital learning and academic administration platform. It bridges students, faculty, department coordinators, and executive leadership into a single unified workspace to manage curriculum, coursework, academic progress, and competitive exam preparation.
+                        This is your official university learning management portal designed to support your day-to-day academic journey. Log in with your Student Registration Number to enroll in semester courses, access study materials from your professors, and prepare for competitive exams.
                     </p>
                 </div>
             </div>
 
-            <!-- How is this LMS Useful? (Clear, point-wise professional list) -->
+            <!-- What Students Can Do (Points-Wise Guide) -->
             <div class="space-y-3">
                 <p class="text-xs sm:text-sm uppercase font-bold tracking-wider text-sky-300 flex items-center gap-2">
                     <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    How this LMS is Useful & Key Capabilities:
+                    How this Portal Helps You as a Student:
                 </p>
 
                 <div class="space-y-2.5">
@@ -61,9 +61,9 @@
                             01
                         </div>
                         <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">Centralized Academic & Regulation Management</h2>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">Online Semester Course Enrollment</h2>
                             <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                Organizes academic curriculum, multi-year regulations, and semester-wise course catalogues across Engineering, Management, Sciences, Agriculture, Pharmacy, and Law.
+                                Browse your regulation curriculum, select semester subjects and electives, and confirm your course registrations instantly without manual paperwork.
                             </p>
                         </div>
                     </div>
@@ -74,9 +74,9 @@
                             02
                         </div>
                         <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">Automated Student Course Enrollment</h2>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">24/7 Access to Lecture Notes & Study Materials</h2>
                             <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                Allows students to discover active semester courses, register with real-time credit tracking, and view their assigned teaching faculty immediately.
+                                Download lecture presentations, reference PDFs, syllabus roadmaps, and video tutorials uploaded directly by your assigned subject professors.
                             </p>
                         </div>
                     </div>
@@ -87,9 +87,9 @@
                             03
                         </div>
                         <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">24/7 Digital Courseware & Study Materials</h2>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">Assigned Faculty & Subject Teacher Details</h2>
                             <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                Faculty can upload syllabus roadmaps, lecture presentations, reference PDFs, and multimedia video links for seamless anywhere, anytime student access.
+                                View which professors and faculty members are teaching each of your enrolled courses along with their department designations.
                             </p>
                         </div>
                     </div>
@@ -100,9 +100,9 @@
                             04
                         </div>
                         <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">Integrated Civil Services & Competitive Career Academy</h2>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">Integrated Civil Services & UPSC Coaching</h2>
                             <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                Dedicated UPSC and competitive exam training wing offering specialized General Studies modules with open enrollment across all academic streams.
+                                Access university-sponsored Civil Services modules (General Studies, CSAT) and prepare for national competitive exams alongside your core degree.
                             </p>
                         </div>
                     </div>
@@ -113,9 +113,9 @@
                             05
                         </div>
                         <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">Secured Role-Based Governance & Quick Bulk Onboarding</h2>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">Personalized Student Profile & Security</h2>
                             <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                Dedicated dashboards for Super Admins, Department Coordinators, Faculty, and Students with Excel bulk uploads and automatic account lockout protection.
+                                Manage your academic credentials, update your secure password, and view your active semester enrollment history with complete data protection.
                             </p>
                         </div>
                     </div>
@@ -123,19 +123,23 @@
                 </div>
             </div>
 
-            <!-- Bottom Badges -->
+            <!-- Student Trust & Feature Pills -->
             <div class="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-300">
                 <span class="stat-pill px-3 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5">
-                    <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a10.97 10.97 0 00-.25 2.5v4.5a1 1 0 001 1h8a1 1 0 001-1v-4.5c0-.85-.087-1.688-.25-2.5l2.644-1.131a1 1 0 000-1.84l-7-3zM10 4.236l4.116 1.764L10 7.764 5.884 6 10 4.236z"></path></svg>
-                    10+ Academic Schools
+                    <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    Direct Course Enrollment
                 </span>
                 <span class="stat-pill px-3 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5">
-                    <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    50+ Degree Programs
+                    <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+                    24/7 Digital Notes & PDFs
+                </span>
+                <span class="stat-pill px-3 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a10.97 10.97 0 00-.25 2.5v4.5a1 1 0 001 1h8a1 1 0 001-1v-4.5c0-.85-.087-1.688-.25-2.5l2.644-1.131a1 1 0 000-1.84l-7-3zM10 4.236l4.116 1.764L10 7.764 5.884 6 10 4.236z"></path></svg>
+                    UPSC & Career Preparation
                 </span>
                 <span class="stat-pill px-3 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5">
                     <svg class="w-4 h-4 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    Enterprise Security
+                    Protected Account Access
                 </span>
             </div>
 
@@ -161,7 +165,7 @@
                 <form method="POST" action="{{ route('authenticate') }}" class="space-y-5">
                     @csrf
                     
-                    <!-- Username Field (Placeholder removed) -->
+                    <!-- Username Field (No placeholder) -->
                     <div>
                         <label for="emp_id" class="block text-sm font-semibold text-gray-700 mb-1.5">Username</label>
                         <div class="relative rounded-xl shadow-sm">

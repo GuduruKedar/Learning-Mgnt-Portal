@@ -90,11 +90,13 @@ class DatabaseSeeder extends Seeder
         // Super Admin
         $saUserId = $seedUser('superadmin', 'Vu_Super@123', 'sa', 'Super', 'Admin', 'superadmin@example.com', null, null, 'Super Administrator');
 
-        // Coordinator / Admin
+        // Coordinator / Admin (Both 5-digit and 6-digit formats)
         $adminUserId = $seedUser('10001', 'Admin!741', 'admin', 'Admin', 'CSE', 'admincse@example.com', 'sc_ci', 'dep_cse', 'Coordinator');
+        $seedUser('100001', 'Admin!741', 'admin', 'Admin', 'CSE', 'admincse6@example.com', 'sc_ci', 'dep_cse', 'Coordinator');
 
-        // Staff / Faculty
+        // Staff / Faculty (Both 5-digit and 6-digit formats)
         $staffUserId = $seedUser('10002', 'Staff@852', 'sta', 'Staff', 'Member', 'staff@example.com', 'sc_ci', 'dep_cse', 'Assistant Professor');
+        $seedUser('100002', 'Staff@852', 'sta', 'Staff', 'Member', 'staff6@example.com', 'sc_ci', 'dep_cse', 'Assistant Professor');
 
         // Student
         $studentUserId = $seedUser('student1', 'Student#963', 'stu', 'Student', 'One', 'student@example.com', 'sc_ci', 'dep_cse', 'Student');

@@ -22,22 +22,23 @@
     <div class="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-6">
 
         <!-- =============================================================== -->
-        <!-- LEFT SIDE: Clean Point-Wise LMS Utility Guide                   -->
+        <!-- LEFT SIDE: Professional Point-Wise LMS Utility Guide             -->
         <!-- =============================================================== -->
         <div class="lg:col-span-7 flex flex-col justify-center text-white space-y-6 lg:pr-4">
             
-            <!-- Heading -->
-            <div>
-                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-200 text-xs font-semibold mb-3 tracking-wide shadow-sm">
-                    <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Student Portal</span>
-                </div>
-                <h1 class="heading-font text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white drop-shadow-sm">
+            <!-- Heading & Professional Section Header -->
+            <div class="space-y-4">
+                <h1 class="heading-font text-3xl sm:text-4xl xl:text-5xl font-extrabold tracking-tight leading-tight text-white drop-shadow-sm">
                     Learning Management <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">System</span>
                 </h1>
-                <p class="text-slate-300 text-sm sm:text-base mt-2 font-medium">
-                    How this LMS is useful for students:
-                </p>
+
+                <!-- Professionally Styled Utility Header -->
+                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500/20 via-blue-500/15 to-sky-500/10 border border-indigo-400/30 backdrop-blur-md shadow-lg shadow-indigo-950/40">
+                    <div class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-sky-400 to-indigo-400 shadow-sm shadow-sky-400/80 animate-pulse"></div>
+                    <span class="text-xs sm:text-sm font-bold tracking-wide uppercase text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-indigo-100 to-blue-200">
+                        How this LMS is useful for students
+                    </span>
+                </div>
             </div>
 
             <!-- Clear, Concise Point-Wise List -->
@@ -181,7 +182,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                                <svg id="eyeClosed" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg id="eyeClosed" class="h-5 w-5 fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                                 </svg>
                             </button>

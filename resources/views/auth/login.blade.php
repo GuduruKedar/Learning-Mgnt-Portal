@@ -26,9 +26,9 @@
         <!-- =============================================================== -->
         <div class="lg:col-span-7 flex flex-col justify-center text-white space-y-6 lg:pr-4">
             
-            <!-- Heading & Professional Section Header -->
+            <!-- Heading (Single Line) & Professional Section Header -->
             <div class="space-y-4">
-                <h1 class="heading-font text-3xl sm:text-4xl xl:text-5xl font-extrabold tracking-tight leading-tight text-white drop-shadow-sm">
+                <h1 class="heading-font text-2xl sm:text-3xl lg:text-[2.15rem] xl:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm sm:whitespace-nowrap">
                     Learning Management <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">System</span>
                 </h1>
 

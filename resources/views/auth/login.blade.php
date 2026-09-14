@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Login - Learning Management System</title>
+    <title>Login - Learning Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     <script src="{{ asset('js/main.js') }}"></script>
@@ -19,128 +19,95 @@
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] glow-orb-3 rounded-full pointer-events-none z-0"></div>
 
     <!-- Main Split Container -->
-    <div class="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-6 lg:py-8">
+    <div class="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-6">
 
         <!-- =============================================================== -->
-        <!-- LEFT SIDE: Student-Focused Value, Information & Portal Guide   -->
+        <!-- LEFT SIDE: Clean Point-Wise LMS Utility Guide                   -->
         <!-- =============================================================== -->
         <div class="lg:col-span-7 flex flex-col justify-center text-white space-y-6 lg:pr-4">
             
-            <!-- Student Portal Badge -->
-            <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-200 text-xs sm:text-sm font-semibold w-fit tracking-wide shadow-sm">
-                <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Student Academic & Learning Portal</span>
-            </div>
-
-            <!-- Student Heading & Overview -->
-            <div class="space-y-3">
-                <h1 class="heading-font text-3xl sm:text-4xl xl:text-5xl font-extrabold tracking-tight leading-tight text-white drop-shadow-sm">
-                    Your Complete <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">Academic Hub</span> & Learning Companion
+            <!-- Heading -->
+            <div>
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-200 text-xs font-semibold mb-3 tracking-wide shadow-sm">
+                    <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Student Portal</span>
+                </div>
+                <h1 class="heading-font text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white drop-shadow-sm">
+                    Learning Management <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">System</span>
                 </h1>
-                
-                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-                    <p class="text-xs uppercase font-bold tracking-wider text-indigo-300 mb-1">What is this Portal for Students?</p>
-                    <p class="text-slate-200 text-sm sm:text-base leading-relaxed font-normal">
-                        This is your official university learning management portal designed to support your day-to-day academic journey. Log in with your Student Registration Number to enroll in semester courses, access study materials from your professors, and prepare for competitive exams.
-                    </p>
-                </div>
-            </div>
-
-            <!-- What Students Can Do (Points-Wise Guide) -->
-            <div class="space-y-3">
-                <p class="text-xs sm:text-sm uppercase font-bold tracking-wider text-sky-300 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    How this Portal Helps You as a Student:
+                <p class="text-slate-300 text-sm sm:text-base mt-2 font-medium">
+                    How this LMS is useful for students:
                 </p>
-
-                <div class="space-y-2.5">
-                    
-                    <!-- Point 1 -->
-                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
-                        <div class="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0 text-indigo-300 text-xs font-bold mt-0.5">
-                            01
-                        </div>
-                        <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">Online Semester Course Enrollment</h2>
-                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                Browse your regulation curriculum, select semester subjects and electives, and confirm your course registrations instantly without manual paperwork.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Point 2 -->
-                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
-                        <div class="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 text-sky-300 text-xs font-bold mt-0.5">
-                            02
-                        </div>
-                        <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">24/7 Access to Lecture Notes & Study Materials</h2>
-                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                Download lecture presentations, reference PDFs, syllabus roadmaps, and video tutorials uploaded directly by your assigned subject professors.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Point 3 -->
-                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
-                        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0 text-emerald-300 text-xs font-bold mt-0.5">
-                            03
-                        </div>
-                        <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">Assigned Faculty & Subject Teacher Details</h2>
-                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                View which professors and faculty members are teaching each of your enrolled courses along with their department designations.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Point 4 -->
-                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
-                        <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 text-amber-300 text-xs font-bold mt-0.5">
-                            04
-                        </div>
-                        <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">Integrated Civil Services & UPSC Coaching</h2>
-                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                Access university-sponsored Civil Services modules (General Studies, CSAT) and prepare for national competitive exams alongside your core degree.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Point 5 -->
-                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
-                        <div class="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-400/30 flex items-center justify-center shrink-0 text-purple-300 text-xs font-bold mt-0.5">
-                            05
-                        </div>
-                        <div>
-                            <h2 class="text-sm sm:text-base font-semibold text-white">Personalized Student Profile & Security</h2>
-                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                                Manage your academic credentials, update your secure password, and view your active semester enrollment history with complete data protection.
-                            </p>
-                        </div>
-                    </div>
-
-                </div>
             </div>
 
-            <!-- Student Trust & Feature Pills -->
-            <div class="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-300">
-                <span class="stat-pill px-3 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5">
-                    <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    Direct Course Enrollment
-                </span>
-                <span class="stat-pill px-3 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5">
-                    <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
-                    24/7 Digital Notes & PDFs
-                </span>
-                <span class="stat-pill px-3 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5">
-                    <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a10.97 10.97 0 00-.25 2.5v4.5a1 1 0 001 1h8a1 1 0 001-1v-4.5c0-.85-.087-1.688-.25-2.5l2.644-1.131a1 1 0 000-1.84l-7-3zM10 4.236l4.116 1.764L10 7.764 5.884 6 10 4.236z"></path></svg>
-                    UPSC & Career Preparation
-                </span>
-                <span class="stat-pill px-3 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5">
-                    <svg class="w-4 h-4 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    Protected Account Access
-                </span>
+            <!-- Clear, Concise Point-Wise List -->
+            <div class="space-y-3">
+                
+                <!-- Point 1: Course Enrollment -->
+                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0 text-indigo-300 font-bold text-xs">
+                        01
+                    </div>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-semibold text-white">Course Enrollment</h2>
+                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                            Register for semester courses, core subjects, and electives online.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Point 2: Study Materials -->
+                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
+                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 text-sky-300 font-bold text-xs">
+                        02
+                    </div>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-semibold text-white">Lecture Notes & Study Materials</h2>
+                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                            Download classroom presentations, syllabus PDFs, and reference resources 24/7.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Point 3: Faculty Details -->
+                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0 text-emerald-300 font-bold text-xs">
+                        03
+                    </div>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-semibold text-white">Assigned Faculty Details</h2>
+                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                            View allocated teachers and professors for each of your enrolled courses.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Point 4: Civil Services Coaching -->
+                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 text-amber-300 font-bold text-xs">
+                        04
+                    </div>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-semibold text-white">Civil Services Coaching</h2>
+                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                            Access integrated UPSC and General Studies preparation modules.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Point 5: Academic Tracking -->
+                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
+                    <div class="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-400/30 flex items-center justify-center shrink-0 text-purple-300 font-bold text-xs">
+                        05
+                    </div>
+                    <div>
+                        <h2 class="text-sm sm:text-base font-semibold text-white">Academic Progress Tracking</h2>
+                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                            Check registered courses, regulation curriculum, and academic requirements.
+                        </p>
+                    </div>
+                </div>
+
             </div>
 
         </div>

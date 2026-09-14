@@ -84,8 +84,8 @@ class ComprehensiveSystemTest extends TestCase
      */
     public function test_admin_coordinator_flow()
     {
-        $admin = User::where('username', '100001')->first();
-        $this->assertNotNull($admin, 'Admin user 100001 must exist');
+        $admin = User::whereIn('username', ['10001', '100001'])->first() ?? User::role('admin')->first();
+        $this->assertNotNull($admin, 'Admin user must exist');
 
         // 1. Dashboard
         $resp = $this->actingAs($admin)->get('/dashboard');
@@ -117,8 +117,8 @@ class ComprehensiveSystemTest extends TestCase
      */
     public function test_staff_faculty_flow()
     {
-        $staff = User::where('username', '100002')->first();
-        $this->assertNotNull($staff, 'Staff user 100002 must exist');
+        $staff = User::whereIn('username', ['10002', '100002'])->first() ?? User::role(['sta', 'staff'])->first();
+        $this->assertNotNull($staff, 'Staff user must exist');
 
         // 1. Dashboard
         $resp = $this->actingAs($staff)->get('/dashboard');

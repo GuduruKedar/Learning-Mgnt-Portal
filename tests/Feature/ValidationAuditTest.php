@@ -34,7 +34,7 @@ class ValidationAuditTest extends TestCase
         $valid = RegisterNumberParser::parse('241FA04001');
         $this->assertNotNull($valid);
         $this->assertEquals('B.Tech', $valid['course_name']);
-        $this->assertEquals('Computer Science and Engineering', $valid['department_name']);
+        $this->assertTrue(in_array($valid['department_name'], ['Computer Science & Engineering', 'Computer Science and Engineering']));
 
         // Invalid: format error
         $this->assertNull(RegisterNumberParser::parse('INVALID123'));

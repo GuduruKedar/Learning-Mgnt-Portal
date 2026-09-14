@@ -32,6 +32,25 @@ class DashboardController extends Controller
             
             return view('dashboard', compact('admin', 'totalUsers', 'coordinators', 'totalCoordinators', 'totalStaff', 'recentStaff', 'totalStudents', 'recentStudents'));
             
+        } elseif ($role === 'civil_admin') {
+            // Civil Services Admin Dashboard
+            $totalEnrolled = \App\Models\CivilServiceEnrollment::count();
+            $activeEnrolled = \App\Models\CivilServiceEnrollment::where('status', 'active')->count();
+            $recentEnrollments = User::role('stu')
+                ->whereHas('civilServiceEnrollment')
+                ->with(['profile.school', 'profile.department', 'civilServiceEnrollment'])
+                ->latest()
+                ->take(8)
+                ->get();
+
+            $departmentBreakdown = \App\Models\Profile::whereHas('user.civilServiceEnrollment')
+                ->select('departments_id', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+                ->groupBy('departments_id')
+                ->with('department')
+                ->get();
+
+            return view('civil_admin_dashboard', compact('user', 'totalEnrolled', 'activeEnrolled', 'recentEnrollments', 'departmentBreakdown'));
+
         } elseif ($role === 'admin') {
             // Admin / Coordinator Dashboard Logic
             $admin = $user;
@@ -163,9 +182,15 @@ class DashboardController extends Controller
             $departmentCoursesCount = $departmentCoursesQuery->count();
             $departmentCourses = (clone $departmentCoursesQuery)->latest()->take(5)->get();
 
-            // Enrolled Courses
-            $enrolledCoursesCount = $student->enrolledCourses()->count();
-            $enrolledCourses = $student->enrolledCourses()->latest()->take(5)->get(); 
+            // Enrolled Courses (Regular + Civil Services if enrolled)
+            $regularEnrolledCourses = $student->enrolledCourses()->latest()->get();
+            $civilCourses = collect();
+            if ($student->isCivilServicesEnrolled()) {
+                $civilCourses = \App\Models\Course::where('department_id', 'dep_cs')->latest()->get();
+            }
+            $allEnrolledCourses = $regularEnrolledCourses->concat($civilCourses);
+            $enrolledCoursesCount = $allEnrolledCourses->count();
+            $enrolledCourses = $allEnrolledCourses->take(5); 
 
             // Recently Uploaded Materials (Last watching/updated)
             $recentMaterialsQuery = \App\Models\CourseMaterial::with(['course.department', 'staff']);

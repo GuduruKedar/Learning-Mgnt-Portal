@@ -38,6 +38,16 @@ class User extends Authenticatable
         return $this->belongsToMany(Course::class, 'enrollments', 'user_id', 'course_id');
     }
 
+    public function civilServiceEnrollment()
+    {
+        return $this->hasOne(CivilServiceEnrollment::class, 'user_id');
+    }
+
+    public function isCivilServicesEnrolled()
+    {
+        return $this->civilServiceEnrollment()->where('status', 'active')->exists();
+    }
+
     // Accessors to ensure old views still work
     public function getRoleAttribute()
     {

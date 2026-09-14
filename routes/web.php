@@ -42,6 +42,26 @@ Route::middleware('auth')->group(function () {
     });
 
     // ==========================================
+    // Civil Services Admin Routes (Role: civil_admin, sa)
+    // ==========================================
+    Route::middleware('role:sa,civil_admin')->group(function () {
+        Route::get('/civil-services/students', [\App\Http\Controllers\CivilAdminController::class, 'index'])->name('civil.students.index');
+        Route::get('/civil-services/students/create', [\App\Http\Controllers\CivilAdminController::class, 'create'])->name('civil.students.create');
+        Route::post('/civil-services/students', [\App\Http\Controllers\CivilAdminController::class, 'store'])->name('civil.students.store');
+        Route::post('/civil-services/students/enroll-existing', [\App\Http\Controllers\CivilAdminController::class, 'enrollExisting'])->name('civil.students.enroll_existing');
+        Route::delete('/civil-services/students/{id}/unenroll', [\App\Http\Controllers\CivilAdminController::class, 'unenroll'])->name('civil.students.unenroll');
+
+        // Civil Services Courses & Modules (No Regulations Needed)
+        Route::get('/civil-services/courses', [\App\Http\Controllers\CivilCourseController::class, 'index'])->name('civil.courses.index');
+        Route::post('/civil-services/courses', [\App\Http\Controllers\CivilCourseController::class, 'store'])->name('civil.courses.store');
+        Route::put('/civil-services/courses/{course}', [\App\Http\Controllers\CivilCourseController::class, 'update'])->name('civil.courses.update');
+        Route::delete('/civil-services/courses/{course}', [\App\Http\Controllers\CivilCourseController::class, 'destroy'])->name('civil.courses.destroy');
+        Route::get('/civil-services/courses/{course}/modules', [\App\Http\Controllers\CivilCourseController::class, 'modules'])->name('civil.courses.modules');
+        Route::post('/civil-services/courses/{course}/modules', [\App\Http\Controllers\CivilCourseController::class, 'storeModule'])->name('civil.courses.modules.store');
+        Route::delete('/civil-services/courses/{course}/modules/{material}', [\App\Http\Controllers\CivilCourseController::class, 'destroyModule'])->name('civil.courses.modules.destroy');
+    });
+
+    // ==========================================
     // 2. Admin Routes (Role: admin)
     // Includes inherited permissions from Super Admin
     // ==========================================

@@ -10,7 +10,7 @@
 <aside id="sidebar" class="sidebar sidebar-expanded bg-blue-900 text-blue-100 shadow-2xl border-r border-blue-800 flex flex-col transition-all duration-300 relative z-20 shrink-0">
     <!-- Logo Area -->
     <div class="h-16 flex items-center justify-between border-b border-blue-800 px-4" id="logo-container">
-        <span id="logo-text" class="text-xl font-bold tracking-wider text-expanded whitespace-nowrap text-white">{{ Auth::check() ? (['sa' => 'LMS Super Admin', 'admin' => 'LMS Admin', 'sta' => 'LMS Staff', 'stu' => 'LMS Student'][Auth::user()->role] ?? 'LMS') : 'LMS' }}</span>
+        <span id="logo-text" class="text-xl font-bold tracking-wider text-expanded whitespace-nowrap text-white">{{ Auth::check() ? (['sa' => 'LMS Super Admin', 'admin' => 'LMS Admin', 'civil_admin' => 'Civil Services', 'sta' => 'LMS Staff', 'stu' => 'LMS Student'][Auth::user()->role] ?? 'LMS') : 'LMS' }}</span>
         <button id="toggle-sidebar" class="p-1 rounded-md text-blue-300 hover:text-white hover:bg-blue-800 focus:outline-none transition-colors shrink-0">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -48,6 +48,25 @@
             <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
             <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">My Courses</span>
         </a>
+        @endif
+
+        @if(in_array(Auth::user()->role, ['civil_admin', 'sa']))
+        <!-- Civil Services Section -->
+        <div class="pt-2 {{ Auth::user()->role === 'sa' ? 'border-t border-blue-800 mt-2' : '' }}">
+            <div class="px-3 py-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Civil Services</div>
+            <a href="{{ route('civil.students.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('civil.students.index') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Enrolled Students</span>
+            </a>
+            <a href="{{ route('civil.students.create') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('civil.students.create') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-1">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Enroll / Add Student</span>
+            </a>
+            <a href="{{ route('civil.courses.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('civil.courses.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-1">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Courses & Modules</span>
+            </a>
+        </div>
         @endif
 
         @if(in_array(Auth::user()->role, ['sa', 'admin']))

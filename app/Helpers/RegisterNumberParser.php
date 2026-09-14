@@ -11,6 +11,8 @@ class RegisterNumberParser
         'D' => 'MCA',
         'E' => 'Diploma',
         'G' => 'PHD',
+        'H' => 'BBM',
+        'I' => 'B.A (Hons.)',
         'J' => 'BCA',
         'K' => 'BBA',
         'M' => 'BSC',
@@ -19,221 +21,217 @@ class RegisterNumberParser
         'P1' => 'phd full time',
         'P2' => 'phd part time',
         'Q' => 'M.A',
+        'R' => 'BBM+MBA',
         'S' => 'M.Sc.',
-        'T' => 'B.Ed',
+        'T' => 'M.Phil',
         'U' => 'B.A (LLB)',
         'V' => 'B.B.A (LLB)',
         'W' => 'B.Sc Hons',
         'X' => 'PHARM.D',
+        'Y' => 'B.Com'
     ];
 
     protected static $departmentMapping = [
-        // A: B.Tech Programs
         'A' => [
-            '01' => 'Biotechnology',
-            '02' => 'Chemical Engineering',
+            '01' => 'Bio Technology',
+            '02' => 'Chemical Engg',
             '03' => 'Civil Engineering',
-            '04' => 'Computer Science and Engineering',
+            '04' => 'Computer Science & Engineering',
             '05' => 'Electronics and Communication Engineering',
             '06' => 'Electrical and Electronics Engineering',
-            '07' => 'Information Technology',
+            '07' => 'Information technology',
             '08' => 'Mechanical Engineering',
-            '11' => 'Textile Technology',
-            '12' => 'Agricultural Engineering',
+            '12' => 'Agriculture Engineering',
+            '13' => 'Electronics and Computer Engineering',
             '14' => 'Bioinformatics',
             '15' => 'Food Technology',
-            '16' => 'Biomedical Engineering',
-            '18' => 'Advanced Computer Science and Engineering', // AI & ML
-            '19' => 'Advanced Computer Science and Engineering', // Cyber Security
-            '20' => 'Advanced Computer Science and Engineering', // CSBS
-            '21' => 'Mechanical Engineering',                  // Robotics and Automation
-            '22' => 'Textile Technology',
-            '23' => 'Advanced Computer Science and Engineering', // Data Science
-            '24' => 'Advanced Computer Science and Engineering', // IoT
-            '25' => 'Electronics and Communication Engineering', // VLSI
-            '26' => 'Textile Technology',                       // Technical Textiles
+            '16' => 'Bio. Medical Engineering',
+            '18' => 'CSE- ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING',
+            '19' => 'CSE- CYBER SECURITY',
+            '20' => 'COMPUTER SCIENCE AND BUSINESS SYSTEMS',
+            '21' => 'ROBOTICS AND AUTOMATION',
+            '23' => 'Data Science',
+            '24' => 'CSE-Internet Of Things',
+            '25' => 'ECE-VLSI',
         ],
-
-        // B: M.Tech Programs
         'B' => [
-            '01' => 'Biotechnology',
-            '04' => 'Computer Science and Engineering',
-            '08' => 'Mechanical Engineering',
-            '11' => 'Electronics and Communication Engineering', // VLSI
-            '12' => 'Food Technology',                           // Food Processing
-            '15' => 'Civil Engineering',                         // Sustainable Smart Construction
-            '21' => 'Agricultural Engineering',                  // Farm Machinery
-            '23' => 'Advanced Computer Science and Engineering', // Data Science
-            '24' => 'Electronics and Communication Engineering', // IoT
-            '25' => 'Electrical and Electronics Engineering',    // Autonomous Electric Vehicles
-            '26' => 'Advanced Computer Science and Engineering', // AI and Data Science
-            '27' => 'Mechanical Engineering',                    // Smart Manufacturing
-            '28' => 'Electrical and Electronics Engineering',    // Autonomous Electric Vehicles
-            '29' => 'Civil Engineering',                         // Sustainable Smart Construction
+            '01' => 'Biotechnology and Bioprocess Engineering',
+            '02' => 'Chemical Enginneering',
+            '03' => 'Communication and Signal Processing',
+            '04' => 'Computer Science & Engineering',
+            '05' => 'Digital Electronics and Communication System',
+            '06' => 'Embedded Systems',
+            '07' => 'Energy Engineering',
+            '09' => 'Machine Design',
+            '10' => 'Power Electronics and Drives',
+            '11' => 'Very Large Scale Integration (VLSI)',
+            '12' => 'Food Processing Technology',
+            '13' => 'Power Systems',
+            '14' => 'cad/cam/cae',
+            '15' => 'civil Engineering',
+            '16' => 'Computer networks & information security',
+            '17' => 'Thermal Engineering',
+            '18' => 'machine learning',
+            '19' => 'Data Communication & Networking',
+            '20' => 'Petroleum Engineering',
+            '21' => 'Farm Machinery',
+            '22' => 'Image Processing & Machine Vision',
+            '23' => 'Data Science',
+            '24' => 'IOT',
+            '25' => 'Electrical Vehicle Technology',
+            '26' => 'Artificial Intelligence and Data Science',
+            '27' => 'Smart Manufacuring',
+            '28' => 'Autonomous Electric Vehicles',
+            '29' => 'Sustainable Smart Construction'
         ],
-
-        // C: MBA
         'C' => [
-            '01' => 'Department of Management Studies',
+            '01' => 'Master of Business Administration',
+            '02' => 'Human Resourse',
+            '03' => 'Marketing',
+            '04' => 'Finance'
         ],
-
-        // D: MCA
         'D' => [
-            '01' => 'Computer Applications',
+            '01' => 'Master of Computer Applications'
         ],
-
-        // E: Diploma
         'E' => [
-            '04' => 'Computer Science and Engineering',
-            '05' => 'Electronics and Communication Engineering',
-            '06' => 'Electrical and Electronics Engineering',
-            '08' => 'Mechanical Engineering',
+            '04' => 'COMPUTER SCIENCE & ENGINEERING',
+            '05' => 'ELECTRONICS & COMMUNICATION ENGINEERING',
+            '06' => 'EEE',
+            '07' => 'Artificial Intelligence and Machine Learning',
+            '08' => 'Mechanical'
         ],
-
-        // G: PhD
         'G' => [
-            '01' => 'Biotechnology',
-            '02' => 'Chemical Engineering',
-            '03' => 'Civil Engineering',
-            '04' => 'Computer Science and Engineering',
-            '05' => 'Electronics and Communication Engineering',
-            '06' => 'Electrical and Electronics Engineering',
-            '07' => 'Information Technology',
-            '08' => 'Mechanical Engineering',
-            '11' => 'Textile Technology',
-            '12' => 'Department of Management Studies',
-            '15' => 'Food Technology',
-            '16' => 'Biomedical Engineering',
-            '18' => 'Agricultural Engineering',
-            '29' => 'Institute of Law',
-            '30' => 'Physics',
-            '31' => 'Chemistry',
-            '32' => 'Mathematics and Statistics',
-            '33' => 'Department of English and Other Indian & Foreign Languages',
-            '34' => 'Social Sciences & Humanities',
-            '35' => 'Computer Applications',
-            '36' => 'Pharmaceutical Sciences',
-            '37' => 'Advanced Computer Science and Engineering',
+            '01' => 'biotech',
+            '02' => 'Chemical',
+            '03' => 'civil',
+            '04' => 'computer science engineering',
+            '05' => 'Electronics and communications engineering',
+            '06' => 'electrical and electronics engineering',
+            '07' => 'information technology',
+            '08' => 'mechanical engineering',
+            '12' => 'Management',
+            '30' => 'physics',
+            '31' => 'chemistry',
+            '32' => 'Mathematics',
+            '33' => 'English',
+            '35' => 'Computer Application'
         ],
-
-        // P1: PhD Full Time
-        'P1' => [
-            '01' => 'Biotechnology',
-            '02' => 'Chemical Engineering',
-            '03' => 'Civil Engineering',
-            '04' => 'Computer Science and Engineering',
-            '05' => 'Electronics and Communication Engineering',
-            '06' => 'Electrical and Electronics Engineering',
-            '07' => 'Information Technology',
-            '08' => 'Mechanical Engineering',
-            '11' => 'Textile Technology',
-            '12' => 'Department of Management Studies',
-            '15' => 'Food Technology',
-            '16' => 'Biomedical Engineering',
-            '18' => 'Agricultural Engineering',
-            '29' => 'Institute of Law',
-            '30' => 'Physics',
-            '31' => 'Chemistry',
-            '32' => 'Mathematics and Statistics',
-            '33' => 'Department of English and Other Indian & Foreign Languages',
-            '34' => 'Social Sciences & Humanities',
-            '35' => 'Computer Applications',
-            '36' => 'Pharmaceutical Sciences',
-            '37' => 'Advanced Computer Science and Engineering',
+        'H' => [
+            '01' => 'BACHELOR OF BUSINESS MANAGEMENT'
         ],
-
-        // P2: PhD Part Time
-        'P2' => [
-            '01' => 'Biotechnology',
-            '02' => 'Chemical Engineering',
-            '03' => 'Civil Engineering',
-            '04' => 'Computer Science and Engineering',
-            '05' => 'Electronics and Communication Engineering',
-            '06' => 'Electrical and Electronics Engineering',
-            '07' => 'Information Technology',
-            '08' => 'Mechanical Engineering',
-            '11' => 'Textile Technology',
-            '12' => 'Department of Management Studies',
-            '15' => 'Food Technology',
-            '16' => 'Biomedical Engineering',
-            '18' => 'Agricultural Engineering',
-            '29' => 'Institute of Law',
-            '30' => 'Physics',
-            '31' => 'Chemistry',
-            '32' => 'Mathematics and Statistics',
-            '33' => 'Department of English and Other Indian & Foreign Languages',
-            '34' => 'Social Sciences & Humanities',
-            '35' => 'Computer Applications',
-            '36' => 'Pharmaceutical Sciences',
-            '37' => 'Advanced Computer Science and Engineering',
+        'I' => [
+            '01' => 'B.A (Hons.) Political Science'
         ],
-
-        // J: BCA
         'J' => [
-            '01' => 'Computer Applications',
+            '01' => 'BCA'
         ],
-
-        // K: BBA
         'K' => [
-            '01' => 'Department of Management Studies',
+            '01' => 'BACHELOR OF BUSINESS ADMINISTRATION'
         ],
-
-        // M: B.Sc Programs
         'M' => [
-            '01' => 'Mathematics and Statistics',                 // B.Sc MSCS
-            '02' => 'Social Sciences & Humanities',               // B.Sc Psychology
-            '03' => 'Mathematics and Statistics',                 // B.Sc Actuarial Science
-            '04' => 'Advanced Computer Science and Engineering',  // B.Sc Data Science
+            '01' => 'BSC',
+            '02' => 'BSC-PSYCHOLOGY',
+            '03' => 'BSC-ACTUARIAL SCIENCE',
+            '04' => 'DATA SCIENCE'
         ],
-
-        // N: B.Pharmacy
         'N' => [
-            '01' => 'Pharmaceutical Sciences',
+            '01' => 'BPharmacy'
         ],
-
-        // P: M.Pharm
         'P' => [
-            '01' => 'Pharmaceutical Sciences',
+            '01' => 'MASTER OF PHARMACY'
         ],
-
-        // Q: M.A
+        'P1' => [
+            '01' => 'biotech',
+            '02' => 'Chemical',
+            '03' => 'civil',
+            '04' => 'computer science engineering',
+            '05' => 'Electronics and communications engineering',
+            '06' => 'electrical and electronics engineering',
+            '07' => 'information technology',
+            '08' => 'mechanical engineering',
+            '11' => 'TEXTILE TECHNOLOGY',
+            '12' => 'Management',
+            '15' => 'Food Technology',
+            '18' => 'Agriculture',
+            '19' => 'Agronomy',
+            '29' => 'LAW',
+            '30' => 'physics',
+            '31' => 'chemistry',
+            '32' => 'Mathematics',
+            '33' => 'English',
+            '35' => 'Computer Application',
+            '36' => 'Pharmaceutical Science',
+            '37' => 'Artificial Intelligence & Machine Learning',
+            '38' => 'Cyber Security',
+            '39' => 'Data Science'
+        ],
+        'P2' => [
+            '01' => 'biotech',
+            '02' => 'Chemical',
+            '03' => 'civil',
+            '04' => 'computer science engineering',
+            '05' => 'Electronics and communications engineering',
+            '06' => 'electrical and electronics engineering',
+            '07' => 'information technology',
+            '08' => 'mechanical engineering',
+            '11' => 'TT',
+            '12' => 'Management',
+            '15' => 'Food Technology',
+            '18' => 'Agriculture',
+            '19' => 'Agronomy',
+            '29' => 'LAW',
+            '30' => 'physics',
+            '31' => 'chemistry',
+            '32' => 'Mathematics',
+            '33' => 'English',
+            '35' => 'Computer Application',
+            '36' => 'Pharmaceutical Science',
+            '37' => 'Artificial Intelligence & Machine Learning',
+            '38' => 'Cyber Security',
+            '39' => 'Data Science'
+        ],
         'Q' => [
-            '01' => 'Department of English and Other Indian & Foreign Languages',
+            '01' => 'ENGLISH'
         ],
-
-        // S: M.Sc Programs
+        'R' => [
+            '01' => 'intrgrated bbm+mba'
+        ],
         'S' => [
-            '01' => 'Chemistry',                                  // M.Sc Chemistry
-            '02' => 'Chemistry',                                  // M.Sc Organic Chemistry
-            '03' => 'Advanced Computer Science and Engineering',  // M.Sc Data Science
-            '05' => 'Social Sciences & Humanities',               // M.Sc Psychology
+            '01' => 'Chemistry',
+            '02' => 'Organic Chemistry',
+            '03' => 'Data Science',
+            '04' => 'Pharmaceutical Chemistry',
+            '05' => 'PSYCHOLOGY',
+            '06' => 'MSC-Agronomy',
+            '07' => 'MSC-Entomology',
+            '08' => 'MSC-Soil Science',
+            '09' => 'MSC-Agricultural Economics',
+            '10' => 'MSC-Vegetable Science',
+            '11' => 'MSC-Floriculture and Landscaping',
+            '12' => 'MSC-Plant Pathology',
+            '13' => 'MSC-Genetics and Plant Breeding'
         ],
-
-        // T: Education
         'T' => [
-            '01' => 'Department of Education',                    // B.A. B.Ed.
-            '02' => 'Department of Education',                    // B.Sc. B.Ed.
+            '01' => 'B.A. B.Ed. English Literature',
+            '02' => 'B.A. B.Ed. Economics',
+            '03' => 'B.Sc. B.Ed. Botany',
+            '04' => 'B.Sc. B.Ed. Zoology',
+            '05' => 'B.Sc. B.Ed. Mathematics',
+            '06' => 'B.Sc. B.Ed. Chemistry'
         ],
-
-        // U: BA LLB
         'U' => [
-            '01' => 'Institute of Law',
+            '01' => 'B.A (LLB)'
         ],
-
-        // V: BBA LLB
         'V' => [
-            '01' => 'Institute of Law',
+            '01' => 'B.B.A (LLB)'
         ],
-
-        // W: B.Sc (Hons) Agriculture
         'W' => [
-            '01' => 'Vignan Institute of Agriculture and Technology',
+            '01' => 'AGRICULTURE',
+            '02' => 'DATA SCIENCE'
         ],
-
-        // X: Pharm.D
         'X' => [
-            '01' => 'Pharmaceutical Sciences',
-        ],
+            '01' => 'DOCTOR OF PHARMACY'
+        ]
     ];
 
     /**
@@ -243,10 +241,6 @@ class RegisterNumberParser
     public static function parse($registerNumber)
     {
         $registerNumber = strtoupper(trim($registerNumber));
-        
-        if (!preg_match('/^\d{2}[A-Z0-9]{2}[A-Z0-9]{1,2}\d+$/', $registerNumber)) {
-            return null; // Invalid structure (must start with 2 digits, end with digits)
-        }
         
         $courseCode = null;
         $deptCode = null;

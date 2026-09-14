@@ -175,10 +175,19 @@ class StudentEnrollmentController extends Controller
     public function myCourses()
     {
         $student = Auth::user();
-        // Get enrolled courses with materials count
-        $courses = $student->enrolledCourses()->withCount('materials')->get();
         
-        return view('student.courses.index', compact('courses'));
+        // 1. Regular academic enrolled courses
+        $regularCourses = $student->enrolledCourses()->withCount('materials')->get();
+
+        // 2. Civil Services courses (included automatically if student is enrolled in Civil Services)
+        $civilCourses = collect();
+        if ($student->isCivilServicesEnrolled()) {
+            $civilCourses = Course::where('department_id', 'dep_cs')->withCount('materials')->get();
+        }
+
+        $courses = $regularCourses->concat($civilCourses);
+        
+        return view('student.courses.index', compact('courses', 'regularCourses', 'civilCourses'));
     }
 
     /**
@@ -191,8 +200,11 @@ class StudentEnrollmentController extends Controller
     {
         $student = Auth::user();
         
-        // Ensure student is actually enrolled in this course
-        if (!$student->enrolledCourses()->where('courses.id', $course->id)->exists()) {
+        // Ensure student is enrolled: regular course enrollment OR active Civil Services enrollment
+        $isRegularEnrolled = $student->enrolledCourses()->where('courses.id', $course->id)->exists();
+        $isCivilEnrolled = ($course->department_id === 'dep_cs' && $student->isCivilServicesEnrolled());
+
+        if (!$isRegularEnrolled && !$isCivilEnrolled) {
             abort(403, 'You are not enrolled in this course.');
         }
 

@@ -21,9 +21,9 @@
     <!-- Main Split Container -->
     <div class="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-6 lg:py-8">
 
-        <!-- ========================================== -->
-        <!-- LEFT SIDE: LMS Overview, Purpose & Pillars -->
-        <!-- ========================================== -->
+        <!-- =============================================================== -->
+        <!-- LEFT SIDE: What is this LMS & Point-Wise Value / Utility Guide  -->
+        <!-- =============================================================== -->
         <div class="lg:col-span-7 flex flex-col justify-center text-white space-y-6 lg:pr-4">
             
             <!-- Institution & Portal Tag -->
@@ -32,75 +32,99 @@
                 <span>University Academic & Career Portal</span>
             </div>
 
-            <!-- Main Heading -->
+            <!-- Main Heading & What is this LMS -->
             <div class="space-y-3">
                 <h1 class="heading-font text-3xl sm:text-4xl xl:text-5xl font-extrabold tracking-tight leading-tight text-white drop-shadow-sm">
-                    Unified <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">Learning Management</span> System
+                    Learning Management <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">System (LMS)</span>
                 </h1>
-                <p class="text-slate-300 text-sm sm:text-base xl:text-lg font-normal leading-relaxed max-w-2xl">
-                    An integrated digital ecosystem empowering students, faculty coordinators, and administration across all university departments with modern curriculum delivery, flexible course enrollment, digital learning resources, and career coaching.
-                </p>
-            </div>
-
-            <!-- Key Feature Pillars Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 
-                <!-- Pillar 1: Academic & Curriculum -->
-                <div class="glass-feature-card p-4 sm:p-5 rounded-2xl flex items-start gap-4">
-                    <div class="w-11 h-11 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0 text-indigo-300 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-white text-sm sm:text-base">Academic Curriculum</h3>
-                        <p class="text-slate-300/90 text-xs sm:text-sm mt-1 leading-normal">
-                            Regulation tracking, semester syllabus allotment, and course registration across UG, PG, and PhD levels.
-                        </p>
-                    </div>
+                <div class="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+                    <p class="text-xs uppercase font-bold tracking-wider text-indigo-300 mb-1">What is this System?</p>
+                    <p class="text-slate-200 text-sm sm:text-base leading-relaxed font-normal">
+                        This is the university's centralized digital learning and academic administration platform. It bridges students, faculty, department coordinators, and executive leadership into a single unified workspace to manage curriculum, coursework, academic progress, and competitive exam preparation.
+                    </p>
                 </div>
-
-                <!-- Pillar 2: Civil Services Academy -->
-                <div class="glass-feature-card p-4 sm:p-5 rounded-2xl flex items-start gap-4">
-                    <div class="w-11 h-11 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shrink-0 text-blue-300 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-white text-sm sm:text-base">Civil Services Center</h3>
-                        <p class="text-slate-300/90 text-xs sm:text-sm mt-1 leading-normal">
-                            Integrated UPSC career preparation, specialized General Studies modules, and universal enrollment.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Pillar 3: Courseware & Digital Materials -->
-                <div class="glass-feature-card p-4 sm:p-5 rounded-2xl flex items-start gap-4">
-                    <div class="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0 text-emerald-300 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-white text-sm sm:text-base">Digital Learning Hub</h3>
-                        <p class="text-slate-300/90 text-xs sm:text-sm mt-1 leading-normal">
-                            24/7 direct access to lecture notes, reference PDFs, multimedia video tutorials, and study modules.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Pillar 4: Role-Based Analytics & Workflows -->
-                <div class="glass-feature-card p-4 sm:p-5 rounded-2xl flex items-start gap-4">
-                    <div class="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 text-amber-300 shadow-inner">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-white text-sm sm:text-base">Secured Role Portals</h3>
-                        <p class="text-slate-300/90 text-xs sm:text-sm mt-1 leading-normal">
-                            Tailored workflows for Super Admins, Department Coordinators, Faculty Members, and Students.
-                        </p>
-                    </div>
-                </div>
-
             </div>
 
-            <!-- Live Indicators & Badges -->
-            <div class="flex flex-wrap items-center gap-3 pt-2 text-xs sm:text-sm text-slate-300">
+            <!-- How is this LMS Useful? (Clear, point-wise professional list) -->
+            <div class="space-y-3">
+                <p class="text-xs sm:text-sm uppercase font-bold tracking-wider text-sky-300 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    How this LMS is Useful & Key Capabilities:
+                </p>
+
+                <div class="space-y-2.5">
+                    
+                    <!-- Point 1 -->
+                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
+                        <div class="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0 text-indigo-300 text-xs font-bold mt-0.5">
+                            01
+                        </div>
+                        <div>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">Centralized Academic & Regulation Management</h2>
+                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                                Organizes academic curriculum, multi-year regulations, and semester-wise course catalogues across Engineering, Management, Sciences, Agriculture, Pharmacy, and Law.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Point 2 -->
+                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
+                        <div class="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 text-sky-300 text-xs font-bold mt-0.5">
+                            02
+                        </div>
+                        <div>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">Automated Student Course Enrollment</h2>
+                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                                Allows students to discover active semester courses, register with real-time credit tracking, and view their assigned teaching faculty immediately.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Point 3 -->
+                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0 text-emerald-300 text-xs font-bold mt-0.5">
+                            03
+                        </div>
+                        <div>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">24/7 Digital Courseware & Study Materials</h2>
+                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                                Faculty can upload syllabus roadmaps, lecture presentations, reference PDFs, and multimedia video links for seamless anywhere, anytime student access.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Point 4 -->
+                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 text-amber-300 text-xs font-bold mt-0.5">
+                            04
+                        </div>
+                        <div>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">Integrated Civil Services & Competitive Career Academy</h2>
+                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                                Dedicated UPSC and competitive exam training wing offering specialized General Studies modules with open enrollment across all academic streams.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Point 5 -->
+                    <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-start gap-3.5">
+                        <div class="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-400/30 flex items-center justify-center shrink-0 text-purple-300 text-xs font-bold mt-0.5">
+                            05
+                        </div>
+                        <div>
+                            <h2 class="text-sm sm:text-base font-semibold text-white">Secured Role-Based Governance & Quick Bulk Onboarding</h2>
+                            <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
+                                Dedicated dashboards for Super Admins, Department Coordinators, Faculty, and Students with Excel bulk uploads and automatic account lockout protection.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Badges -->
+            <div class="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-300">
                 <span class="stat-pill px-3 py-1.5 rounded-xl font-medium inline-flex items-center gap-1.5">
                     <svg class="w-4 h-4 text-sky-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a10.97 10.97 0 00-.25 2.5v4.5a1 1 0 001 1h8a1 1 0 001-1v-4.5c0-.85-.087-1.688-.25-2.5l2.644-1.131a1 1 0 000-1.84l-7-3zM10 4.236l4.116 1.764L10 7.764 5.884 6 10 4.236z"></path></svg>
                     10+ Academic Schools
@@ -137,7 +161,7 @@
                 <form method="POST" action="{{ route('authenticate') }}" class="space-y-5">
                     @csrf
                     
-                    <!-- Username Field -->
+                    <!-- Username Field (Placeholder removed) -->
                     <div>
                         <label for="emp_id" class="block text-sm font-semibold text-gray-700 mb-1.5">Username</label>
                         <div class="relative rounded-xl shadow-sm">
@@ -148,8 +172,7 @@
                                 type="text" 
                                 id="emp_id" 
                                 name="emp_id" 
-                                class="input-animated w-full pl-11 pr-4 py-3 rounded-xl border {{ $errors->has('emp_id') ? 'border-red-500 ring-1 ring-red-500 bg-red-50/40' : 'border-gray-200 bg-white/90' }} focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-gray-900 text-sm placeholder-gray-400" 
-                                placeholder="Employee ID / Reg No" 
+                                class="input-animated w-full pl-11 pr-4 py-3 rounded-xl border {{ $errors->has('emp_id') ? 'border-red-500 ring-1 ring-red-500 bg-red-50/40' : 'border-gray-200 bg-white/90' }} focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-gray-900 text-sm" 
                                 value="{{ old('emp_id') }}" 
                                 required 
                                 autofocus 

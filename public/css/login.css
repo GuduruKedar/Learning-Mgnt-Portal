@@ -27,28 +27,30 @@ body {
 
 /* Glass panel for the right-side form card */
 .glass-panel {
-    background: rgba(255, 255, 255, 0.94);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.85);
     box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35),
                 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
 }
 
-/* Left side feature card glass effect */
-.glass-feature-card {
-    background: rgba(255, 255, 255, 0.08);
+/* Left side points container */
+.glass-points-container {
+    background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.glass-feature-card:hover {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.3);
+.point-item {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.point-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
 }
 
 .stat-pill {

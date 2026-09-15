@@ -87,39 +87,48 @@
                         </div>
                     </div>
                 @else
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($courses as $course)
-                            <a href="{{ route('student.courses.materials', $course->id) }}" class="course-card block bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:border-indigo-300 relative transition-all">
-                                <div class="h-2 {{ $course->department_id === 'dep_cs' ? 'bg-blue-600' : 'bg-indigo-500' }}"></div>
-                                <div class="p-6">
-                                    <div class="flex items-start justify-between mb-4">
-                                        <div class="inline-flex p-2 rounded-lg {{ $course->department_id === 'dep_cs' ? 'bg-blue-50 text-blue-600' : 'bg-indigo-50 text-indigo-600' }}">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                                        </div>
-                                        @if($course->department_id === 'dep_cs')
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
-                                                Civil Services
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                Enrolled
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <h4 class="text-lg font-bold text-gray-900 leading-tight mb-1">{{ $course->name }}</h4>
-                                    <p class="text-sm font-medium {{ $course->department_id === 'dep_cs' ? 'text-blue-600' : 'text-indigo-600' }} mb-4">{{ $course->code }}</p>
+                            <div class="bg-white rounded-2xl border border-gray-200/80 hover:border-indigo-300 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between">
+                                <div>
+                                    <!-- Top Accent Line -->
+                                    <div class="h-1.5 {{ $course->department_id === 'dep_cs' ? 'bg-gradient-to-r from-blue-500 to-indigo-600' : 'bg-gradient-to-r from-indigo-500 to-purple-600' }}"></div>
                                     
-                                    <div class="flex items-center justify-between text-sm text-gray-500 mt-auto pt-4 border-t border-gray-100">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                            {{ $course->materials_count }} Materials
+                                    <div class="p-6">
+                                        <!-- Header Pill & Badge -->
+                                        <div class="flex items-start justify-between gap-2 mb-4">
+                                            <div class="inline-flex p-2.5 rounded-xl {{ $course->department_id === 'dep_cs' ? 'bg-blue-50 text-blue-600' : 'bg-indigo-50 text-indigo-600' }}">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                            </div>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold {{ $course->department_id === 'dep_cs' ? 'bg-blue-100 text-blue-800' : 'bg-indigo-100 text-indigo-800' }}">
+                                                {{ $course->department_id === 'dep_cs' ? 'Civil Services' : 'Enrolled' }}
+                                            </span>
                                         </div>
-                                        <div class="font-medium {{ $course->department_id === 'dep_cs' ? 'text-blue-600 group-hover:text-blue-700' : 'text-indigo-600 group-hover:text-indigo-700' }} flex items-center transition-colors">
-                                            View <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+
+                                        <!-- Course Title & Code -->
+                                        <h3 class="text-base font-bold text-gray-900 leading-snug mb-1.5 hover:text-indigo-600 transition-colors">
+                                            {{ $course->name }}
+                                        </h3>
+                                        <div class="inline-block px-2.5 py-0.5 rounded bg-gray-100 text-gray-700 text-xs font-mono font-semibold mb-4">
+                                            {{ $course->code }}
                                         </div>
                                     </div>
                                 </div>
-                            </a>
+
+                                <!-- Action Buttons -->
+                                <div class="px-6 pb-6 pt-2">
+                                    <div class="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100">
+                                        <a href="{{ route('student.courses.materials', $course->id) }}" class="inline-flex items-center justify-center py-2 px-3 bg-gray-50 hover:bg-gray-100 text-xs font-bold text-gray-700 rounded-xl border border-gray-200 transition-colors shadow-sm">
+                                            <svg class="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                            Materials
+                                        </a>
+                                        <a href="{{ route('student.assignments.index', ['course_id' => $course->id]) }}" class="inline-flex items-center justify-center py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-xs font-bold text-indigo-700 rounded-xl border border-indigo-200 transition-colors shadow-sm">
+                                            <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                            Assignments
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     </div>
                 @endif

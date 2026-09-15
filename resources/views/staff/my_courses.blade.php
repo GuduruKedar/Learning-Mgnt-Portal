@@ -111,9 +111,12 @@
                                                     {{ $course->materials->count() }} Materials uploaded
                                                 </div>
                                             </div>
-                                            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100">
-                                                <a href="{{ route('staff.courses.materials', $course->id) }}" class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
-                                                    Manage Materials
+                                            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 grid grid-cols-2 gap-2">
+                                                <a href="{{ route('staff.courses.materials', $course->id) }}" class="flex justify-center items-center px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-xs font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                                    Materials
+                                                </a>
+                                                <a href="{{ route('staff.assignments.index', ['course_id' => $course->id]) }}" class="flex justify-center items-center px-3 py-2 border border-transparent rounded-lg shadow-sm text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                                                    Assignments
                                                 </a>
                                             </div>
                                         </div>

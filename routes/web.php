@@ -23,12 +23,25 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Course Materials (Staff only) - Defined before Admin routes to avoid wildcard conflict with Route::resource('staff')
+    // Course Materials & Assignments (Staff only) - Defined before Admin routes to avoid wildcard conflict with Route::resource('staff')
     Route::middleware('role:sta')->group(function () {
         Route::get('/staff/courses', [\App\Http\Controllers\CourseMaterialController::class, 'myCourses'])->name('staff.courses.index');
         Route::get('/staff/courses/{course}', [\App\Http\Controllers\CourseMaterialController::class, 'index'])->name('staff.courses.materials');
         Route::post('/staff/courses/{course}/materials', [\App\Http\Controllers\CourseMaterialController::class, 'store'])->name('staff.courses.materials.store');
         Route::delete('/staff/materials/{material}', [\App\Http\Controllers\CourseMaterialController::class, 'destroy'])->name('staff.courses.materials.destroy');
+
+        // Staff Assignments
+        Route::get('/staff/assignments', [\App\Http\Controllers\StaffAssignmentController::class, 'index'])->name('staff.assignments.index');
+        Route::get('/staff/assignments/template', [\App\Http\Controllers\StaffAssignmentController::class, 'downloadTemplate'])->name('staff.assignments.template');
+        Route::get('/staff/assignments/create', [\App\Http\Controllers\StaffAssignmentController::class, 'create'])->name('staff.assignments.create');
+        Route::post('/staff/assignments', [\App\Http\Controllers\StaffAssignmentController::class, 'store'])->name('staff.assignments.store');
+        Route::post('/staff/assignments/bulk-upload', [\App\Http\Controllers\StaffAssignmentController::class, 'bulkUpload'])->name('staff.assignments.bulk');
+        Route::get('/staff/assignments/{assignment}', [\App\Http\Controllers\StaffAssignmentController::class, 'show'])->name('staff.assignments.show');
+        Route::get('/staff/assignments/{assignment}/edit', [\App\Http\Controllers\StaffAssignmentController::class, 'edit'])->name('staff.assignments.edit');
+        Route::put('/staff/assignments/{assignment}', [\App\Http\Controllers\StaffAssignmentController::class, 'update'])->name('staff.assignments.update');
+        Route::delete('/staff/assignments/{assignment}', [\App\Http\Controllers\StaffAssignmentController::class, 'destroy'])->name('staff.assignments.destroy');
+        Route::post('/staff/assignments/{assignment}/questions', [\App\Http\Controllers\StaffAssignmentController::class, 'storeQuestion'])->name('staff.assignments.questions.store');
+        Route::delete('/staff/assignments/questions/{question}', [\App\Http\Controllers\StaffAssignmentController::class, 'destroyQuestion'])->name('staff.assignments.questions.destroy');
     });
     
     // ==========================================
@@ -124,6 +137,11 @@ Route::middleware('auth')->group(function () {
             
             Route::get('/student/my-courses', [\App\Http\Controllers\StudentEnrollmentController::class, 'myCourses'])->name('student.courses.index');
             Route::get('/student/my-courses/{course}/materials', [\App\Http\Controllers\StudentEnrollmentController::class, 'courseMaterials'])->name('student.courses.materials');
+
+            // Student Assignments
+            Route::get('/student/assignments', [\App\Http\Controllers\StudentAssignmentController::class, 'index'])->name('student.assignments.index');
+            Route::get('/student/assignments/{assignment}', [\App\Http\Controllers\StudentAssignmentController::class, 'show'])->name('student.assignments.show');
+            Route::post('/student/assignments/{assignment}/submit', [\App\Http\Controllers\StudentAssignmentController::class, 'submit'])->name('student.assignments.submit');
         });
     });
 

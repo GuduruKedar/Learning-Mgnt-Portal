@@ -8,15 +8,10 @@
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     <script src="{{ asset('js/main.js') }}"></script>
 </head>
-<body class="min-h-screen bg-slate-950 flex items-center justify-center p-4 sm:p-6 lg:p-10 bg-image relative overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-10 bg-image relative overflow-x-hidden selection:bg-indigo-500 selection:text-white">
 
-    <!-- Sophisticated Ambient Dark Gradient Overlay -->
-    <div class="absolute inset-0 bg-gradient-to-br from-slate-950/90 via-slate-900/85 to-indigo-950/90 backdrop-blur-[3px] z-0"></div>
-
-    <!-- Glowing Background Highlights -->
-    <div class="absolute top-1/4 left-10 w-96 h-96 glow-orb-1 rounded-full pointer-events-none z-0"></div>
-    <div class="absolute bottom-10 right-10 w-96 h-96 glow-orb-2 rounded-full pointer-events-none z-0"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] glow-orb-3 rounded-full pointer-events-none z-0"></div>
+    <!-- Clear, Subtle Ambient Overlay to keep background image vibrant and crisp -->
+    <div class="absolute inset-0 bg-slate-950/35 bg-gradient-to-b from-black/30 via-black/20 to-black/40 z-0"></div>
 
     <!-- Main Split Container -->
     <div class="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-6">
@@ -24,7 +19,7 @@
         <!-- =============================================================== -->
         <!-- LEFT SIDE: Professional Point-Wise LMS Utility Guide             -->
         <!-- =============================================================== -->
-        <div class="lg:col-span-7 flex flex-col justify-center text-white space-y-6 lg:pr-4">
+        <div class="hidden lg:flex lg:col-span-7 flex-col justify-center text-white space-y-6 lg:pr-4">
             
             <!-- Heading (Single Line) & Professional Section Header -->
             <div class="space-y-4">

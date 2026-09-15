@@ -223,8 +223,8 @@ select option {
 
     /* Login page mobile adjustments */
     body.bg-image {
-        justify-content: flex-start !important;
-        padding: 40px 16px !important;
+        justify-content: center !important;
+        padding: 24px 16px !important;
         min-height: 100vh;
         overflow-y: auto;
     }

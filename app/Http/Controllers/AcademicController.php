@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Auth;
 class AcademicController extends Controller
 {
     // --- Regulations ---
-    public function regulations()
+    public function regulations(Request $request)
     {
         $user = Auth::user();
-        $regulationsQuery = Regulation::latest();
+        $regulationsQuery = Regulation::query();
         
         $programsQuery = \App\Models\Program::query();
         if ($user->role === 'admin' && !empty($user->profile->departments_id)) {
@@ -51,16 +51,48 @@ class AcademicController extends Controller
             elseif (str_contains($pName, 'Diploma')) $availableProgramTypes[] = 'Diploma';
             else $availableProgramTypes[] = explode(' ', $pName)[0];
         }
-        $availableProgramTypes = array_unique($availableProgramTypes);
+
+        // Include any custom program types from existing regulations
+        $existingRegTypes = Regulation::whereNotNull('program_type')->pluck('program_type')->toArray();
+        $availableProgramTypes = array_unique(array_merge($availableProgramTypes, $existingRegTypes));
         sort($availableProgramTypes);
         
         if ($user->role === 'admin') {
             $regulationsQuery->whereIn('program_type', $availableProgramTypes);
         }
+
+        if ($request->filled('program_type')) {
+            $regulationsQuery->where('program_type', $request->program_type);
+        }
+
+        if ($request->filled('status')) {
+            $regulationsQuery->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $regulationsQuery->where(function($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                  ->orWhere('name', 'like', "%{$search}%")
+                  ->orWhere('curriculum', 'like', "%{$search}%")
+                  ->orWhere('program_type', 'like', "%{$search}%");
+            });
+        }
+
+        $allRegulationsQuery = clone $regulationsQuery;
+        $totalRegulations = (clone $regulationsQuery)->count();
+        $activeRegulationsCount = (clone $regulationsQuery)->where('status', 'Active')->count();
+        $allRegulations = (clone $allRegulationsQuery)->withCount('courses')->orderBy('program_type')->orderBy('code')->get();
         
-        $regulations = $regulationsQuery->paginate(10)->withQueryString();
+        $regulations = $regulationsQuery->latest()->paginate(10)->withQueryString();
         
-        return view('academic.regulations', compact('regulations', 'availableProgramTypes'));
+        return view('academic.regulations', compact(
+            'regulations', 
+            'availableProgramTypes',
+            'totalRegulations',
+            'activeRegulationsCount',
+            'allRegulations'
+        ));
     }
 
     public function storeRegulation(Request $request)
@@ -176,7 +208,10 @@ class AcademicController extends Controller
             elseif (str_contains($pName, 'Diploma')) $availableProgramTypes[] = 'Diploma';
             else $availableProgramTypes[] = explode(' ', $pName)[0];
         }
-        $availableProgramTypes = array_unique($availableProgramTypes);
+
+        // Include any custom program types from existing regulations
+        $existingRegTypes = Regulation::whereNotNull('program_type')->pluck('program_type')->toArray();
+        $availableProgramTypes = array_unique(array_merge($availableProgramTypes, $existingRegTypes));
         sort($availableProgramTypes);
 
         if ($user->role === 'admin') {
@@ -185,21 +220,28 @@ class AcademicController extends Controller
             $regulations = Regulation::all();
         }
 
+        $schools = \App\Models\School::orderBy('name')->get();
+        $departments = Department::with('school')->orderBy('name')->get();
+
         return view('academic.courses_create', compact(
-            'regulations', 'departments', 'availableProgramTypes'
+            'regulations', 'departments', 'schools', 'availableProgramTypes'
         ));
     }
 
     public function courses(Request $request)
     {
         $user = Auth::user();
-        $query = Course::with(['regulation', 'department', 'staff']);
+        $query = Course::with(['regulation', 'department', 'staff.profile.department', 'staff.profile.school']);
         
         if ($user->role === 'admin') {
             $query->where('department_id', $user->profile->departments_id);
         }
 
-        if ($user->role === 'sa' && $request->filled('department')) {
+        if ($user->role === 'ssh_admin') {
+            $query->where('year', 1);
+        }
+
+        if (in_array($user->role, ['sa', 'ssh_admin']) && $request->filled('department')) {
             $query->where('department_id', $request->department);
         }
 
@@ -208,7 +250,11 @@ class AcademicController extends Controller
         }
 
         if ($request->filled('year')) {
-            $query->where('year', $request->year);
+            if ($user->role === 'ssh_admin') {
+                $query->where('year', 1);
+            } else {
+                $query->where('year', $request->year);
+            }
         }
 
         if ($request->filled('semester')) {
@@ -227,13 +273,15 @@ class AcademicController extends Controller
         $departments = Department::all();
 
         // Get available staff for dropdown
-        $staffQuery = User::role('sta');
+        $staffQuery = User::role('sta')->with(['profile.department', 'profile.school']);
         if ($user->role === 'admin') {
             $staffQuery->whereHas('profile', function($q) use ($user) {
                 $q->where('departments_id', $user->profile->departments_id);
             });
         }
-        $availableStaff = $staffQuery->get(); // Accessors first_name, last_name will be available
+        $availableStaff = $staffQuery->get()->sortBy(function($s) {
+            return ($s->profile->department->name ?? 'Z') . ' ' . ($s->profile->first_name ?? $s->username);
+        });
 
         $programsQuery = \App\Models\Program::query();
         if ($user->role === 'admin' && !empty($user->profile->departments_id)) {
@@ -269,7 +317,10 @@ class AcademicController extends Controller
             elseif (str_contains($pName, 'Diploma')) $availableProgramTypes[] = 'Diploma';
             else $availableProgramTypes[] = explode(' ', $pName)[0];
         }
-        $availableProgramTypes = array_unique($availableProgramTypes);
+
+        // Include any custom program types from existing regulations
+        $existingRegTypes = Regulation::whereNotNull('program_type')->pluck('program_type')->toArray();
+        $availableProgramTypes = array_unique(array_merge($availableProgramTypes, $existingRegTypes));
         sort($availableProgramTypes);
 
         if ($user->role === 'admin') {
@@ -281,6 +332,12 @@ class AcademicController extends Controller
         $courseDistribution = \App\Models\Course::select('regulation_id', 'year', 'semester', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
             ->when($user->role === 'admin', function($q) use ($user) {
                 $q->where('department_id', $user->profile->departments_id);
+            })
+            ->when($user->role === 'ssh_admin', function($q) {
+                $q->where('year', 1);
+            })
+            ->when(in_array($user->role, ['sa', 'ssh_admin']) && $request->filled('department'), function($q) use ($request) {
+                $q->where('department_id', $request->department);
             })
             ->groupBy('regulation_id', 'year', 'semester')
             ->with('regulation')
@@ -314,22 +371,34 @@ class AcademicController extends Controller
             ->when($user->role === 'admin', function($q) use ($user) {
                 $q->where('department_id', $user->profile->departments_id);
             })
+            ->when($user->role === 'ssh_admin', function($q) {
+                $q->where('year', 1);
+            })
+            ->when(in_array($user->role, ['sa', 'ssh_admin']) && $request->filled('department'), function($q) use ($request) {
+                $q->where('department_id', $request->department);
+            })
             ->get();
 
-        return view('academic.courses', compact('courses', 'regulations', 'departments', 'availableStaff', 'availableProgramTypes', 'distributionByProgram', 'allRawCourses'));
+        $totalCourses = $allRawCourses->count();
+
+        return view('academic.courses', compact('courses', 'regulations', 'departments', 'availableStaff', 'availableProgramTypes', 'distributionByProgram', 'allRawCourses', 'totalCourses'));
     }
 
     
     public function courseAllocations(Request $request)
     {
         $user = Auth::user();
-        $query = Course::with(['regulation', 'department', 'staff']);
+        $query = Course::with(['regulation', 'department', 'staff.profile.department', 'staff.profile.school']);
         
         if ($user->role === 'admin') {
             $query->where('department_id', $user->profile->departments_id);
         }
 
-        if ($user->role === 'sa' && $request->filled('department')) {
+        if ($user->role === 'ssh_admin') {
+            $query->where('year', 1);
+        }
+
+        if (in_array($user->role, ['sa', 'ssh_admin']) && $request->filled('department')) {
             $query->where('department_id', $request->department);
         }
 
@@ -338,7 +407,11 @@ class AcademicController extends Controller
         }
 
         if ($request->filled('year')) {
-            $query->where('year', $request->year);
+            if ($user->role === 'ssh_admin') {
+                $query->where('year', 1);
+            } else {
+                $query->where('year', $request->year);
+            }
         }
 
         if ($request->filled('semester')) {
@@ -357,13 +430,15 @@ class AcademicController extends Controller
         $departments = Department::all();
 
         // Get available staff for dropdown
-        $staffQuery = User::role('sta');
+        $staffQuery = User::role('sta')->with(['profile.department', 'profile.school']);
         if ($user->role === 'admin') {
             $staffQuery->whereHas('profile', function($q) use ($user) {
                 $q->where('departments_id', $user->profile->departments_id);
             });
         }
-        $availableStaff = $staffQuery->get(); // Accessors first_name, last_name will be available
+        $availableStaff = $staffQuery->get()->sortBy(function($s) {
+            return ($s->profile->department->name ?? 'Z') . ' ' . ($s->profile->first_name ?? $s->username);
+        });
 
         $programsQuery = \App\Models\Program::query();
         if ($user->role === 'admin' && !empty($user->profile->departments_id)) {
@@ -399,7 +474,10 @@ class AcademicController extends Controller
             elseif (str_contains($pName, 'Diploma')) $availableProgramTypes[] = 'Diploma';
             else $availableProgramTypes[] = explode(' ', $pName)[0];
         }
-        $availableProgramTypes = array_unique($availableProgramTypes);
+
+        // Include any custom program types from existing regulations
+        $existingRegTypes = Regulation::whereNotNull('program_type')->pluck('program_type')->toArray();
+        $availableProgramTypes = array_unique(array_merge($availableProgramTypes, $existingRegTypes));
         sort($availableProgramTypes);
 
         if ($user->role === 'admin') {
@@ -411,6 +489,12 @@ class AcademicController extends Controller
         $courseDistribution = \App\Models\Course::select('regulation_id', 'year', 'semester', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
             ->when($user->role === 'admin', function($q) use ($user) {
                 $q->where('department_id', $user->profile->departments_id);
+            })
+            ->when($user->role === 'ssh_admin', function($q) {
+                $q->where('year', 1);
+            })
+            ->when(in_array($user->role, ['sa', 'ssh_admin']) && $request->filled('department'), function($q) use ($request) {
+                $q->where('department_id', $request->department);
             })
             ->groupBy('regulation_id', 'year', 'semester')
             ->with('regulation')
@@ -443,6 +527,12 @@ class AcademicController extends Controller
         $allRawCourses = \App\Models\Course::with(['regulation', 'staff.profile'])
             ->when($user->role === 'admin', function($q) use ($user) {
                 $q->where('department_id', $user->profile->departments_id);
+            })
+            ->when($user->role === 'ssh_admin', function($q) {
+                $q->where('year', 1);
+            })
+            ->when(in_array($user->role, ['sa', 'ssh_admin']) && $request->filled('department'), function($q) use ($request) {
+                $q->where('department_id', $request->department);
             })
             ->get();
 
@@ -455,41 +545,27 @@ class AcademicController extends Controller
 
         $request->validate([
             'regulation_id' => 'required|exists:regulations,id',
-            'no_of_courses' => 'required|integer|min:1|max:9',
-            'code' => 'required|array|min:1|max:9',
+            'semester' => 'required|integer|min:1|max:12',
+            'no_of_courses' => 'required|integer|min:1|max:20',
+            'code' => 'required|array|min:1|max:20',
             'code.*' => 'required|string|max:255|unique:courses,code',
-            'name' => 'required|array|min:1|max:9',
+            'name' => 'required|array|min:1|max:20',
             'name.*' => 'required|string|max:255',
             'department_id' => 'nullable|exists:departments,code',
         ]);
 
-        $regulation = Regulation::findOrFail($request->regulation_id);
-        $programType = $regulation->program_type;
-        
-        $maxYear = 4;
-        $maxSem = 8;
-        
-        if (in_array($programType, ['M.Tech', 'Ph.D', 'M.Sc', 'M.Pharmacy', 'M.A.', 'MBA', 'M.Com', 'LLM', 'M.Arch'])) {
-            $maxYear = 2;
-            $maxSem = 4;
-        } elseif (in_array($programType, ['B.Sc', 'Degree', 'Diploma', 'BBA', 'B.Com', 'B.A.'])) {
-            $maxYear = 3;
-            $maxSem = 6;
+        if ($user->role === 'ssh_admin') {
+            $year = 1;
+        } else {
+            $sem = (int) $request->semester;
+            $year = $request->filled('year') ? (int) $request->year : (int) ceil($sem / 2);
         }
 
-        $request->validate([
-            'year' => "required|integer|min:1|max:$maxYear",
-            'semester' => "required|integer|min:1|max:$maxSem",
-        ], [
-            'year.max' => "For this program, the maximum year is $maxYear.",
-            'semester.max' => "For this program, the maximum semester is $maxSem.",
-        ]);
-
         $department_id = $request->department_id;
-        if ($user->role === 'admin') {
+        if ($user->role === 'admin' && !empty($user->profile?->departments_id)) {
             $department_id = $user->profile->departments_id;
         } elseif (empty($department_id)) {
-            return back()->withErrors(['department_id' => 'Department is required.']);
+            $department_id = $user->profile?->departments_id ?? 'dep_ssh';
         }
 
         $numCourses = min($request->no_of_courses, count($request->code));
@@ -497,14 +573,14 @@ class AcademicController extends Controller
             Course::create([
                 'regulation_id' => $request->regulation_id,
                 'department_id' => $department_id,
-                'year' => $request->year,
+                'year' => $year,
                 'semester' => $request->semester,
-                'code' => $request->code[$i],
-                'name' => $request->name[$i],
+                'code' => strtoupper(trim($request->code[$i])),
+                'name' => trim($request->name[$i]),
             ]);
         }
 
-        return back()->with('success', 'Courses created successfully.');
+        return redirect()->route('academic.courses')->with('success', "$numCourses course(s) created successfully!");
     }
 
     public function editCourse(Request $request, $id)
@@ -514,6 +590,10 @@ class AcademicController extends Controller
 
         if ($user->role === 'admin' && $course->department_id !== $user->profile->departments_id) {
             abort(403, 'Unauthorized.');
+        }
+
+        if ($user->role === 'ssh_admin' && $course->year != 1) {
+            abort(403, 'Unauthorized. SSH Admin can only manage 1st Year courses.');
         }
 
         $departments = Department::all();
@@ -552,7 +632,10 @@ class AcademicController extends Controller
             elseif (str_contains($pName, 'Diploma')) $availableProgramTypes[] = 'Diploma';
             else $availableProgramTypes[] = explode(' ', $pName)[0];
         }
-        $availableProgramTypes = array_unique($availableProgramTypes);
+
+        // Include any custom program types from existing regulations
+        $existingRegTypes = Regulation::whereNotNull('program_type')->pluck('program_type')->toArray();
+        $availableProgramTypes = array_unique(array_merge($availableProgramTypes, $existingRegTypes));
         sort($availableProgramTypes);
 
         if ($user->role === 'admin') {
@@ -573,6 +656,10 @@ class AcademicController extends Controller
             abort(403, 'Unauthorized.');
         }
 
+        if ($user->role === 'ssh_admin' && $course->year != 1) {
+            abort(403, 'Unauthorized. SSH Admin can only manage 1st Year courses.');
+        }
+
         $request->validate([
             'regulation_id' => 'required|exists:regulations,id',
             'code' => 'required|string|max:255|unique:courses,code,' . $course->id,
@@ -580,27 +667,37 @@ class AcademicController extends Controller
             'department_id' => 'nullable|exists:departments,code',
         ]);
 
-        $regulation = Regulation::findOrFail($request->regulation_id);
-        $programType = $regulation->program_type;
-        
-        $maxYear = 4;
-        $maxSem = 8;
-        
-        if (in_array($programType, ['M.Tech', 'Ph.D', 'M.Sc', 'M.Pharmacy', 'M.A.', 'MBA', 'M.Com', 'LLM', 'M.Arch'])) {
-            $maxYear = 2;
-            $maxSem = 4;
-        } elseif (in_array($programType, ['B.Sc', 'Degree', 'Diploma', 'BBA', 'B.Com', 'B.A.'])) {
-            $maxYear = 3;
-            $maxSem = 6;
-        }
+        if ($user->role === 'ssh_admin') {
+            $request->validate([
+                'year' => 'required|integer|in:1',
+                'semester' => 'required|integer|in:1,2',
+            ], [
+                'year.in' => 'SSH Admin can only update courses for 1st Year (1-1 and 1-2).',
+                'semester.in' => 'Semester must be 1 (1-1) or 2 (1-2).',
+            ]);
+        } else {
+            $regulation = Regulation::findOrFail($request->regulation_id);
+            $programType = $regulation->program_type;
+            
+            $maxYear = 4;
+            $maxSem = 8;
+            
+            if (in_array($programType, ['M.Tech', 'Ph.D', 'M.Sc', 'M.Pharmacy', 'M.A.', 'MBA', 'M.Com', 'LLM', 'M.Arch'])) {
+                $maxYear = 2;
+                $maxSem = 4;
+            } elseif (in_array($programType, ['B.Sc', 'Degree', 'Diploma', 'BBA', 'B.Com', 'B.A.'])) {
+                $maxYear = 3;
+                $maxSem = 6;
+            }
 
-        $request->validate([
-            'year' => "required|integer|min:1|max:$maxYear",
-            'semester' => "required|integer|min:1|max:$maxSem",
-        ], [
-            'year.max' => "For this program, the maximum year is $maxYear.",
-            'semester.max' => "For this program, the maximum semester is $maxSem.",
-        ]);
+            $request->validate([
+                'year' => "required|integer|min:1|max:$maxYear",
+                'semester' => "required|integer|min:1|max:$maxSem",
+            ], [
+                'year.max' => "For this program, the maximum year is $maxYear.",
+                'semester.max' => "For this program, the maximum semester is $maxSem.",
+            ]);
+        }
 
         $department_id = $request->department_id;
         if ($user->role === 'admin') {
@@ -612,10 +709,10 @@ class AcademicController extends Controller
         $course->update([
             'regulation_id' => $request->regulation_id,
             'department_id' => $department_id,
-            'year' => $request->year,
+            'year' => $user->role === 'ssh_admin' ? 1 : $request->year,
             'semester' => $request->semester,
-            'code' => $request->code,
-            'name' => $request->name,
+            'code' => strtoupper(trim($request->code)),
+            'name' => trim($request->name),
         ]);
 
         return redirect()->route('academic.courses')->with('success', 'Course updated successfully.');
@@ -628,6 +725,10 @@ class AcademicController extends Controller
 
         if ($user->role === 'admin' && $course->department_id !== $user->profile->departments_id) {
             abort(403, 'Unauthorized.');
+        }
+
+        if ($user->role === 'ssh_admin' && $course->year != 1) {
+            abort(403, 'Unauthorized. SSH Admin can only manage 1st Year courses.');
         }
 
         $course->delete();
@@ -644,14 +745,28 @@ class AcademicController extends Controller
             abort(403, 'Unauthorized.');
         }
 
+        if ($user->role === 'ssh_admin' && $course->year != 1) {
+            abort(403, 'Unauthorized. SSH Admin can only allocate staff to 1st Year courses.');
+        }
+
         $request->validate([
             'staff_id' => 'required|exists:users,id',
         ]);
 
         $staff = User::role('sta')->findOrFail($request->staff_id);
 
-        if ($staff->profile->departments_id !== $course->department_id) {
-            return back()->withErrors(['staff_id' => 'Staff must belong to the same department as the course.']);
+        $isPrivileged = in_array($user->role, ['sa', 'ssh_admin']);
+        $staffDept = strtolower($staff->profile->departments_id ?? '');
+        $isSshStaff = in_array($staffDept, ['sc_ash', 'dep_ssh', 'dep_maths', 'dep_phy', 'dep_chem', 'dep_eng', 'ash', 'ssh']) 
+            || str_contains(strtolower($staff->profile->department->name ?? ''), 'humanities') 
+            || str_contains(strtolower($staff->profile->department->name ?? ''), 'science')
+            || str_contains(strtolower($staff->profile->department->name ?? ''), 'mathematics')
+            || str_contains(strtolower($staff->profile->department->name ?? ''), 'physics')
+            || str_contains(strtolower($staff->profile->department->name ?? ''), 'chemistry')
+            || str_contains(strtolower($staff->profile->department->name ?? ''), 'english');
+
+        if (!$isPrivileged && !$isSshStaff && $staff->profile->departments_id !== $course->department_id) {
+            return back()->withErrors(['staff_id' => 'Staff must belong to the same department as the course or be an S&H faculty member.']);
         }
 
         if ($course->staff()->where('users.id', $staff->id)->exists()) {
@@ -661,7 +776,25 @@ class AcademicController extends Controller
         // Attach without detaching others
         $course->staff()->syncWithoutDetaching([$staff->id]);
 
-        return back()->with('success', 'Staff allocated to course successfully.');
+        $staffName = trim(($staff->profile->first_name ?? '') . ' ' . ($staff->profile->last_name ?? '')) ?: $staff->username;
+        $deptName = $staff->profile->department->name ?? 'Department';
+
+        \App\Services\ActivityLogger::log(
+            'course_allocated',
+            'Staff Allocated to Course',
+            'Academics',
+            'Assigned faculty ' . $staffName . ' (' . $deptName . ') to teach ' . $course->name . ' (' . $course->code . ').',
+            'success',
+            [
+                'department_id' => $course->department_id,
+                'entity_type' => 'Course',
+                'entity_id' => $course->id,
+                'entity_name' => $course->name,
+                'payload' => ['staff_id' => $staff->id, 'course_code' => $course->code]
+            ]
+        );
+
+        return back()->with('success', "Faculty {$staffName} ({$deptName}) allocated to {$course->code} successfully.");
     }
 
     public function unallocateStaff($courseId, $staffId)
@@ -673,34 +806,240 @@ class AcademicController extends Controller
             abort(403, 'Unauthorized.');
         }
 
+        if ($user->role === 'ssh_admin' && $course->year != 1) {
+            abort(403, 'Unauthorized. SSH Admin can only manage 1st Year courses.');
+        }
+
         $course->staff()->detach($staffId);
+
+        \App\Services\ActivityLogger::log(
+            'course_unallocated',
+            'Staff Allocation Removed',
+            'Academics',
+            'Removed faculty assignment from course ' . $course->name . ' (' . $course->code . ').',
+            'warning',
+            [
+                'department_id' => $course->department_id,
+                'entity_type' => 'Course',
+                'entity_id' => $course->id,
+                'entity_name' => $course->name,
+                'payload' => ['staff_id' => $staffId, 'course_code' => $course->code]
+            ]
+        );
 
         return back()->with('success', 'Staff allocation removed.');
     }
     
     // --- Analytics ---
-    public function enrollmentInsights()
+    public function enrollmentInsights(Request $request)
     {
-        $departments = Department::all();
-        $departmentCourseCounts = Course::selectRaw('department_id, count(*) as total_courses')
-            ->groupBy('department_id')
-            ->pluck('total_courses', 'department_id');
+        $departments = Department::with('school')->get();
+        
+        // Fetch all courses with all necessary relations for fast in-memory aggregation
+        $courses = Course::with([
+            'regulation', 
+            'department.school', 
+            'staff.profile', 
+            'materials', 
+            'assignments', 
+            'enrollments.profile'
+        ])
+        ->withCount(['enrollments', 'materials', 'assignments', 'staff'])
+        ->get();
 
-        $departmentEnrollmentCounts = \DB::table('enrollments')
-            ->join('courses', 'enrollments.course_id', '=', 'courses.id')
-            ->select('courses.department_id', \DB::raw('count(enrollments.id) as total_enrollments'))
-            ->groupBy('courses.department_id')
-            ->pluck('total_enrollments', 'department_id');
+        // Department coordinators (admins)
+        $coordinators = User::role('admin')->with('profile')->get()->groupBy(function($u) {
+            return $u->profile->departments_id ?? '';
+        });
+
+        // Faculty by department
+        $deptStaff = User::role(['sta', 'staff'])->with('profile')->get()->groupBy(function($u) {
+            return $u->profile->departments_id ?? '';
+        });
+
+        // Global KPI metrics
+        $totalEnrollments = \DB::table('enrollments')->count();
+        $totalCoursesOffered = $courses->count();
+        $totalAllocatedCourses = $courses->where('staff_count', '>', 0)->count();
+        $overallAllocationRate = $totalCoursesOffered > 0 ? round(($totalAllocatedCourses / $totalCoursesOffered) * 100, 1) : 0;
+        $totalFaculty = User::role(['sta', 'staff'])->count();
+        $totalStudents = User::role(['stu', 'student'])->count();
+        $totalMaterials = \App\Models\CourseMaterial::count();
+        $totalAssignments = \App\Models\Assignment::count();
+
+        // Build comprehensive per-department payload
+        $departmentsData = [];
+
+        foreach ($departments as $dept) {
+            $deptCourses = $courses->where('department_id', $dept->code)->values();
+            $deptCourseCount = $deptCourses->count();
+            $deptAllocatedCount = $deptCourses->where('staff_count', '>', 0)->count();
+            $deptAllocRate = $deptCourseCount > 0 ? round(($deptAllocatedCount / $deptCourseCount) * 100, 1) : 0;
             
-        $departmentInsights = collect($departments)->map(function($dept) use ($departmentCourseCounts, $departmentEnrollmentCounts) {
-            return [
-                'code'             => $dept->code,
-                'department'       => $dept->name,
-                'total_courses'    => $departmentCourseCounts[$dept->code] ?? 0,
-                'total_enrollments'=> $departmentEnrollmentCounts[$dept->code] ?? 0,
-            ];
-        })->sortByDesc('total_courses')->values()->toArray();
+            // Total enrollments across courses in this dept
+            $deptEnrollmentCount = $deptCourses->sum('enrollments_count');
+            
+            // Unique enrolled student IDs and roster
+            $uniqueStudentIds = collect();
+            $allDeptStudents = collect();
+            
+            foreach ($deptCourses as $c) {
+                foreach ($c->enrollments as $stu) {
+                    if (!$uniqueStudentIds->contains($stu->id)) {
+                        $uniqueStudentIds->push($stu->id);
+                        $allDeptStudents->push([
+                            'id' => $stu->id,
+                            'roll_no' => $stu->profile->username ?? $stu->username,
+                            'name' => trim(($stu->profile->first_name ?? '') . ' ' . ($stu->profile->last_name ?? '')),
+                            'email' => $stu->email ?? $stu->profile->email ?? 'N/A',
+                            'phone' => $stu->profile->phone ?? 'N/A',
+                            'year' => $c->year ?? 'N/A',
+                            'semester' => $c->semester ?? 'N/A',
+                            'course_code' => $c->code,
+                            'course_name' => $c->name,
+                        ]);
+                    }
+                }
+            }
 
+            // Faculty teaching in this department
+            $teachingStaffIds = collect();
+            $facultyList = collect();
+            
+            // Add department profile staff
+            $baseStaff = $deptStaff->get($dept->code, collect());
+            foreach ($baseStaff as $st) {
+                if (!$teachingStaffIds->contains($st->id)) {
+                    $teachingStaffIds->push($st->id);
+                    $assignedCourseObjs = $deptCourses->filter(function($c) use ($st) {
+                        return $c->staff->contains('id', $st->id);
+                    });
+                    $totalTaughtStudents = $assignedCourseObjs->sum('enrollments_count');
+                    
+                    $facultyList->push([
+                        'id' => $st->id,
+                        'name' => trim(($st->profile->first_name ?? '') . ' ' . ($st->profile->last_name ?? '')),
+                        'staff_id' => $st->profile->username ?? $st->username,
+                        'email' => $st->email ?? $st->profile->email ?? 'N/A',
+                        'phone' => $st->profile->phone ?? 'N/A',
+                        'photo' => $st->profile->photo ?? null,
+                        'courses_count' => $assignedCourseObjs->count(),
+                        'courses' => $assignedCourseObjs->map(fn($ac) => ['code' => $ac->code, 'name' => $ac->name])->values(),
+                        'students_taught' => $totalTaughtStudents,
+                    ]);
+                }
+            }
+
+            // Also check if any staff from other dept is assigned to courses in this dept
+            foreach ($deptCourses as $c) {
+                foreach ($c->staff as $st) {
+                    if (!$teachingStaffIds->contains($st->id)) {
+                        $teachingStaffIds->push($st->id);
+                        $assignedCourseObjs = $deptCourses->filter(function($dc) use ($st) {
+                            return $dc->staff->contains('id', $st->id);
+                        });
+                        $totalTaughtStudents = $assignedCourseObjs->sum('enrollments_count');
+                        
+                        $facultyList->push([
+                            'id' => $st->id,
+                            'name' => trim(($st->profile->first_name ?? '') . ' ' . ($st->profile->last_name ?? '')),
+                            'staff_id' => $st->profile->username ?? $st->username,
+                            'email' => $st->email ?? $st->profile->email ?? 'N/A',
+                            'phone' => $st->profile->phone ?? 'N/A',
+                            'photo' => $st->profile->photo ?? null,
+                            'courses_count' => $assignedCourseObjs->count(),
+                            'courses' => $assignedCourseObjs->map(fn($ac) => ['code' => $ac->code, 'name' => $ac->name])->values(),
+                            'students_taught' => $totalTaughtStudents,
+                        ]);
+                    }
+                }
+            }
+
+            // Coordinators list
+            $deptCoords = $coordinators->get($dept->code, collect())->map(function($cd) {
+                return [
+                    'id' => $cd->id,
+                    'name' => trim(($cd->profile->first_name ?? '') . ' ' . ($cd->profile->last_name ?? '')),
+                    'username' => $cd->profile->username ?? $cd->username,
+                    'email' => $cd->email ?? $cd->profile->email ?? 'N/A',
+                    'phone' => $cd->profile->phone ?? 'N/A',
+                ];
+            })->values();
+
+            // Regulation breakdown
+            $regulationsBreakdown = $deptCourses->groupBy(function($c) {
+                return $c->regulation ? ($c->regulation->code . ($c->regulation->curriculum ? ' (' . $c->regulation->curriculum . ')' : '')) : 'Direct / Non-Regulated';
+            })->map(function($rcourses, $regName) {
+                return [
+                    'regulation' => $regName,
+                    'courses_count' => $rcourses->count(),
+                    'enrollments_count' => $rcourses->sum('enrollments_count'),
+                ];
+            })->values();
+
+            // Formatted courses list
+            $formattedCourses = $deptCourses->map(function($c) {
+                $students = $c->enrollments->map(function($st) {
+                    return [
+                        'id' => $st->id,
+                        'roll_no' => $st->profile->username ?? $st->username,
+                        'name' => trim(($st->profile->first_name ?? '') . ' ' . ($st->profile->last_name ?? '')),
+                        'email' => $st->email ?? $st->profile->email ?? 'N/A',
+                    ];
+                })->values();
+
+                $staffMembers = $c->staff->map(function($st) {
+                    return [
+                        'id' => $st->id,
+                        'staff_id' => $st->profile->username ?? $st->username,
+                        'name' => trim(($st->profile->first_name ?? '') . ' ' . ($st->profile->last_name ?? '')),
+                        'photo' => $st->profile->photo ?? null,
+                    ];
+                })->values();
+
+                return [
+                    'id' => $c->id,
+                    'code' => $c->code,
+                    'name' => $c->name,
+                    'year' => $c->year,
+                    'semester' => $c->semester,
+                    'regulation_code' => $c->regulation->code ?? 'N/A',
+                    'curriculum' => $c->regulation->curriculum ?? 'N/A',
+                    'is_allocated' => $c->staff_count > 0,
+                    'staff' => $staffMembers,
+                    'enrollments_count' => $c->enrollments_count,
+                    'materials_count' => $c->materials_count,
+                    'assignments_count' => $c->assignments_count,
+                    'students' => $students,
+                ];
+            })->values();
+
+            $departmentsData[$dept->code] = [
+                'code' => $dept->code,
+                'name' => $dept->name,
+                'school_name' => $dept->school->name ?? 'General School',
+                'school_code' => $dept->school_id,
+                'total_courses' => $deptCourseCount,
+                'allocated_courses' => $deptAllocatedCount,
+                'unallocated_courses' => $deptCourseCount - $deptAllocatedCount,
+                'allocation_rate' => $deptAllocRate,
+                'total_enrollments' => $deptEnrollmentCount,
+                'unique_students_count' => $uniqueStudentIds->count(),
+                'faculty_count' => $facultyList->count(),
+                'materials_count' => $deptCourses->sum('materials_count'),
+                'assignments_count' => $deptCourses->sum('assignments_count'),
+                'coordinators' => $deptCoords,
+                'regulations_breakdown' => $regulationsBreakdown,
+                'courses' => $formattedCourses,
+                'faculty' => $facultyList,
+                'students' => $allDeptStudents->values(),
+            ];
+        }
+
+        // Sort departments list by courses and enrollments
+        $departmentsList = collect($departmentsData)->sortByDesc('total_courses')->values();
+
+        // Top courses across university
         $topCourses = Course::with(['regulation', 'enrollments.profile'])
             ->withCount('enrollments')
             ->having('enrollments_count', '>', 0)
@@ -708,46 +1047,37 @@ class AcademicController extends Controller
             ->take(15)
             ->get();
 
-        // All courses grouped by department for client-side filtering
-        $allCoursesByDept = Course::with(['regulation', 'enrollments.profile'])
-            ->withCount('enrollments')
-            ->orderBy('name')
-            ->get()
-            ->groupBy('department_id')
-            ->map(function ($courses) {
-                return $courses->map(function ($c) {
-                    $students = $c->enrollments->map(function ($student) {
-                        return [
-                            'id' => $student->id,
-                            'name' => trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')),
-                            'email' => $student->email ?? 'N/A',
-                            'roll_no' => $student->profile->username ?? 'N/A'
-                        ];
-                    })->values();
+        $selectedDepartment = $request->query('department', 'all');
 
-                    return [
-                        'code'             => $c->code,
-                        'name'             => $c->name,
-                        'regulation_code'  => optional($c->regulation)->code ?? 'N/A',
-                        'enrollments_count'=> $c->enrollments_count,
-                        'students'         => $students,
-                    ];
-                })->values();
-            });
-            
-        $totalEnrollments = \DB::table('enrollments')->count();
-        $totalCoursesOffered = Course::count();
-        $totalAllocatedCourses = Course::whereHas('staff')->count();
-        $overallAllocationRate = $totalCoursesOffered > 0 ? round(($totalAllocatedCourses / $totalCoursesOffered) * 100, 1) : 0;
+        // Legacy compatibility
+        $departmentInsights = $departmentsList->map(function($d) {
+            return [
+                'code' => $d['code'],
+                'department' => $d['name'],
+                'total_courses' => $d['total_courses'],
+                'total_enrollments' => $d['total_enrollments'],
+            ];
+        })->toArray();
+
+        $allCoursesByDept = collect($departmentsData)->map(fn($d) => $d['courses']);
 
         return view('academic.enrollments', compact(
-            'departmentInsights', 
+            'departmentsData',
+            'departmentsList',
+            'selectedDepartment',
             'topCourses',
+            'departmentInsights',
             'allCoursesByDept',
-            'totalEnrollments', 
+            'totalEnrollments',
             'totalCoursesOffered',
-            'overallAllocationRate'
+            'totalAllocatedCourses',
+            'overallAllocationRate',
+            'totalFaculty',
+            'totalStudents',
+            'totalMaterials',
+            'totalAssignments'
         ));
     }
 }
+
 

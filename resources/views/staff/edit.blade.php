@@ -49,125 +49,173 @@
         </header>
 
         <!-- Main Scrollable Content -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-            <div class="max-w-3xl mx-auto space-y-6">
-                <div class="mb-6"><a href="{{ route('staff.index') }}" class="text-indigo-600 hover:text-indigo-800 text-sm font-semibold mb-2 inline-flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>Back to Staff</a><h1 class="text-2xl font-bold text-gray-900">Edit Staff Member</h1></div>
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50/60 pb-36">
+            <div class="max-w-6xl mx-auto space-y-6">
+                
+                <!-- Page Breadcrumbs & Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Edit Faculty: {{ $staff->profile->first_name ?? '' }} {{ $staff->profile->last_name ?? '' }}</h1>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1">Update profile credentials, contact details, academic department, and access settings.</p>
+                    </div>
+                    <div class="shrink-0">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-100 text-teal-700 text-xs font-bold shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                            Faculty Profile Update
+                        </span>
+                    </div>
+                </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <form action="{{ route('staff.update', $staff->id) }}" method="POST" enctype="multipart/form-data">
+                <!-- Main Form Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-white flex items-center justify-between rounded-t-2xl">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-100">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </div>
+                            <h2 class="text-base font-bold text-slate-900 tracking-tight">Faculty Account & Departmental Assignment</h2>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-400"><span class="text-red-500">*</span> Required fields</span>
+                    </div>
+
+                    <form action="{{ route('staff.update', $staff->id) }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
                         @csrf
                         @method('PUT')
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">First Name <span class="text-red-500">*</span></label>
-                                <input type="text" name="first_name" value="{{ old('first_name', $staff->profile->first_name ?? '') }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900 placeholder-gray-400" placeholder="Enter first name" required>
-                                @error('first_name')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Middle Name</label>
-                                <input type="text" name="middle_name" value="{{ old('middle_name', $staff->profile->middle_name ?? '') }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900 placeholder-gray-400" placeholder="Enter middle name">
-                                @error('middle_name')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Last Name <span class="text-red-500">*</span></label>
-                                <input type="text" name="last_name" value="{{ old('last_name', $staff->profile->last_name ?? '') }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900 placeholder-gray-400" placeholder="Enter last name" required>
-                                @error('last_name')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Employee ID / Username <span class="text-red-500">*</span></label>
-                                <input type="text" name="username" value="{{ old('username', $staff->username ?? '') }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900 placeholder-gray-400" placeholder="Enter employee ID" required>
-                                @error('username')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
-                                <input type="email" name="email" value="{{ old('email', $staff->profile->email ?? '') }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900 placeholder-gray-400" placeholder="Enter email address">
-                                @error('email')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number</label>
-                                <input type="text" name="phone_number" value="{{ old('phone_number', $staff->profile->phone ?? '') }}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900 placeholder-gray-400" placeholder="10-digit phone number">
-                                @error('phone_number')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            
-                            @php
-                                $currentSchoolCode = $staff->profile->schools_id ?? '';
-                                $currentDeptCode = $staff->profile->departments_id ?? '';
-                                $currentSchool = $schools->where('code', $currentSchoolCode)->first() ?? $schools->where('id', $currentSchoolCode)->first();
-                                $currentDept = $departments->where('code', $currentDeptCode)->first() ?? $departments->where('id', $currentDeptCode)->first();
-                            @endphp
-
-                            @if(Auth::user()->role === 'sa')
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">School <span class="text-red-500">*</span></label>
-                                <select name="school_id" id="school_select" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900" required>
-                                    <option value="">Select School</option>
-                                    @foreach($schools as $school)
-                                        <option value="{{ $school->id }}" {{ old('school_id', $currentSchool->id ?? '') == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('school_id')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Department <span class="text-red-500">*</span></label>
-                                <select name="department_id" id="department_select" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900" required>
-                                    <option value="">Select Department</option>
-                                    @foreach($departments as $dept)
-                                        <option value="{{ $dept->id }}" data-school-id="{{ optional($dept->school)->id }}" {{ old('department_id', $currentDept->id ?? '') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('department_id')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            @elseif(Auth::user()->role === 'admin')
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">School</label>
-                                <input type="text" value="{{ $currentSchool->name ?? $currentSchoolCode }}" class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed" disabled>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Department</label>
-                                <input type="text" value="{{ $currentDept->name ?? $currentDeptCode }}" class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-500 cursor-not-allowed" disabled>
-                            </div>
-                            @else
-                            <input type="hidden" name="school_id" value="{{ Auth::user()->profile->school_id }}">
-                            <input type="hidden" name="department_id" value="{{ Auth::user()->profile->department_id }}">
-                            @endif
-
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Designation</label>
-                                <input type="text" name="designation" value="{{ old('designation', $staff->profile->designation ?? '') }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900 placeholder-gray-400" placeholder="e.g. Senior Lecturer">
-                                @error('designation')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1.5">New Password <span class="text-xs text-gray-400 font-normal">(Leave blank to keep existing password)</span></label>
-                                <input type="password" name="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all duration-300 text-gray-900" placeholder="Enter new password to change">
-                                @error('password')
-                                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p>
-                                @enderror
+                        
+                        <!-- Personal Info Grid (3 Columns) -->
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Personal Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">First Name <span class="text-red-500">*</span></label>
+                                    <input type="text" name="first_name" value="{{ old('first_name', $staff->profile->first_name ?? '') }}" placeholder="Enter first name" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all" required>
+                                    @error('first_name')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Middle Name</label>
+                                    <input type="text" name="middle_name" value="{{ old('middle_name', $staff->profile->middle_name ?? '') }}" placeholder="Enter middle name (optional)" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                                    @error('middle_name')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Last Name <span class="text-red-500">*</span></label>
+                                    <input type="text" name="last_name" value="{{ old('last_name', $staff->profile->last_name ?? '') }}" placeholder="Enter last name" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all" required>
+                                    @error('last_name')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 
-                        <div class="mt-8 flex justify-end gap-3">
-                            <a href="{{ route('staff.index') }}" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all duration-300 shadow-sm">Cancel</a>
-                            <button type="submit" class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 border border-transparent rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 shadow-md shadow-teal-500/20 hover:shadow-lg hover:shadow-teal-500/30 transition-all duration-300 transform hover:-translate-y-0.5">Update Staff Member</button>
+                        <!-- Credentials & Contact Grid (3 Columns) -->
+                        <div class="border-t border-slate-100 pt-5">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Credentials & Contact Details</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Employee ID / Username <span class="text-red-500">*</span></label>
+                                    <input type="text" name="username" value="{{ old('username', $staff->username ?? '') }}" placeholder="Enter employee ID" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-mono" required>
+                                    @error('username')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
+                                    <input type="email" name="email" value="{{ old('email', $staff->profile->email ?? '') }}" placeholder="name@vignan.ac.in" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                                    @error('email')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number</label>
+                                    <input type="text" name="phone_number" value="{{ old('phone_number', $staff->profile->phone ?? '') }}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="10-digit mobile" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-mono">
+                                    @error('phone_number')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Academic Placement & Designation (3 Columns) -->
+                        <div class="border-t border-slate-100 pt-5">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Academic Placement & Role</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                @php
+                                    $currentSchoolCode = $staff->profile->schools_id ?? '';
+                                    $currentDeptCode = $staff->profile->departments_id ?? '';
+                                    $currentSchool = $schools->where('code', $currentSchoolCode)->first() ?? $schools->where('id', $currentSchoolCode)->first();
+                                    $currentDept = $departments->where('code', $currentDeptCode)->first() ?? $departments->where('id', $currentDeptCode)->first();
+                                @endphp
+
+                                @if(Auth::user()->role === 'sa')
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">School <span class="text-red-500">*</span></label>
+                                    <select name="school_id" id="school_select" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all" required>
+                                        <option value="">Select School</option>
+                                        @foreach($schools as $school)
+                                            <option value="{{ $school->id }}" {{ old('school_id', $currentSchool->id ?? '') == $school->id ? 'selected' : '' }}>{{ $school->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('school_id')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Department <span class="text-red-500">*</span></label>
+                                    <select name="department_id" id="department_select" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all" required>
+                                        <option value="">Select Department</option>
+                                        @foreach($departments as $dept)
+                                            <option value="{{ $dept->id }}" data-school-id="{{ optional($dept->school)->id }}" {{ old('department_id', $currentDept->id ?? '') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('department_id')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                @elseif(Auth::user()->role === 'admin')
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">School</label>
+                                    <input type="text" value="{{ $currentSchool->name ?? $currentSchoolCode }}" class="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 text-sm cursor-not-allowed" disabled>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Department</label>
+                                    <input type="text" value="{{ $currentDept->name ?? $currentDeptCode }}" class="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 text-sm cursor-not-allowed" disabled>
+                                </div>
+                                @else
+                                <input type="hidden" name="school_id" value="{{ Auth::user()->profile->school_id }}">
+                                <input type="hidden" name="department_id" value="{{ Auth::user()->profile->department_id }}">
+                                @endif
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Designation</label>
+                                    <input type="text" name="designation" value="{{ old('designation', $staff->profile->designation ?? '') }}" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all" placeholder="e.g. Assistant Professor, Lecturer">
+                                    @error('designation')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Section -->
+                        <div class="border-t border-slate-100 pt-5">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Account Security</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">New Password <span class="text-xs text-slate-400 font-normal lowercase">(leave blank to keep existing password)</span></label>
+                                    <input type="password" name="password" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all" placeholder="Enter new password if changing">
+                                    @error('password')
+                                        <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="border-t border-slate-100 pt-6 flex items-center justify-end gap-3">
+                            <a href="{{ route('staff.index') }}" class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-all shadow-xs">Cancel</a>
+                            <button type="submit" class="px-6 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-md transition-all">Update Faculty Member</button>
                         </div>
                     </form>
                 </div>

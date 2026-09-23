@@ -127,9 +127,10 @@ class CoordinatorController extends Controller
         $departmentsWithCoordinators = Department::whereHas('profiles', function($q) {
             $q->where('roles_id', 'admin')->has('user');
         })->count();
-        $unassignedDepartments = $totalDepartments - $departmentsWithCoordinators;
-        $totalActiveCoordinators = \App\Models\Profile::where('roles_id', 'admin')->has('user')->count();
+        $unassignedDepartments = max(0, $totalDepartments - $departmentsWithCoordinators);
+        $totalActiveCoordinators = User::role('admin')->count();
         
+        $allDepartments = Department::all();
         $filterDepartments = Department::when($request->filled('school'), function($q) use ($request) {
             $q->whereHas('school', function($sq) use ($request) {
                 $sq->where('code', $request->school);
@@ -139,7 +140,7 @@ class CoordinatorController extends Controller
         $departments = $query->paginate(10)->withQueryString();
 
         return view('superadmin.department_coordinators', compact(
-            'departments', 'schools', 'filterDepartments', 'totalDepartments', 
+            'departments', 'schools', 'allDepartments', 'filterDepartments', 'totalDepartments', 
             'departmentsWithCoordinators', 'unassignedDepartments', 'totalActiveCoordinators'
         ));
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create MCQ Assignment - LMS Staff</title>
+    <title>Create MCQ Assignment - LMS Faculty</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
@@ -33,8 +33,8 @@
         </header>
 
         <!-- Main Scrollable Content -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-            <div class="max-w-5xl mx-auto space-y-6">
+        <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 bg-gray-50">
+            <div class="w-full space-y-6">
 
                 <!-- Alert Messages -->
                 @if(session('error'))
@@ -64,6 +64,12 @@
                         <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Create MCQ Assignment</h1>
                         <p class="mt-1 text-sm text-gray-600">Build interactive multiple choice questions or upload full question banks in bulk using Excel.</p>
                     </div>
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        <a href="{{ route('staff.assignments.template') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>Download Excel Template</span>
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Mode Tabs -->
@@ -82,121 +88,162 @@
 
                     <!-- Bulk Excel Upload Panel -->
                     <div id="tab-bulk-content" class="p-6 sm:p-8 space-y-6">
-                        
-                        <!-- Step 1: Download Template -->
-                        <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-6">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div>
-                                    <h3 class="text-base font-bold text-indigo-950 flex items-center">
-                                        <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center mr-2">1</span>
-                                        Download Official MCQ Excel Template
-                                    </h3>
-                                    <p class="text-xs text-indigo-800 mt-1 max-w-xl">
-                                        The Excel spreadsheet includes question text, Option A, Option B, Option C, Option D, correct option (A/B/C/D), marks, and a sheet with your course codes.
-                                    </p>
+                        <form action="{{ route('staff.assignments.bulk') }}" method="POST" enctype="multipart/form-data" class="space-y-6" id="bulk-upload-form">
+                            @csrf
+                            <input type="hidden" name="file_base64" id="file_base64">
+                            <input type="hidden" name="file_name" id="file_name">
+
+                            <!-- Step 1: Assignment Details -->
+                            <div class="bg-white rounded-2xl border border-gray-200/90 shadow-2xs p-6 space-y-5">
+                                <div class="flex items-center gap-3 pb-3.5 border-b border-gray-100">
+                                    <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-extrabold flex items-center justify-center shadow-xs">1</span>
+                                    <div>
+                                        <h3 class="text-base font-bold text-gray-900">Assignment Details</h3>
+                                        <p class="text-xs text-gray-500">Select course and set assignment parameters (no need to specify in Excel)</p>
+                                    </div>
                                 </div>
-                                <a href="{{ route('staff.assignments.template') }}" class="inline-flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors shrink-0">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                    Download MCQ .xlsx Template
-                                </a>
-                            </div>
-                        </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <!-- Course -->
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                            Assigned Course <span class="text-red-500">*</span>
+                                        </label>
+                                        <select name="course_id" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                            <option value="">-- Choose Assigned Course --</option>
+                                            @foreach($assignedCourses as $course)
+                                                <option value="{{ $course->id }}" {{ (old('course_id', $selectedCourseId) == $course->id) ? 'selected' : '' }}>
+                                                    {{ $course->code }} - {{ $course->name }} @if($course->regulation)({{ $course->regulation->code ?: $course->regulation->name }}{{ !empty($course->regulation->curriculum) ? ' • ' . $course->regulation->curriculum : '' }})@endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
-                        <!-- Expected Excel Fields Guide -->
-                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-3">
-                            <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Required Excel Columns for MCQ Bulk Upload:</h4>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-xs text-left text-gray-600">
-                                    <thead class="bg-gray-200/70 text-gray-800 font-bold">
-                                        <tr>
-                                            <th class="p-2.5 rounded-l">Column Header</th>
-                                            <th class="p-2.5">Required?</th>
-                                            <th class="p-2.5">Example Value</th>
-                                            <th class="p-2.5 rounded-r">Notes</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200 font-sans">
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">course_code</td>
-                                            <td class="p-2.5 text-red-600 font-bold">Yes</td>
-                                            <td class="p-2.5 font-mono">21CS101</td>
-                                            <td class="p-2.5">Your assigned course code</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">assignment_title</td>
-                                            <td class="p-2.5 text-red-600 font-bold">Yes</td>
-                                            <td class="p-2.5">Unit 1 MCQ Quiz: Data Structures</td>
-                                            <td class="p-2.5">Questions with same title & course are grouped together</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">question</td>
-                                            <td class="p-2.5 text-red-600 font-bold">Yes</td>
-                                            <td class="p-2.5">Which data structure follows the LIFO principle?</td>
-                                            <td class="p-2.5">The question text</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">option_a</td>
-                                            <td class="p-2.5 text-red-600 font-bold">Yes</td>
-                                            <td class="p-2.5">Queue</td>
-                                            <td class="p-2.5">First choice</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">option_b</td>
-                                            <td class="p-2.5 text-red-600 font-bold">Yes</td>
-                                            <td class="p-2.5">Stack</td>
-                                            <td class="p-2.5">Second choice</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">option_c</td>
-                                            <td class="p-2.5 text-red-600 font-bold">Yes</td>
-                                            <td class="p-2.5">Array</td>
-                                            <td class="p-2.5">Third choice</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">option_d</td>
-                                            <td class="p-2.5 text-red-600 font-bold">Yes</td>
-                                            <td class="p-2.5">Tree</td>
-                                            <td class="p-2.5">Fourth choice</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">correct_option</td>
-                                            <td class="p-2.5 text-red-600 font-bold">Yes</td>
-                                            <td class="p-2.5 font-mono font-bold text-emerald-700">B</td>
-                                            <td class="p-2.5">Must be <code>A</code>, <code>B</code>, <code>C</code>, or <code>D</code></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">marks</td>
-                                            <td class="p-2.5 text-gray-500">Optional</td>
-                                            <td class="p-2.5 font-mono">1</td>
-                                            <td class="p-2.5">Marks for this question (default 1)</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">explanation</td>
-                                            <td class="p-2.5 text-gray-500">Optional</td>
-                                            <td class="p-2.5">Stack operates on Last In First Out (LIFO).</td>
-                                            <td class="p-2.5">Explanations shown to students in review</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-2.5 font-mono font-bold text-indigo-700">due_date</td>
-                                            <td class="p-2.5 text-gray-500">Optional</td>
-                                            <td class="p-2.5 font-mono">2026-11-30 23:59:00</td>
-                                            <td class="p-2.5">Deadline date and time</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                    <!-- Assignment Title -->
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                            MCQ Assignment Title <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" name="title" value="{{ old('title') }}" placeholder="e.g. Unit 1 MCQ Quiz: Fundamentals & Core Concepts" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
 
-                        <!-- Step 2: Upload Excel File -->
-                        <div class="border-t border-gray-100 pt-6">
-                            <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center">
-                                <span class="w-6 h-6 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center mr-2">2</span>
-                                Upload Completed Excel File
-                            </h3>
-                            <form action="{{ route('staff.assignments.bulk') }}" method="POST" enctype="multipart/form-data" class="space-y-4" id="bulk-upload-form">
-                                @csrf
-                                <input type="hidden" name="file_base64" id="file_base64">
-                                <input type="hidden" name="file_name" id="file_name">
+                                    <!-- Deadline / Due Date -->
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                            Submission Deadline <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="datetime-local" name="due_date" value="{{ old('due_date', now()->addDays(7)->format('Y-m-d\TH:i')) }}" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+
+                                    <!-- Publish Status -->
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                            Publish Status <span class="text-red-500">*</span>
+                                        </label>
+                                        <select name="status" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                            <option value="published" {{ old('status', 'published') == 'published' ? 'selected' : '' }}>Published (Active for Students)</option>
+                                            <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>Draft (Hidden)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Description / Instructions -->
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                                            Description / Instructions <span class="text-gray-400 text-xs font-normal">(Optional)</span>
+                                        </label>
+                                        <textarea name="description" rows="2" placeholder="Provide instructions or guidelines for students..." class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">{{ old('description') }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Expected Excel Fields Guide -->
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-4">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-extrabold flex items-center justify-center shadow-xs">2</span>
+                                        <div>
+                                            <h4 class="text-sm font-bold text-gray-800">Required Excel Columns for Questions</h4>
+                                            <p class="text-xs text-gray-500">Your spreadsheet only needs the question bank columns below</p>
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('staff.assignments.template') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-2xs hover:shadow transition-all shrink-0 cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                        <span>Download Sample Template (.xlsx)</span>
+                                    </a>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-xs text-left text-gray-600">
+                                        <thead class="bg-gray-200/70 text-gray-800 font-bold">
+                                            <tr>
+                                                <th class="p-2.5 rounded-l">Column Header</th>
+                                                <th class="p-2.5">Required?</th>
+                                                <th class="p-2.5">Example Value</th>
+                                                <th class="p-2.5 rounded-r">Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200 font-sans">
+                                            <tr>
+                                                <td class="p-2.5 font-mono font-bold text-indigo-700">question</td>
+                                                <td class="p-2.5 text-red-600 font-bold">Yes</td>
+                                                <td class="p-2.5">Which data structure follows the LIFO principle?</td>
+                                                <td class="p-2.5">The question text</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-2.5 font-mono font-bold text-indigo-700">option_a</td>
+                                                <td class="p-2.5 text-red-600 font-bold">Yes</td>
+                                                <td class="p-2.5">Queue</td>
+                                                <td class="p-2.5">First choice</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-2.5 font-mono font-bold text-indigo-700">option_b</td>
+                                                <td class="p-2.5 text-red-600 font-bold">Yes</td>
+                                                <td class="p-2.5">Stack</td>
+                                                <td class="p-2.5">Second choice</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-2.5 font-mono font-bold text-indigo-700">option_c</td>
+                                                <td class="p-2.5 text-red-600 font-bold">Yes</td>
+                                                <td class="p-2.5">Array</td>
+                                                <td class="p-2.5">Third choice</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-2.5 font-mono font-bold text-indigo-700">option_d</td>
+                                                <td class="p-2.5 text-red-600 font-bold">Yes</td>
+                                                <td class="p-2.5">Tree</td>
+                                                <td class="p-2.5">Fourth choice</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-2.5 font-mono font-bold text-indigo-700">correct_option</td>
+                                                <td class="p-2.5 text-red-600 font-bold">Yes</td>
+                                                <td class="p-2.5 font-mono font-bold text-emerald-700">B</td>
+                                                <td class="p-2.5">Must be <code>A</code>, <code>B</code>, <code>C</code>, or <code>D</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-2.5 font-mono font-bold text-indigo-700">marks</td>
+                                                <td class="p-2.5 text-gray-500">Optional</td>
+                                                <td class="p-2.5 font-mono">1</td>
+                                                <td class="p-2.5">Marks for this question (default 1)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="p-2.5 font-mono font-bold text-indigo-700">explanation</td>
+                                                <td class="p-2.5 text-gray-500">Optional</td>
+                                                <td class="p-2.5">Stack operates on Last In First Out (LIFO).</td>
+                                                <td class="p-2.5">Explanations shown to students in review</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Upload Excel File Section -->
+                            <div class="bg-white rounded-2xl border border-gray-200/90 shadow-2xs p-6 space-y-4">
+                                <div class="flex items-center gap-3 pb-3.5 border-b border-gray-100">
+                                    <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-extrabold flex items-center justify-center shadow-xs">3</span>
+                                    <div>
+                                        <h3 class="text-base font-bold text-gray-900">Upload Questions Spreadsheet</h3>
+                                        <p class="text-xs text-gray-500">Select or drop your Excel (.xlsx, .xls) or CSV (.csv) question file</p>
+                                    </div>
+                                </div>
                                 
                                 <label for="excel_file" id="drop-zone" class="block relative border-2 border-dashed border-indigo-200 hover:border-indigo-500 rounded-xl p-8 text-center bg-indigo-50/20 hover:bg-indigo-50/50 transition-all cursor-pointer">
                                     <input id="excel_file" name="excel_file" type="file" accept=".xlsx,.xls,.csv" class="sr-only" onchange="handleFileSelect(this)">
@@ -225,15 +272,18 @@
                                     </div>
                                 </label>
 
-                                <div class="flex justify-end">
-                                    <button type="submit" id="submit-import-btn" class="px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm transition-colors flex items-center">
+                                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                                    <a href="{{ route('staff.assignments.template') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:underline">
+                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        <span>Need a ready template? Download Sample Excel File</span>
+                                    </a>
+                                    <button type="submit" id="submit-import-btn" class="w-full sm:w-auto px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-sm transition-colors flex items-center justify-center cursor-pointer">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                        Import MCQ Questions & Create Assignment
+                                        Import Questions & Create Assignment
                                     </button>
                                 </div>
-                            </form>
-                        </div>
-
+                            </div>
+                        </form>
                     </div>
 
                     <!-- Single Assignment Creation Panel -->
@@ -249,7 +299,7 @@
                                         <option value="">-- Choose Course --</option>
                                         @foreach($assignedCourses as $course)
                                             <option value="{{ $course->id }}" {{ (old('course_id', $selectedCourseId) == $course->id) ? 'selected' : '' }}>
-                                                {{ $course->code }} - {{ $course->name }}
+                                                {{ $course->code }} - {{ $course->name }} @if($course->regulation)({{ $course->regulation->code ?: $course->regulation->name }}{{ !empty($course->regulation->curriculum) ? ' • ' . $course->regulation->curriculum : '' }})@endif
                                             </option>
                                         @endforeach
                                     </select>

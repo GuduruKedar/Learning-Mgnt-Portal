@@ -32,12 +32,37 @@ body {
 
 /* Glass panel for the right-side form card */
 .glass-panel {
+    position: relative;
+    overflow: hidden;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.85);
     box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35),
                 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+}
+
+.glass-panel::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    height: 280px;
+    background-image: url('/images/vignanwatermark.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    opacity: 0.045;
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
+}
+
+.glass-panel > * {
+    position: relative;
+    z-index: 1;
 }
 
 /* Left side points container */

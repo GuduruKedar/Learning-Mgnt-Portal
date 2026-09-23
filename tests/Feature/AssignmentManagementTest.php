@@ -263,5 +263,10 @@ class AssignmentManagementTest extends TestCase
         $staffView = $this->actingAs($this->staffUser)->get(route('staff.assignments.show', $assignment->id));
         $staffView->assertStatus(200);
         $staffView->assertSee($this->studentUser->first_name);
+
+        // 7. Staff exports responses to Excel
+        $exportResponse = $this->actingAs($this->staffUser)->get(route('staff.assignments.export', $assignment->id));
+        $exportResponse->assertStatus(200);
+        $exportResponse->assertHeader('content-disposition');
     }
 }

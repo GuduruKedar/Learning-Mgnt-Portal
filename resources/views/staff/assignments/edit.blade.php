@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Assignment - LMS Staff</title>
+    <title>Edit Assignment - LMS Faculty</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
@@ -66,7 +66,7 @@
                                     <select name="course_id" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
                                         @foreach($assignedCourses as $course)
                                             <option value="{{ $course->id }}" {{ (old('course_id', $assignment->course_id) == $course->id) ? 'selected' : '' }}>
-                                                {{ $course->code }} - {{ $course->name }}
+                                                {{ $course->code }} - {{ $course->name }} @if($course->regulation)({{ $course->regulation->code ?: $course->regulation->name }}{{ !empty($course->regulation->curriculum) ? ' • ' . $course->regulation->curriculum : '' }})@endif
                                             </option>
                                         @endforeach
                                     </select>

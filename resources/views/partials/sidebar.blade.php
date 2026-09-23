@@ -10,7 +10,7 @@
 <aside id="sidebar" class="sidebar sidebar-expanded bg-blue-900 text-blue-100 shadow-2xl border-r border-blue-800 flex flex-col transition-all duration-300 relative z-20 shrink-0">
     <!-- Logo Area -->
     <div class="h-16 flex items-center justify-between border-b border-blue-800 px-4" id="logo-container">
-        <span id="logo-text" class="text-xl font-bold tracking-wider text-expanded whitespace-nowrap text-white">{{ Auth::check() ? (['sa' => 'LMS Super Admin', 'admin' => 'LMS Admin', 'civil_admin' => 'Civil Services', 'sta' => 'LMS Staff', 'stu' => 'LMS Student'][Auth::user()->role] ?? 'LMS') : 'LMS' }}</span>
+        <span id="logo-text" class="text-xl font-bold tracking-wider text-expanded whitespace-nowrap text-white">{{ Auth::check() ? (['sa' => 'LMS Super Admin', 'ssh_admin' => 'LMS SSH', 'admin' => 'LMS Coordinator', 'civil_admin' => 'Civil Services', 'sta' => 'LMS Faculty', 'stu' => 'LMS Student'][Auth::user()->role] ?? 'LMS') : 'LMS' }}</span>
         <button id="toggle-sidebar" class="p-1 rounded-md text-blue-300 hover:text-white hover:bg-blue-800 focus:outline-none transition-colors shrink-0">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -32,10 +32,6 @@
 
         @if(Auth::user()->role === 'sta')
         <!-- Staff Specific Links -->
-        <a href="{{ route('staff.courses.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('staff.courses.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-2">
-            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-            <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">My Courses</span>
-        </a>
         <a href="{{ route('staff.assignments.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('staff.assignments.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-2">
             <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Assignments</span>
@@ -58,27 +54,7 @@
         </a>
         @endif
 
-        @if(in_array(Auth::user()->role, ['civil_admin', 'sa']))
-        <!-- Civil Services Section -->
-        <div class="pt-2 {{ Auth::user()->role === 'sa' ? 'border-t border-blue-800 mt-2' : '' }}">
-            <div class="px-3 py-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">Civil Services</div>
-            <a href="{{ route('civil.students.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('civil.students.index') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
-                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
-                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Enrolled Students</span>
-            </a>
-            <a href="{{ route('civil.students.create') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('civil.students.create') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-1">
-                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Enroll / Add Student</span>
-            </a>
-            <a href="{{ route('civil.courses.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('civil.courses.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-1">
-                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Courses & Modules</span>
-            </a>
-        </div>
-        @endif
-
         @if(in_array(Auth::user()->role, ['sa', 'admin']))
-        
         <!-- Manage Section -->
         <div class="pt-2">
             <button type="button" onclick="document.getElementById('manage-menu').classList.toggle('hidden')" class="w-full flex justify-between items-center px-3 py-2 text-xs font-semibold text-blue-300 uppercase tracking-wider hover:text-white transition-colors focus:outline-none">
@@ -94,8 +70,6 @@
                     <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                     <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Dept. Coordinators</span>
                 </a>
-                
-
                 @endif
                 
                 <a href="{{ route('staff.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('staff.index') && !request()->has('action') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
@@ -138,19 +112,17 @@
                 </div>
             </div>
         </div>
-        @endif
 
-        @if(in_array(Auth::user()->role, ['sa', 'admin']))
         <!-- Academics Section -->
         <div class="pt-2 border-t border-blue-800 mt-2">
-            <button type="button" onclick="document.getElementById('academics-menu').classList.toggle('hidden')" class="w-full flex justify-between items-center px-3 py-2 text-xs font-semibold text-blue-300 uppercase tracking-wider hover:text-white transition-colors focus:outline-none mt-2">
+            <button type="button" onclick="document.getElementById('academics-menu').classList.toggle('hidden')" class="w-full flex justify-between items-center px-3 py-2 text-xs font-semibold text-blue-300 uppercase tracking-wider hover:text-white transition-colors focus:outline-none">
                 <div class="flex items-center">
                     <svg class="w-5 h-5 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
                     <span class="text-expanded nav-text">Academics</span>
                 </div>
                 <svg class="w-4 h-4 text-expanded nav-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-            <div id="academics-menu" class="space-y-1 mt-1 {{ request()->routeIs('academic.*') ? '' : 'hidden' }}">
+            <div id="academics-menu" class="space-y-1 mt-1 {{ (request()->routeIs('academic.*') || request()->routeIs('activity_logs.*')) ? '' : 'hidden' }}">
                 <a href="{{ route('academic.regulations') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('academic.regulations') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
                     <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                     <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Regulations</span>
@@ -171,7 +143,91 @@
                     <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                     <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Enrollment Insights</span>
                 </a>
+
+                <a href="{{ route('activity_logs.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('activity_logs.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-1">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Activity & Audit Logs</span>
+                </a>
                 @endif
+            </div>
+        </div>
+        @endif
+
+        @if(in_array(Auth::user()->role, ['civil_admin', 'sa']))
+        <!-- Civil Services Section -->
+        <div class="pt-2 border-t border-blue-800 mt-2">
+            <button type="button" onclick="document.getElementById('civil-services-menu').classList.toggle('hidden')" class="w-full flex justify-between items-center px-3 py-2 text-xs font-semibold text-blue-300 uppercase tracking-wider hover:text-white transition-colors focus:outline-none">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
+                    <span class="text-expanded nav-text">Civil Services</span>
+                </div>
+                <svg class="w-4 h-4 text-expanded nav-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div id="civil-services-menu" class="space-y-1 mt-1 {{ (request()->routeIs('civil.*') || Auth::user()->role === 'civil_admin') ? '' : 'hidden' }}">
+                <a href="{{ route('civil.students.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('civil.students.index') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                    <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Enrolled Students</span>
+                </a>
+                <a href="{{ route('civil.students.create') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('civil.students.create') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-1">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                    <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Enroll / Add Student</span>
+                </a>
+                <a href="{{ route('civil.courses.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('civil.courses.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-1">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Courses & Modules</span>
+                </a>
+            </div>
+        </div>
+        @endif
+
+        @if(Auth::user()->role === 'ssh_admin')
+        <!-- SSH Admin Navigation: Strictly Students, Faculty, Regulations, Courses -->
+        <div class="pt-2 border-t border-blue-800 mt-2 space-y-1">
+            <a href="{{ route('ssh.students.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('ssh.students.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Students</span>
+            </a>
+
+            <a href="{{ route('ssh.staff.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('ssh.staff.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Faculty</span>
+            </a>
+
+            <a href="{{ route('academic.regulations') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('academic.regulations*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Regulations</span>
+            </a>
+
+            <a href="{{ route('academic.courses') }}" class="flex items-center px-3 py-3 {{ (request()->routeIs('academic.courses*') || request()->routeIs('ssh.courses.*')) ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">Courses</span>
+            </a>
+        </div>
+        @endif
+
+        @if(Auth::user()->role === 'sa')
+        <!-- SSH Department (Sciences & Humanities / First Year) Section for Super Admin -->
+        <div class="pt-2 border-t border-blue-800 mt-2">
+            <button type="button" onclick="document.getElementById('ssh-department-menu').classList.toggle('hidden')" class="w-full flex justify-between items-center px-3 py-2 text-xs font-semibold text-blue-300 uppercase tracking-wider hover:text-white transition-colors focus:outline-none">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <span class="text-expanded nav-text">Sciences & Humanities</span>
+                </div>
+                <svg class="w-4 h-4 text-expanded nav-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div id="ssh-department-menu" class="space-y-1 mt-1 {{ request()->routeIs('ssh.*') ? '' : 'hidden' }}">
+                <a href="{{ route('ssh.students.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('ssh.students.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                    <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">1st Year Students</span>
+                </a>
+                <a href="{{ route('ssh.staff.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('ssh.staff.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-1">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">S&H Faculty</span>
+                </a>
+                <a href="{{ route('ssh.courses.index') }}" class="flex items-center px-3 py-3 {{ request()->routeIs('ssh.courses.*') ? 'bg-blue-800 shadow-sm border border-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white' }} rounded-lg transition-colors group mt-1">
+                    <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    <span class="ml-4 nav-text font-medium text-sm whitespace-nowrap text-expanded">1st Year Courses</span>
+                </a>
             </div>
         </div>
         @endif

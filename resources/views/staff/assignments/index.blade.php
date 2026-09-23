@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assignments Management - LMS Staff</title>
+    <title>Assignments Management - LMS Faculty</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
@@ -53,7 +53,7 @@
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-            <div class="max-w-7xl mx-auto space-y-6">
+            <div class="w-full space-y-6">
 
                 <!-- Flash Alerts -->
                 @if(session('success'))
@@ -103,42 +103,72 @@
                         </a>
                         <a href="{{ route('staff.assignments.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            Create / Bulk Upload
+                            Create Assignment
                         </a>
                     </div>
                 </div>
 
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
+                <!-- Stats Cards (Clickable Quick Filters) -->
+                @php
+                    $currentStatus = request('status');
+                @endphp
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                    <!-- Total Assignments -->
+                    <a href="{{ route('staff.assignments.index', array_filter(array_merge(request()->except(['page', 'status']), ['status' => null]))) }}" 
+                       class="group rounded-2xl shadow-sm border p-5 flex items-center justify-between transition-all duration-200 {{ empty($currentStatus) ? 'bg-indigo-50/50 border-indigo-300 ring-2 ring-indigo-500/20 shadow-md' : 'bg-white border-gray-100 hover:border-indigo-200 hover:shadow-md hover:-translate-y-0.5' }}">
                         <div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Assignments</p>
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-xs font-bold {{ empty($currentStatus) ? 'text-indigo-700' : 'text-gray-500 group-hover:text-indigo-600' }} uppercase tracking-wider transition-colors">Total Assignments</p>
+                                @if(empty($currentStatus))
+                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                                @endif
+                            </div>
                             <p class="text-2xl font-extrabold text-gray-900 mt-1">{{ $totalAssignments }}</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5 font-medium">{{ $assignedCoursesCount }} {{ Str::plural('Course', $assignedCoursesCount) }} allocated</p>
                         </div>
-                        <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                        <div class="w-12 h-12 {{ empty($currentStatus) ? 'bg-indigo-600 text-white shadow-sm' : 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white' }} rounded-2xl flex items-center justify-center shrink-0 transition-all duration-200">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         </div>
-                    </div>
+                    </a>
 
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
+                    <!-- Active / Open -->
+                    <a href="{{ route('staff.assignments.index', array_filter(array_merge(request()->except(['page']), ['status' => 'active']))) }}" 
+                       class="group rounded-2xl shadow-sm border p-5 flex items-center justify-between transition-all duration-200 {{ $currentStatus === 'active' ? 'bg-emerald-50/50 border-emerald-300 ring-2 ring-emerald-500/20 shadow-md' : 'bg-white border-gray-100 hover:border-emerald-200 hover:shadow-md hover:-translate-y-0.5' }}">
                         <div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Submissions</p>
-                            <p class="text-2xl font-extrabold text-gray-900 mt-1">{{ $totalSubmissions }}</p>
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Active & Open</p>
+                                @if($currentStatus === 'active')
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                                @endif
+                            </div>
+                            <p class="text-2xl font-extrabold text-gray-900 mt-1">{{ $activeAssignmentsCount }}</p>
+                            <p class="text-[11px] text-emerald-600 mt-0.5 font-medium flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Accepting responses
+                            </p>
                         </div>
-                        <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                        <div class="w-12 h-12 {{ $currentStatus === 'active' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white' }} rounded-2xl flex items-center justify-center shrink-0 transition-all duration-200">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                    </div>
+                    </a>
 
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
+                    <!-- Past Due Deadline -->
+                    <a href="{{ route('staff.assignments.index', array_filter(array_merge(request()->except(['page']), ['status' => 'past_due']))) }}" 
+                       class="group rounded-2xl shadow-sm border p-5 flex items-center justify-between transition-all duration-200 {{ $currentStatus === 'past_due' ? 'bg-amber-50/50 border-amber-300 ring-2 ring-amber-500/20 shadow-md' : 'bg-white border-gray-100 hover:border-amber-200 hover:shadow-md hover:-translate-y-0.5' }}">
                         <div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total MCQ Questions</p>
-                            <p class="text-2xl font-extrabold text-indigo-600 mt-1">{{ $totalQuestions ?? 0 }}</p>
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-xs font-bold text-amber-600 uppercase tracking-wider">Past Due</p>
+                                @if($currentStatus === 'past_due')
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                                @endif
+                            </div>
+                            <p class="text-2xl font-extrabold text-gray-900 mt-1">{{ $pastDueAssignmentsCount }}</p>
+                            <p class="text-[11px] text-amber-600 mt-0.5 font-medium">Deadline passed</p>
                         </div>
-                        <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div class="w-12 h-12 {{ $currentStatus === 'past_due' ? 'bg-amber-500 text-white shadow-sm' : 'bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white' }} rounded-2xl flex items-center justify-center shrink-0 transition-all duration-200">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <!-- Filter & Search Bar -->
@@ -150,7 +180,7 @@
                                 <option value="">All Assigned Courses</option>
                                 @foreach($assignedCourses as $c)
                                     <option value="{{ $c->id }}" {{ request('course_id') == $c->id ? 'selected' : '' }}>
-                                        {{ $c->code }} - {{ $c->name }}
+                                        {{ $c->code }} - {{ $c->name }} @if($c->regulation)({{ $c->regulation->code ?: $c->regulation->name }}{{ !empty($c->regulation->curriculum) ? ' • ' . $c->regulation->curriculum : '' }})@endif
                                     </option>
                                 @endforeach
                             </select>
@@ -162,8 +192,6 @@
                                 <option value="">All Statuses</option>
                                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active (Open)</option>
                                 <option value="past_due" {{ request('status') == 'past_due' ? 'selected' : '' }}>Past Due Deadline</option>
-                                <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
-                                <option value="closed" {{ request('status') == 'closed' ? 'selected' : '' }}>Closed</option>
                             </select>
                         </div>
 
@@ -202,7 +230,7 @@
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between overflow-hidden">
                             <div class="p-6">
                                 <div class="flex items-center justify-between mb-3">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold font-mono tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-100">
                                         {{ $assignment->course->code }}
                                     </span>
                                     @if($assignment->status === 'draft')
@@ -242,9 +270,9 @@
                                         <span class="font-semibold text-indigo-700">{{ $assignment->max_marks }} pts</span>
                                     </div>
                                     <div class="flex justify-between items-center">
-                                        <span class="text-gray-500">Submissions Received:</span>
-                                        <span class="font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">
-                                            {{ $assignment->submissions->count() }} submitted
+                                        <span class="text-gray-500">Submissions:</span>
+                                        <span class="font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded text-xs">
+                                            {{ $assignment->submissions->count() }} of {{ $assignment->course->enrollments->count() }} enrolled
                                         </span>
                                     </div>
                                 </div>

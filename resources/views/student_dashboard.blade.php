@@ -49,7 +49,7 @@
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 bg-gray-50">
-            <div class="max-w-7xl mx-auto space-y-5 sm:space-y-6">
+            <div class="w-full space-y-5 sm:space-y-6">
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Student Dashboard Overview</h2>
 
                 <!-- Stat Cards -->

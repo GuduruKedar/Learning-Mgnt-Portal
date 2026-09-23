@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Students - LMS</title>
+    <title>Course Allocations (Faculty Assignment) - LMS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
@@ -51,10 +51,25 @@
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-            <div class="max-w-7xl mx-auto space-y-6">
+            <div class="w-full space-y-6">
                 <!-- Page Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
-                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">Course Allocations</h1>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">Course Allocations (Faculty Assignment)</h1>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/80 shadow-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                            {{ $courses->total() }} {{ Str::plural('Course', $courses->total()) }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('academic.courses') }}" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold py-2 px-3.5 rounded-xl shadow-xs transition-all flex items-center gap-1.5 text-xs">
+                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            <span>Courses Catalog</span>
+                        </a>
+                        <a href="{{ route('academic.courses.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm shadow-indigo-200 transition-all flex items-center gap-1.5 text-xs focus:outline-none">
+                            <span>+ Add New Course</span>
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Filters Section -->
@@ -80,7 +95,7 @@
                             </select>
                         </div>
 
-                        @if(Auth::user()->role === 'sa')
+                        @if(in_array(Auth::user()->role, ['sa', 'ssh_admin']))
                         <div class="w-full sm:w-48 shrink-0">
                             <label for="department" class="sr-only">Department</label>
                             <select name="department" id="department" onchange="this.form.submit()" class="block w-full pl-3 pr-10 py-2.5 text-sm border-gray-200 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-all duration-200 cursor-pointer appearance-none">
@@ -95,10 +110,14 @@
                         <div class="w-full sm:w-32 shrink-0">
                             <label for="year" class="sr-only">Year</label>
                             <select name="year" id="year" onchange="this.form.submit()" class="no-tomselect block w-full pl-3 pr-10 py-2.5 text-sm border-gray-200 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-all duration-200 cursor-pointer appearance-none">
-                                <option value="">All Years</option>
-                                @for($i = 1; $i <= 4; $i++)
-                                    <option value="{{ $i }}" {{ request('year') == $i ? 'selected' : '' }}>Year {{ $i }}</option>
-                                @endfor
+                                @if(Auth::user()->role === 'ssh_admin')
+                                    <option value="1">Year 1</option>
+                                @else
+                                    <option value="">All Years</option>
+                                    @for($i = 1; $i <= 4; $i++)
+                                        <option value="{{ $i }}" {{ request('year') == $i ? 'selected' : '' }}>Year {{ $i }}</option>
+                                    @endfor
+                                @endif
                             </select>
                         </div>
 
@@ -118,11 +137,10 @@
                             <button type="submit" class="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
                                 Apply Filters
                             </button>
-                            @if(request()->hasAny(['search', 'regulation_id', 'department', 'year', 'semester']) && (request('search') != '' || request('regulation_id') != '' || request('department') != '' || request('year') != '' || request('semester') != ''))
-                            <a href="{{ route('academic.courses.allocations') }}" class="inline-flex items-center justify-center px-4 py-2.5 border border-gray-200 text-sm font-medium rounded-lg text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                Clear
+                            <a href="{{ route('academic.courses.allocations') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-gray-200 text-sm font-medium rounded-lg text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-xs" title="Reset all filters">
+                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <span>Reset</span>
                             </a>
-                            @endif
                         </div>
                     </form>
                 </div>
@@ -179,8 +197,13 @@
                                                 <!-- Assigned Staff Badges -->
                                                 <div class="flex flex-wrap gap-1.5">
                                                     @forelse($course->staff as $s)
-                                                        <div onclick="showFacultyDetails('{{ addslashes($s->first_name . ' ' . $s->last_name) }}', '{{ addslashes($s->username ?? 'N/A') }}', '{{ addslashes($s->profile->email ?? 'N/A') }}', '{{ addslashes($s->profile->designation ?? 'N/A') }}', '{{ addslashes($s->profile->department->name ?? 'N/A') }}', '{{ route('academic.courses.unallocate', [$course->id, $s->id]) }}')" class="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-medium shadow-sm transition-all hover:shadow hover:bg-indigo-100" title="View Details">
+                                                        @php
+                                                            $sDeptName = $s->profile->department->name ?? ($s->profile->departments_id ?? 'Dept');
+                                                            $sDeptShort = $s->profile->department->code ?? (strlen($sDeptName) > 12 ? substr($sDeptName, 0, 10).'..' : $sDeptName);
+                                                        @endphp
+                                                        <div onclick="showFacultyDetails('{{ addslashes($s->first_name . ' ' . $s->last_name) }}', '{{ addslashes($s->username ?? 'N/A') }}', '{{ addslashes($s->profile->email ?? 'N/A') }}', '{{ addslashes($s->profile->designation ?? 'N/A') }}', '{{ addslashes($s->profile->department->name ?? 'N/A') }}', '{{ route('academic.courses.unallocate', [$course->id, $s->id]) }}')" class="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-medium shadow-sm transition-all hover:shadow hover:bg-indigo-100" title="View Details">
                                                             <span>{{ $s->first_name }} {{ $s->last_name }}</span>
+                                                            <span class="text-[10px] text-indigo-500 font-normal">({{ $sDeptShort }})</span>
                                                         </div>
                                                     @empty
                                                         <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-50 text-gray-500 border border-gray-100 text-xs italic">
@@ -195,10 +218,19 @@
                                                     <div class="relative flex-1">
                                                         <select name="staff_id" class="tom-select-staff block w-full text-sm" required placeholder="Assign Staff...">
                                                             <option value=""></option>
-                                                            @foreach($availableStaff as $staff)
-                                                                @if(!$course->staff->contains('id', $staff->id))
-                                                                    <option value="{{ $staff->id }}">{{ $staff->username }} - {{ $staff->first_name }} {{ $staff->last_name }}</option>
-                                                                @endif
+                                                            @php
+                                                                $groupedStaff = $availableStaff->groupBy(function($st) {
+                                                                    return $st->profile->department->name ?? ($st->profile->school->name ?? 'General / S&H');
+                                                                });
+                                                            @endphp
+                                                            @foreach($groupedStaff as $deptName => $staffList)
+                                                                <optgroup label="{{ $deptName }}">
+                                                                    @foreach($staffList as $staff)
+                                                                        @if(!$course->staff->contains('id', $staff->id))
+                                                                            <option value="{{ $staff->id }}">{{ $staff->username }} - {{ $staff->first_name }} {{ $staff->last_name }} ({{ $staff->profile->designation ?? 'Faculty' }})</option>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </optgroup>
                                                             @endforeach
                                                         </select>
                                                     </div>
@@ -590,7 +622,7 @@
         }
     </script>
 
-    @if(Auth::user()->role === 'admin')
+    @if(in_array(Auth::user()->role, ['admin', 'sa', 'ssh_admin']))
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.tom-select-staff').forEach((el) => {

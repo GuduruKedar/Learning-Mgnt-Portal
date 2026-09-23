@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             'sta',
             'stu',
             'civil_admin',
+            'ssh_admin',
         ];
 
         foreach ($roles as $roleName) {
@@ -103,6 +104,20 @@ class DatabaseSeeder extends Seeder
 
         // Civil Services Admin
         $civilAdminUserId = $seedUser('civiladmin', 'CivilAdmin@741', 'civil_admin', 'Civil', 'Admin', 'civiladmin@example.com', 'sc_cs', 'dep_cs', 'Civil Services Coordinator');
+
+        // SSH Department (Sciences & Humanities / First Year Directorate) Admin & Staff
+        $sshAdminUserId = $seedUser('sshadmin', 'SshAdmin@741', 'ssh_admin', 'SSH', 'Directorate', 'sshadmin@example.com', 'sc_ash', 'dep_ssh', 'Dean / Coordinator - Sciences & Humanities (First Year)');
+        $seedUser('10003', 'SshAdmin@741', 'ssh_admin', 'SSH', 'Coordinator', 'sshcoordinator@example.com', 'sc_ash', 'dep_ssh', 'HOD - S&H (First Year Coordinator)');
+        $seedUser('10004', 'Staff@852', 'sta', 'Dr. Ramesh', 'Sharma', 'ramesh.sharma@example.com', 'sc_ash', 'dep_maths', 'Professor of Mathematics');
+        $seedUser('10005', 'Staff@852', 'sta', 'Dr. Ananya', 'Verma', 'ananya.verma@example.com', 'sc_ash', 'dep_phy', 'Associate Professor of Physics');
+        $seedUser('10006', 'Staff@852', 'sta', 'Dr. Suresh', 'Reddy', 'suresh.reddy@example.com', 'sc_ash', 'dep_chem', 'Associate Professor of Chemistry');
+        $seedUser('10007', 'Staff@852', 'sta', 'Mrs. Priya', 'Nair', 'priya.nair@example.com', 'sc_ash', 'dep_eng', 'Assistant Professor of English');
+
+        // Sample 1st Year Freshers (Across CSE, ECE, Mechanical, AI&ML)
+        $seedUser('261FA04001', 'Student#963', 'stu', 'Aarav', 'Patel', 'aarav.26@example.com', 'sc_ci', 'dep_cse', 'Student');
+        $seedUser('261FA05001', 'Student#963', 'stu', 'Diya', 'Menon', 'diya.26@example.com', 'sc_eeceng', 'dep_ece', 'Student');
+        $seedUser('261FA08001', 'Student#963', 'stu', 'Kabir', 'Singh', 'kabir.26@example.com', 'sc_ceng', 'dep_mech', 'Student');
+        $seedUser('261FA18001', 'Student#963', 'stu', 'Ishita', 'Gupta', 'ishita.26@example.com', 'sc_ci', 'dep_acse', 'Student');
 
         // 4. Seed sample Civil Services courses & modules
         $courses = [

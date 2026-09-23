@@ -51,13 +51,47 @@
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-            <div class="max-w-7xl mx-auto space-y-6">
+            <div class="w-full space-y-6">
                 <!-- Page Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
-                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">Manage Courses</h1>
-                    <a href="{{ route('academic.courses.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2 focus:outline-none">
-                        <span>+ Add New Course</span>
-                    </a>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">Manage Courses</h1>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/80 shadow-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                            {{ $courses->total() }} {{ Str::plural('Course', $courses->total()) }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('academic.courses.allocations') }}" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold py-2 px-3.5 rounded-xl shadow-xs transition-all flex items-center gap-1.5 text-xs">
+                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            <span>Assign Faculty (Allocations)</span>
+                        </a>
+                        <a href="{{ route('academic.courses.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm shadow-indigo-200 transition-all flex items-center gap-1.5 text-xs focus:outline-none">
+                            <span>+ Add New Course</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Total Courses Stat Card -->
+                <div id="stats-container" class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6 p-4 sm:p-5 flex items-center justify-between transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 text-left">
+                        <div class="p-3 sm:p-3.5 rounded-full bg-indigo-100 text-indigo-600 transition-all shadow-sm shrink-0">
+                            <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $courses->total() }}</span>
+                                @if(request()->hasAny(['search', 'regulation_id', 'department', 'year', 'semester']) && (request('search') || request('regulation_id') || request('department') || request('year') || request('semester')))
+                                    <span class="inline-flex items-center gap-1 text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full">
+                                        Filtered Results @if(isset($totalCourses) && $totalCourses != $courses->total()) (Total: {{ $totalCourses }}) @endif
+                                    </span>
+                                @endif
+                            </div>
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mt-0.5">Total Courses</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Filters Section -->
@@ -83,7 +117,7 @@
                             </select>
                         </div>
                         
-                        @if(Auth::user()->role === 'sa')
+                        @if(in_array(Auth::user()->role, ['sa', 'ssh_admin']))
                         <div class="w-full sm:w-48 shrink-0">
                             <label for="department" class="sr-only">Department</label>
                             <select name="department" id="department" onchange="this.form.submit()" class="block w-full pl-3 pr-10 py-2.5 text-sm border-gray-200 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-all duration-200 cursor-pointer appearance-none">
@@ -98,10 +132,14 @@
                         <div class="w-full sm:w-32 shrink-0">
                             <label for="year" class="sr-only">Year</label>
                             <select name="year" id="year" onchange="this.form.submit()" class="no-tomselect block w-full pl-3 pr-10 py-2.5 text-sm border-gray-200 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-all duration-200 cursor-pointer appearance-none">
-                                <option value="">All Years</option>
-                                @for($i = 1; $i <= 4; $i++)
-                                    <option value="{{ $i }}" {{ request('year') == $i ? 'selected' : '' }}>Year {{ $i }}</option>
-                                @endfor
+                                @if(Auth::user()->role === 'ssh_admin')
+                                    <option value="1">Year 1</option>
+                                @else
+                                    <option value="">All Years</option>
+                                    @for($i = 1; $i <= 4; $i++)
+                                        <option value="{{ $i }}" {{ request('year') == $i ? 'selected' : '' }}>Year {{ $i }}</option>
+                                    @endfor
+                                @endif
                             </select>
                         </div>
 
@@ -121,11 +159,10 @@
                             <button type="submit" class="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
                                 Apply Filters
                             </button>
-                            @if(request()->hasAny(['search', 'regulation_id', 'department', 'year', 'semester']) && (request('search') != '' || request('regulation_id') != '' || request('department') != '' || request('year') != '' || request('semester') != ''))
-                            <a href="{{ route('academic.courses') }}" class="inline-flex items-center justify-center px-4 py-2.5 border border-gray-200 text-sm font-medium rounded-lg text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                                Clear
+                            <a href="{{ route('academic.courses') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-gray-200 text-sm font-medium rounded-lg text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-xs" title="Reset all filters">
+                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <span>Reset</span>
                             </a>
-                            @endif
                         </div>
                     </form>
                 </div>
@@ -151,6 +188,10 @@
                     <!-- List (Full Width) -->
                     <div class="w-full">
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="px-6 py-3.5 border-b border-gray-100 flex items-center justify-between bg-white">
+                                <span class="text-sm font-semibold text-gray-800">Course List</span>
+                                <span class="text-xs text-gray-500 font-medium">Showing <span class="font-semibold text-gray-800">{{ $courses->firstItem() ?? 0 }}</span> to <span class="font-semibold text-gray-800">{{ $courses->lastItem() ?? 0 }}</span> of <span class="font-semibold text-gray-800">{{ $courses->total() }}</span> {{ Str::plural('course', $courses->total()) }}</span>
+                            </div>
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -158,39 +199,119 @@
                                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Program & Reg</th>
                                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Year/Sem</th>
                                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Dept</th>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Allocated Faculty</th>
                                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse($courses as $course)
-                                    <tr>
+                                    <tr class="hover:bg-slate-50/70 transition-colors">
                                         <td class="px-6 py-4 text-sm text-gray-900">
-                                            <div class="font-medium">{{ $course->code }}</div>
-                                            <div class="text-gray-500">{{ $course->name }}</div>
+                                            <div class="font-bold text-indigo-700 font-mono">{{ $course->code }}</div>
+                                            <div class="text-slate-800 font-medium text-xs">{{ $course->name }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <div class="font-medium">{{ $course->regulation->program_type ?? 'N/A' }}</div>
-                                            <div class="text-gray-500">{{ $course->regulation->code ?? 'N/A' }}{{ !empty($course->regulation->curriculum) ? ' - ' . $course->regulation->curriculum : ($course->regulation && $course->regulation->name && $course->regulation->name !== $course->regulation->code ? ' - ' . $course->regulation->name : '') }}</div>
+                                            <div class="font-medium text-slate-800 text-xs">{{ $course->regulation->program_type ?? 'N/A' }}</div>
+                                            <div class="text-slate-400 text-xs">{{ $course->regulation->code ?? 'N/A' }}{{ !empty($course->regulation->curriculum) ? ' - ' . $course->regulation->curriculum : ($course->regulation && $course->regulation->name && $course->regulation->name !== $course->regulation->code ? ' - ' . $course->regulation->name : '') }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <div class="font-medium">{{ $course->year ?? 'N/A' }}</div>
-                                            <div class="text-gray-500">{{ $course->semester ?? 'N/A' }}</div>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700">
+                                                Sem {{ $course->semester ?? '1' }} (Yr {{ $course->year ?? '1' }})
+                                            </span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $course->department->name ?? 'N/A' }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex items-center space-x-3">
-                                                <a href="{{ route('academic.courses.edit', $course->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                                <form action="{{ route('academic.courses.destroy', $course->id) }}" method="POST" onsubmit="return confirm('Delete this course?');" class="inline-block">
+                                        <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-medium">{{ $course->department->name ?? $course->department_id }}</td>
+                                        
+                                        <!-- Allocated Faculty -->
+                                        <td class="px-6 py-4 text-xs">
+                                            <div class="space-y-2 min-w-[240px]">
+                                                @if($course->staff->count() > 0)
+                                                    <div class="flex flex-wrap items-center gap-1.5">
+                                                        @foreach($course->staff as $fac)
+                                                            @php
+                                                                $facFullName = trim(($fac->first_name ?? '') . ' ' . ($fac->last_name ?? ''));
+                                                                $facCode = $fac->username ?? 'N/A';
+                                                                $facEmail = $fac->profile->email ?? ($fac->email ?? '');
+                                                                $facPhone = $fac->profile->phone ?? '';
+                                                                $facDesig = $fac->profile->designation ?? 'Faculty';
+                                                                $facDept = $fac->profile->department->name ?? ($fac->profile->departments_id ?? 'Social Sciences & Humanities');
+                                                                $facSchool = $fac->profile->school->name ?? ($fac->profile->schools_id ?? 'School of Applied Sciences & Humanities');
+                                                                $facPhoto = $fac->profile->photo ? asset('storage/' . $fac->profile->photo) : '';
+                                                                $unallocUrl = route('academic.courses.unallocate', [$course->id, $fac->id]);
+                                                                $courseContext = $course->code . ' - ' . $course->name . ' (Sem ' . $course->semester . ')';
+                                                                $facDeptName = $fac->profile->department->name ?? ($fac->profile->departments_id ?? 'Dept');
+                                                                $facDeptShort = $fac->profile->department->code ?? (strlen($facDeptName) > 12 ? substr($facDeptName, 0, 10).'..' : $facDeptName);
+                                                            @endphp
+                                                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50/90 text-indigo-700 border border-indigo-100 text-xs font-semibold shadow-2xs group hover:bg-indigo-100/90 transition-all">
+                                                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0"></span>
+                                                                <button type="button" 
+                                                                    onclick="showFacultyDetails('{{ addslashes($facFullName) }}', '{{ addslashes($facCode) }}', '{{ addslashes($facEmail) }}', '{{ addslashes($facPhone) }}', '{{ addslashes($facDesig) }}', '{{ addslashes($facDept) }}', '{{ addslashes($facSchool) }}', '{{ $facPhoto }}', '{{ $unallocUrl }}', '{{ addslashes($courseContext) }}')"
+                                                                    class="hover:underline focus:outline-none text-left cursor-pointer font-semibold text-indigo-900"
+                                                                    title="Click to view details of {{ $facFullName }}">
+                                                                    {{ $facFullName }} <span class="text-[10px] text-indigo-500 font-normal">({{ $facDeptShort }})</span>
+                                                                </button>
+                                                                <form method="POST" action="{{ $unallocUrl }}" class="inline" onsubmit="return confirm('Remove {{ addslashes($facFullName) }} from {{ $course->code }}?')">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="text-indigo-400 hover:text-rose-600 font-bold ml-0.5 leading-none transition-colors p-0.5 rounded focus:outline-none" title="Remove {{ $facFullName }} from {{ $course->code }}">&times;</button>
+                                                                </form>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    <div class="text-[11px] text-slate-400 font-medium italic">
+                                                        No faculty allocated yet
+                                                    </div>
+                                                @endif
+
+                                                <!-- Quick Inline Assign Dropdown -->
+                                                <form action="{{ route('academic.courses.allocate', $course->id) }}" method="POST" class="flex items-center gap-1.5 w-full">
+                                                    @csrf
+                                                    <div class="relative flex-1">
+                                                        <select name="staff_id" required class="w-full text-xs py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium hover:bg-white hover:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:outline-none cursor-pointer transition-all shadow-2xs">
+                                                            <option value="">+ Assign Faculty...</option>
+                                                            @php
+                                                                $groupedStaff = $availableStaff->groupBy(function($st) {
+                                                                    return $st->profile->department->name ?? ($st->profile->school->name ?? 'General / S&H');
+                                                                });
+                                                            @endphp
+                                                            @foreach($groupedStaff as $deptName => $staffList)
+                                                                <optgroup label="{{ $deptName }}">
+                                                                    @foreach($staffList as $st)
+                                                                        @if(!$course->staff->contains('id', $st->id))
+                                                                            <option value="{{ $st->id }}">
+                                                                                {{ $st->username }} - {{ $st->first_name }} {{ $st->last_name }} ({{ $st->profile->designation ?? 'Faculty' }})
+                                                                            </option>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </optgroup>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <button type="submit" class="py-1.5 px-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors shrink-0" title="Assign selected faculty">
+                                                        Assign
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <a href="{{ route('academic.courses.edit', $course->id) }}" class="w-9 h-9 flex items-center justify-center rounded-xl bg-indigo-50/80 text-indigo-600 border border-indigo-200/80 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Edit Course">
+                                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                </a>
+                                                <form action="{{ route('academic.courses.destroy', $course->id) }}" method="POST" onsubmit="return confirm('Delete course {{ $course->name }} ({{ $course->code }})?');" class="inline m-0 p-0">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                                    <button type="submit" class="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Delete Course">
+                                                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                    </button>
                                                 </form>
                                             </div>
                                         </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">No courses found.</td>
+                                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">No courses found.</td>
                                     </tr>
                                     @endforelse
                                 </tbody>
@@ -242,6 +363,7 @@
 
 
     @include('partials.bulk_upload_modal')
+    @include('partials.faculty_details_modal')
 
     <script>
         const availableStaff = @json($availableStaff->map(function($s) {

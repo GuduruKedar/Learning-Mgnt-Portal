@@ -21,9 +21,6 @@ class AssignmentTemplateSheet implements FromArray, WithHeadings, WithTitle, Sho
     public function headings(): array
     {
         return [
-            'course_code',
-            'assignment_title',
-            'due_date',
             'question',
             'option_a',
             'option_b',
@@ -37,13 +34,8 @@ class AssignmentTemplateSheet implements FromArray, WithHeadings, WithTitle, Sho
 
     public function array(): array
     {
-        $dueDate = now()->addDays(7)->format('Y-m-d H:i:s');
-
         return [
             [
-                $this->defaultCourseCode,
-                'Unit 1 MCQ Quiz: Fundamentals & Core Concepts',
-                $dueDate,
                 'Which of the following data structures operates on a Last In First Out (LIFO) principle?',
                 'Queue',
                 'Stack',
@@ -54,9 +46,6 @@ class AssignmentTemplateSheet implements FromArray, WithHeadings, WithTitle, Sho
                 'A Stack follows the Last In First Out (LIFO) principle where elements are inserted and removed from the same end.',
             ],
             [
-                $this->defaultCourseCode,
-                'Unit 1 MCQ Quiz: Fundamentals & Core Concepts',
-                $dueDate,
                 'What is the worst-case time complexity of searching an element in a balanced Binary Search Tree (AVL tree)?',
                 'O(1)',
                 'O(n)',
@@ -67,9 +56,6 @@ class AssignmentTemplateSheet implements FromArray, WithHeadings, WithTitle, Sho
                 'In an AVL tree, the height is strictly maintained as O(log n), so search is always O(log n).',
             ],
             [
-                $this->defaultCourseCode,
-                'Unit 1 MCQ Quiz: Fundamentals & Core Concepts',
-                $dueDate,
                 'Which normal form is based on the concept of full functional dependency and eliminates partial dependency?',
                 'First Normal Form (1NF)',
                 'Second Normal Form (2NF)',
@@ -80,9 +66,6 @@ class AssignmentTemplateSheet implements FromArray, WithHeadings, WithTitle, Sho
                 '2NF eliminates partial dependency of non-prime attributes on any candidate key.',
             ],
             [
-                $this->defaultCourseCode,
-                'Unit 1 MCQ Quiz: Fundamentals & Core Concepts',
-                $dueDate,
                 'Which OSI layer is responsible for end-to-end communication and error recovery?',
                 'Network Layer',
                 'Data Link Layer',

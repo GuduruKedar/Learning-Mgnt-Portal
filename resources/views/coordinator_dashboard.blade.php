@@ -275,16 +275,27 @@
                         </li>
                         @foreach($regs as $reg)
                             <li class="p-4 hover:bg-white transition-colors flex items-center justify-between">
-                                <div class="flex items-center gap-4">
-                                    <div class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-sm font-bold bg-indigo-100 text-indigo-800 border border-indigo-200 shadow-sm min-w-[3.5rem]">
+                                <div class="flex items-center gap-3.5 min-w-0">
+                                    <div class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-sm font-bold font-mono bg-indigo-100 text-indigo-800 border border-indigo-200 shadow-2xs shrink-0 min-w-[3.5rem]">
                                         {{ $reg->code }}
                                     </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-gray-900">{{ $reg->name }}</span>
-                                        <span class="text-xs text-gray-500 mt-0.5 font-medium">{{ $reg->courses_count ?? 0 }} {{ ($reg->courses_count ?? 0) === 1 ? 'Course' : 'Courses' }}</span>
+                                    <div class="flex flex-col min-w-0">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="text-sm font-bold text-gray-900">{{ $reg->name }}</span>
+                                            @if(!empty($reg->curriculum))
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
+                                                    Curriculum: {{ $reg->curriculum }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        @if(!empty($reg->program_type))
+                                        <div class="text-xs text-gray-500 mt-0.5 font-medium">
+                                            <span>{{ $reg->program_type }} Program</span>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold {{ strtolower($reg->status) == 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ml-3 {{ strtolower($reg->status) == 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-700 border border-gray-200' }}">
                                     {{ $reg->status }}
                                 </span>
                             </li>
@@ -323,16 +334,27 @@
                         <ul class="divide-y divide-gray-100">
                             @forelse($programRegulations as $reg)
                                 <li class="p-4 hover:bg-white transition-colors flex items-center justify-between">
-                                    <div class="flex items-center gap-4">
-                                        <div class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-sm font-bold bg-indigo-100 text-indigo-800 border border-indigo-200 shadow-sm min-w-[3.5rem]">
+                                    <div class="flex items-center gap-3.5 min-w-0">
+                                        <div class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-sm font-bold font-mono bg-indigo-100 text-indigo-800 border border-indigo-200 shadow-2xs shrink-0 min-w-[3.5rem]">
                                             {{ $reg->code }}
                                         </div>
-                                        <div class="flex flex-col">
-                                            <span class="text-sm font-bold text-gray-900">{{ $reg->name }}</span>
-                                            <span class="text-xs text-gray-500 mt-0.5 font-medium">{{ $reg->courses_count ?? 0 }} {{ ($reg->courses_count ?? 0) === 1 ? 'Course' : 'Courses' }}</span>
+                                        <div class="flex flex-col min-w-0">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <span class="text-sm font-bold text-gray-900">{{ $reg->name }}</span>
+                                                @if(!empty($reg->curriculum))
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
+                                                        Curriculum: {{ $reg->curriculum }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            @if(!empty($reg->program_type))
+                                            <div class="text-xs text-gray-500 mt-0.5 font-medium">
+                                                <span>{{ $reg->program_type }} Program</span>
+                                            </div>
+                                            @endif
                                         </div>
                                     </div>
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold {{ strtolower($reg->status) == 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ml-3 {{ strtolower($reg->status) == 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-700 border border-gray-200' }}">
                                         {{ $reg->status }}
                                     </span>
                                 </li>

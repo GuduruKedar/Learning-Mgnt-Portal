@@ -245,18 +245,28 @@ class RegisterNumberParser
         $courseCode = null;
         $deptCode = null;
         
+        // Register number MUST be exactly 10 characters
+        if (strlen($registerNumber) !== 10) {
+            return null;
+        }
+
+        if (!preg_match('/^\d{2}[A-Z0-9]{2}[A-Z0-9]{1,2}\d+$/', $registerNumber)) {
+            return null;
+        }
+
+        $courseCode = null;
+        $deptCode = null;
+        
         // P1 and P2 are 2 chars long, others are 1 char long
-        if (strlen($registerNumber) >= 10) {
-            $c2 = substr($registerNumber, 4, 2);
-            if (isset(self::$courseMapping[$c2])) {
-                $courseCode = $c2;
-                $deptCode = substr($registerNumber, 6, 2);
-            } else {
-                $c1 = substr($registerNumber, 4, 1);
-                if (isset(self::$courseMapping[$c1])) {
-                    $courseCode = $c1;
-                    $deptCode = substr($registerNumber, 5, 2);
-                }
+        $c2 = substr($registerNumber, 4, 2);
+        if (isset(self::$courseMapping[$c2])) {
+            $courseCode = $c2;
+            $deptCode = substr($registerNumber, 6, 2);
+        } else {
+            $c1 = substr($registerNumber, 4, 1);
+            if (isset(self::$courseMapping[$c1])) {
+                $courseCode = $c1;
+                $deptCode = substr($registerNumber, 5, 2);
             }
         }
         

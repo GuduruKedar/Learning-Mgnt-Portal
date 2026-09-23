@@ -78,6 +78,7 @@ class ValidationAuditTest extends TestCase
     public function test_student_create_and_update_lifecycle()
     {
         // Clean up if already exists
+        \App\Models\Profile::where('email', 'johndoe992@gmail.com')->orWhere('username', '241FA04992')->forceDelete();
         User::where('username', '241FA04992')->delete();
 
         // 1. Create valid student

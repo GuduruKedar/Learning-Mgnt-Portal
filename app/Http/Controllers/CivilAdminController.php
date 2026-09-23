@@ -101,7 +101,7 @@ class CivilAdminController extends Controller
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-            'username' => ['required', 'string', 'unique:users,username'],
+            'username' => ['required', 'string', 'size:10', 'regex:/^\d{2}[a-zA-Z0-9]{2}[a-zA-Z0-9]{1,2}\d+$/', 'unique:users,username'],
             'email' => ['nullable', 'string', 'email', 'unique:profiles,email'],
             'password' => ['nullable', 'string', 'min:6'],
             'phone_number' => ['nullable', 'numeric', 'digits:10'],
@@ -117,11 +117,14 @@ class CivilAdminController extends Controller
             'program_id' => ['nullable', 'exists:programs,id'],
             'batch_year' => ['nullable', 'string', 'max:10'],
         ], [
+            'username.size' => 'The Register Number must be exactly 10 characters.',
+            'username.regex' => 'The Register Number format is invalid.',
             'school_id.required' => 'Please select the student\'s parent School.',
             'department_id.required' => 'Please select the student\'s parent Department.',
             'department_id.exists' => 'The selected department does not belong to the selected school.',
         ]);
 
+        $validated['username'] = strtoupper(trim($validated['username']));
         $password = $request->filled('password') ? $request->password : 'Student#963';
         $schoolCode = School::where('id', $validated['school_id'])->value('code');
         $deptCode = Department::where('id', $validated['department_id'])->value('code');
@@ -168,11 +171,14 @@ class CivilAdminController extends Controller
     public function enrollExisting(Request $request)
     {
         $request->validate([
-            'reg_number' => ['required', 'string'],
+            'reg_number' => ['required', 'string', 'size:10', 'regex:/^\d{2}[a-zA-Z0-9]{2}[a-zA-Z0-9]{1,2}\d+$/'],
             'batch_year' => ['nullable', 'string', 'max:10'],
+        ], [
+            'reg_number.size' => 'The Register Number must be exactly 10 characters.',
+            'reg_number.regex' => 'The Register Number format is invalid.',
         ]);
 
-        $regNumber = trim($request->reg_number);
+        $regNumber = strtoupper(trim($request->reg_number));
         $user = User::where('username', $regNumber)->first();
 
         if (!$user) {

@@ -189,6 +189,9 @@ class AssignmentsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             $target = Assignment::find($this->targetAssignmentId);
             if ($target) {
                 $target->recalculateMaxMarks();
+                if ($this->importedCount > 0) {
+                    $this->createdAssignmentsCount = 1;
+                }
             }
         }
     }

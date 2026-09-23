@@ -242,8 +242,8 @@
                 @csrf
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Registration Number <span class="text-red-500">*</span></label>
-                    <input type="text" name="reg_number" required placeholder="e.g., 221FA04001 or student1" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <p class="text-xs text-gray-400 mt-1">Enter any student's university reg number from any department.</p>
+                    <input type="text" name="reg_number" required maxlength="10" minlength="10" placeholder="e.g. 241FA04001 (10 chars)" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase font-mono">
+                    <p class="text-xs text-gray-400 mt-1">Enter the 10-character student university registration number.</p>
                 </div>
 
                 <div>

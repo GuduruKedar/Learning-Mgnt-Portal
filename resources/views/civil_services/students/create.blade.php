@@ -95,7 +95,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Registration Number <span class="text-red-500">*</span></label>
-                                <input type="text" name="username" value="{{ old('username') }}" required placeholder="e.g. 231FA04001" class="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="text" name="username" value="{{ old('username') }}" required maxlength="10" minlength="10" placeholder="e.g. 241FA04001 (10 chars)" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" class="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase font-mono">
                                 @error('username')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror

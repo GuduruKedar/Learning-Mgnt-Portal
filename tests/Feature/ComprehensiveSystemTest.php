@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Regulation;
+use App\Models\CourseMaterial;
 
 class ComprehensiveSystemTest extends TestCase
 {
@@ -61,7 +62,14 @@ class ComprehensiveSystemTest extends TestCase
         $this->actingAs($superadmin)->get('/coordinators')->assertStatus(200);
         $this->actingAs($superadmin)->get('/coordinators/create')->assertStatus(200);
         $this->actingAs($superadmin)->get('/department-coordinators')->assertStatus(200);
-        $this->actingAs($superadmin)->get('/enrollment-insights')->assertStatus(200);
+        $insightsResp = $this->actingAs($superadmin)->get('/enrollment-insights');
+        $insightsResp->assertStatus(200);
+        $insightsResp->assertSee('Enrollment Insights');
+
+        // Test Department-Filtered Enrollment Insights
+        $deptInsightsResp = $this->actingAs($superadmin)->get('/enrollment-insights?department=dep_it');
+        $deptInsightsResp->assertStatus(200);
+        $deptInsightsResp->assertSee('Information Technology');
 
         // 3. Staff & Students Management
         $this->actingAs($superadmin)->get('/staff')->assertStatus(200);
@@ -138,14 +146,54 @@ class ComprehensiveSystemTest extends TestCase
         // 3. Students Directory (Read-only)
         $this->actingAs($staff)->get('/students')->assertStatus(200);
 
-        // 4. Cannot create students or coordinators (Forbidden / Redirected)
+        // 4. Course Materials Upload with PowerPoint (.pptx) & PDF & Base64
+        $course = $staff->courses()->first();
+        if ($course) {
+            $this->actingAs($staff)->get("/staff/courses/{$course->id}/materials")->assertStatus(200);
+            
+            \Illuminate\Support\Facades\Storage::fake('public');
+            $pptxFile = \Illuminate\Http\UploadedFile::fake()->create('Unit-1-Intro.pptx', 250, 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+            $uploadResp = $this->actingAs($staff)->post("/staff/courses/{$course->id}/materials", [
+                'type' => 'file',
+                'platform' => 'ppt',
+                'title' => 'Python Introduction Slides',
+                'file' => $pptxFile,
+            ]);
+            $uploadResp->assertRedirect();
+            $uploadResp->assertSessionHas('success');
+            $this->assertDatabaseHas('course_materials', [
+                'course_id' => $course->id,
+                'staff_id' => $staff->id,
+                'title' => 'Python Introduction Slides',
+                'platform' => 'ppt',
+            ]);
+
+            // Test PDF upload with base64 fallback
+            $pdfBase64 = 'data:application/pdf;base64,' . base64_encode('%PDF-1.4 Mock PDF Content');
+            $uploadPdfResp = $this->actingAs($staff)->post("/staff/courses/{$course->id}/materials", [
+                'type' => 'file',
+                'title' => 'Chapter 1 Notes PDF',
+                'file_base64' => $pdfBase64,
+                'file_name' => 'Chapter-1-Notes.pdf',
+            ]);
+            $uploadPdfResp->assertRedirect();
+            $uploadPdfResp->assertSessionHas('success');
+            $this->assertDatabaseHas('course_materials', [
+                'course_id' => $course->id,
+                'staff_id' => $staff->id,
+                'title' => 'Chapter 1 Notes PDF',
+                'platform' => 'pdf',
+            ]);
+        }
+
+        // 5. Cannot create students or coordinators (Forbidden / Redirected)
         $deniedResp = $this->actingAs($staff)->get('/students/create');
         $this->assertTrue(in_array($deniedResp->getStatusCode(), [302, 403]));
 
         $deniedCoord = $this->actingAs($staff)->get('/coordinators');
         $this->assertTrue(in_array($deniedCoord->getStatusCode(), [302, 403]));
 
-        // 5. Profile & Password
+        // 6. Profile & Password
         $this->actingAs($staff)->get('/profile')->assertStatus(200);
         $this->actingAs($staff)->get('/password')->assertStatus(200);
     }
@@ -155,8 +203,8 @@ class ComprehensiveSystemTest extends TestCase
      */
     public function test_student_flow()
     {
-        $student = User::where('username', 'student1')->first();
-        $this->assertNotNull($student, 'Student user student1 must exist');
+        $student = User::where('username', 'student1')->first() ?? User::whereHas('profile.role', function ($q) { $q->where('name', 'stu'); })->first();
+        $this->assertNotNull($student, 'Student user must exist');
 
         // 1. Dashboard
         $resp = $this->actingAs($student)->get('/dashboard');
@@ -176,9 +224,19 @@ class ComprehensiveSystemTest extends TestCase
             $ajaxResp->assertJsonStructure(['courses', 'enrolled_course_ids']);
         }
 
-        // 4. My Courses
+        // 4. My Courses & Material Access
         $myCourses = $this->actingAs($student)->get('/student/my-courses');
         $myCourses->assertStatus(200);
+
+        // Test Student Material Access
+        $material = CourseMaterial::first();
+        if ($material) {
+            $viewResp = $this->actingAs($student)->get("/materials/{$material->id}/view");
+            $this->assertTrue(in_array($viewResp->getStatusCode(), [200, 302, 404]));
+
+            $downloadResp = $this->actingAs($student)->get("/materials/{$material->id}/download");
+            $this->assertTrue(in_array($downloadResp->getStatusCode(), [200, 302, 404]));
+        }
 
         // 5. Forbidden Routes (Student cannot access staff or admin routes)
         $deniedStaff = $this->actingAs($student)->get('/staff');

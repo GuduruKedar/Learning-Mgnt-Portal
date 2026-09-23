@@ -54,8 +54,29 @@ class StaffController extends Controller
         $staffMembers = $query->paginate(10)->withQueryString();
         $schools = School::all();
         $departments = Department::all();
+
+        $totalStaff = ($role === 'admin') 
+            ? User::role('sta')->whereHas('profile', function ($q) use ($user) {
+                $q->where('departments_id', $user->profile->departments_id);
+            })->count()
+            : User::role('sta')->count();
+
+        $departmentStaffCounts = Department::with('school')
+            ->withCount(['profiles as staff_count' => function($q) {
+                $q->where('roles_id', 'sta')->has('user');
+            }])
+            ->orderBy('name')
+            ->get();
+
+        $departmentsWithStaff = $departmentStaffCounts->where('staff_count', '>', 0)->values();
         
-        return view('staff.index', compact('staffMembers', 'schools', 'departments'));
+        return view('staff.index', compact(
+            'staffMembers', 
+            'schools', 
+            'departments', 
+            'totalStaff', 
+            'departmentsWithStaff'
+        ));
     }
 
     public function create()

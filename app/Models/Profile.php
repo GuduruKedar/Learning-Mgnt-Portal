@@ -32,7 +32,10 @@ class Profile extends Model
         'designation',
         'photo',
         'level',
-        'programs_id'
+        'programs_id',
+        'section',
+        'academic_year',
+        'semester'
     ];
 
     public function user()

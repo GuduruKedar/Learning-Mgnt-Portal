@@ -18,10 +18,8 @@ class DashboardController extends Controller
         if ($role === 'sa') {
             // Super Admin Dashboard Logic
             $admin = $user;
-            $totalUsers = User::whereHas('profile.role', function($q) {
-                $q->where('name', 'admin');
-            })->count();
-            $coordinators = User::role('admin')->with('profile.school', 'profile.department')->latest()->take(5)->get();
+            $totalUsers = User::count();
+            $coordinators = User::role('admin')->with('profile.school', 'profile.department')->latest()->take(6)->get();
             $totalCoordinators = User::role('admin')->count();
             
             $totalStaff = User::role('sta')->count();
@@ -29,9 +27,17 @@ class DashboardController extends Controller
             
             $totalStudents = User::role('stu')->count();
             $recentStudents = User::role('stu')->with('profile.school', 'profile.department')->latest()->take(5)->get();
+
+            $totalCivil = \App\Models\CivilServiceEnrollment::count();
+            $totalCourses = \App\Models\Course::count();
+            $totalDepartments = \App\Models\Department::count();
             
-            return view('dashboard', compact('admin', 'totalUsers', 'coordinators', 'totalCoordinators', 'totalStaff', 'recentStaff', 'totalStudents', 'recentStudents'));
+            return view('dashboard', compact('admin', 'totalUsers', 'coordinators', 'totalCoordinators', 'totalStaff', 'recentStaff', 'totalStudents', 'recentStudents', 'totalCivil', 'totalCourses', 'totalDepartments'));
             
+        } elseif ($role === 'ssh_admin') {
+            // SSH Department (Sciences & Humanities / First Year Directorate) Dashboard
+            return app(\App\Http\Controllers\SshAdminController::class)->index();
+
         } elseif ($role === 'civil_admin') {
             // Civil Services Admin Dashboard
             $totalEnrolled = \App\Models\CivilServiceEnrollment::count();
@@ -157,14 +163,66 @@ class DashboardController extends Controller
             }
             $departmentStaffCount = $departmentStaffQuery->count();
 
-            // Assigned Courses
-            $assignedCourses = $user->courses()->withCount('materials')->get();
+            // Assigned Courses (Courses the faculty needs to teach)
+            $assignedCourses = $user->courses()
+                ->with(['regulation', 'department'])
+                ->withCount(['materials', 'assignments', 'enrollments'])
+                ->get();
+
+            $assignedCourseIds = $assignedCourses->pluck('id');
+            $coursesToTeachCount = $assignedCourses->count();
+
+            // Materials Uploaded Query (uploaded by this faculty or across assigned courses)
+            $materialsQuery = \App\Models\CourseMaterial::where(function($q) use ($user, $assignedCourseIds) {
+                $q->where('staff_id', $user->id)
+                  ->orWhereIn('course_id', $assignedCourseIds);
+            });
+            $totalMaterialsCount = (clone $materialsQuery)->count();
+            $uploadedFilesCount = (clone $materialsQuery)->where('type', 'file')->count();
+            $uploadedLinksCount = (clone $materialsQuery)->where('type', 'link')->count();
+
+            // Assessments Given Query (created by this faculty or across assigned courses)
+            $assignmentsQuery = \App\Models\Assignment::where(function($q) use ($user, $assignedCourseIds) {
+                $q->where('staff_id', $user->id)
+                  ->orWhereIn('course_id', $assignedCourseIds);
+            });
+            $totalAssignmentsCount = (clone $assignmentsQuery)->count();
+            $activeAssignmentsCount = (clone $assignmentsQuery)->where('status', 'published')->where(function($q) {
+                $q->whereNull('due_date')->orWhere('due_date', '>=', now());
+            })->count();
+            $draftAssignmentsCount = (clone $assignmentsQuery)->where('status', 'draft')->count();
+            $pastDueAssignmentsCount = (clone $assignmentsQuery)->where('status', 'published')->where('due_date', '<', now())->count();
+            
+            $assignmentIds = (clone $assignmentsQuery)->pluck('id');
+            $totalSubmissionsCount = \App\Models\AssignmentSubmission::whereIn('assignment_id', $assignmentIds)->count();
+
+            // Total enrolled students across faculty's assigned courses
+            $totalEnrollmentsCount = \Illuminate\Support\Facades\DB::table('enrollments')
+                ->whereIn('course_id', $assignedCourseIds)
+                ->distinct('user_id')
+                ->count('user_id');
+
+            // Faculty Assignments & Materials collections for direct in-dashboard inspection
+            $facultyAssignments = (clone $assignmentsQuery)->with(['course', 'questions'])->withCount('submissions')->latest()->get();
+            $facultyMaterials = (clone $materialsQuery)->with('course')->latest()->get();
 
             return view('staff_dashboard', compact(
                 'staff', 'profile', 'school', 'department', 
                 'departmentStudentsCount',
                 'departmentStaffCount', 
-                'assignedCourses'
+                'assignedCourses',
+                'facultyAssignments',
+                'facultyMaterials',
+                'coursesToTeachCount',
+                'totalMaterialsCount',
+                'uploadedFilesCount',
+                'uploadedLinksCount',
+                'totalAssignmentsCount',
+                'activeAssignmentsCount',
+                'draftAssignmentsCount',
+                'pastDueAssignmentsCount',
+                'totalSubmissionsCount',
+                'totalEnrollmentsCount'
             ));
             
         } elseif ($role === 'stu') {
@@ -284,12 +342,16 @@ class DashboardController extends Controller
         $user = User::findOrFail($id);
         $currentUser = Auth::user();
 
-        if (!in_array($currentUser->role, ['sa', 'admin'])) {
+        if (!in_array($currentUser->role, ['sa', 'admin', 'ssh_admin'])) {
             abort(403, 'Unauthorized. You do not have permission to reset passwords.');
         }
 
-        if ($currentUser->role === 'admin') {
-            if (in_array($user->role, ['sa', 'admin'])) {
+        if ($currentUser->role === 'ssh_admin') {
+            if (in_array($user->role, ['sa', 'admin', 'ssh_admin'])) {
+                abort(403, 'Unauthorized. You can only reset passwords for staff and first-year students.');
+            }
+        } elseif ($currentUser->role === 'admin') {
+            if (in_array($user->role, ['sa', 'admin', 'ssh_admin'])) {
                 abort(403, 'Unauthorized. You can only reset passwords for staff and students.');
             }
             if ($user->profile->departments_id !== $currentUser->profile->departments_id) {

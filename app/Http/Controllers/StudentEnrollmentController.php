@@ -121,8 +121,11 @@ class StudentEnrollmentController extends Controller
         ];
 
         // Fetch courses for this department, regulation (by code/curriculum), year, and semester
-        $courses = Course::where('department_id', $departmentCode)
-            ->whereHas('regulation', function($query) use ($regulation) {
+        $shDeptCodes = ['dep_ssh', 'dep_phy', 'dep_chem', 'dep_maths', 'dep_eng'];
+        $shDeptCodesFromDb = \App\Models\Department::where('school_id', 'sc_ash')->pluck('code')->toArray();
+        $allowedDepts = array_unique(array_filter(array_merge([$departmentCode], $shDeptCodes, $shDeptCodesFromDb)));
+
+        $coursesQuery = Course::whereHas('regulation', function($query) use ($regulation) {
                 $query->where('code', $regulation->code);
                 if (!empty($regulation->curriculum)) {
                     $query->where('curriculum', $regulation->curriculum);
@@ -133,8 +136,21 @@ class StudentEnrollmentController extends Controller
                 }
             })
             ->where('year', $request->year)
-            ->whereIn('semester', $semesterOptions)
-            ->get();
+            ->whereIn('semester', $semesterOptions);
+
+        if ((int)$request->year === 1) {
+            // For 1st year students, include courses created under their department as well as S&H division
+            $coursesQuery->where(function($q) use ($allowedDepts, $departmentCode) {
+                $q->whereIn('department_id', $allowedDepts);
+                if ($departmentCode) {
+                    $q->orWhere('department_id', $departmentCode);
+                }
+            });
+        } else {
+            $coursesQuery->where('department_id', $departmentCode);
+        }
+
+        $courses = $coursesQuery->orderBy('code')->get();
             
         // Get already enrolled course IDs to disable them or mark them as enrolled
         $enrolledCourseIds = $student->enrolledCourses()->pluck('courses.id')->toArray();

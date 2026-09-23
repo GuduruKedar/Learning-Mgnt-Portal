@@ -39,13 +39,14 @@ class LoginController extends Controller
             
             $request->session()->regenerate();
 
-            /*
-            // FUNCTIONAL BLOCK: 30-minute session per user
-            // Keep this functionality but do not implement it actively yet.
-            // You can use this to expire the user's session after 30 minutes.
-            $request->session()->put('session_expires_at', now()->addMinutes(30));
-            // You would then check this in a Middleware to log the user out if time is up.
-            */
+            \App\Services\ActivityLogger::log(
+                'user_login',
+                'User Logged In',
+                'Authentication',
+                'User ' . ($user->profile->username ?? $user->username) . ' signed in successfully.',
+                'info',
+                ['user' => $user]
+            );
 
             return redirect()->route('dashboard');
         }
@@ -56,12 +57,31 @@ class LoginController extends Controller
             if ($user->failed_login_attempts >= 3) {
                 $user->requires_password_reset = true;
                 $user->save();
+
+                \App\Services\ActivityLogger::log(
+                    'account_locked',
+                    'Account Locked (3 Failed Logins)',
+                    'Authentication',
+                    'User account ' . $user->username . ' locked after 3 consecutive failed login attempts.',
+                    'danger',
+                    ['user' => $user, 'department_id' => $user->profile?->departments_id]
+                );
+
                 return back()->withErrors([
                     'emp_id' => 'Your account has been locked due to 3 failed attempts. Please contact an administrator to reset your password.',
                 ]);
             }
             
             $user->save();
+
+            \App\Services\ActivityLogger::log(
+                'failed_login',
+                'Failed Login Attempt',
+                'Authentication',
+                'Failed password attempt for username ' . $user->username . '.',
+                'warning',
+                ['user' => $user, 'department_id' => $user->profile?->departments_id]
+            );
             
             $attemptsLeft = 3 - $user->failed_login_attempts;
             return back()->withErrors([
@@ -76,6 +96,16 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        if (Auth::check()) {
+            \App\Services\ActivityLogger::log(
+                'user_logout',
+                'User Logged Out',
+                'Authentication',
+                'User ' . (Auth::user()->username) . ' logged out.',
+                'info'
+            );
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

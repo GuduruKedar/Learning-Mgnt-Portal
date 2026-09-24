@@ -13,97 +13,139 @@
     <!-- Clear, Subtle Ambient Overlay to keep background image vibrant and crisp -->
     <div class="absolute inset-0 bg-slate-950/35 bg-gradient-to-b from-black/30 via-black/20 to-black/40 z-0"></div>
 
+    <!-- Dynamic ambient glow lights for premium depth -->
+    <div class="ambient-glow ambient-glow-1"></div>
+    <div class="ambient-glow ambient-glow-2"></div>
+
     <!-- Main Split Container -->
     <div class="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-6">
 
         <!-- =============================================================== -->
-        <!-- LEFT SIDE: Professional Point-Wise LMS Utility Guide             -->
+        <!-- LEFT SIDE: Live Interactive Student Portal Showcase               -->
         <!-- =============================================================== -->
-        <div class="hidden lg:flex lg:col-span-7 flex-col justify-center text-white space-y-6 lg:pr-4">
+        <div class="hidden lg:flex lg:col-span-7 flex-col justify-center text-white space-y-6 lg:pr-6">
             
-            <!-- Heading (Single Line) & Professional Section Header -->
-            <div class="space-y-4">
-                <h1 class="heading-font text-2xl sm:text-3xl lg:text-[2.15rem] xl:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm sm:whitespace-nowrap">
-                    Learning Management <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">System</span>
+            <!-- Header -->
+            <div class="space-y-3">
+                <h1 class="heading-font text-3xl lg:text-[2.65rem] font-black tracking-tight text-white leading-tight">
+                    Learning Management <span class="animated-gradient-text">System</span>
                 </h1>
-
-                <!-- Professionally Styled Utility Header -->
-                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500/20 via-blue-500/15 to-sky-500/10 border border-indigo-400/30 backdrop-blur-md shadow-lg shadow-indigo-950/40">
-                    <div class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-sky-400 to-indigo-400 shadow-sm shadow-sky-400/80 animate-pulse"></div>
-                    <span class="text-xs sm:text-sm font-bold tracking-wide uppercase text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-indigo-100 to-blue-200">
-                        How this LMS is useful for students
-                    </span>
-                </div>
+                
+                <p class="text-slate-200/85 text-sm leading-relaxed max-w-lg">
+                    A unified digital campus platform empowering students with streamlined course allocations, instant study materials, and direct faculty connectivity.
+                </p>
             </div>
 
-            <!-- Clear, Concise Point-Wise List -->
-            <div class="space-y-3">
+            <!-- Live Interactive Feature Showcase Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 
-                <!-- Point 1: Course Enrollment -->
-                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0 text-indigo-300 font-bold text-xs">
-                        01
+                <!-- Feature 1: Course Enrollment -->
+                <div class="feature-card card-anim-1 group p-4 rounded-2xl flex items-start gap-3.5 cursor-default">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/25 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
                     </div>
-                    <div>
-                        <h2 class="text-sm sm:text-base font-semibold text-white">Course Enrollment</h2>
-                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                            Register for semester courses, core subjects, and electives online.
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-1">
+                            <h3 class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">Course Enrollment</h3>
+                            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                                Online
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-xs mt-1 leading-snug">
+                            Register for semester courses, electives, and core subjects seamlessly.
                         </p>
                     </div>
                 </div>
 
-                <!-- Point 2: Study Materials -->
-                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
-                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 text-sky-300 font-bold text-xs">
-                        02
+                <!-- Feature 2: Study Materials -->
+                <div class="feature-card card-anim-2 group p-4 rounded-2xl flex items-start gap-3.5 cursor-default">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center shrink-0 shadow-lg shadow-sky-500/25 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
                     </div>
-                    <div>
-                        <h2 class="text-sm sm:text-base font-semibold text-white">Lecture Notes & Study Materials</h2>
-                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                            Download classroom presentations, syllabus PDFs, and reference resources 24/7.
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-1">
+                            <h3 class="text-sm font-bold text-gray-900 group-hover:text-sky-600 transition-colors">Study Materials</h3>
+                            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
+                                24/7 Access
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-xs mt-1 leading-snug">
+                            Instant access to presentations, syllabus PDFs, and lecture notes.
                         </p>
                     </div>
                 </div>
 
-                <!-- Point 3: Faculty Details -->
-                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0 text-emerald-300 font-bold text-xs">
-                        03
+                <!-- Feature 3: Faculty Mentorship -->
+                <div class="feature-card card-anim-3 group p-4 rounded-2xl flex items-start gap-3.5 cursor-default">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/25 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
                     </div>
-                    <div>
-                        <h2 class="text-sm sm:text-base font-semibold text-white">Assigned Faculty Details</h2>
-                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                            View allocated teachers and professors for each of your enrolled courses.
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-1">
+                            <h3 class="text-sm font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">Assigned Faculty</h3>
+                            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Direct Sync
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-xs mt-1 leading-snug">
+                            View allocated professors, mentors, and departmental teachers.
                         </p>
                     </div>
                 </div>
 
-                <!-- Point 4: Civil Services Coaching -->
-                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
-                    <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 text-amber-300 font-bold text-xs">
-                        04
+                <!-- Feature 4: Civil Services Coaching -->
+                <div class="feature-card card-anim-4 group p-4 rounded-2xl flex items-start gap-3.5 cursor-default">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/25 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                        </svg>
                     </div>
-                    <div>
-                        <h2 class="text-sm sm:text-base font-semibold text-white">Civil Services Coaching</h2>
-                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                            Access integrated UPSC and General Studies preparation modules.
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-1">
+                            <h3 class="text-sm font-bold text-gray-900 group-hover:text-amber-600 transition-colors">Civil Services</h3>
+                            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                UPSC Track
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-xs mt-1 leading-snug">
+                            Integrated coaching modules, GS prep, and practice materials.
                         </p>
                     </div>
                 </div>
 
-                <!-- Point 5: Academic Tracking -->
-                <div class="point-item p-3.5 sm:p-4 rounded-xl glass-points-container flex items-center gap-3.5">
-                    <div class="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-400/30 flex items-center justify-center shrink-0 text-purple-300 font-bold text-xs">
-                        05
+            </div>
+
+            <!-- Feature 5 & Live Stats Bar (Combined Banner) -->
+            <div class="feature-card card-anim-5 group p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-default">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-purple-600 to-fuchsia-500 flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/25 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
                     </div>
                     <div>
-                        <h2 class="text-sm sm:text-base font-semibold text-white">Academic Progress Tracking</h2>
-                        <p class="text-slate-300/90 text-xs sm:text-sm mt-0.5 leading-normal">
-                            Check registered courses, regulation curriculum, and academic requirements.
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-sm font-bold text-gray-900 group-hover:text-purple-600 transition-colors">Academic Progress & Tracking</h3>
+                            <span class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span>
+                                Real-Time
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-xs mt-0.5 leading-snug">
+                            Check registered curriculum, regulation requirements, and overall academic status.
                         </p>
                     </div>
                 </div>
-
             </div>
 
         </div>

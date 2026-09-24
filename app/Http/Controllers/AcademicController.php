@@ -223,8 +223,19 @@ class AcademicController extends Controller
         $schools = \App\Models\School::orderBy('name')->get();
         $departments = Department::with('school')->orderBy('name')->get();
 
+        // Available staff for direct faculty allocation
+        $staffQuery = User::role('sta')->with(['profile.department', 'profile.school']);
+        if ($user->role === 'admin' && !empty($user->profile?->departments_id)) {
+            $staffQuery->whereHas('profile', function($q) use ($user) {
+                $q->where('departments_id', $user->profile->departments_id);
+            });
+        }
+        $availableStaff = $staffQuery->get()->sortBy(function($s) {
+            return ($s->username ?? '') . ' ' . ($s->profile->first_name ?? '');
+        });
+
         return view('academic.courses_create', compact(
-            'regulations', 'departments', 'schools', 'availableProgramTypes'
+            'regulations', 'departments', 'schools', 'availableProgramTypes', 'availableStaff'
         ));
     }
 
@@ -570,7 +581,7 @@ class AcademicController extends Controller
 
         $numCourses = min($request->no_of_courses, count($request->code));
         for ($i = 0; $i < $numCourses; $i++) {
-            Course::create([
+            $course = Course::create([
                 'regulation_id' => $request->regulation_id,
                 'department_id' => $department_id,
                 'year' => $year,
@@ -578,6 +589,57 @@ class AcademicController extends Controller
                 'code' => strtoupper(trim($request->code[$i])),
                 'name' => trim($request->name[$i]),
             ]);
+
+            // Assign multiple faculty based on array of IDs, Employee Codes, or Names
+            if (isset($request->staff_id[$i])) {
+                $rawStaffData = $request->staff_id[$i];
+                $staffTokens = [];
+
+                if (is_array($rawStaffData)) {
+                    $staffTokens = $rawStaffData;
+                } elseif (is_string($rawStaffData) && trim($rawStaffData) !== '') {
+                    $staffTokens = preg_split('/[,;\n]+/', $rawStaffData);
+                }
+
+                $matchedStaffIds = [];
+                foreach ($staffTokens as $token) {
+                    $val = trim((string)$token);
+                    if ($val === '') continue;
+
+                    $staffUser = null;
+
+                    // 1. Direct numeric user ID
+                    if (is_numeric($val)) {
+                        $staffUser = User::role('sta')->find($val);
+                    }
+
+                    // 2. Direct Employee Code match (e.g. "08001", "EMP01")
+                    if (!$staffUser) {
+                        $staffUser = User::role('sta')->where('username', $val)->first();
+                    }
+
+                    // 3. If entered in format "EMP01 - Full Name" or "08001 - Gopi V"
+                    if (!$staffUser && str_contains($val, '-')) {
+                        $empCode = trim(explode('-', $val)[0]);
+                        $staffUser = User::role('sta')->where('username', $empCode)->first();
+                    }
+
+                    // 4. Match by faculty first/last name
+                    if (!$staffUser) {
+                        $staffUser = User::role('sta')->whereHas('profile', function($q) use ($val) {
+                            $q->whereRaw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) LIKE ?", ["%{$val}%"]);
+                        })->first();
+                    }
+
+                    if ($staffUser) {
+                        $matchedStaffIds[] = $staffUser->id;
+                    }
+                }
+
+                if (!empty($matchedStaffIds)) {
+                    $course->staff()->sync(array_unique($matchedStaffIds));
+                }
+            }
         }
 
         return redirect()->route('academic.courses')->with('success', "$numCourses course(s) created successfully!");

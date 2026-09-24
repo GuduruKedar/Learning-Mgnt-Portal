@@ -53,9 +53,9 @@
                 <!-- Page Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
                     <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">Manage Regulations</h1>
-                    <button type="button" id="toggleCreateFormBtn" onclick="toggleRegulationForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all flex items-center gap-2 focus:outline-none cursor-pointer">
+                    <button type="button" id="toggleCreateFormBtn" onclick="toggleRegulationForm()" class="inline-flex items-center justify-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold text-sm py-2.5 px-5 rounded-2xl shadow-md shadow-indigo-600/25 hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4f46e5] transform hover:-translate-y-0.5 cursor-pointer whitespace-nowrap">
                         <span id="toggleBtnText">{{ $errors->any() ? '− Close Form' : '+ Create New Regulation' }}</span>
-                        <svg id="toggleIcon" class="w-4 h-4 transform transition-transform duration-200 {{ $errors->any() ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <svg id="toggleIcon" class="w-4 h-4 ml-0.5 transform transition-transform duration-200 {{ $errors->any() ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
                 </div>
 
@@ -91,18 +91,18 @@
                 </div>
 
                 <!-- Create Form Container (Full Width) -->
-                <div id="createRegulationFormContainer" class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 {{ $errors->any() ? '' : 'hidden' }} mb-6 transition-all duration-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-900">Create Regulation</h2>
-                        <button type="button" onclick="toggleRegulationForm()" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <div id="createRegulationFormContainer" class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-6 {{ $errors->any() ? '' : 'hidden' }} mb-6 transition-all duration-200">
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Create Regulation</h2>
+                        <button type="button" onclick="toggleRegulationForm()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-colors focus:outline-none" title="Close">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
-                    <form action="{{ route('academic.regulations.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <form action="{{ route('academic.regulations.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 items-end">
                         @csrf
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Select Program Type</label>
-                            <select name="program_type" id="programTypeSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 bg-white" required>
+                            <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Select Program Type</label>
+                            <select name="program_type" id="programTypeSelect" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/20 focus:border-[#4f46e5] shadow-xs transition-all" required>
                                 <option value="">-- Select Program Type --</option>
                                 @foreach($availableProgramTypes as $type)
                                     <option value="{{ $type }}">{{ $type }}</option>
@@ -110,17 +110,17 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Regulation Code <span class="text-xs text-gray-400 font-normal">(e.g., R22)</span></label>
-                            <input type="text" name="code" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500" placeholder="e.g. R22" required>
+                            <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Regulation Code <span class="text-xs text-slate-400 font-normal">(e.g., R22)</span></label>
+                            <input type="text" name="code" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/20 focus:border-[#4f46e5] shadow-xs transition-all" placeholder="e.g. R22" required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Curriculum <span class="text-xs text-gray-400 font-normal">(optional, e.g. C22/C24)</span></label>
-                            <div class="flex gap-2">
-                                <input type="text" name="curriculum" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500" placeholder="e.g. C22">
-                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md shadow-sm transition-colors whitespace-nowrap">
+                            <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Curriculum <span class="text-xs text-slate-400 font-normal">(optional, e.g. C22/C24)</span></label>
+                            <div class="flex items-center gap-2.5">
+                                <input type="text" name="curriculum" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/20 focus:border-[#4f46e5] shadow-xs transition-all" placeholder="e.g. C22">
+                                <button type="submit" class="bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold text-sm py-2.5 px-6 rounded-xl shadow-md shadow-indigo-600/20 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4f46e5] cursor-pointer whitespace-nowrap">
                                     Save
                                 </button>
-                                <button type="button" onclick="toggleRegulationForm()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-3 rounded-md shadow-xs transition-colors">
+                                <button type="button" onclick="toggleRegulationForm()" class="bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm py-2.5 px-4 rounded-xl shadow-xs transition-all duration-200 focus:outline-none cursor-pointer whitespace-nowrap">
                                     Cancel
                                 </button>
                             </div>

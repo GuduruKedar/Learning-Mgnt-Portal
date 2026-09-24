@@ -164,34 +164,33 @@
 
                 <div><!-- List -->
                     <div class="lg:col-span-2">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-visible">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-visible">
+                            <table class="min-w-full divide-y divide-slate-200">
+                                <thead class="bg-slate-50/80 border-b border-slate-200">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider rounded-tl-xl">Subject</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Program & Reg</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Year/Sem</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Dept</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider rounded-tr-xl">Assigned Staff</th>
-                                        
+                                        <th class="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider rounded-tl-2xl">Subject</th>
+                                        <th class="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Program & Reg</th>
+                                        <th class="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Year/Sem</th>
+                                        <th class="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Dept</th>
+                                        <th class="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider rounded-tr-2xl">Assigned Staff</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
+                                <tbody class="bg-white divide-y divide-slate-100">
                                     @forelse($courses as $course)
-                                    <tr>
-                                        <td class="px-6 py-4 text-sm text-gray-900">
-                                            <div class="font-medium">{{ $course->code }}</div>
-                                            <div class="text-gray-500">{{ $course->name }}</div>
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="px-6 py-4 text-sm">
+                                            <div class="font-bold text-slate-900">{{ $course->code }}</div>
+                                            <div class="text-slate-500 text-xs font-medium mt-0.5">{{ $course->name }}</div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <div class="font-medium">{{ $course->regulation->program_type ?? 'N/A' }}</div>
-                                            <div class="text-gray-500">{{ $course->regulation->code ?? 'N/A' }}{{ !empty($course->regulation->curriculum) ? ' - ' . $course->regulation->curriculum : ($course->regulation && $course->regulation->name && $course->regulation->name !== $course->regulation->code ? ' - ' . $course->regulation->name : '') }}</div>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <div class="font-semibold text-slate-800">{{ $course->regulation->program_type ?? 'N/A' }}</div>
+                                            <div class="text-slate-500 text-xs mt-0.5">{{ $course->regulation->code ?? 'N/A' }}{{ !empty($course->regulation->curriculum) ? ' - ' . $course->regulation->curriculum : ($course->regulation && $course->regulation->name && $course->regulation->name !== $course->regulation->code ? ' - ' . $course->regulation->name : '') }}</div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <div class="font-medium">{{ $course->year ?? 'N/A' }}</div>
-                                            <div class="text-gray-500">{{ $course->semester ?? 'N/A' }}</div>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <div class="font-medium text-slate-700">{{ $course->year ?? 'N/A' }}</div>
+                                            <div class="text-slate-500 text-xs mt-0.5">{{ $course->semester ?? 'N/A' }}</div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $course->department->name ?? 'N/A' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-600">{{ $course->department->name ?? 'N/A' }}</td>
                                         <td class="px-6 py-4">
                                             <div class="flex flex-col gap-3 min-w-[220px]">
                                                 <!-- Assigned Staff Badges -->
@@ -201,19 +200,19 @@
                                                             $sDeptName = $s->profile->department->name ?? ($s->profile->departments_id ?? 'Dept');
                                                             $sDeptShort = $s->profile->department->code ?? (strlen($sDeptName) > 12 ? substr($sDeptName, 0, 10).'..' : $sDeptName);
                                                         @endphp
-                                                        <div onclick="showFacultyDetails('{{ addslashes($s->first_name . ' ' . $s->last_name) }}', '{{ addslashes($s->username ?? 'N/A') }}', '{{ addslashes($s->profile->email ?? 'N/A') }}', '{{ addslashes($s->profile->designation ?? 'N/A') }}', '{{ addslashes($s->profile->department->name ?? 'N/A') }}', '{{ route('academic.courses.unallocate', [$course->id, $s->id]) }}')" class="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-medium shadow-sm transition-all hover:shadow hover:bg-indigo-100" title="View Details">
+                                                        <div onclick="showFacultyDetails('{{ addslashes($s->first_name . ' ' . $s->last_name) }}', '{{ addslashes($s->username ?? 'N/A') }}', '{{ addslashes($s->profile->email ?? 'N/A') }}', '{{ addslashes($s->profile->designation ?? 'N/A') }}', '{{ addslashes($s->profile->department->name ?? 'N/A') }}', '{{ route('academic.courses.unallocate', [$course->id, $s->id]) }}')" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#eef2ff] text-[#4f46e5] border border-indigo-100 text-xs font-semibold shadow-2xs transition-all hover:bg-indigo-100 hover:shadow-xs" title="View Details">
                                                             <span>{{ $s->first_name }} {{ $s->last_name }}</span>
                                                             <span class="text-[10px] text-indigo-500 font-normal">({{ $sDeptShort }})</span>
                                                         </div>
                                                     @empty
-                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-50 text-gray-500 border border-gray-100 text-xs italic">
+                                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-50 text-slate-400 border border-slate-100 text-xs italic">
                                                             No staff assigned
                                                         </span>
                                                     @endforelse
                                                 </div>
                                                 
                                                 <!-- Allocation Form -->
-                                                <form action="{{ route('academic.courses.allocate', $course->id) }}" method="POST" class="flex items-center gap-2 w-full max-w-[280px]">
+                                                <form action="{{ route('academic.courses.allocate', $course->id) }}" method="POST" class="flex items-center gap-2 w-full max-w-[290px]">
                                                     @csrf
                                                     <div class="relative flex-1">
                                                         <select name="staff_id" class="tom-select-staff block w-full text-sm" required placeholder="Assign Staff...">
@@ -234,8 +233,8 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <button type="submit" class="shrink-0 flex items-center justify-center w-[34px] h-[34px] rounded-md bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1" title="Assign">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                                    <button type="submit" class="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl bg-[#4f46e5] hover:bg-[#4338ca] text-white shadow-md shadow-indigo-600/20 hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#4f46e5] focus:ring-offset-1 cursor-pointer" title="Assign">
+                                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                                                     </button>
                                                 </form>
                                             </div>
@@ -243,12 +242,12 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">No courses found.</td>
+                                        <td colspan="5" class="px-6 py-12 text-center text-slate-500">No courses found.</td>
                                     </tr>
                                     @endforelse
                                 </tbody>
                             </table>
-                    <div class="px-6 py-4 border-t border-gray-100 bg-white rounded-b-xl">
+                    <div class="px-6 py-4 border-t border-slate-100 bg-white rounded-b-2xl">
                         {{ $courses->links() }}
                     </div>
                         </div>
@@ -553,51 +552,49 @@
 
     <!-- Faculty Details Modal -->
     <div id="facultyDetailsModal" class="fixed inset-0 z-[60] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeFacultyModal()"></div>
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" aria-hidden="true" onclick="closeFacultyModal()"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-100">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            <div class="inline-block align-middle bg-white rounded-2xl text-left overflow-hidden shadow-2xl border border-slate-200/80 transform transition-all sm:my-8 sm:max-w-md sm:w-full">
+                <div class="bg-white px-5 pt-6 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex items-center gap-3.5">
+                        <div class="flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-[#eef2ff] text-[#4f46e5]">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-bold text-gray-900" id="facultyModalName">
-                                Faculty Name
-                            </h3>
-                            <div class="mt-5 space-y-3 bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-100">
-                                <div class="grid grid-cols-1 sm:grid-cols-[130px_1fr] gap-1 sm:gap-4 border-b border-gray-200 pb-2.5">
-                                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mt-0.5">Employee Code</span>
-                                    <span class="text-sm font-medium text-gray-900 break-words" id="facultyModalCode"></span>
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-[130px_1fr] gap-1 sm:gap-4 border-b border-gray-200 pb-2.5">
-                                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mt-0.5">Email</span>
-                                    <span class="text-sm font-medium text-gray-900 break-all" id="facultyModalEmail"></span>
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-[130px_1fr] gap-1 sm:gap-4 border-b border-gray-200 pb-2.5">
-                                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mt-0.5">Designation</span>
-                                    <span class="text-sm font-medium text-gray-900 break-words" id="facultyModalDesignation"></span>
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-[130px_1fr] gap-1 sm:gap-4 pt-0.5">
-                                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mt-0.5">Department</span>
-                                    <span class="text-sm font-medium text-gray-900 break-words leading-snug" id="facultyModalDept"></span>
-                                </div>
-                            </div>
+                        <h3 class="text-lg font-bold text-slate-900 leading-tight" id="facultyModalName">
+                            Faculty Name
+                        </h3>
+                    </div>
+                    <div class="mt-5 space-y-3 bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-100">
+                        <div class="grid grid-cols-[125px_1fr] gap-3 border-b border-slate-200/60 pb-3 items-center">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Employee Code</span>
+                            <span class="text-sm font-bold text-slate-900 break-words" id="facultyModalCode"></span>
+                        </div>
+                        <div class="grid grid-cols-[125px_1fr] gap-3 border-b border-slate-200/60 pb-3 items-center">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Email</span>
+                            <span class="text-sm font-semibold text-slate-800 break-all" id="facultyModalEmail"></span>
+                        </div>
+                        <div class="grid grid-cols-[125px_1fr] gap-3 border-b border-slate-200/60 pb-3 items-center">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Designation</span>
+                            <span class="text-sm font-semibold text-slate-800 break-words" id="facultyModalDesignation"></span>
+                        </div>
+                        <div class="grid grid-cols-[125px_1fr] gap-3 pt-0.5 items-center">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Department</span>
+                            <span class="text-sm font-semibold text-slate-800 break-words leading-snug" id="facultyModalDept"></span>
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 flex flex-col sm:flex-row-reverse border-t border-gray-200 gap-2">
-                    <button type="button" onclick="closeFacultyModal()" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:w-auto sm:text-sm">
-                        Close
-                    </button>
-                    <form id="facultyModalDeleteForm" method="POST" class="w-full sm:w-auto inline-flex m-0">
+                <div class="bg-white px-5 py-4 sm:px-6 flex items-center justify-end border-t border-slate-100 gap-3">
+                    <form id="facultyModalDeleteForm" method="POST" class="m-0 inline-flex">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:w-auto sm:text-sm">
+                        <button type="submit" class="inline-flex items-center justify-center bg-[#dc2626] hover:bg-[#b91c1c] text-white font-bold text-sm py-2.5 px-5 rounded-xl shadow-md shadow-red-600/20 hover:shadow-lg transition-all duration-200 focus:outline-none cursor-pointer">
                             Remove Staff
                         </button>
                     </form>
+                    <button type="button" onclick="closeFacultyModal()" class="inline-flex items-center justify-center bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm py-2.5 px-5 rounded-xl shadow-xs transition-all duration-200 focus:outline-none cursor-pointer">
+                        Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -646,18 +643,30 @@
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
     <style>
         .ts-control {
-            border: 1px solid #d1d5db !important;
+            border: 1px solid #e2e8f0 !important;
             background-color: #ffffff !important;
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05) !important;
-            padding: 0.5rem 0.75rem !important;
-            border-radius: 0.375rem !important;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.04) !important;
+            padding: 0.5rem 0.85rem !important;
+            border-radius: 0.75rem !important;
             font-size: 0.875rem !important;
             line-height: 1.25rem !important;
-            min-height: unset !important;
-            cursor: text !important;
+            min-height: 36px !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+        .ts-control:focus-within, .ts-wrapper.focus .ts-control {
+            border-color: #4f46e5 !important;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
         }
         .ts-wrapper.single .ts-control {
             background-color: #ffffff !important;
+        }
+        .ts-dropdown {
+            border-radius: 0.75rem !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important;
+            overflow: hidden !important;
+            z-index: 9999 !important;
         }
     </style>
 </body>

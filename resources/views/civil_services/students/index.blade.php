@@ -18,30 +18,9 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center ml-auto">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0">
-                        @if(Auth::user()->photo)
-                            <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-indigo-200" src="{{ asset('storage/' . Auth::user()->photo) }}" alt="">
-                        @else
-                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold shadow-sm">
-                                {{ substr(Auth::user()->first_name ?? 'C', 0, 1) }}
-                            </div>
-                        @endif
-                        <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->first_name ?? 'Civil Admin' }}</span>
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">Edit Profile</a>
-                        <a href="{{ route('password.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">Change Password</a>
-                        <form method="POST" action="{{ route('logout') }}" class="block border-t border-gray-100 mt-1">
-                            @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</button>
-                        </form>
-                    </div>
-                </div>
+        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
+            <div class="flex items-center gap-2.5 ml-auto">
+                @include('partials.profile_dropdown')
             </div>
         </header>
 
@@ -90,52 +69,56 @@
                 </div>
 
                 <!-- Filters Card -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                    <form method="GET" action="{{ route('civil.students.index') }}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Search</label>
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Reg No, Name, Email..." class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 mb-6 transition-all hover:shadow-md">
+                    <form method="GET" action="{{ route('civil.students.index') }}" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center w-full" id="filterForm">
+                        <div class="md:col-span-3 w-full">
+                            <label for="search" class="sr-only">Search</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                    <svg class="h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                                <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search by reg no, name, email..." class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-2xs">
+                            </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Parent School</label>
-                            <select name="school" id="filter_school" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">All Schools</option>
+                        <div class="md:col-span-3 w-full">
+                            <label for="filter_school" class="sr-only">Parent School</label>
+                            <select name="school" id="filter_school" class="no-tomselect block w-full px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg cursor-pointer transition-all shadow-2xs">
+                                <option value="">-- All Schools --</option>
                                 @foreach($schools as $school)
                                     <option value="{{ $school->code }}" {{ request('school') == $school->code ? 'selected' : '' }}>{{ $school->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Parent Department</label>
-                            <select name="department" id="filter_department" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">All Departments</option>
+                        <div class="md:col-span-2 w-full">
+                            <label for="filter_department" class="sr-only">Parent Department</label>
+                            <select name="department" id="filter_department" class="no-tomselect block w-full px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg cursor-pointer transition-all shadow-2xs">
+                                <option value="">-- All Departments --</option>
                                 @foreach($departments as $dept)
                                     <option value="{{ $dept->code }}" data-school-id="{{ $dept->school_id }}" {{ request('department') == $dept->code ? 'selected' : '' }}>{{ $dept->name }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Status</label>
-                            <select name="status" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">All Statuses</option>
+                        <div class="md:col-span-2 w-full">
+                            <label for="status" class="sr-only">Status</label>
+                            <select name="status" id="status" class="no-tomselect block w-full px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg cursor-pointer transition-all shadow-2xs">
+                                <option value="">-- All Status --</option>
                                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                                 <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
                                 <option value="dropped" {{ request('status') == 'dropped' ? 'selected' : '' }}>Dropped</option>
                             </select>
                         </div>
 
-                        <div class="flex items-end gap-2">
-                            <button type="submit" class="flex-1 px-4 py-2 bg-blue-700 text-white font-semibold text-sm rounded-lg hover:bg-blue-800 transition-colors">
-                                Filter
+                        <div class="flex items-center gap-2 md:col-span-2 w-full">
+                            <button type="submit" class="flex-1 inline-flex items-center justify-center px-3.5 py-2 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
+                                Apply
                             </button>
-                            @if(request()->hasAny(['search', 'school', 'department', 'status']))
-                            <a href="{{ route('civil.students.index') }}" class="px-3 py-2 bg-gray-100 text-gray-600 font-semibold text-sm rounded-lg hover:bg-gray-200 transition-colors">
-                                Reset
+                            <a href="{{ route('civil.students.index') }}" class="inline-flex items-center justify-center gap-1 px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-2xs" title="Reset all filters">
+                                <svg class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <span>Reset</span>
                             </a>
-                            @endif
                         </div>
                     </form>
                 </div>

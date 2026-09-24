@@ -1,8 +1,142 @@
 body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-.sidebar-expanded { width: 16rem; transition: width 0.3s ease; }
-.sidebar-collapsed { width: 4.5rem; transition: width 0.3s ease; }
-.text-collapsed { display: none; opacity: 0; }
-.text-expanded { display: block; opacity: 1; transition: opacity 0.3s; }
+
+/* Sidebar Base & Transitions (Smooth, Flicker-Free) */
+#sidebar {
+    width: 16rem;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: width;
+    overflow-x: hidden;
+}
+
+#sidebar.sidebar-collapsed {
+    width: 4.5rem !important;
+}
+
+#sidebar.sidebar-expanded {
+    width: 16rem !important;
+}
+
+/* Nav text, logo, and section headers smoothly fade and collapse without layout shift */
+#sidebar .nav-text,
+#sidebar #logo-text,
+#sidebar .section-toggle-icon {
+    display: inline-block;
+    opacity: 1;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease;
+    transform: translateX(0);
+}
+
+#sidebar.sidebar-collapsed .nav-text,
+#sidebar.sidebar-collapsed #logo-text,
+#sidebar.sidebar-collapsed .section-toggle-icon {
+    opacity: 0;
+    max-width: 0;
+    margin-left: 0 !important;
+    pointer-events: none;
+    transform: translateX(-8px);
+}
+
+/* Ensure all nav links and buttons are perfectly centered and uniform when collapsed */
+#sidebar.sidebar-collapsed nav {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
+
+#sidebar.sidebar-collapsed nav a,
+#sidebar.sidebar-collapsed nav button {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 0.75rem !important;
+    box-sizing: border-box !important;
+}
+
+#sidebar.sidebar-collapsed nav a svg,
+#sidebar.sidebar-collapsed nav button svg {
+    margin: 0 !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    flex-shrink: 0 !important;
+}
+
+#sidebar.sidebar-collapsed #logo-container {
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+#sidebar.sidebar-collapsed #logo-container #toggle-sidebar {
+    margin: 0 auto !important;
+}
+
+#sidebar.sidebar-collapsed #manage-menu,
+#sidebar.sidebar-collapsed #academics-menu,
+#sidebar.sidebar-collapsed #civil-services-menu {
+    /* Let open submenus show their icons cleanly when collapsed */
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+#sidebar.sidebar-collapsed #manage-menu.hidden,
+#sidebar.sidebar-collapsed #academics-menu.hidden,
+#sidebar.sidebar-collapsed #civil-services-menu.hidden {
+    display: none !important;
+}
+
+/* Instant initial state styling to avoid flash on page load */
+html.sidebar-is-collapsed #sidebar {
+    width: 4.5rem !important;
+    transition: none !important;
+}
+html.sidebar-is-collapsed #sidebar .nav-text,
+html.sidebar-is-collapsed #sidebar #logo-text,
+html.sidebar-is-collapsed #sidebar .section-toggle-icon {
+    opacity: 0 !important;
+    max-width: 0 !important;
+    margin-left: 0 !important;
+    display: none !important;
+}
+html.sidebar-is-collapsed #sidebar #logo-container {
+    justify-content: center !important;
+}
+
+/* Active Tab Highlights (Expanded) */
+#sidebar.sidebar-expanded nav a.active,
+#sidebar.sidebar-expanded nav button.active {
+    background-color: #1e40af !important; /* bg-blue-800 */
+    color: #ffffff !important;
+    border: 1px solid rgba(147, 197, 253, 0.4) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+#sidebar.sidebar-expanded nav a.active svg,
+#sidebar.sidebar-expanded nav button.active svg {
+    color: #ffffff !important;
+}
+
+/* Collapsed Sidebar Active Icon Highlight (Clean, Centered, Vibrant Pill) */
+#sidebar.sidebar-collapsed nav a.active,
+#sidebar.sidebar-collapsed nav button.active {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    border: 1.5px solid #60a5fa !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45) !important;
+    color: #ffffff !important;
+}
+
+#sidebar.sidebar-collapsed nav a.active svg,
+#sidebar.sidebar-collapsed nav button.active svg {
+    color: #ffffff !important;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
+}
 
 /* TomSelect Overrides */
 .ts-control { padding: 0.5rem 0.75rem !important; border-radius: 0.375rem !important; font-size: 0.875rem !important; line-height: 1.25rem !important; min-height: unset !important; border: 1px solid #d1d5db !important; background-color: #ffffff !important; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05) !important; cursor: text !important; }

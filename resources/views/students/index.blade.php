@@ -20,65 +20,35 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            
-            <div class="flex items-center">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0">
-                    @if(Auth::user()->photo)
-                        <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-indigo-200" src="{{ asset('storage/' . Auth::user()->photo) }}" alt="">
-                    @else
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shadow-sm">
-                            {{ substr(Auth::user()->first_name ?? 'A', 0, 1) }}
-                        </div>
-                    @endif
-                    <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->first_name ?? 'Admin' }}</span>
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Edit Profile</a>
-                        <button type="button" id="openPasswordModalBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Change Password</button>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</a>
-                        </form>
-                    </div>
-                </div>
+        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
+            <div class="flex items-center gap-2.5 ml-auto">
+                @include('partials.profile_dropdown')
             </div>
         </header>
 
         <!-- Main Scrollable Content -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-            <div class="max-w-7xl mx-auto space-y-6">
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50/70">
+            <div class="w-full space-y-6">
                 <!-- Page Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
                     <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">
-                        @if(request('action') == 'reset_password')
-                            Reset Password - Students
-                        @else
-                            Manage Students
-                        @endif
+                        Manage Students
                     </h1>
                     @if(in_array(Auth::user()->role, ['sa', 'admin']))
-                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                        @if(request('action') != 'reset_password')
-                        <button type="button" onclick="openBulkUploadModal('stu')" class="w-full sm:w-auto whitespace-nowrap inline-flex items-center justify-center bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-                            <svg class="w-5 h-5 mr-2 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
+                        <button type="button" onclick="openBulkUploadModal('stu')" class="flex-1 sm:flex-none inline-flex items-center justify-center bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm py-2.5 px-5 rounded-2xl shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ea580c] whitespace-nowrap">
+                            <svg class="w-5 h-5 mr-2 text-slate-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                             Bulk Upload
                         </button>
-                        <a href="{{ route('students.create') }}" class="w-full sm:w-auto whitespace-nowrap inline-flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white font-medium py-2.5 px-5 rounded-lg shadow-sm transition-all duration-200 ease-in-out focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transform hover:-translate-y-0.5">
-                            <svg class="w-5 h-5 mr-2 -ml-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        <a href="{{ route('students.create') }}" class="flex-1 sm:flex-none inline-flex items-center justify-center bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold text-sm py-2.5 px-5 rounded-2xl shadow-md shadow-[#ea580c]/25 hover:shadow-lg transition-all duration-200 ease-in-out focus:ring-2 focus:ring-offset-2 focus:ring-[#ea580c] transform hover:-translate-y-0.5 whitespace-nowrap">
+                            <svg class="w-4 h-4 mr-2 -ml-0.5 text-white shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                             Add New Student
                         </a>
-                        @endif
                     </div>
                     @endif
                 </div>
 
                 <!-- Total Students Stat Card -->
-                @if(request('action') != 'reset_password')
                 <div id="stats-container" class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6 p-4 sm:p-5 flex items-center justify-between transition-all hover:shadow-md">
                     <button type="button" @if(Auth::user()->role === 'sa') onclick="openDeptStudentsModal()" @endif class="flex items-center gap-4 text-left @if(Auth::user()->role === 'sa') cursor-pointer group @endif focus:outline-none">
                         <div class="p-3 sm:p-3.5 rounded-full bg-orange-100 text-orange-600 @if(Auth::user()->role === 'sa') group-hover:scale-110 group-hover:bg-orange-600 group-hover:text-white @endif transition-all shadow-sm shrink-0">
@@ -98,18 +68,17 @@
                         </div>
                     </button>
                 </div>
-                @endif
 
                 <!-- Filters Section -->
                 <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 mb-6 transition-all hover:shadow-md">
-                    <form action="{{ route('students.index') }}" method="GET" class="flex flex-wrap items-center gap-3 sm:gap-4 w-full" id="filterForm">
-                        <div class="flex-1 min-w-[200px]">
+                    <form action="{{ route('students.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center w-full" id="filterForm">
+                        <div class="@if(Auth::user()->role === 'sa') md:col-span-3 @else md:col-span-6 @endif w-full">
                             <label for="search" class="sr-only">Search</label>
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400 group-focus-within:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                    <svg class="h-4 w-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 </div>
-                                <input type="text" name="search" id="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all" placeholder="Search by name, reg number or email...">
+                                <input type="text" name="search" id="search" value="{{ request('search') }}" class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all shadow-2xs" placeholder="Search by name, reg number or email...">
                             </div>
                         </div>
                         
@@ -148,18 +117,10 @@
                                     $currDeptName = $dObj->name;
                                 }
                             }
-
-                            $currProgName = '-- All Programs --';
-                            if(request('program')) {
-                                $pObj = $programs->firstWhere('code', request('program'));
-                                if($pObj) {
-                                    $currProgName = $pObj->name;
-                                }
-                            }
                         @endphp
 
                         <!-- School Custom Dropdown -->
-                        <div class="relative w-full sm:w-auto min-w-[300px] sm:min-w-[400px] lg:min-w-[480px] shrink-0 custom-dropdown" id="schoolDropdownContainer">
+                        <div class="relative w-full md:col-span-3 custom-dropdown" id="schoolDropdownContainer">
                             <label for="school" class="sr-only">School</label>
                             <select name="school" id="school" class="hidden">
                                 <option value="">-- All Schools --</option>
@@ -170,17 +131,17 @@
                                 @endforeach
                             </select>
 
-                            <button type="button" id="schoolDropdownBtn" class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm border border-gray-300 bg-white text-gray-800 rounded-lg hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-left shadow-xs">
-                                <span id="schoolDropdownSelected" class="font-medium text-gray-700 whitespace-normal leading-snug">{{ $currSchoolName }}</span>
-                                <svg class="w-4 h-4 text-gray-400 ml-2 shrink-0 transition-transform duration-200" id="schoolChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <button type="button" id="schoolDropdownBtn" class="w-full flex items-center justify-between px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 rounded-lg hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-left shadow-2xs">
+                                <span id="schoolDropdownSelected" class="font-medium text-gray-700 truncate leading-snug">{{ $currSchoolName }}</span>
+                                <svg class="w-4 h-4 text-gray-400 ml-1.5 shrink-0 transition-transform duration-200" id="schoolChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </button>
 
-                            <div id="schoolDropdownMenu" class="hidden absolute top-full left-0 mt-1 w-full min-w-full sm:min-w-[440px] lg:min-w-[520px] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto py-1.5 space-y-0.5">
-                                <div class="custom-school-opt px-3.5 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-800 cursor-pointer rounded-lg mx-1 transition-colors flex items-center justify-between font-medium" data-value="">
+                            <div id="schoolDropdownMenu" class="hidden absolute top-full left-0 mt-1 w-full min-w-[320px] sm:min-w-[440px] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto py-1.5 space-y-0.5">
+                                <div class="custom-school-opt px-3.5 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-800 cursor-pointer rounded-lg mx-1 transition-colors flex items-center justify-between font-medium" data-value="">
                                     <span>-- All Schools --</span>
                                 </div>
                                 @foreach($orderedSchools as $idx => $school)
-                                    <div class="custom-school-opt px-3.5 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-800 cursor-pointer rounded-lg mx-1 transition-colors flex items-center justify-between {{ request('school') == $school->code ? 'bg-orange-50 text-orange-800 font-semibold' : '' }}" data-value="{{ $school->code }}">
+                                    <div class="custom-school-opt px-3.5 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-800 cursor-pointer rounded-lg mx-1 transition-colors flex items-center justify-between {{ request('school') == $school->code ? 'bg-orange-50 text-orange-800 font-semibold' : '' }}" data-value="{{ $school->code }}">
                                         <span class="whitespace-normal leading-normal">{{ sprintf('%02d', $idx + 1) }}. {{ $school->name }}</span>
                                     </div>
                                 @endforeach
@@ -188,7 +149,7 @@
                         </div>
 
                         <!-- Department Custom Dropdown -->
-                        <div class="relative w-full sm:w-auto min-w-[260px] sm:min-w-[340px] lg:min-w-[400px] shrink-0 custom-dropdown" id="deptDropdownContainer">
+                        <div class="relative w-full md:col-span-2 custom-dropdown" id="deptDropdownContainer">
                             <label for="department" class="sr-only">Department</label>
                             <select name="department" id="department" class="hidden">
                                 <option value="">-- All Departments --</option>
@@ -197,12 +158,12 @@
                                 @endforeach
                             </select>
 
-                            <button type="button" id="deptDropdownBtn" class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm border border-gray-300 bg-white text-gray-800 rounded-lg hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-left shadow-xs">
-                                <span id="deptDropdownSelected" class="font-medium text-gray-700 whitespace-normal leading-snug">{{ $currDeptName }}</span>
-                                <svg class="w-4 h-4 text-gray-400 ml-2 shrink-0 transition-transform duration-200" id="deptChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <button type="button" id="deptDropdownBtn" class="w-full flex items-center justify-between px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 rounded-lg hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-left shadow-2xs">
+                                <span id="deptDropdownSelected" class="font-medium text-gray-700 truncate leading-snug">{{ $currDeptName }}</span>
+                                <svg class="w-4 h-4 text-gray-400 ml-1.5 shrink-0 transition-transform duration-200" id="deptChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </button>
 
-                            <div id="deptDropdownMenu" class="hidden absolute top-full left-0 mt-1 w-full min-w-full sm:min-w-[340px] lg:min-w-[420px] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto py-1.5 space-y-0.5">
+                            <div id="deptDropdownMenu" class="hidden absolute top-full left-0 mt-1 w-full min-w-[280px] sm:min-w-[360px] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto py-1.5 space-y-0.5">
                                 <!-- Populated dynamically based on School -->
                             </div>
                         </div>
@@ -218,7 +179,7 @@
                                 }
                             }
                         @endphp
-                        <div class="relative w-full sm:w-auto min-w-[240px] sm:min-w-[300px] lg:min-w-[360px] shrink-0 custom-dropdown" id="progDropdownContainer">
+                        <div class="relative w-full @if(Auth::user()->role === 'sa') md:col-span-2 @else md:col-span-4 @endif custom-dropdown" id="progDropdownContainer">
                             <label for="program" class="sr-only">Program</label>
                             <select name="program" id="program" class="hidden">
                                 <option value="">-- All Programs --</option>
@@ -233,22 +194,22 @@
                                 @endforeach
                             </select>
 
-                            <button type="button" id="progDropdownBtn" class="w-full flex items-center justify-between px-3.5 py-2.5 text-sm border border-gray-300 bg-white text-gray-800 rounded-lg hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-left shadow-xs">
-                                <span id="progDropdownSelected" class="font-medium text-gray-700 whitespace-normal leading-snug">{{ $currProgName }}</span>
-                                <svg class="w-4 h-4 text-gray-400 ml-2 shrink-0 transition-transform duration-200" id="progChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <button type="button" id="progDropdownBtn" class="w-full flex items-center justify-between px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 rounded-lg hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all text-left shadow-2xs">
+                                <span id="progDropdownSelected" class="font-medium text-gray-700 truncate leading-snug">{{ $currProgName }}</span>
+                                <svg class="w-4 h-4 text-gray-400 ml-1.5 shrink-0 transition-transform duration-200" id="progChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </button>
 
-                            <div id="progDropdownMenu" class="hidden absolute top-full left-0 mt-1 w-full min-w-full sm:min-w-[320px] lg:min-w-[380px] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto py-1.5 space-y-0.5">
+                            <div id="progDropdownMenu" class="hidden absolute top-full left-0 mt-1 w-full min-w-[260px] sm:min-w-[340px] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-72 overflow-y-auto py-1.5 space-y-0.5">
                                 <!-- Populated dynamically based on Department -->
                             </div>
                         </div>
                         
-                        <div class="flex items-center space-x-2 shrink-0">
-                            <button type="submit" class="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
-                                Apply Filters
+                        <div class="flex items-center gap-2 md:col-span-2 w-full">
+                            <button type="submit" class="flex-1 inline-flex items-center justify-center px-3.5 py-2 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
+                                Apply
                             </button>
-                            <a href="{{ route('students.index') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-gray-200 text-sm font-medium rounded-lg text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-xs" title="Reset all filters">
-                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            <a href="{{ route('students.index') }}" class="inline-flex items-center justify-center gap-1 px-3 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-2xs" title="Reset all filters">
+                                <svg class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 <span>Reset</span>
                             </a>
                         </div>
@@ -272,7 +233,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider whitespace-nowrap">Reg Number</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider whitespace-nowrap">School/Department</th>
                                 @if(in_array(Auth::user()->role, ['sa', 'admin']))
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-900 uppercase tracking-wider whitespace-nowrap">Actions</th>
+                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-900 uppercase tracking-wider whitespace-nowrap">Actions</th>
                                 @endif
                             </tr>
                         </thead>
@@ -282,7 +243,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex-shrink-0 h-10 w-10">
                                         @if($student->photo)
-                                            <img class="h-10 w-10 rounded-full object-cover border" src="{{ asset('storage/' . $student->photo) }}" alt="">
+                                             <img class="h-10 w-10 rounded-full object-cover border" src="{{ asset('storage/' . $student->photo) }}" alt="">
                                         @else
                                             <div class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold">
                                                 {{ substr($student->first_name, 0, 1) }}
@@ -297,25 +258,30 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <div class="text-sm text-gray-900">{{ $student->username }}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <div class="text-sm text-gray-900 font-medium">{{ $student->school->name ?? 'N/A' }}</div>
-                                    <div class="text-xs text-gray-500">{{ $student->department->name ?? 'N/A' }}</div>
+                                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs md:max-w-sm">
+                                    <div class="text-xs font-bold text-slate-800 uppercase tracking-tight leading-snug break-words">
+                                        {{ $student->school->name ?? 'N/A' }}
+                                    </div>
+                                    <div class="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1.5 leading-tight">
+                                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0"></span>
+                                        <span class="break-words">{{ $student->department->name ?? 'N/A' }}</span>
+                                    </div>
                                 </td>
                                 @if(in_array(Auth::user()->role, ['sa', 'admin']))
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                                    <div class="flex items-center justify-end gap-2">
-                                        <a href="{{ route('students.edit', $student->id) }}" class="w-9 h-9 flex items-center justify-center rounded-xl bg-indigo-50/80 text-indigo-600 border border-indigo-200/80 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Edit Student">
-                                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <a href="{{ route('students.edit', $student->id) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50/90 text-indigo-600 border border-indigo-200/70 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Student">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                         </a>
-                                        <button type="button" onclick="openResetUserPasswordModal('{{ route('users.reset-password', $student->id) }}', '{{ $student->username }}', '{{ addslashes($student->first_name ?? $student->username) }} {{ addslashes($student->last_name ?? '') }}', 'Student#963')" class="w-9 h-9 flex items-center justify-center rounded-xl bg-amber-50/80 text-amber-600 border border-amber-200/80 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Reset Password for {{ $student->username }}">
-                                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                                        <button type="button" onclick="openResetUserPasswordModal('{{ route('users.reset-password', $student->id) }}', '{{ $student->username }}', '{{ addslashes($student->first_name ?? $student->username) }} {{ addslashes($student->last_name ?? '') }}', 'Student#963')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-50/90 text-amber-600 border border-amber-200/70 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Reset Password for {{ $student->username }}">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                                         </button>
                                         @if(Auth::user()->role === 'sa')
                                         <form action="{{ route('students.destroy', $student->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete student {{ $student->username }}?');" class="inline m-0 p-0">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Delete Student">
-                                                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Delete Student">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                             </button>
                                         </form>
                                         @endif

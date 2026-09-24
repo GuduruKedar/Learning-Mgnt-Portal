@@ -10,7 +10,107 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
-<script src="{{ asset('js/main.js') }}"></script>
+    <style>
+        /* Force dropdown to always open downwards below the input */
+        .ts-wrapper {
+            position: relative !important;
+            width: 100% !important;
+        }
+        .ts-wrapper .ts-dropdown {
+            position: absolute !important;
+            top: 100% !important;
+            bottom: auto !important;
+            left: 0 !important;
+            min-width: 100% !important;
+            width: max-content !important;
+            max-width: 420px !important;
+            margin-top: 4px !important;
+            border-radius: 0.75rem !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+            z-index: 9999 !important;
+            max-height: 220px !important;
+            background: #ffffff !important;
+            overflow-y: auto !important;
+        }
+        .ts-wrapper .ts-control {
+            border-radius: 0.75rem !important;
+            padding: 0.625rem 0.875rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            border-color: #e2e8f0 !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        }
+        .ts-wrapper.focus .ts-control {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+        }
+        .ts-wrapper .ts-dropdown .option {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.75rem !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        .ts-wrapper .ts-dropdown .option:hover,
+        .ts-wrapper .ts-dropdown .option.active {
+            background-color: #f1f5f9 !important;
+            color: #4f46e5 !important;
+        }
+        /* Multi-select tag styles */
+        .ts-wrapper.multi .ts-control {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            gap: 4px !important;
+            padding: 4px 6px !important;
+            min-height: 36px !important;
+            font-size: 0.75rem !important;
+            border-radius: 0.5rem !important;
+            background-color: #ffffff !important;
+            border-color: #e2e8f0 !important;
+        }
+        .ts-wrapper.multi .ts-control .item {
+            background-color: #eef2ff !important;
+            color: #4338ca !important;
+            border: 1px solid #c7d2fe !important;
+            border-radius: 0.375rem !important;
+            padding: 1px 6px !important;
+            font-size: 0.7rem !important;
+            font-weight: 600 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            line-height: 1.3 !important;
+            white-space: nowrap !important;
+        }
+        .ts-wrapper.multi .ts-control .item .remove {
+            margin-left: 4px !important;
+            color: #6366f1 !important;
+            font-weight: bold !important;
+            text-decoration: none !important;
+            cursor: pointer !important;
+            padding: 0 2px !important;
+        }
+        .ts-wrapper.multi .ts-control .item .remove:hover {
+            color: #dc2626 !important;
+        }
+        .ts-wrapper.multi .ts-control input {
+            font-size: 0.75rem !important;
+            min-width: 60px !important;
+        }
+        /* Remove number input spinner arrows */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield !important;
+            appearance: textfield !important;
+        }
+    </style>
+    <script src="{{ asset('js/main.js') }}"></script>
 </head>
 <body class="h-screen overflow-hidden flex bg-gray-50 text-gray-800">
 
@@ -49,22 +149,22 @@
         </header>
 
         <!-- Main Scrollable Content -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
-            <div class="max-w-7xl mx-auto space-y-6 w-full">
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50">
+            <div class="max-w-7xl mx-auto space-y-4 sm:space-y-5 w-full">
                 <!-- Page Header -->
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <a href="{{ route('academic.courses') }}" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold uppercase tracking-wider mb-2 inline-flex items-center gap-1.5 transition-colors">
+                        <a href="{{ route('academic.courses') }}" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold uppercase tracking-wider mb-1 inline-flex items-center gap-1.5 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                             Back to Courses Catalog
                         </a>
                         <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Add New Course(s)</h1>
-                        <p class="text-xs text-slate-500 mt-1">Configure curriculum specifications, department allocations, and batch-create subjects.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Configure curriculum specifications, department allocations, and batch-create subjects.</p>
                     </div>
                 </div>
 
                 @if(session('success'))
-                    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl shadow-sm flex items-center justify-between animate-fade-in">
+                    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3.5 rounded-2xl shadow-sm flex items-center justify-between animate-fade-in">
                         <div class="flex items-center gap-3">
                             <svg class="h-5 w-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <p class="text-sm font-semibold">{{ session('success') }}</p>
@@ -73,7 +173,7 @@
                     </div>
                 @endif
                 @if(session('error'))
-                    <div class="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl shadow-sm flex items-center justify-between animate-fade-in">
+                    <div class="bg-rose-50 border border-rose-200 text-rose-800 p-3.5 rounded-2xl shadow-sm flex items-center justify-between animate-fade-in">
                         <div class="flex items-center gap-3">
                             <svg class="h-5 w-5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <p class="text-sm font-semibold">{{ session('error') }}</p>
@@ -83,7 +183,7 @@
                 @endif
                 
                 @if ($errors->any())
-                    <div class="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl shadow-sm">
+                    <div class="bg-rose-50 border border-rose-200 text-rose-800 p-3.5 rounded-2xl shadow-sm">
                         <div class="flex items-center gap-2 font-bold mb-1.5 text-rose-900">
                             <svg class="h-5 w-5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <span class="text-sm">Please resolve the following {{ $errors->count() }} error(s):</span>
@@ -98,7 +198,7 @@
 
                 <!-- Create Form Container -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden w-full">
-                    <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div class="flex items-center gap-2.5">
                             <span class="w-3 h-3 rounded-full bg-indigo-600 shadow-sm"></span>
                             <h2 class="text-base font-bold text-slate-900">Curriculum & Course Details</h2>
@@ -108,13 +208,13 @@
                         </span>
                     </div>
 
-                    <form action="{{ route('academic.courses.store') }}" method="POST" class="p-6 sm:p-8">
+                    <form action="{{ route('academic.courses.store') }}" method="POST" class="p-5 sm:p-6">
                         @csrf
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                             
                             <!-- Left Column: Academic Placement (Program, Regulation, Semester, Total Subjects) -->
-                            <div class="lg:col-span-5 bg-slate-50/70 p-5 sm:p-6 rounded-2xl border border-slate-200/80 space-y-5">
-                                <div class="pb-3 border-b border-slate-200/80 flex items-center justify-between">
+                            <div class="lg:col-span-4 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/80 space-y-4">
+                                <div class="pb-2.5 border-b border-slate-200/80 flex items-center justify-between">
                                     <div class="flex items-center gap-2">
                                         <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
                                             1
@@ -158,34 +258,67 @@
                                     </div>
                                 </div>
 
-                                <!-- 3. Semester -->
+                                @if(in_array(Auth::user()->role, ['sa', 'ssh_admin']))
+                                <!-- Department (For Super Admin) -->
                                 <div class="space-y-1.5">
-                                    <label for="semester_select" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                        Semester <span class="text-rose-500">*</span>
+                                    <label for="department_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                        Department <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <select id="semester_select" name="semester" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium text-slate-800 cursor-pointer shadow-xs transition-all" required>
-                                            <option value="">-- Select Semester --</option>
-                                            <option value="1">1st Semester (1-1)</option>
-                                            <option value="2">2nd Semester (1-2)</option>
+                                        <select id="department_id" name="department_id" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium text-slate-800 cursor-pointer shadow-xs transition-all" required>
+                                            <option value="">Select Department</option>
+                                            @foreach($departments as $dept)
+                                                <option value="{{ $dept->code }}" {{ old('department_id') == $dept->code ? 'selected' : '' }}>{{ $dept->name }}</option>
+                                            @endforeach
                                         </select>
+                                    </div>
+                                </div>
+                                @endif
+
+                                <!-- 3. Year & Semester Grid -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                                    <!-- Year -->
+                                    <div class="space-y-1.5">
+                                        <label for="year_select" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            Year <span class="text-rose-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <select id="year_select" name="year" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium text-slate-800 cursor-pointer shadow-xs transition-all" required>
+                                                <option value="">Select Year</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Semester -->
+                                    <div class="space-y-1.5">
+                                        <label for="semester_select" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            Semester <span class="text-rose-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <select id="semester_select" name="semester" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-medium text-slate-800 cursor-pointer shadow-xs transition-all" required>
+                                                <option value="">Select Semester</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- 4. Total Subjects To Create -->
                                 <div class="space-y-1.5 pt-1">
-                                    <label for="no_of_courses" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                        Total Subjects To Create <span class="text-rose-500">*</span>
-                                    </label>
+                                    <div class="flex items-center justify-between">
+                                        <label for="no_of_courses" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            Total Subjects To Create <span class="text-rose-500">*</span>
+                                        </label>
+                                        <span id="course_count_badge" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">1 Subject</span>
+                                    </div>
                                     <div class="relative">
-                                        <input type="number" name="no_of_courses" id="no_of_courses" min="1" max="20" value="1" placeholder="e.g. 5" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-bold text-slate-800 shadow-xs transition-all" required>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" name="no_of_courses" id="no_of_courses" value="1" placeholder="e.g. 5" oninput="handleCourseCountChange(this.value)" onchange="handleCourseCountChange(this.value)" onkeyup="handleCourseCountChange(this.value)" onwheel="event.preventDefault()" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm font-bold text-slate-800 shadow-xs transition-all" required>
                                     </div>
                                     <p class="text-[11px] text-slate-400">Enter count (1-20) to generate input rows dynamically on the right.</p>
                                 </div>
                             </div>
 
-                            <!-- Right Column: Dynamic Course Rows & Submission (7 cols) -->
-                            <div class="lg:col-span-7 flex flex-col justify-between space-y-6">
+                            <!-- Right Column: Dynamic Course Rows & Submission (8 cols) -->
+                            <div class="lg:col-span-8 flex flex-col justify-between space-y-6">
                                 <div>
                                     <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
                                         <div class="flex items-center gap-2">
@@ -196,29 +329,43 @@
                                                 Subject Codes & Names
                                             </h3>
                                         </div>
-                                        <span class="text-xs text-slate-400 font-medium">Auto-generated rows</span>
+                                        <span id="rows_summary_text" class="text-xs text-indigo-600 font-semibold bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">1 row configured</span>
                                     </div>
 
                                     <div class="grid grid-cols-12 gap-2 mb-2.5 px-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                         <div class="col-span-1 text-center">#</div>
-                                        <div class="col-span-4 sm:col-span-3">Subject Code *</div>
-                                        <div class="col-span-7 sm:col-span-8">Subject Name / Title *</div>
+                                        <div class="col-span-3 sm:col-span-3">Subject Code *</div>
+                                        <div class="col-span-4 sm:col-span-4">Subject Name / Title *</div>
+                                        <div class="col-span-4 sm:col-span-4">Assign Faculty (Multiple Allowed)</div>
                                     </div>
 
-                                    <div id="dynamic_course_fields" class="space-y-3 max-h-[520px] overflow-y-auto pr-2">
-                                        <div class="grid grid-cols-12 gap-2 items-center p-2.5 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:bg-slate-50 transition-colors">
-                                            <div class="col-span-1 text-center font-bold text-xs text-slate-400">1</div>
-                                            <div class="col-span-4 sm:col-span-3">
+                                    <div id="dynamic_course_fields" class="space-y-3">
+                                        <div class="course-row grid grid-cols-12 gap-2 items-center p-2.5 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:bg-slate-50 transition-colors" data-row="1">
+                                            <div class="col-span-1 text-center font-bold text-xs text-slate-400 row-num">1</div>
+                                            <div class="col-span-3 sm:col-span-3">
                                                 <input type="text" name="code[]" placeholder="e.g. 22CS101" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono uppercase font-bold text-indigo-700 bg-white shadow-2xs" required>
                                             </div>
-                                            <div class="col-span-7 sm:col-span-8">
+                                            <div class="col-span-4 sm:col-span-4">
                                                 <input type="text" name="name[]" placeholder="e.g. Programming in C" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold text-slate-800 bg-white shadow-2xs" required>
+                                            </div>
+                                            <div class="col-span-4 sm:col-span-4">
+                                                <select name="staff_id[0][]" multiple class="faculty-tomselect no-tomselect w-full" placeholder="Type Emp Code or Name (Multi)...">
+                                                    @if(isset($availableStaff))
+                                                        @foreach($availableStaff as $st)
+                                                            @php
+                                                                $fullName = $st->profile ? trim(($st->profile->first_name ?? '') . ' ' . ($st->profile->last_name ?? '')) : $st->username;
+                                                                $deptName = $st->profile?->department?->name ?? '';
+                                                            @endphp
+                                                            <option value="{{ $st->id }}">{{ $st->username }} - {{ $fullName }}{{ $deptName ? ' (' . $deptName . ')' : '' }}</option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
                                     <p class="text-xs text-slate-400 text-center sm:text-left">
                                         All courses created will be available for student enrollment and faculty allocations.
                                     </p>
@@ -240,6 +387,19 @@
             </div>
         </main>
     </div>
+
+    <!-- Hidden Template for Faculty Options -->
+    <template id="faculty_options_template">
+        @if(isset($availableStaff))
+            @foreach($availableStaff as $st)
+                @php
+                    $fullName = $st->profile ? trim(($st->profile->first_name ?? '') . ' ' . ($st->profile->last_name ?? '')) : $st->username;
+                    $deptName = $st->profile?->department?->name ?? '';
+                @endphp
+                <option value="{{ $st->id }}">{{ $st->username }} - {{ $fullName }}{{ $deptName ? ' (' . $deptName . ')' : '' }}</option>
+            @endforeach
+        @endif
+    </template>
 
     <!-- Modals -->
     <!-- Change Password Modal -->
@@ -278,78 +438,227 @@
     </div>
 
     <script>
-        if (typeof window.initLMSUI === 'function') {
-            window.initLMSUI();
+        // Global helper for TomSelect on faculty dropdowns
+        function initFacultyTomSelect(el) {
+            if (!el) return;
+            if (el.tomselect || el.classList.contains('tomselected')) return;
+            el.classList.add('no-tomselect');
+
+            if (typeof TomSelect !== 'undefined') {
+                try {
+                    new TomSelect(el, {
+                        plugins: ['remove_button'],
+                        create: false,
+                        maxOptions: null,
+                        placeholder: 'Type Emp Code or Name (Multi)...',
+                        sortField: { field: "text", direction: "asc" }
+                    });
+                } catch (e) {
+                    try {
+                        new TomSelect(el, {
+                            create: false,
+                            maxOptions: null,
+                            placeholder: 'Type Emp Code or Name (Multi)...',
+                            sortField: { field: "text", direction: "asc" }
+                        });
+                    } catch (err) {
+                        console.error('TomSelect init error:', err);
+                    }
+                }
+            }
         }
-        @if($errors->has('password'))
-            if (window.openPwdModal) window.openPwdModal();
-        @endif
+
+        // Live Row Generator
+        function syncRowCount(desiredCount) {
+            const container = document.getElementById('dynamic_course_fields');
+            if (!container) return;
+
+            let count = parseInt(desiredCount);
+            if (isNaN(count) || count < 1) count = 1;
+            if (count > 20) count = 20;
+
+            const badge = document.getElementById('course_count_badge');
+            if (badge) badge.textContent = count === 1 ? '1 Subject' : `${count} Subjects`;
+
+            const summaryText = document.getElementById('rows_summary_text');
+            if (summaryText) summaryText.textContent = count === 1 ? '1 row configured' : `${count} rows configured`;
+
+            const tpl = document.getElementById('faculty_options_template');
+            const facultyOptionsHtml = tpl ? tpl.innerHTML : '';
+
+            const currentRows = container.querySelectorAll('.course-row');
+            const currentCount = currentRows.length;
+
+            if (count > currentCount) {
+                for (let i = currentCount + 1; i <= count; i++) {
+                    const rowIndex = i - 1;
+                    const newRow = document.createElement('div');
+                    newRow.className = 'course-row grid grid-cols-12 gap-2 items-center p-2.5 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:bg-slate-50 transition-colors animate-fade-in';
+                    newRow.setAttribute('data-row', i);
+                    newRow.innerHTML = `
+                        <div class="col-span-1 text-center font-bold text-xs text-slate-400 row-num">${i}</div>
+                        <div class="col-span-3 sm:col-span-3">
+                            <input type="text" name="code[]" placeholder="e.g. Code" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono uppercase font-bold text-indigo-700 bg-white shadow-2xs" required>
+                        </div>
+                        <div class="col-span-4 sm:col-span-4">
+                            <input type="text" name="name[]" placeholder="e.g. Subject Name" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold text-slate-800 bg-white shadow-2xs" required>
+                        </div>
+                        <div class="col-span-4 sm:col-span-4">
+                            <select name="staff_id[${rowIndex}][]" multiple class="faculty-tomselect no-tomselect w-full" placeholder="Type Emp Code or Name (Multi)...">
+                                ${facultyOptionsHtml}
+                            </select>
+                        </div>
+                    `;
+                    container.appendChild(newRow);
+
+                    const sel = newRow.querySelector('.faculty-tomselect');
+                    if (sel) {
+                        setTimeout(() => initFacultyTomSelect(sel), 10);
+                    }
+                }
+            } else if (count < currentCount) {
+                for (let i = currentCount - 1; i >= count; i--) {
+                    if (currentRows[i]) {
+                        const sel = currentRows[i].querySelector('.faculty-tomselect');
+                        if (sel && sel.tomselect) {
+                            try { sel.tomselect.destroy(); } catch(e) {}
+                        }
+                        currentRows[i].remove();
+                    }
+                }
+            }
+        }
+
+        window.handleCourseCountChange = function(val) {
+            const clean = String(val).replace(/[^0-9]/g, '');
+            const input = document.getElementById('no_of_courses');
+            if (input && input.value !== clean) {
+                input.value = clean;
+            }
+            if (clean === '') return;
+            let num = parseInt(clean, 10);
+            if (!isNaN(num)) {
+                if (num > 20) num = 20;
+                if (num < 1) num = 1;
+                syncRowCount(num);
+            }
+        };
 
         document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.initLMSUI === 'function') {
+                window.initLMSUI();
+            }
+
+            @if($errors->has('password'))
+                if (window.openPwdModal) window.openPwdModal();
+            @endif
+
             // 1. Program Type -> Regulation -> Semester Dropdown Logic
             const programTypeSelect = document.getElementById('program_type_select');
             const regulationSelect = document.getElementById('regulation_id_select');
+            const yearSelect = document.getElementById('year_select');
             const semesterSelect = document.getElementById('semester_select');
             const allRegulations = Array.from(regulationSelect.options).filter(opt => opt.value !== '');
 
-            function getOrdinal(n) {
-                const s = ["th", "st", "nd", "rd"];
-                const v = n % 100;
-                return n + (s[(v - 20) % 10] || s[v] || s[0]);
+            function syncTS(el) {
+                if (el && el.tomselect) {
+                    const ts = el.tomselect;
+                    const val = el.value;
+                    ts.clear();
+                    ts.clearOptions();
+                    ts.sync();
+                    if (val) {
+                        ts.setValue(val, true);
+                    }
+                }
             }
 
-            function populateSemesters(programType) {
-                const currentVal = semesterSelect.value;
-                semesterSelect.innerHTML = '<option value="">-- Select Semester --</option>';
-                const isSshAdmin = {{ Auth::user()->role === 'ssh_admin' ? 'true' : 'false' }};
+            function matchProgramType(selected, candidate) {
+                if (!selected || !candidate) return false;
+                const s = selected.trim().toLowerCase();
+                const c = candidate.trim().toLowerCase();
+                if (s === c) return true;
+                const sClean = s.replace(/[^a-z0-9]/g, '');
+                const cClean = c.replace(/[^a-z0-9]/g, '');
+                return sClean !== '' && sClean === cClean;
+            }
+
+            function populateYears(programType) {
+                const currentVal = yearSelect.value;
+                yearSelect.innerHTML = '<option value="">Select Year</option>';
+                semesterSelect.innerHTML = '<option value="">Select Semester</option>';
                 
+                const isSshAdmin = {{ Auth::user()->role === 'ssh_admin' ? 'true' : 'false' }};
                 if (isSshAdmin) {
-                    const opt1 = document.createElement('option');
-                    opt1.value = 1;
-                    opt1.textContent = '1st Semester (1-1)';
-                    semesterSelect.appendChild(opt1);
-
-                    const opt2 = document.createElement('option');
-                    opt2.value = 2;
-                    opt2.textContent = '2nd Semester (1-2)';
-                    semesterSelect.appendChild(opt2);
-
-                    if (currentVal == '1' || currentVal == '2') {
-                        semesterSelect.value = currentVal;
-                    }
+                    const opt = document.createElement('option');
+                    opt.value = 1;
+                    opt.textContent = '1st Year';
+                    opt.selected = true;
+                    yearSelect.appendChild(opt);
+                    syncTS(yearSelect);
+                    populateSemesters(1);
                     return;
                 }
 
-                let maxSem = 8;
+                let maxYears = 4; // Default B.Tech
                 if (programType) {
                     const typeLower = programType.toLowerCase();
-                    if (typeLower.includes('m.tech') || typeLower.includes('m.pharm') || typeLower.includes('m.b.a') || typeLower.includes('mba') || typeLower.includes('m.c.a') || typeLower.includes('mca') || typeLower.includes('m.sc')) {
-                        maxSem = 4;
-                    } else if (typeLower.includes('b.sc') || typeLower.includes('b.com') || typeLower.includes('b.b.a') || typeLower.includes('bba') || typeLower.includes('degree') || typeLower.includes('diploma')) {
-                        maxSem = 6;
-                    } else if (typeLower.includes('ph.d')) {
-                        maxSem = 10;
-                    } else if (typeLower.includes('b.tech') || typeLower.includes('b.pharm')) {
-                        maxSem = 8;
-                    }
+                    if (typeLower.includes('b.tech') || typeLower.includes('b.pharm')) maxYears = 4;
+                    else if (typeLower.includes('m.tech') || typeLower.includes('m.pharm') || typeLower.includes('m.b.a') || typeLower.includes('mba') || typeLower.includes('m.c.a') || typeLower.includes('mca') || typeLower.includes('m.sc')) maxYears = 2;
+                    else if (typeLower.includes('b.sc') || typeLower.includes('b.com') || typeLower.includes('b.b.a') || typeLower.includes('bba')) maxYears = 3;
+                    else if (typeLower.includes('ph.d')) maxYears = 5;
                 }
 
-                for (let sem = 1; sem <= maxSem; sem++) {
-                    const yearNum = Math.ceil(sem / 2);
-                    const semInYear = (sem % 2 === 1) ? 1 : 2;
+                const ordinals = ["1st", "2nd", "3rd", "4th", "5th", "6th"];
+                for (let i = 1; i <= maxYears; i++) {
                     const opt = document.createElement('option');
-                    opt.value = sem;
-                    opt.textContent = `${getOrdinal(sem)} Semester (${yearNum}-${semInYear})`;
-                    semesterSelect.appendChild(opt);
+                    opt.value = i;
+                    opt.textContent = `${ordinals[i - 1] || i + 'th'} Year`;
+                    if (i == currentVal) {
+                        opt.selected = true;
+                    }
+                    yearSelect.appendChild(opt);
                 }
 
-                if (currentVal && semesterSelect.querySelector(`option[value="${currentVal}"]`)) {
-                    semesterSelect.value = currentVal;
+                syncTS(yearSelect);
+
+                if (yearSelect.value) {
+                    populateSemesters(yearSelect.value);
+                } else if (yearSelect.options.length === 2) {
+                    yearSelect.selectedIndex = 1;
+                    if (yearSelect.tomselect) yearSelect.tomselect.setValue(yearSelect.value, true);
+                    populateSemesters(yearSelect.value);
+                } else {
+                    syncTS(semesterSelect);
                 }
             }
 
-            // Initial load of semesters
-            populateSemesters(programTypeSelect.value);
+            function populateSemesters(selectedYear) {
+                const currentVal = semesterSelect.value;
+                semesterSelect.innerHTML = '<option value="">Select Semester</option>';
+                if (!selectedYear) {
+                    syncTS(semesterSelect);
+                    return;
+                }
+
+                const y = parseInt(selectedYear);
+                const opt1 = document.createElement('option');
+                opt1.value = 1;
+                opt1.textContent = `1st Semester (${y}-1)`;
+                if (currentVal == '1') opt1.selected = true;
+                semesterSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = 2;
+                opt2.textContent = `2nd Semester (${y}-2)`;
+                if (currentVal == '2') opt2.selected = true;
+                semesterSelect.appendChild(opt2);
+
+                syncTS(semesterSelect);
+            }
+
+            // Initial load of years & semesters
+            populateYears(programTypeSelect.value);
 
             programTypeSelect.addEventListener('change', function() {
                 const selectedType = this.value;
@@ -358,9 +667,7 @@
                 if (selectedType) {
                     allRegulations.forEach(opt => {
                         const progType = opt.getAttribute('data-program') || '';
-                        if (progType.includes(selectedType) || selectedType.includes(progType) || 
-                            (selectedType === 'B.Tech' && progType === 'B.Tech') ||
-                            (selectedType === 'M.Tech' && progType === 'M.Tech')) {
+                        if (matchProgramType(selectedType, progType)) {
                             regulationSelect.appendChild(opt.cloneNode(true));
                         }
                     });
@@ -368,12 +675,12 @@
                     allRegulations.forEach(opt => regulationSelect.appendChild(opt.cloneNode(true)));
                 }
 
-                // Populate semesters based on the selected program
-                populateSemesters(selectedType);
+                syncTS(regulationSelect);
+                populateYears(selectedType);
 
-                // Auto-select if only one option
                 if (regulationSelect.options.length === 2) {
                     regulationSelect.selectedIndex = 1;
+                    if (regulationSelect.tomselect) regulationSelect.tomselect.setValue(regulationSelect.value);
                     regulationSelect.dispatchEvent(new Event('change'));
                 }
             });
@@ -381,47 +688,36 @@
             regulationSelect.addEventListener('change', function() {
                 const selectedReg = this.options[this.selectedIndex];
                 const programType = selectedReg ? selectedReg.getAttribute('data-program') : programTypeSelect.value;
-                populateSemesters(programType);
+                if (programType && programType !== programTypeSelect.value) {
+                    programTypeSelect.value = programType;
+                    if (programTypeSelect.tomselect) programTypeSelect.tomselect.setValue(programType, true);
+                }
+                populateYears(programType || programTypeSelect.value);
             });
 
-            // 2. Dynamic Course Fields Generator
+            yearSelect.addEventListener('change', function() {
+                populateSemesters(this.value);
+            });
+
+            // Initialize first row's faculty dropdown
+            document.querySelectorAll('.faculty-tomselect').forEach(initFacultyTomSelect);
+
             const noOfCoursesInput = document.getElementById('no_of_courses');
-            const dynamicFieldsContainer = document.getElementById('dynamic_course_fields');
+            if (noOfCoursesInput) {
+                noOfCoursesInput.addEventListener('blur', function() {
+                    let count = parseInt(this.value) || 1;
+                    if (count < 1) count = 1;
+                    if (count > 20) count = 20;
+                    this.value = count;
+                    syncRowCount(count);
+                });
 
-            noOfCoursesInput.addEventListener('input', function() {
-                const count = parseInt(this.value) || 0;
-                const safeCount = Math.min(Math.max(count, 1), 20); // Cap at 20 rows
-                
-                const currentRows = dynamicFieldsContainer.children.length;
-
-                if (safeCount > currentRows) {
-                    for (let i = currentRows + 1; i <= safeCount; i++) {
-                        const newRow = document.createElement('div');
-                        newRow.className = 'grid grid-cols-12 gap-2 items-center p-2.5 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:bg-slate-50 transition-colors animate-fade-in';
-                        newRow.innerHTML = `
-                            <div class="col-span-1 text-center font-bold text-xs text-slate-400">${i}</div>
-                            <div class="col-span-4 sm:col-span-3">
-                                <input type="text" name="code[]" placeholder="e.g. Code" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono uppercase font-bold text-indigo-700 bg-white shadow-2xs" required>
-                            </div>
-                            <div class="col-span-7 sm:col-span-8">
-                                <input type="text" name="name[]" placeholder="e.g. Subject Name" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold text-slate-800 bg-white shadow-2xs" required>
-                            </div>
-                        `;
-                        dynamicFieldsContainer.appendChild(newRow);
-                    }
-                } else if (safeCount < currentRows) {
-                    for (let i = currentRows; i > safeCount; i--) {
-                        dynamicFieldsContainer.removeChild(dynamicFieldsContainer.lastChild);
-                    }
+                if (parseInt(noOfCoursesInput.value) > 1) {
+                    syncRowCount(noOfCoursesInput.value);
                 }
-                
-                if (this.value !== '' && this.value != safeCount) {
-                    this.value = safeCount;
-                }
-            });
+            }
             
-            // Apply initial filtering based on selection
-            if(programTypeSelect.value) {
+            if (programTypeSelect.value) {
                 programTypeSelect.dispatchEvent(new Event('change'));
             }
         });

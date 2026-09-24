@@ -56,7 +56,7 @@
                         <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">Department-wise Coordinators</h1>
                         <p class="text-sm text-gray-500 mt-1">Overview of coordinator distribution and assignments across all university departments</p>
                     </div>
-                    <a href="{{ route('coordinators.create') }}" class="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition-colors">
+                    <a href="{{ route('coordinators.create') }}" class="inline-flex items-center justify-center px-5 py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold text-sm rounded-2xl shadow-md shadow-blue-600/25 hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2563eb] transform hover:-translate-y-0.5 whitespace-nowrap">
                         + Add Department Coordinator
                     </a>
                 </div>
@@ -103,11 +103,21 @@
                 </div>
 
                 <!-- Filters -->
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6 transition-all hover:shadow-md">
-                    <form action="{{ route('coordinators.departments_list') }}" method="GET" class="flex flex-wrap items-center gap-4 sm:gap-6">
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <label for="school" class="text-sm font-semibold text-gray-700 whitespace-nowrap">School:</label>
-                            <select name="school" id="school" class="no-tomselect block w-full sm:w-auto min-w-[320px] sm:min-w-[460px] lg:min-w-[540px] px-3.5 py-2.5 text-sm border border-gray-300 bg-white text-gray-800 focus:ring-blue-500 focus:border-blue-500 rounded-lg cursor-pointer transition-all shadow-xs">
+                <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100 mb-6 transition-all hover:shadow-md">
+                    <form action="{{ route('coordinators.departments_list') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center w-full" id="filterForm">
+                        <div class="md:col-span-3 w-full">
+                            <label for="search" class="sr-only">Search</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                    <svg class="h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                                <input type="text" name="search" id="search" value="{{ request('search') }}" class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-2xs" placeholder="Search department or coordinator...">
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-3 w-full">
+                            <label for="school" class="sr-only">School</label>
+                            <select name="school" id="school" class="no-tomselect block w-full px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg cursor-pointer transition-all shadow-2xs">
                                 <option value="">-- All Schools --</option>
                                 @php
                                     $orderedCodes = [
@@ -134,9 +144,9 @@
                             </select>
                         </div>
 
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <label for="department" class="text-sm font-semibold text-gray-700 whitespace-nowrap">Department:</label>
-                            <select name="department" id="department" class="no-tomselect block w-full sm:w-auto min-w-[280px] sm:min-w-[360px] lg:min-w-[420px] px-3.5 py-2.5 text-sm border border-gray-300 bg-white text-gray-800 focus:ring-blue-500 focus:border-blue-500 rounded-lg cursor-pointer transition-all shadow-xs">
+                        <div class="md:col-span-2 w-full">
+                            <label for="department" class="sr-only">Department</label>
+                            <select name="department" id="department" class="no-tomselect block w-full px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg cursor-pointer transition-all shadow-2xs">
                                 <option value="">-- All Departments --</option>
                                 @foreach($allDepartments as $dept)
                                     <option value="{{ $dept->code }}" data-school-id="{{ $dept->school_id }}" {{ request('department') == $dept->code ? 'selected' : '' }}>{{ $dept->name }}</option>
@@ -144,13 +154,23 @@
                             </select>
                         </div>
 
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
-                            <label for="status" class="text-sm font-semibold text-gray-700 whitespace-nowrap">Status:</label>
-                            <select name="status" id="status" class="no-tomselect block w-full sm:w-44 px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 focus:ring-blue-500 focus:border-blue-500 rounded-lg cursor-pointer transition-all">
+                        <div class="md:col-span-2 w-full">
+                            <label for="status" class="sr-only">Status</label>
+                            <select name="status" id="status" class="no-tomselect block w-full px-3 py-2 text-sm border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg cursor-pointer transition-all shadow-2xs">
                                 <option value="">-- All Status --</option>
                                 <option value="assigned" {{ request('status') == 'assigned' ? 'selected' : '' }}>Assigned</option>
                                 <option value="unassigned" {{ request('status') == 'unassigned' ? 'selected' : '' }}>Unassigned</option>
                             </select>
+                        </div>
+
+                        <div class="flex items-center gap-2 md:col-span-2 w-full">
+                            <button type="submit" class="flex-1 inline-flex items-center justify-center px-3.5 py-2 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
+                                Apply
+                            </button>
+                            <a href="{{ route('coordinators.departments_list') }}" class="inline-flex items-center justify-center gap-1 px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-2xs" title="Reset all filters">
+                                <svg class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <span>Reset</span>
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -305,16 +325,16 @@
                         <table class="min-w-full divide-y divide-gray-100">
                             <thead class="bg-[#f8f9fc]">
                                 <tr>
-                                    <th scope="col" class="px-6 py-4 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="w-[28%] px-5 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                         Department
                                     </th>
-                                    <th scope="col" class="px-6 py-4 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="w-[26%] px-5 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                         School
                                     </th>
-                                    <th scope="col" class="px-6 py-4 text-center text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="w-[18%] px-5 py-3.5 text-center text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                         Coordinator Count
                                     </th>
-                                    <th scope="col" class="px-6 py-4 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="w-[28%] px-5 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                         Assigned Coordinators & Actions
                                     </th>
                                 </tr>
@@ -322,36 +342,36 @@
                             <tbody class="bg-white divide-y divide-gray-100">
                                 @forelse($departments as $dept)
                                 <tr class="hover:bg-gray-50/50 transition-colors">
-                                    <td class="px-6 py-5 align-top">
+                                    <td class="px-5 py-4 align-top">
                                         <div class="flex flex-col">
                                             <span class="text-sm font-bold text-gray-800">{{ $dept->name }}</span>
-                                            <span class="text-xs font-mono text-gray-400 mt-1">{{ $dept->code }}</span>
+                                            <span class="text-xs font-mono text-gray-400 mt-0.5">{{ $dept->code }}</span>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-5 align-top">
-                                        <span class="text-[11px] font-medium text-gray-500 uppercase">{{ $dept->school->name ?? 'N/A' }}</span>
+                                    <td class="px-5 py-4 align-top">
+                                        <span class="text-xs font-medium text-gray-600">{{ $dept->school->name ?? 'N/A' }}</span>
                                     </td>
-                                    <td class="px-6 py-5 align-top text-center">
+                                    <td class="px-5 py-4 align-top text-center">
                                         @if($dept->profiles->count() > 0)
-                                            <span class="inline-flex items-center font-bold text-gray-800 text-sm">
-                                                {{ $dept->profiles->count() }} COORDINATOR{{ $dept->profiles->count() > 1 ? 'S' : '' }}
+                                            <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
+                                                {{ $dept->profiles->count() }} Coordinator{{ $dept->profiles->count() > 1 ? 's' : '' }}
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-red-50 text-red-600 text-xs font-bold">
-                                                0 COORDINATORS
+                                            <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-semibold">
+                                                0 Coordinators
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-5 align-top">
+                                    <td class="px-5 py-4 align-top">
                                         @if($dept->profiles->count() > 0)
                                             <div class="flex flex-col gap-2 items-start w-full">
                                                 @foreach($dept->profiles as $profile)
-                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between w-full max-w-md p-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-white transition-colors group shadow-sm">
-                                                    <div class="flex items-center gap-2 mb-2 sm:mb-0">
-                                                        <span class="font-bold text-gray-800 text-sm">{{ $profile->user->username ?? $profile->username }}</span>
-                                                        <span class="text-gray-400 text-xs">|</span>
-                                                        <span class="text-gray-600 text-sm font-medium">{{ $profile->first_name }}</span>
-                                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700 ml-1">Active</span>
+                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between w-full max-w-sm p-1.5 px-2.5 bg-gray-50 border border-gray-200 rounded-lg hover:bg-white transition-colors group shadow-2xs">
+                                                    <div class="flex items-center gap-2 mb-1.5 sm:mb-0">
+                                                        <span class="font-bold text-gray-800 text-xs">{{ $profile->user->username ?? $profile->username }}</span>
+                                                        <span class="text-gray-300 text-xs">|</span>
+                                                        <span class="text-gray-600 text-xs font-medium">{{ $profile->first_name }}</span>
+                                                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 ml-0.5">Active</span>
                                                     </div>
                                                      <div class="flex items-center gap-1">
                                                         <button type="button" 
@@ -370,40 +390,41 @@
                                                                 editUrl: '{{ route('coordinators.edit', $profile->user->id ?? $profile->user_id) }}',
                                                                 resetUrl: '{{ route('coordinators.index', ['action' => 'reset_password', 'search' => $profile->user->username ?? $profile->username]) }}'
                                                             })"
-                                                            class="w-8.5 h-8.5 p-2 flex items-center justify-center rounded-xl bg-sky-50/80 text-sky-600 border border-sky-200/80 hover:bg-sky-600 hover:text-white hover:border-sky-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5"
+                                                            class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-sky-50 text-sky-600 border border-sky-200 hover:bg-sky-600 hover:text-white transition-colors"
                                                             title="View Details">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                         </button>
-                                                        <a href="{{ route('coordinators.edit', $profile->user->id ?? $profile->user_id) }}" class="w-8.5 h-8.5 p-2 flex items-center justify-center rounded-xl bg-indigo-50/80 text-indigo-600 border border-indigo-200/80 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Edit">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                        <a href="{{ route('coordinators.edit', $profile->user->id ?? $profile->user_id) }}" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-colors" title="Edit">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                         </a>
-                                                        <button type="button" onclick="openResetUserPasswordModal('{{ route('users.reset-password', $profile->user->id ?? $profile->user_id) }}', '{{ $profile->user->username ?? $profile->username }}', '{{ addslashes(($profile->first_name ?? '') . ' ' . ($profile->last_name ?? '')) }}', 'Admin!741')" class="w-8.5 h-8.5 p-2 flex items-center justify-center rounded-xl bg-amber-50/80 text-amber-600 border border-amber-200/80 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Reset Password">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                                                        <button type="button" onclick="openResetUserPasswordModal('{{ route('users.reset-password', $profile->user->id ?? $profile->user_id) }}', '{{ $profile->user->username ?? $profile->username }}', '{{ addslashes(($profile->first_name ?? '') . ' ' . ($profile->last_name ?? '')) }}', 'Admin!741')" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-500 hover:text-white transition-colors" title="Reset Password">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                                                         </button>
                                                         @if(Auth::user()->role === 'sa')
                                                         <form action="{{ route('coordinators.destroy', $profile->user->id ?? $profile->user_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Coordinator?');" class="inline m-0 p-0">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="w-8.5 h-8.5 p-2 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Delete">
-                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                            <button type="submit" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors" title="Delete">
+                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                             </button>
                                                         </form>
                                                         @endif
-                                                    </div>
+                                                     </div>
                                                 </div>
                                                 @endforeach
-                                                <div class="mt-1">
-                                                    <a href="{{ route('coordinators.create', ['department' => $dept->code]) }}" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-md transition-colors shadow-sm">
-                                                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                                <div class="mt-0.5">
+                                                    <a href="{{ route('coordinators.create', ['department' => $dept->code]) }}" class="inline-flex items-center text-xs font-semibold text-blue-700 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-colors">
+                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                                         Add Another
                                                     </a>
                                                 </div>
                                             </div>
                                         @else
-                                            <div class="flex items-center justify-between gap-6">
-                                                <span class="text-sm italic text-gray-400">No coordinator assigned</span>
-                                                <a href="{{ route('coordinators.create', ['department' => $dept->code]) }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-md hover:bg-blue-700 shadow-sm transition-colors">
-                                                    + Assign Coordinator
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-xs italic text-gray-400">No coordinator assigned</span>
+                                                <a href="{{ route('coordinators.create', ['department' => $dept->code]) }}" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-2xs transition-colors whitespace-nowrap">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                                    <span>Assign Coordinator</span>
                                                 </a>
                                             </div>
                                         @endif

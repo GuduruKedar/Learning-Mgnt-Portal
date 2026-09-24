@@ -239,6 +239,16 @@
             const semesterSelect = document.getElementById('semester_select');
             const allRegulations = Array.from(regulationSelect.options).filter(opt => opt.value !== '');
 
+            function matchProgramType(selected, candidate) {
+                if (!selected || !candidate) return false;
+                const s = selected.trim().toLowerCase();
+                const c = candidate.trim().toLowerCase();
+                if (s === c) return true;
+                const sClean = s.replace(/[^a-z0-9]/g, '');
+                const cClean = c.replace(/[^a-z0-9]/g, '');
+                return sClean !== '' && sClean === cClean;
+            }
+
             programTypeSelect.addEventListener('change', function(e) {
                 const selectedType = this.value;
                 const currentReg = regulationSelect.value;
@@ -254,9 +264,7 @@
                 if (selectedType) {
                     allRegulations.forEach(opt => {
                         const progType = opt.getAttribute('data-program') || '';
-                        if (progType.includes(selectedType) || selectedType.includes(progType) || 
-                            (selectedType === 'B.Tech' && progType === 'B.Tech') ||
-                            (selectedType === 'M.Tech' && progType === 'M.Tech')) {
+                        if (matchProgramType(selectedType, progType)) {
                             const newOpt = opt.cloneNode(true);
                             if (newOpt.value === currentReg) {
                                 newOpt.selected = true;

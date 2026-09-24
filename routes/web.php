@@ -137,6 +137,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:sa,admin,ssh_admin')->group(function () {
         Route::get('/schools/{school}/departments', [\App\Http\Controllers\CoordinatorController::class, 'getDepartments'])->name('schools.departments');
         Route::get('/departments/{department}/programs', [\App\Http\Controllers\CoordinatorController::class, 'getPrograms'])->name('departments.programs');
+        Route::get('/departments/{department}/suggested-username', [\App\Http\Controllers\CoordinatorController::class, 'getSuggestedUsername'])->name('departments.suggested_username');
         
         // Admins and SAs have full CRUD on Students (destroy handled in controller)
         Route::resource('students', \App\Http\Controllers\StudentController::class)->except(['index', 'show']);

@@ -174,8 +174,12 @@
                         <!-- Credentials & Contact Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Employee ID / Username <span class="text-red-500">*</span></label>
-                                <input type="text" name="username" value="{{ old('username') }}" placeholder="5-digit ID (e.g. 10001)" maxlength="5" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" required>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                                    <span>Login Username / ID</span>
+                                    <span class="text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">Auto-Generated</span>
+                                </label>
+                                <input type="text" id="coordinator_username" name="username" value="{{ old('username') }}" placeholder="e.g. dep_mech (Auto-assigned)" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono">
+                                <p class="text-[11px] text-slate-500 mt-1">Assigned from department (e.g. <span class="font-mono text-indigo-600 font-semibold">dep_mech</span>, <span class="font-mono text-indigo-600 font-semibold">dep_mech1</span>). Common default password: <span class="font-mono font-semibold text-slate-700">Admin!741</span></p>
                                 @error('username')
                                     <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                                 @enderror
@@ -572,9 +576,26 @@
             if (id) {
                 displayText.classList.add('font-bold', 'text-slate-900');
                 if (selectedBadge) selectedBadge.classList.remove('hidden');
+
+                // Auto-fetch suggested department username
+                fetch('/departments/' + id + '/suggested-username')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.username) {
+                            const usernameInput = document.getElementById('coordinator_username');
+                            if (usernameInput) {
+                                usernameInput.value = data.username;
+                            }
+                        }
+                    })
+                    .catch(err => console.error('Error fetching suggested username:', err));
             } else {
                 displayText.classList.remove('font-bold', 'text-slate-900');
                 if (selectedBadge) selectedBadge.classList.add('hidden');
+                const usernameInput = document.getElementById('coordinator_username');
+                if (usernameInput) {
+                    usernameInput.value = '';
+                }
             }
 
             // Highlight active in dropdown

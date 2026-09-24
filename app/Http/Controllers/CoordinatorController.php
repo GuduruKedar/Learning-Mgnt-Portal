@@ -151,7 +151,7 @@ class CoordinatorController extends Controller
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
-            'username' => ['required', 'regex:/^\d{5}$/', 'unique:users,username'],
+            'username' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email'],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
             'phone_number' => 'nullable|numeric|digits:10',
@@ -160,13 +160,19 @@ class CoordinatorController extends Controller
                 'required', 
                 Rule::exists('departments', 'id')->where('school_id', \App\Models\School::where('id', $request->school_id)->value('code'))
             ],
-        ], [
-
         ]);
 
-        $deptCode = \App\Models\Department::where('id', $request->department_id)->value('code');
+        $dept = \App\Models\Department::findOrFail($validated['department_id']);
+        $deptCode = strtolower($dept->code ?? '');
+        $baseUsername = str_starts_with($deptCode, 'dep_') ? $deptCode : 'dep_' . $deptCode;
 
-
+        // Auto-generate unique username: dep_mech -> dep_mech1 -> dep_mech2 ...
+        $username = $baseUsername;
+        $counter = 1;
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
 
         $password = $request->filled('password') ? $request->password : 'Admin!741';
 
@@ -174,11 +180,11 @@ class CoordinatorController extends Controller
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'] ?? null,
             'last_name' => $validated['last_name'],
-            'username' => $validated['username'],
+            'username' => $username,
             'email' => $validated['email'],
             'phone' => $validated['phone_number'],
             'schools_id' => \App\Models\School::where('id', $validated['school_id'])->value('code'),
-            'departments_id' => \App\Models\Department::where('id', $validated['department_id'])->value('code'),
+            'departments_id' => $dept->code,
             'level' => $validated['level'] ?? null,
             'programs_id' => isset($validated['program_id']) ? \App\Models\Program::where('id', $validated['program_id'])->value('code') : null,
             'designation' => $validated['designation'] ?? null,
@@ -186,12 +192,12 @@ class CoordinatorController extends Controller
         ]);
 
         User::create([
-            'username' => $validated['username'],
+            'username' => $username,
             'password' => Hash::make($password),
             'profile_id' => $profile->id,
         ]);
 
-        return redirect()->route('coordinators.index')->with('success', 'Coordinator created successfully.');
+        return redirect()->route('coordinators.index')->with('success', "Coordinator created successfully. Login Username: {$username}");
     }
 
     public function show($id)
@@ -202,7 +208,7 @@ class CoordinatorController extends Controller
 
     public function edit($id)
     {
-        $coordinator = User::role( 'admin')->findOrFail($id);
+        $coordinator = User::role('admin')->findOrFail($id);
         $schools = School::all();
         $departments = Department::all();
         return view('coordinators.edit', compact('coordinator', 'schools', 'departments'));
@@ -210,13 +216,13 @@ class CoordinatorController extends Controller
 
     public function update(Request $request, $id)
     {
-        $coordinator = User::role( 'admin')->findOrFail($id);
+        $coordinator = User::role('admin')->findOrFail($id);
 
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
-            'username' => ['required', 'regex:/^\d{5}$/', 'unique:users,username,'.$coordinator->id],
+            'username' => ['required', 'string', 'max:50', 'unique:users,username,'.$coordinator->id],
             'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email,'.$coordinator->profile_id],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => 'required|exists:schools,id',
@@ -225,13 +231,7 @@ class CoordinatorController extends Controller
                 Rule::exists('departments', 'id')->where('school_id', \App\Models\School::where('id', $request->school_id)->value('code'))
             ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
-        ], [
-
         ]);
-
-        $deptCode = \App\Models\Department::where('id', $request->department_id)->value('code');
-
-
 
         $profileData = [
             'first_name' => $validated['first_name'],
@@ -268,7 +268,7 @@ class CoordinatorController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $coordinator = User::role( 'admin')->findOrFail($id);
+        $coordinator = User::role('admin')->findOrFail($id);
         
         if ($coordinator->photo) {
             Storage::disk('public')->delete($coordinator->photo);
@@ -291,5 +291,24 @@ class CoordinatorController extends Controller
             $query->where('level', $request->level);
         }
         return response()->json($query->get());
+    }
+
+    public function getSuggestedUsername(Department $department)
+    {
+        $deptCode = strtolower($department->code ?? '');
+        $baseUsername = str_starts_with($deptCode, 'dep_') ? $deptCode : 'dep_' . $deptCode;
+
+        $username = $baseUsername;
+        $counter = 1;
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+
+        return response()->json([
+            'username' => $username,
+            'department_code' => $department->code,
+            'department_name' => $department->name
+        ]);
     }
 }

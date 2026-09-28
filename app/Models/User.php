@@ -64,6 +64,15 @@ class User extends Authenticatable
         return $this->profile->last_name ? ucwords(strtolower($this->profile->last_name)) : null;
     }
 
+    public function getFullNameAttribute()
+    {
+        if ($this->role === 'sa') {
+            return 'Super Admin';
+        }
+        $full = trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
+        return !empty($full) ? $full : ($this->username ?? 'User');
+    }
+
     public function getEmailAttribute()
     {
         return $this->profile->email ?? null;

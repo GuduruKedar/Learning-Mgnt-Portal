@@ -69,26 +69,26 @@ class StudentTemplateSheet implements FromArray, WithHeadings, WithTitle
                 $school1,
                 $dept1,
                 $level1,
-                'REG001',
+                '241FA07001',
                 'John',
                 '',
                 'Doe',
                 '',
                 'john.doe@vignan.ac.in',
-                '1234567890',
+                '9876543210',
                 ''
             ],
             [
                 $school2,
                 $dept2,
                 $level2,
-                'REG002',
+                '241FE08002',
                 'Jane',
                 'A',
                 'Smith',
                 '',
                 'jane.smith@vignan.ac.in',
-                '0987654321',
+                '9876543211',
                 'MySecretPass123'
             ]
         ];

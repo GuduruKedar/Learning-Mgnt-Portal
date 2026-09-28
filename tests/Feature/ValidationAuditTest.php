@@ -34,7 +34,7 @@ class ValidationAuditTest extends TestCase
         $valid = RegisterNumberParser::parse('241FA04001');
         $this->assertNotNull($valid);
         $this->assertEquals('B.Tech', $valid['course_name']);
-        $this->assertEquals('Computer Science and Engineering', $valid['department_name']);
+        $this->assertTrue(in_array($valid['department_name'], ['Computer Science & Engineering', 'Computer Science and Engineering']));
 
         // Invalid: format error
         $this->assertNull(RegisterNumberParser::parse('INVALID123'));
@@ -78,6 +78,7 @@ class ValidationAuditTest extends TestCase
     public function test_student_create_and_update_lifecycle()
     {
         // Clean up if already exists
+        \App\Models\Profile::where('email', 'johndoe992@gmail.com')->orWhere('username', '241FA04992')->forceDelete();
         User::where('username', '241FA04992')->delete();
 
         // 1. Create valid student

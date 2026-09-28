@@ -1,53 +1,40 @@
+window.toggleSidebarSection = function(menuId) {
+    const menu = document.getElementById(menuId);
+    if (menu) {
+        menu.classList.toggle('hidden');
+    }
+};
+
 window.initLMSUI = function() {
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggle-sidebar');
-    const navTexts = document.querySelectorAll('.nav-text');
-    const logoText = document.getElementById('logo-text');
-    const logoContainer = document.getElementById('logo-container');
 
-    if (sidebar && toggleBtn && logoText && logoContainer) {
+    if (sidebar && toggleBtn) {
         let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         
-        if (isCollapsed) {
+        if (isCollapsed && window.innerWidth > 768) {
             sidebar.classList.remove('sidebar-expanded');
             sidebar.classList.add('sidebar-collapsed');
-            logoText.classList.add('hidden');
-            logoText.classList.remove('text-expanded');
-            logoContainer.classList.remove('justify-between');
-            logoContainer.classList.add('justify-center');
-            navTexts.forEach(el => {
-                el.classList.add('text-collapsed');
-                el.classList.remove('text-expanded');
-            });
+            document.documentElement.classList.add('sidebar-is-collapsed');
+        } else {
+            sidebar.classList.remove('sidebar-collapsed');
+            sidebar.classList.add('sidebar-expanded');
+            document.documentElement.classList.remove('sidebar-is-collapsed');
         }
 
-        // We use an onclick assignment to avoid attaching multiple listeners if initLMSUI is called twice
+        // Click handler for desktop sidebar collapse/expand
         toggleBtn.onclick = () => {
-            isCollapsed = !isCollapsed;
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            const shouldCollapse = sidebar.classList.contains('sidebar-expanded');
+            localStorage.setItem('sidebarCollapsed', shouldCollapse);
             
-            if (isCollapsed) {
+            if (shouldCollapse) {
                 sidebar.classList.remove('sidebar-expanded');
                 sidebar.classList.add('sidebar-collapsed');
-                logoText.classList.remove('text-expanded');
-                logoText.classList.add('hidden');
-                logoContainer.classList.remove('justify-between');
-                logoContainer.classList.add('justify-center');
-                navTexts.forEach(el => {
-                    el.classList.remove('text-expanded');
-                    el.classList.add('text-collapsed');
-                });
+                document.documentElement.classList.add('sidebar-is-collapsed');
             } else {
                 sidebar.classList.remove('sidebar-collapsed');
                 sidebar.classList.add('sidebar-expanded');
-                logoText.classList.remove('hidden');
-                logoText.classList.add('text-expanded');
-                logoContainer.classList.remove('justify-center');
-                logoContainer.classList.add('justify-between');
-                navTexts.forEach(el => {
-                    el.classList.remove('text-collapsed');
-                    el.classList.add('text-expanded');
-                });
+                document.documentElement.classList.remove('sidebar-is-collapsed');
             }
         };
     }

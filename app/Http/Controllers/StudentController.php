@@ -57,12 +57,34 @@ class StudentController extends Controller
             });
         }
 
-        $students = $query->paginate(3)->withQueryString();
+        $students = $query->paginate(10)->withQueryString();
         $schools = School::all();
-        $departments = Department::all();
-        $programs = \App\Models\Program::all();
+        $departments = Department::with('school')->get();
+        $programs = \App\Models\Program::with('department')->get();
+
+        $totalStudents = ($role === 'admin') 
+            ? User::role('stu')->whereHas('profile', function ($q) use ($user) {
+                $q->where('departments_id', $user->profile->departments_id);
+            })->count()
+            : User::role('stu')->count();
+
+        $departmentStudentCounts = Department::with('school')
+            ->withCount(['profiles as student_count' => function($q) {
+                $q->where('roles_id', 'stu')->has('user');
+            }])
+            ->orderBy('name')
+            ->get();
+
+        $departmentsWithStudents = $departmentStudentCounts->where('student_count', '>', 0)->values();
         
-        return view('students.index', compact('students', 'schools', 'departments', 'programs'));
+        return view('students.index', compact(
+            'students', 
+            'schools', 
+            'departments', 
+            'programs',
+            'totalStudents',
+            'departmentsWithStudents'
+        ));
     }
 
     public function create()
@@ -108,6 +130,8 @@ class StudentController extends Controller
             'department_id.exists' => 'The selected department does not belong to the selected school.',
         ]);
 
+        $validated['username'] = strtoupper(trim($validated['username']));
+
         // If Admin is creating, force their department
         if (Auth::user()->role === 'admin') {
             $validated['school_id'] = Auth::user()->profile->schools_id;
@@ -143,11 +167,26 @@ class StudentController extends Controller
             'photo' => $photoPath,
         ]);
 
-        User::create([
+        $newUser = User::create([
             'username' => $validated['username'],
             'password' => Hash::make($password),
             'profile_id' => $profile->id,
         ]);
+
+        \App\Services\ActivityLogger::log(
+            'student_created',
+            'New Student Created',
+            'Students',
+            'Created student profile for ' . $profile->first_name . ' ' . $profile->last_name . ' (' . $profile->username . ').',
+            'success',
+            [
+                'department_id' => $deptCode,
+                'entity_type' => 'User',
+                'entity_id' => $newUser->id,
+                'entity_name' => $profile->first_name . ' ' . $profile->last_name,
+                'payload' => ['username' => $validated['username'], 'department' => $deptCode]
+            ]
+        );
 
         return redirect()->route('students.index')->with('success', 'Student created successfully.');
     }
@@ -209,29 +248,15 @@ class StudentController extends Controller
             'photo' => 'nullable|image|mimes:webp|max:2048',
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
         ], [
+            'username.size' => 'The Register Number must be exactly 10 characters.',
+            'username.regex' => 'The Register Number format is invalid.',
             'school_id.required' => 'The school field is required.',
             'school_id.exists' => 'The selected school is invalid.',
             'department_id.required' => 'The department field is required.',
             'department_id.exists' => 'The selected department does not belong to the selected school.',
         ]);
 
-        if (Auth::user()->role === 'admin') {
-            $validated['school_id'] = Auth::user()->profile->schools_id;
-            $validated['department_id'] = Auth::user()->profile->departments_id;
-        }
-
-        if ($request->filled('password')) {
-            $student->update([
-                'password' => Hash::make($request->password)
-            ]);
-        }
-
-        if ($request->username !== $student->username) {
-            $student->update(['username' => $validated['username']]);
-        }
-
-        $schoolCode = (Auth::user()->role === 'admin') ? Auth::user()->profile->schools_id : \App\Models\School::where('id', $validated['school_id'])->value('code');
-        $deptCode = (Auth::user()->role === 'admin') ? Auth::user()->profile->departments_id : \App\Models\Department::where('id', $validated['department_id'])->value('code');
+        $validated['username'] = strtoupper(trim($validated['username']));
 
         $profileData = [
             'first_name' => $validated['first_name'],
@@ -240,13 +265,20 @@ class StudentController extends Controller
             'username' => $validated['username'],
             'email' => $validated['email'] ?? null,
             'phone' => $validated['phone_number'] ?? null,
-            'schools_id' => $schoolCode,
-            'departments_id' => $deptCode,
             'level' => $validated['level'] ?? null,
             'programs_id' => isset($validated['program_id']) ? \App\Models\Program::where('id', $validated['program_id'])->value('code') : null,
-            'designation' => 'Student',
-            'roles_id' => 'stu',
         ];
+
+        if (Auth::user()->role === 'sa') {
+            $profileData['schools_id'] = \App\Models\School::where('id', $validated['school_id'])->value('code');
+            $profileData['departments_id'] = \App\Models\Department::where('id', $validated['department_id'])->value('code');
+        }
+
+        $student->update(['username' => $validated['username']]);
+
+        if ($request->filled('password')) {
+            $student->update(['password' => Hash::make($request->password)]);
+        }
 
         if ($request->hasFile('photo')) {
             if ($student->profile && $student->profile->photo) {
@@ -258,6 +290,20 @@ class StudentController extends Controller
         }
 
         $student->profile->update($profileData);
+
+        \App\Services\ActivityLogger::log(
+            'student_updated',
+            'Student Profile Updated',
+            'Students',
+            'Updated student profile for ' . $validated['first_name'] . ' ' . $validated['last_name'] . ' (' . $validated['username'] . ').',
+            'info',
+            [
+                'department_id' => $student->profile->departments_id,
+                'entity_type' => 'User',
+                'entity_id' => $student->id,
+                'entity_name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            ]
+        );
 
         return redirect()->route('students.index')->with('success', 'Student updated successfully.');
     }
@@ -272,8 +318,11 @@ class StudentController extends Controller
         }
 
         $student = User::role('stu')->findOrFail($id);
+        $studentName = trim(($student->profile->first_name ?? '') . ' ' . ($student->profile->last_name ?? ''));
+        $studentUsername = $student->username;
+        $studentDept = $student->profile->departments_id ?? null;
         
-        if ($student->profile->photo) {
+        if ($student->profile && $student->profile->photo) {
             Storage::disk('public')->delete($student->profile->photo);
         }
         
@@ -282,6 +331,20 @@ class StudentController extends Controller
         if ($profile) {
             $profile->delete();
         }
+
+        \App\Services\ActivityLogger::log(
+            'student_deleted',
+            'Student Deleted',
+            'Students',
+            'Deleted student ' . $studentName . ' (' . $studentUsername . ').',
+            'danger',
+            [
+                'department_id' => $studentDept,
+                'entity_type' => 'User',
+                'entity_id' => $id,
+                'entity_name' => $studentName,
+            ]
+        );
 
         return redirect()->route('students.index')->with('success', 'Student deleted successfully.');
     }

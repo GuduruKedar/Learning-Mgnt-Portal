@@ -55,7 +55,7 @@
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-            <div class="max-w-6xl mx-auto space-y-6">
+            <div class="w-full space-y-6">
                 <!-- Page Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <div>
@@ -147,11 +147,11 @@
                                         </a>
                                     @else
                                         <div class="flex items-center justify-between w-full space-x-2">
-                                            <a href="{{ asset('storage/' . $material->url_or_path) }}" target="_blank" class="flex-1 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-md transition-colors">
+                                            <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-md transition-colors">
                                                 View <svg class="ml-1.5 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </a>
                                             <div class="w-px h-4 bg-indigo-100"></div>
-                                            <a href="{{ asset('storage/' . $material->url_or_path) }}" download="{{ Str::slug($material->title) }}.{{ pathinfo($material->url_or_path, PATHINFO_EXTENSION) }}" target="_blank" class="flex-1 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-md transition-colors">
+                                            <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-md transition-colors">
                                                 Download <svg class="ml-1.5 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                             </a>
                                         </div>

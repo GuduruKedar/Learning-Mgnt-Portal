@@ -135,7 +135,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                @if(Auth::user()->role === 'sa')
+                                @if(in_array(Auth::user()->role, ['sa', 'ssh_admin']))
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
                                     <select name="department_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500" required>
@@ -239,6 +239,16 @@
             const semesterSelect = document.getElementById('semester_select');
             const allRegulations = Array.from(regulationSelect.options).filter(opt => opt.value !== '');
 
+            function matchProgramType(selected, candidate) {
+                if (!selected || !candidate) return false;
+                const s = selected.trim().toLowerCase();
+                const c = candidate.trim().toLowerCase();
+                if (s === c) return true;
+                const sClean = s.replace(/[^a-z0-9]/g, '');
+                const cClean = c.replace(/[^a-z0-9]/g, '');
+                return sClean !== '' && sClean === cClean;
+            }
+
             programTypeSelect.addEventListener('change', function(e) {
                 const selectedType = this.value;
                 const currentReg = regulationSelect.value;
@@ -254,9 +264,7 @@
                 if (selectedType) {
                     allRegulations.forEach(opt => {
                         const progType = opt.getAttribute('data-program') || '';
-                        if (progType.includes(selectedType) || selectedType.includes(progType) || 
-                            (selectedType === 'B.Tech' && progType === 'B.Tech') ||
-                            (selectedType === 'M.Tech' && progType === 'M.Tech')) {
+                        if (matchProgramType(selectedType, progType)) {
                             const newOpt = opt.cloneNode(true);
                             if (newOpt.value === currentReg) {
                                 newOpt.selected = true;
@@ -290,21 +298,30 @@
                 semesterSelect.innerHTML = '<option value="">-- Sem --</option>';
 
                 if (programType) {
-                    const typeLower = programType.toLowerCase();
-                    let maxYears = 4;
-                    if (typeLower.includes('b.tech') || typeLower.includes('b.pharm')) maxYears = 4;
-                    else if (typeLower.includes('m.tech') || typeLower.includes('m.pharm') || typeLower.includes('m.b.a') || typeLower.includes('mba') || typeLower.includes('m.c.a') || typeLower.includes('mca') || typeLower.includes('m.sc')) maxYears = 2;
-                    else if (typeLower.includes('b.sc') || typeLower.includes('b.com') || typeLower.includes('b.b.a') || typeLower.includes('bba')) maxYears = 3;
-                    else if (typeLower.includes('ph.d')) maxYears = 5;
-
-                    for (let i = 1; i <= maxYears; i++) {
+                    const isSshAdmin = {{ Auth::user()->role === 'ssh_admin' ? 'true' : 'false' }};
+                    if (isSshAdmin) {
                         let opt = document.createElement('option');
-                        opt.value = i;
-                        opt.textContent = i;
-                        if (i == selectedYear) {
-                            opt.selected = true;
-                        }
+                        opt.value = 1;
+                        opt.textContent = '1 (First Year)';
+                        opt.selected = true;
                         yearSelect.appendChild(opt);
+                    } else {
+                        const typeLower = programType.toLowerCase();
+                        let maxYears = 4;
+                        if (typeLower.includes('b.tech') || typeLower.includes('b.pharm')) maxYears = 4;
+                        else if (typeLower.includes('m.tech') || typeLower.includes('m.pharm') || typeLower.includes('m.b.a') || typeLower.includes('mba') || typeLower.includes('m.c.a') || typeLower.includes('mca') || typeLower.includes('m.sc')) maxYears = 2;
+                        else if (typeLower.includes('b.sc') || typeLower.includes('b.com') || typeLower.includes('b.b.a') || typeLower.includes('bba')) maxYears = 3;
+                        else if (typeLower.includes('ph.d')) maxYears = 5;
+
+                        for (let i = 1; i <= maxYears; i++) {
+                            let opt = document.createElement('option');
+                            opt.value = i;
+                            opt.textContent = i;
+                            if (i == selectedYear) {
+                                opt.selected = true;
+                            }
+                            yearSelect.appendChild(opt);
+                        }
                     }
                 }
                 
@@ -320,7 +337,7 @@
                     [1, 2].forEach(sem => {
                         let opt = document.createElement('option');
                         opt.value = sem;
-                        opt.textContent = sem;
+                        opt.textContent = `Sem ${sem} (${this.value}-${sem})`;
                         if (sem == selectedSem) {
                             opt.selected = true;
                         }

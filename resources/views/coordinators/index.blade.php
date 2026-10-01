@@ -306,7 +306,7 @@
             </div>
             
             <footer class="mt-auto border-t border-gray-200 pt-4 pb-2 w-full">
-                <p class="text-center text-xs text-gray-500 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700">TD</span>.</p>
+                <p class="text-center text-xs text-gray-500 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700">Technology Development (TD)</span>.</p>
             </footer>
         </main>
     </div>

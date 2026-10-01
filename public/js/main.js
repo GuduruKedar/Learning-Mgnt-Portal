@@ -358,21 +358,15 @@ window.initLMSUI = function() {
         });
     }
     // Mobile sidebar toggle logic
-    const mobileToggle = document.getElementById('mobile-toggle');
+    const mobileToggle = document.getElementById('mobile-toggle') || document.getElementById('mobile-sidebar-toggle');
     const overlay = document.getElementById('sidebar-overlay');
-    const header = document.querySelector('header');
 
     if (mobileToggle && sidebar && overlay) {
-        // Move mobile toggle into the header dynamically to prevent overlap
-        if (header && window.innerWidth <= 768) {
-            mobileToggle.classList.remove('fixed', 'top-3', 'left-4', 'z-[60]');
-            mobileToggle.classList.add('ml-1', 'mr-auto', 'my-auto');
-            header.classList.remove('justify-end');
-            header.classList.add('justify-between');
-            header.prepend(mobileToggle);
-        }
-
-        function toggleMobileSidebar() {
+        function toggleMobileSidebar(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             sidebar.classList.toggle('open');
             if (sidebar.classList.contains('open')) {
                 overlay.classList.remove('opacity-0', 'pointer-events-none');

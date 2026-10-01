@@ -213,4 +213,56 @@ class StudentAssignmentController extends Controller
         return redirect()->route('student.assignments.show', $assignment->id)
             ->with('success', "MCQ Assignment submitted! You scored {$totalScore} / {$maxPossible} Marks.");
     }
+
+    public function downloadReport(Assignment $assignment)
+    {
+        $user = Auth::user();
+
+        $isEnrolled = Course::where('id', $assignment->course_id)
+            ->whereHas('enrollments', function ($q) use ($user) {
+                $q->where('users.id', $user->id);
+            })->exists();
+
+        if (!$isEnrolled) {
+            abort(403, 'You are not enrolled in the course for this assignment.');
+        }
+
+        $assignment->load(['course.department', 'staff', 'questions']);
+        $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
+            ->where('student_id', $user->id)
+            ->with(['answers.question'])
+            ->firstOrFail();
+
+        $userAnswersByQuestionId = $submission->answers->keyBy('question_id');
+        $correctCount = 0;
+        $incorrectCount = 0;
+        $unattemptedCount = 0;
+
+        foreach ($assignment->questions as $question) {
+            $ans = $userAnswersByQuestionId->get($question->id);
+            if ($ans && $ans->selected_option) {
+                if ($ans->is_correct) {
+                    $correctCount++;
+                } else {
+                    $incorrectCount++;
+                }
+            } else {
+                $unattemptedCount++;
+            }
+        }
+
+        $percentage = ($assignment->max_marks > 0) ? round(($submission->marks_awarded / $assignment->max_marks) * 100) : 0;
+
+        return view('student.assignments.report', compact(
+            'assignment',
+            'submission',
+            'user',
+            'userAnswersByQuestionId',
+            'correctCount',
+            'incorrectCount',
+            'unattemptedCount',
+            'percentage'
+        ));
+    }
 }
+

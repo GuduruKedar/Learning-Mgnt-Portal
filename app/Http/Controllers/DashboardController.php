@@ -232,11 +232,18 @@ class DashboardController extends Controller
             $school = $profile->school ?? null;
             $department = $profile->department ?? null;
 
-            // Department Courses
-            $departmentCoursesQuery = \App\Models\Course::with(['department', 'regulation']);
-            if ($department) {
-                $departmentCoursesQuery->where('department_id', $department->code);
-            }
+            // Department Courses (including 1st year SSH centralized courses)
+            $shDeptCodes = ['dep_ssh', 'dep_phy', 'dep_chem', 'dep_maths', 'dep_eng'];
+            $shDeptCodesFromDb = \App\Models\Department::where('school_id', 'sc_ash')->pluck('code')->toArray();
+            $deptCodes = array_unique(array_filter(array_merge([$department?->code], $shDeptCodes, $shDeptCodesFromDb)));
+
+            $departmentCoursesQuery = \App\Models\Course::with(['department', 'regulation'])
+                ->where(function($q) use ($department, $deptCodes) {
+                    if ($department) {
+                        $q->where('department_id', $department->code);
+                    }
+                    $q->orWhereIn('department_id', $deptCodes);
+                });
             $departmentCoursesCount = $departmentCoursesQuery->count();
             $departmentCourses = (clone $departmentCoursesQuery)->latest()->take(5)->get();
 
@@ -250,20 +257,28 @@ class DashboardController extends Controller
             $enrolledCoursesCount = $allEnrolledCourses->count();
             $enrolledCourses = $allEnrolledCourses->take(5); 
 
-            // Recently Uploaded Materials (Last watching/updated)
-            $recentMaterialsQuery = \App\Models\CourseMaterial::with(['course.department', 'staff']);
-            if ($department) {
-                $recentMaterialsQuery->whereHas('course', function($q) use ($department) {
-                    $q->where('department_id', $department->code);
+            $enrolledCourseIds = $allEnrolledCourses->pluck('id');
+
+            // Recently Uploaded Materials (for enrolled courses or department)
+            $recentMaterialsQuery = \App\Models\CourseMaterial::with(['course.department', 'staff'])
+                ->where(function($q) use ($enrolledCourseIds, $department) {
+                    if ($enrolledCourseIds->isNotEmpty()) {
+                        $q->whereIn('course_id', $enrolledCourseIds);
+                    }
+                    if ($department) {
+                        $q->orWhereHas('course', function($sq) use ($department) {
+                            $sq->where('department_id', $department->code);
+                        });
+                    }
                 });
-            }
             $recentMaterials = $recentMaterialsQuery->latest()->take(5)->get();
+            $totalMaterialsCount = (clone $recentMaterialsQuery)->count();
 
             return view('student_dashboard', compact(
                 'student', 'profile', 'school', 'department', 
                 'departmentCoursesCount', 'departmentCourses', 
                 'enrolledCoursesCount', 'enrolledCourses',
-                'recentMaterials'
+                'recentMaterials', 'totalMaterialsCount'
             ));
             
         } else {
@@ -287,11 +302,24 @@ class DashboardController extends Controller
             'first_name' => ['required', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email,'.$user->profile_id],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email,'.$user->profile_id
+            ],
             'phone_number' => 'nullable|numeric|digits:10',
-            'photo' => 'nullable|image|mimes:webp|max:2048',
+            'photo' => 'nullable|file|mimes:webp|max:2048',
         ], [
-
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
+            'photo.mimes' => 'Invalid file format. Only .webp format is allowed for profile photo.',
+            'photo.max' => 'The photo size is too large. Maximum allowed file size is 2MB.',
+            'photo.uploaded' => 'The photo failed to upload. Please ensure you select a valid .webp image under 2MB.',
+            'photo.file' => 'The selected file is invalid. Please select a valid .webp image file.',
         ]);
 
         $profileData = [

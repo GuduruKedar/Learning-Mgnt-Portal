@@ -84,7 +84,7 @@ class AcademicController extends Controller
         $activeRegulationsCount = (clone $regulationsQuery)->where('status', 'Active')->count();
         $allRegulations = (clone $allRegulationsQuery)->withCount('courses')->orderBy('program_type')->orderBy('code')->get();
         
-        $regulations = $regulationsQuery->latest()->paginate(10)->withQueryString();
+        $regulations = $regulationsQuery->withCount('courses')->latest()->paginate(10)->withQueryString();
         
         return view('academic.regulations', compact(
             'regulations', 
@@ -162,10 +162,91 @@ class AcademicController extends Controller
 
     public function destroyRegulation($id)
     {
-        $regulation = Regulation::findOrFail($id);
+        $regulation = Regulation::with(['courses.materials', 'courses.assignments.submissions', 'courses.assignments.questions'])->findOrFail($id);
         
-        $regulation->delete();
-        return back()->with('success', 'Regulation deleted.');
+        $regCode = $regulation->code;
+        $regName = $regulation->name;
+        $coursesCount = $regulation->courses->count();
+
+        $totalMaterialsCount = 0;
+        $totalAssignmentsCount = 0;
+        $totalSubmissionsCount = 0;
+        $totalEnrollmentsCount = 0;
+        $totalStaffAllocationsCount = 0;
+
+        foreach ($regulation->courses as $course) {
+            $totalMaterialsCount += $course->materials->count();
+            $totalAssignmentsCount += $course->assignments->count();
+            foreach ($course->assignments as $a) {
+                $totalSubmissionsCount += $a->submissions->count();
+            }
+            $totalEnrollmentsCount += \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
+            $totalStaffAllocationsCount += $course->staff()->count();
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($regulation) {
+            foreach ($regulation->courses as $course) {
+                // Delete materials and local files
+                foreach ($course->materials as $material) {
+                    if ($material->type === 'file' && !empty($material->url_or_path)) {
+                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($material->url_or_path)) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($material->url_or_path);
+                        }
+                    }
+                    $material->delete();
+                }
+
+                // Delete assignments, questions, submissions, answers and files
+                foreach ($course->assignments as $assignment) {
+                    if (!empty($assignment->attachment_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($assignment->attachment_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($assignment->attachment_path);
+                    }
+
+                    foreach ($assignment->submissions as $submission) {
+                        if (!empty($submission->file_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($submission->file_path)) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($submission->file_path);
+                        }
+                        \App\Models\AssignmentAnswer::where('submission_id', $submission->id)->delete();
+                        $submission->delete();
+                    }
+
+                    $assignment->questions()->delete();
+                    $assignment->delete();
+                }
+
+                // Delete enrollments and faculty allocations
+                \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+                $course->staff()->detach();
+                $course->delete();
+            }
+
+            $regulation->delete();
+        });
+
+        \App\Services\ActivityLogger::log(
+            'cascade_regulation_deleted',
+            'Regulation & Associated Academics Deleted',
+            'Academics',
+            "Permanently deleted regulation {$regCode} ({$regName}). Cascaded removals: {$coursesCount} course(s), {$totalMaterialsCount} learning material(s), {$totalAssignmentsCount} assignment(s) with {$totalSubmissionsCount} submission(s), {$totalEnrollmentsCount} student enrollment(s), and {$totalStaffAllocationsCount} faculty allocation(s).",
+            'danger',
+            [
+                'entity_type' => 'Regulation',
+                'entity_id'   => $id,
+                'entity_name' => "{$regCode} - {$regName}",
+                'payload'     => [
+                    'regulation_code'      => $regCode,
+                    'regulation_name'      => $regName,
+                    'courses_deleted'      => $coursesCount,
+                    'materials_deleted'    => $totalMaterialsCount,
+                    'assignments_deleted'  => $totalAssignmentsCount,
+                    'submissions_deleted'  => $totalSubmissionsCount,
+                    'enrollments_removed'  => $totalEnrollmentsCount,
+                    'allocations_detached' => $totalStaffAllocationsCount,
+                ]
+            ]
+        );
+
+        return back()->with('success', "Regulation '{$regCode}' and all its {$coursesCount} associated course(s) deleted successfully.");
     }
 
     // --- Courses ---
@@ -234,15 +315,18 @@ class AcademicController extends Controller
             return ($s->username ?? '') . ' ' . ($s->profile->first_name ?? '');
         });
 
+        $existingCourseCodes = Course::pluck('code')->map(fn($c) => strtoupper(trim($c)))->unique()->values();
+
         return view('academic.courses_create', compact(
-            'regulations', 'departments', 'schools', 'availableProgramTypes', 'availableStaff'
+            'regulations', 'departments', 'schools', 'availableProgramTypes', 'availableStaff', 'existingCourseCodes'
         ));
     }
 
     public function courses(Request $request)
     {
         $user = Auth::user();
-        $query = Course::with(['regulation', 'department', 'staff.profile.department', 'staff.profile.school']);
+        $query = Course::with(['regulation', 'department', 'staff.profile.department', 'staff.profile.school'])
+            ->withCount(['staff', 'enrollments', 'materials', 'assignments']);
         
         if ($user->role === 'admin') {
             $query->where('department_id', $user->profile->departments_id);
@@ -547,7 +631,26 @@ class AcademicController extends Controller
             })
             ->get();
 
-        return view('academic.course_allocations', compact('courses', 'regulations', 'departments', 'availableStaff', 'availableProgramTypes', 'distributionByProgram', 'allRawCourses'));
+        $totalCourses = $allRawCourses->count();
+        $totalAllocatedCourses = $allRawCourses->filter(fn($c) => $c->staff->count() > 0)->count();
+        $totalUnallocatedCourses = $allRawCourses->filter(fn($c) => $c->staff->count() === 0)->count();
+        $totalStaffAssignments = $allRawCourses->sum(fn($c) => $c->staff->count());
+        $allocationRate = $totalCourses > 0 ? round(($totalAllocatedCourses / $totalCourses) * 100, 1) : 0;
+
+        return view('academic.course_allocations', compact(
+            'courses', 
+            'regulations', 
+            'departments', 
+            'availableStaff', 
+            'availableProgramTypes', 
+            'distributionByProgram', 
+            'allRawCourses',
+            'totalCourses',
+            'totalAllocatedCourses',
+            'totalUnallocatedCourses',
+            'totalStaffAssignments',
+            'allocationRate'
+        ));
     }
 
     public function storeCourse(Request $request)
@@ -559,11 +662,46 @@ class AcademicController extends Controller
             'semester' => 'required|integer|min:1|max:12',
             'no_of_courses' => 'required|integer|min:1|max:20',
             'code' => 'required|array|min:1|max:20',
-            'code.*' => 'required|string|max:255|unique:courses,code',
+            'code.*' => 'required|string|max:255',
             'name' => 'required|array|min:1|max:20',
             'name.*' => 'required|string|max:255',
             'department_id' => 'nullable|exists:departments,code',
+        ], [
+            'code.*.required' => 'Course code is required for all subjects.',
+            'name.*.required' => 'Subject title is required for all subjects.',
         ]);
+
+        // 1. Check for duplicate course codes within the submitted form rows (case-insensitive)
+        $rawCodes = (array) $request->code;
+        $normalizedCodes = [];
+        $duplicateCode = null;
+
+        foreach ($rawCodes as $idx => $rawCode) {
+            $cleaned = strtoupper(trim((string)$rawCode));
+            if ($cleaned === '') continue;
+            if (isset($normalizedCodes[$cleaned])) {
+                $duplicateCode = $cleaned;
+                break;
+            }
+            $normalizedCodes[$cleaned] = $idx;
+        }
+
+        if ($duplicateCode !== null) {
+            return back()->withInput()->withErrors([
+                'code' => "Duplicate course code '{$duplicateCode}' is not allowed. Each subject in the form must have a unique course code.",
+            ]);
+        }
+
+        // 2. Check for pre-existing course codes in the system (case-insensitive)
+        foreach ($rawCodes as $idx => $rawCode) {
+            $cleaned = strtoupper(trim((string)$rawCode));
+            if ($cleaned === '') continue;
+            if (Course::whereRaw('UPPER(TRIM(code)) = ?', [$cleaned])->exists()) {
+                return back()->withInput()->withErrors([
+                    "code.{$idx}" => "Course code '{$cleaned}' already exists in the system.",
+                ]);
+            }
+        }
 
         if ($user->role === 'ssh_admin') {
             $year = 1;
@@ -573,7 +711,9 @@ class AcademicController extends Controller
         }
 
         $department_id = $request->department_id;
-        if ($user->role === 'admin' && !empty($user->profile?->departments_id)) {
+        if ($user->role === 'ssh_admin') {
+            $department_id = 'dep_ssh';
+        } elseif ($user->role === 'admin' && !empty($user->profile?->departments_id)) {
             $department_id = $user->profile->departments_id;
         } elseif (empty($department_id)) {
             $department_id = $user->profile?->departments_id ?? 'dep_ssh';
@@ -629,6 +769,13 @@ class AcademicController extends Controller
                         $staffUser = User::role('sta')->whereHas('profile', function($q) use ($val) {
                             $q->whereRaw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) LIKE ?", ["%{$val}%"]);
                         })->first();
+                    }
+
+                    if ($staffUser) {
+                        // If Coordinator, verify staff belongs strictly to coordinator's department
+                        if ($user->role === 'admin' && $staffUser->profile?->departments_id !== $user->profile?->departments_id) {
+                            $staffUser = null;
+                        }
                     }
 
                     if ($staffUser) {
@@ -706,7 +853,9 @@ class AcademicController extends Controller
             $regulations = Regulation::all();
         }
 
-        return view('academic.courses_edit', compact('course', 'regulations', 'departments', 'availableProgramTypes'));
+        $existingCourseCodes = Course::where('id', '!=', $course->id)->pluck('code')->map(fn($c) => strtoupper(trim($c)))->unique()->values();
+
+        return view('academic.courses_edit', compact('course', 'regulations', 'departments', 'availableProgramTypes', 'existingCourseCodes'));
     }
 
     public function updateCourse(Request $request, $id)
@@ -724,10 +873,17 @@ class AcademicController extends Controller
 
         $request->validate([
             'regulation_id' => 'required|exists:regulations,id',
-            'code' => 'required|string|max:255|unique:courses,code,' . $course->id,
+            'code' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'department_id' => 'nullable|exists:departments,code',
         ]);
+
+        $courseCode = strtoupper(trim($request->code));
+        if (Course::where('id', '!=', $course->id)->whereRaw('UPPER(TRIM(code)) = ?', [$courseCode])->exists()) {
+            return back()->withInput()->withErrors([
+                'code' => "Course code '{$courseCode}' already exists for another course.",
+            ]);
+        }
 
         if ($user->role === 'ssh_admin') {
             $request->validate([
@@ -783,18 +939,89 @@ class AcademicController extends Controller
     public function destroyCourse($id)
     {
         $user = Auth::user();
-        $course = Course::findOrFail($id);
+        $course = Course::with(['staff.profile', 'materials', 'assignments.submissions', 'assignments.questions'])->findOrFail($id);
 
         if ($user->role === 'admin' && $course->department_id !== $user->profile->departments_id) {
-            abort(403, 'Unauthorized.');
+            abort(403, 'Unauthorized. You can only delete courses belonging to your department.');
         }
 
         if ($user->role === 'ssh_admin' && $course->year != 1) {
             abort(403, 'Unauthorized. SSH Admin can only manage 1st Year courses.');
         }
 
-        $course->delete();
-        return back()->with('success', 'Course deleted.');
+        $courseName = $course->name;
+        $courseCode = $course->code;
+        $deptId = $course->department_id;
+
+        $staffCount = $course->staff()->count();
+        $enrollmentCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
+        $materialsCount = $course->materials()->count();
+        $assignmentsCount = $course->assignments()->count();
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($course) {
+            // 1. Delete associated materials and storage files
+            foreach ($course->materials as $material) {
+                if ($material->type === 'file' && !empty($material->url_or_path)) {
+                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($material->url_or_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($material->url_or_path);
+                    }
+                }
+                $material->delete();
+            }
+
+            // 2. Delete associated assignments, questions, submissions, answers, and files
+            foreach ($course->assignments as $assignment) {
+                if (!empty($assignment->attachment_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($assignment->attachment_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($assignment->attachment_path);
+                }
+
+                foreach ($assignment->submissions as $submission) {
+                    if (!empty($submission->file_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($submission->file_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($submission->file_path);
+                    }
+                    \App\Models\AssignmentAnswer::where('submission_id', $submission->id)->delete();
+                    $submission->delete();
+                }
+
+                $assignment->questions()->delete();
+                $assignment->delete();
+            }
+
+            // 3. Remove student enrollments
+            \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+
+            // 4. Detach allocated faculty
+            $course->staff()->detach();
+
+            // 5. Delete the course
+            $course->delete();
+        });
+
+        // 6. Log activity
+        \App\Services\ActivityLogger::log(
+            'cascade_course_deleted',
+            'Course & Linked Data Deleted',
+            'Academics',
+            "Permanently deleted course {$courseName} ({$courseCode}). Cascaded removals: {$materialsCount} material(s), {$assignmentsCount} assignment(s), {$enrollmentCount} student enrollment(s), and {$staffCount} faculty allocation(s) detached.",
+            'danger',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'Course',
+                'entity_id'     => $id,
+                'entity_name'   => "{$courseCode} - {$courseName}",
+                'payload'       => [
+                    'course_code'          => $courseCode,
+                    'course_name'          => $courseName,
+                    'department'           => $deptId,
+                    'staff_detached'       => $staffCount,
+                    'enrollments_removed'  => $enrollmentCount,
+                    'materials_deleted'    => $materialsCount,
+                    'assignments_deleted'  => $assignmentsCount,
+                ]
+            ]
+        );
+
+        return back()->with('success', "Course '{$courseCode} - {$courseName}' and all linked data ({$staffCount} faculty allocation(s), {$enrollmentCount} student enrollment(s), {$materialsCount} material(s), {$assignmentsCount} assignment(s)) deleted successfully.");
     }
 
     // --- Staff Allocations ---
@@ -803,8 +1030,8 @@ class AcademicController extends Controller
         $user = Auth::user();
         $course = Course::findOrFail($courseId);
 
-        if ($user->role === 'admin' && $course->department_id !== $user->profile->departments_id) {
-            abort(403, 'Unauthorized.');
+        if ($user->role === 'admin' && $course->department_id !== $user->profile?->departments_id) {
+            abort(403, 'Unauthorized. You can only manage courses belonging to your department.');
         }
 
         if ($user->role === 'ssh_admin' && $course->year != 1) {
@@ -815,24 +1042,33 @@ class AcademicController extends Controller
             'staff_id' => 'required|exists:users,id',
         ]);
 
-        $staff = User::role('sta')->findOrFail($request->staff_id);
+        $staff = User::role('sta')->with('profile.department')->findOrFail($request->staff_id);
 
-        $isPrivileged = in_array($user->role, ['sa', 'ssh_admin']);
-        $staffDept = strtolower($staff->profile->departments_id ?? '');
-        $isSshStaff = in_array($staffDept, ['sc_ash', 'dep_ssh', 'dep_maths', 'dep_phy', 'dep_chem', 'dep_eng', 'ash', 'ssh']) 
-            || str_contains(strtolower($staff->profile->department->name ?? ''), 'humanities') 
-            || str_contains(strtolower($staff->profile->department->name ?? ''), 'science')
-            || str_contains(strtolower($staff->profile->department->name ?? ''), 'mathematics')
-            || str_contains(strtolower($staff->profile->department->name ?? ''), 'physics')
-            || str_contains(strtolower($staff->profile->department->name ?? ''), 'chemistry')
-            || str_contains(strtolower($staff->profile->department->name ?? ''), 'english');
+        // Department Coordinator can ONLY assign faculty members belonging strictly to their own department
+        if ($user->role === 'admin') {
+            $coordinatorDept = $user->profile?->departments_id;
+            if ($staff->profile?->departments_id !== $coordinatorDept) {
+                $deptName = $user->profile?->department?->name ?? $coordinatorDept ?? 'your department';
+                return back()->withErrors(['staff_id' => "Department Coordinators can only assign faculty members belonging to their own department ({$deptName})."]);
+            }
+        } else {
+            $isPrivileged = in_array($user->role, ['sa', 'ssh_admin']);
+            $staffDept = strtolower($staff->profile->departments_id ?? '');
+            $isSshStaff = in_array($staffDept, ['sc_ash', 'dep_ssh', 'dep_maths', 'dep_phy', 'dep_chem', 'dep_eng', 'ash', 'ssh']) 
+                || str_contains(strtolower($staff->profile->department->name ?? ''), 'humanities') 
+                || str_contains(strtolower($staff->profile->department->name ?? ''), 'science')
+                || str_contains(strtolower($staff->profile->department->name ?? ''), 'mathematics')
+                || str_contains(strtolower($staff->profile->department->name ?? ''), 'physics')
+                || str_contains(strtolower($staff->profile->department->name ?? ''), 'chemistry')
+                || str_contains(strtolower($staff->profile->department->name ?? ''), 'english');
 
-        if (!$isPrivileged && !$isSshStaff && $staff->profile->departments_id !== $course->department_id) {
-            return back()->withErrors(['staff_id' => 'Staff must belong to the same department as the course or be an S&H faculty member.']);
+            if (!$isPrivileged && !$isSshStaff && $staff->profile->departments_id !== $course->department_id) {
+                return back()->withErrors(['staff_id' => 'Staff must belong to the same department as the course or be an S&H faculty member.']);
+            }
         }
 
         if ($course->staff()->where('users.id', $staff->id)->exists()) {
-            return back()->withErrors(['staff_id' => 'This faculty has already been assigned to this course.']);
+            return back()->withErrors(['staff_id' => 'This faculty member has already been assigned to this course.']);
         }
 
         // Attach without detaching others
@@ -872,24 +1108,32 @@ class AcademicController extends Controller
             abort(403, 'Unauthorized. SSH Admin can only manage 1st Year courses.');
         }
 
+        $staffUser = User::with('profile')->find($staffId);
+        $staffName = $staffUser ? trim(($staffUser->profile->first_name ?? '') . ' ' . ($staffUser->profile->last_name ?? '')) : "Faculty ID #{$staffId}";
+
         $course->staff()->detach($staffId);
 
         \App\Services\ActivityLogger::log(
-            'course_unallocated',
-            'Staff Allocation Removed',
+            'faculty_unallocated',
+            'Faculty De-allocated from Course',
             'Academics',
-            'Removed faculty assignment from course ' . $course->name . ' (' . $course->code . ').',
+            "Removed faculty {$staffName} from teaching assignment in course {$course->name} ({$course->code}).",
             'warning',
             [
                 'department_id' => $course->department_id,
-                'entity_type' => 'Course',
-                'entity_id' => $course->id,
-                'entity_name' => $course->name,
-                'payload' => ['staff_id' => $staffId, 'course_code' => $course->code]
+                'entity_type'   => 'Course',
+                'entity_id'     => $course->id,
+                'entity_name'   => "{$course->code} - {$course->name}",
+                'payload'       => [
+                    'staff_id'    => $staffId,
+                    'staff_name'  => $staffName,
+                    'course_code' => $course->code,
+                    'course_name' => $course->name
+                ]
             ]
         );
 
-        return back()->with('success', 'Staff allocation removed.');
+        return back()->with('success', "Faculty {$staffName} de-allocated from {$course->code}.");
     }
     
     // --- Analytics ---

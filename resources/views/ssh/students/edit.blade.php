@@ -16,24 +16,8 @@
 
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('ssh.students.index') }}" class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors" title="Back to Students Directory">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                </a>
-                <div>
-                    <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Edit Student Profile ({{ $student->username }})</h1>
-                    <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Sciences & Humanities • Freshers & 1st Year Management</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2.5">
-                <a href="{{ route('ssh.students.index') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs transition-all">
-                    Cancel
-                </a>
-                <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Body -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
@@ -116,13 +100,13 @@
                             </div>
                         </div>
 
-                        <!-- SECTION 3: Academic Placement -->
+                        <!-- SECTION 3: Academic Placement & Program -->
                         <div>
                             <h3 class="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-4 flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
-                                3. Academic Placement & Department
+                                3. Academic Placement & Program
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Parent School <span class="text-rose-500">*</span></label>
                                     <select name="school_id" id="school_select" required class="w-full text-sm rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 py-2.5 px-3.5 bg-slate-50/40 hover:bg-white transition-all cursor-pointer">
@@ -140,6 +124,36 @@
                                         <option value="{{ $dept->id }}" data-school="{{ $dept->school_id }}" {{ (old('department_id', $student->profile->department->id ?? null) == $dept->id || old('department_id') == $dept->code) ? 'selected' : '' }}>{{ $dept->name }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Academic Level</label>
+                                    <select name="level" id="level_select" class="w-full text-sm rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 py-2.5 px-3.5 bg-slate-50/40 hover:bg-white transition-all cursor-pointer">
+                                        <option value="UG" {{ old('level', $student->profile->level ?? 'UG') == 'UG' ? 'selected' : '' }}>UG (Undergraduate)</option>
+                                        <option value="PG" {{ old('level', $student->profile->level ?? '') == 'PG' ? 'selected' : '' }}>PG (Postgraduate)</option>
+                                        <option value="Diploma" {{ old('level', $student->profile->level ?? '') == 'Diploma' ? 'selected' : '' }}>Diploma</option>
+                                        <option value="PhD" {{ old('level', $student->profile->level ?? '') == 'PhD' ? 'selected' : '' }}>PhD</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Degree Program</label>
+                                    <select name="program_id" id="program_select" class="w-full text-sm rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 py-2.5 px-3.5 bg-slate-50/40 hover:bg-white transition-all cursor-pointer">
+                                        <option value="">Select Program</option>
+                                        @php
+                                            $activeProgramId = old('program_id', $student->profile->program->id ?? null);
+                                        @endphp
+                                        @foreach($programs as $prog)
+                                        <option value="{{ $prog->id }}" data-department="{{ $prog->department_id }}" data-level="{{ $prog->level }}" {{ $activeProgramId == $prog->id ? 'selected' : '' }}>
+                                            {{ $prog->name }} ({{ $prog->code }})
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Section / Division</label>
+                                    <input type="text" name="section" value="{{ old('section', $student->profile->section ?? '') }}" placeholder="e.g. A, B, Sec-1" maxlength="10" class="w-full text-sm uppercase rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 py-2.5 px-3.5 bg-slate-50/40 hover:bg-white transition-all">
                                 </div>
                             </div>
                         </div>
@@ -187,9 +201,65 @@
     <script>
         const schoolSelect = document.getElementById('school_select');
         const deptSelect = document.getElementById('department_select');
+        const levelSelect = document.getElementById('level_select');
+        const programSelect = document.getElementById('program_select');
+
+        const allPrograms = @json($programs);
+        const initialSelectedProgram = "{{ old('program_id', $student->profile->program->id ?? '') }}";
+
+        function filterPrograms(isInitial = false) {
+            const selectedDept = deptSelect.value;
+            const selectedLevel = levelSelect ? levelSelect.value : '';
+            const currentProgram = isInitial ? initialSelectedProgram : (programSelect.value || initialSelectedProgram);
+
+            programSelect.innerHTML = '<option value="">Select Program</option>';
+
+            if (!selectedDept) {
+                return;
+            }
+
+            const matching = allPrograms.filter(p => {
+                const matchesDept = String(p.department_id) === String(selectedDept);
+                const matchesLevel = !selectedLevel || String(p.level).toUpperCase() === String(selectedLevel).toUpperCase();
+                return matchesDept && matchesLevel;
+            });
+
+            matching.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `${p.name} (${p.code})`;
+                if (String(p.id) === String(currentProgram)) {
+                    opt.selected = true;
+                }
+                programSelect.appendChild(opt);
+            });
+
+            if (matching.length === 0) {
+                fetch(`/departments/${selectedDept}/programs?level=${encodeURIComponent(selectedLevel)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            programSelect.innerHTML = '<option value="">Select Program</option>';
+                            data.forEach(p => {
+                                const opt = document.createElement('option');
+                                opt.value = p.id;
+                                opt.textContent = `${p.name} (${p.code})`;
+                                if (String(p.id) === String(currentProgram)) {
+                                    opt.selected = true;
+                                }
+                                programSelect.appendChild(opt);
+                            });
+                        }
+                    })
+                    .catch(() => {});
+            }
+        }
 
         schoolSelect.addEventListener('change', function() {
             const selectedSchoolVal = this.value;
+            deptSelect.innerHTML = '<option value="">Select Department</option>';
+            programSelect.innerHTML = '<option value="">Select Program</option>';
+
             if (!selectedSchoolVal) return;
 
             fetch(`/schools/${selectedSchoolVal}/departments`)
@@ -202,8 +272,20 @@
                         opt.textContent = dept.name;
                         deptSelect.appendChild(opt);
                     });
+                    filterPrograms(false);
                 })
                 .catch(() => {});
+        });
+
+        deptSelect.addEventListener('change', () => filterPrograms(false));
+        if (levelSelect) {
+            levelSelect.addEventListener('change', () => filterPrograms(false));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (deptSelect.value) {
+                filterPrograms(true);
+            }
         });
     </script>
 </body>

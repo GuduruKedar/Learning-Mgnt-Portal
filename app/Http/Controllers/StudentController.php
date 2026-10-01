@@ -57,7 +57,7 @@ class StudentController extends Controller
             });
         }
 
-        $students = $query->paginate(10)->withQueryString();
+        $students = $query->withCount(['enrolledCourses', 'civilServiceEnrollment'])->paginate(10)->withQueryString();
         $schools = School::all();
         $departments = Department::with('school')->get();
         $programs = \App\Models\Program::with('department')->get();
@@ -100,8 +100,16 @@ class StudentController extends Controller
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
-            'username' => ['required', 'string', 'size:10', 'regex:/^\d{2}[a-zA-Z0-9]{2}[a-zA-Z0-9]{1,2}\d+$/', 'unique:users'], // Registration Number
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email'],
+            'username' => ['required', 'string', 'size:10', 'regex:/^\d{2}[a-zA-Z0-9]{2}[a-zA-Z0-9]{1,2}\d+$/', 'unique:users,username', 'unique:profiles,username'], // Registration Number
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email'
+            ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => [
@@ -124,6 +132,8 @@ class StudentController extends Controller
             ],
             'photo' => 'nullable|image|mimes:webp|max:2048',
         ], [
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
             'school_id.required' => 'The school field is required.',
             'school_id.exists' => 'The selected school is invalid.',
             'department_id.required' => 'The department field is required.',
@@ -224,8 +234,16 @@ class StudentController extends Controller
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
-            'username' => ['required', 'string', 'size:10', 'regex:/^\d{2}[a-zA-Z0-9]{2}[a-zA-Z0-9]{1,2}\d+$/', 'unique:users,username,'.$student->id],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email,'.$student->profile_id],
+            'username' => ['required', 'string', 'size:10', 'regex:/^\d{2}[a-zA-Z0-9]{2}[a-zA-Z0-9]{1,2}\d+$/', 'unique:users,username,'.$student->id, 'unique:profiles,username,'.$student->profile_id],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email,'.$student->profile_id
+            ],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => [
                 Rule::requiredIf(Auth::user()->role === 'sa'),
@@ -248,6 +266,8 @@ class StudentController extends Controller
             'photo' => 'nullable|image|mimes:webp|max:2048',
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
         ], [
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
             'username.size' => 'The Register Number must be exactly 10 characters.',
             'username.regex' => 'The Register Number format is invalid.',
             'school_id.required' => 'The school field is required.',
@@ -317,35 +337,70 @@ class StudentController extends Controller
             abort(403, 'Unauthorized. Only Super Admin can delete students.');
         }
 
-        $student = User::role('stu')->findOrFail($id);
+        $student = User::role('stu')->with(['profile', 'enrolledCourses', 'civilServiceEnrollment'])->findOrFail($id);
         $studentName = trim(($student->profile->first_name ?? '') . ' ' . ($student->profile->last_name ?? ''));
         $studentUsername = $student->username;
         $studentDept = $student->profile->departments_id ?? null;
-        
-        if ($student->profile && $student->profile->photo) {
-            Storage::disk('public')->delete($student->profile->photo);
-        }
-        
-        $profile = $student->profile;
-        $student->delete();
-        if ($profile) {
-            $profile->delete();
-        }
+
+        $submissionsCount = \App\Models\AssignmentSubmission::where('student_id', $student->id)->count();
+        $submissionIds = \App\Models\AssignmentSubmission::where('student_id', $student->id)->pluck('id');
+        $answersCount = \App\Models\AssignmentAnswer::whereIn('submission_id', $submissionIds)->count();
+        $enrollmentsCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->count();
+        $civilEnrollmentCount = \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->count();
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($student) {
+            // 1. Delete all Assignment Submissions and answer attempts made by this student
+            $submissions = \App\Models\AssignmentSubmission::where('student_id', $student->id)->get();
+            foreach ($submissions as $sub) {
+                if ($sub->file_path && Storage::disk('public')->exists($sub->file_path)) {
+                    Storage::disk('public')->delete($sub->file_path);
+                }
+                \App\Models\AssignmentAnswer::where('submission_id', $sub->id)->delete();
+                $sub->delete();
+            }
+
+            // 2. Remove Course Enrollments
+            \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->delete();
+
+            // 3. Remove Civil Services Enrollment
+            \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->delete();
+
+            // 4. Delete profile photo from storage & profile record
+            $profile = $student->profile;
+            if ($profile) {
+                if ($profile->photo && Storage::disk('public')->exists($profile->photo)) {
+                    Storage::disk('public')->delete($profile->photo);
+                }
+                $profile->delete();
+            }
+
+            // 5. Delete student user account
+            $student->delete();
+        });
 
         \App\Services\ActivityLogger::log(
-            'student_deleted',
-            'Student Deleted',
+            'cascade_student_deleted',
+            'Student & Cascading Records Deleted',
             'Students',
-            'Deleted student ' . $studentName . ' (' . $studentUsername . ').',
+            "Permanently deleted student {$studentName} ({$studentUsername}). Cascaded removals: {$submissionsCount} assignment submission(s), {$answersCount} question response(s), {$enrollmentsCount} course enrollment(s), and {$civilEnrollmentCount} civil service enrollment(s).",
             'danger',
             [
                 'department_id' => $studentDept,
-                'entity_type' => 'User',
-                'entity_id' => $id,
-                'entity_name' => $studentName,
+                'entity_type'   => 'User',
+                'entity_id'     => $id,
+                'entity_name'   => "{$studentName} ({$studentUsername})",
+                'payload'       => [
+                    'student_username'       => $studentUsername,
+                    'student_name'           => $studentName,
+                    'department'             => $studentDept,
+                    'submissions_deleted'    => $submissionsCount,
+                    'answers_deleted'        => $answersCount,
+                    'enrollments_removed'    => $enrollmentsCount,
+                    'civil_services_removed' => $civilEnrollmentCount,
+                ]
             ]
         );
 
-        return redirect()->route('students.index')->with('success', 'Student deleted successfully.');
+        return redirect()->route('students.index')->with('success', "Student {$studentUsername} ({$studentName}) and all associated records deleted successfully.");
     }
 }

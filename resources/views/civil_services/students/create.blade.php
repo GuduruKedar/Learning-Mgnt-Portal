@@ -19,11 +19,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-2.5">
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
@@ -159,15 +156,30 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-5">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Academic Level</label>
-                                    <select name="level" class="w-full text-sm rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 py-2.5 px-3.5 bg-slate-50/40 hover:bg-white transition-all">
-                                        <option value="UG" {{ old('level') == 'UG' ? 'selected' : '' }}>UG (Undergraduate)</option>
+                                    <select name="level" id="level_select" class="w-full text-sm rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 py-2.5 px-3.5 bg-slate-50/40 hover:bg-white transition-all">
+                                        <option value="UG" {{ old('level', 'UG') == 'UG' ? 'selected' : '' }}>UG (Undergraduate)</option>
                                         <option value="PG" {{ old('level') == 'PG' ? 'selected' : '' }}>PG (Postgraduate)</option>
                                         <option value="Diploma" {{ old('level') == 'Diploma' ? 'selected' : '' }}>Diploma</option>
                                         <option value="PhD" {{ old('level') == 'PhD' ? 'selected' : '' }}>PhD</option>
                                     </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Degree Program</label>
+                                    <select name="program_id" id="program_select" class="w-full text-sm rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 py-2.5 px-3.5 bg-slate-50/40 hover:bg-white transition-all">
+                                        <option value="">Select Program</option>
+                                        @foreach($programs as $prog)
+                                            <option value="{{ $prog->id }}" data-dept-id="{{ $prog->department_id }}" data-level="{{ $prog->level }}" {{ old('program_id') == $prog->id ? 'selected' : '' }}>
+                                                {{ $prog->name }} ({{ $prog->code }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('program_id')
+                                        <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 <div>
@@ -222,6 +234,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             const schoolSelectEl = document.getElementById('school_select');
             const departmentSelectEl = document.getElementById('department_select');
+            const levelSelectEl = document.getElementById('level_select');
+            const programSelectEl = document.getElementById('program_select');
 
             let allDepartments = Array.from(departmentSelectEl.options)
                 .filter(opt => opt.value !== '')
@@ -229,6 +243,15 @@
                     value: opt.value,
                     text: opt.text,
                     schoolId: opt.getAttribute('data-school-id')
+                }));
+
+            let allPrograms = Array.from(programSelectEl.options)
+                .filter(opt => opt.value !== '')
+                .map(opt => ({
+                    value: opt.value,
+                    text: opt.text,
+                    deptId: opt.getAttribute('data-dept-id'),
+                    level: opt.getAttribute('data-level')
                 }));
 
             document.querySelectorAll('select').forEach(function(el) {
@@ -244,6 +267,28 @@
             if (schoolSelectEl && departmentSelectEl) {
                 const schoolTs = schoolSelectEl.tomselect;
                 const deptTs = departmentSelectEl.tomselect;
+                const levelTs = levelSelectEl ? levelSelectEl.tomselect : null;
+                const programTs = programSelectEl ? programSelectEl.tomselect : null;
+
+                function updatePrograms(selectedDeptId, selectedLevel, preserveProgram = false) {
+                    if (!programTs) return;
+                    const currentProg = preserveProgram ? programTs.getValue() : '';
+                    programTs.clear();
+                    programTs.clearOptions();
+
+                    const matchingPrograms = selectedDeptId
+                        ? allPrograms.filter(p => String(p.deptId) === String(selectedDeptId) && (!selectedLevel || String(p.level).toUpperCase() === String(selectedLevel).toUpperCase()))
+                        : [];
+
+                    matchingPrograms.forEach(p => {
+                        programTs.addOption({ value: p.value, text: p.text });
+                    });
+                    programTs.refreshOptions(false);
+
+                    if (currentProg && matchingPrograms.some(p => String(p.value) === String(currentProg))) {
+                        programTs.setValue(currentProg, true);
+                    }
+                }
 
                 function updateDepartments(selectedSchoolId, preserveValue = false) {
                     const currentVal = preserveValue ? deptTs.getValue() : '';
@@ -261,6 +306,9 @@
 
                     if (currentVal && matchingDepts.some(d => String(d.value) === String(currentVal))) {
                         deptTs.setValue(currentVal, true);
+                        updatePrograms(currentVal, levelTs ? levelTs.getValue() : '', true);
+                    } else {
+                        updatePrograms('', '', false);
                     }
                 }
 
@@ -268,9 +316,21 @@
                     updateDepartments(selectedSchoolId, false);
                 });
 
-                // Run on initial load if school is already selected (e.g. on validation redirect)
+                deptTs.on('change', function(selectedDeptId) {
+                    updatePrograms(selectedDeptId, levelTs ? levelTs.getValue() : '', false);
+                });
+
+                if (levelTs) {
+                    levelTs.on('change', function(selectedLevel) {
+                        updatePrograms(deptTs.getValue(), selectedLevel, true);
+                    });
+                }
+
+                // Run on initial load
                 if (schoolTs.getValue()) {
                     updateDepartments(schoolTs.getValue(), true);
+                } else if (deptTs.getValue()) {
+                    updatePrograms(deptTs.getValue(), levelTs ? levelTs.getValue() : '', true);
                 }
             }
         });

@@ -55,24 +55,27 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <style>
         .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 7px;
+            height: 7px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f8fafc;
+            background: #f1f5f9;
             border-radius: 9999px;
-            margin: 6px 0;
+            margin: 4px 0;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+            background: #94a3b8;
             border-radius: 9999px;
+            border: 1.5px solid #f1f5f9;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+            background: #64748b;
         }
         .custom-scrollbar {
             scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 #f8fafc;
+            scrollbar-color: #94a3b8 #f1f5f9;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 <script src="{{ asset('js/main.js') }}"></script>
@@ -85,33 +88,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center ml-auto">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0">
-                    @if(Auth::user()->photo)
-                        <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-indigo-200" src="{{ asset('storage/' . Auth::user()->photo) }}" alt="">
-                    @else
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shadow-sm">
-                            {{ substr(Auth::user()->first_name ?? 'A', 0, 1) }}
-                        </div>
-                    @endif
-                    <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->role === 'sa' ? 'Super Admin' : (Auth::user()->first_name ?? 'Admin') }}</span>
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Edit Profile</a>
-                        <button type="button" id="openPasswordModalBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Change Password</button>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50/60 pb-36">
@@ -178,8 +156,8 @@
                                     <span>Login Username / ID</span>
                                     <span class="text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">Auto-Generated</span>
                                 </label>
-                                <input type="text" id="coordinator_username" name="username" value="{{ old('username') }}" placeholder="e.g. dep_mech (Auto-assigned)" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono">
-                                <p class="text-[11px] text-slate-500 mt-1">Assigned from department (e.g. <span class="font-mono text-indigo-600 font-semibold">dep_mech</span>, <span class="font-mono text-indigo-600 font-semibold">dep_mech1</span>). Common default password: <span class="font-mono font-semibold text-slate-700">Admin!741</span></p>
+                                <input type="text" id="coordinator_username" name="username" value="{{ old('username') }}" placeholder="e.g. dep_che_01 (Auto-assigned)" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono">
+                                <p class="text-[11px] text-slate-500 mt-1">Assigned from department (e.g. <span class="font-mono text-indigo-600 font-semibold">dep_che_01</span>, <span class="font-mono text-indigo-600 font-semibold">dep_che_02</span>). Common default password: <span class="font-mono font-semibold text-slate-700">Admin!741</span></p>
                                 @error('username')
                                     <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                                 @enderror
@@ -215,27 +193,32 @@
                                     <input type="hidden" name="school_id" id="school_id_input" value="{{ old('school_id', $preselectedSchoolId ?? '') }}" required>
                                     
                                     <button type="button" id="school_custom_btn" 
-                                        class="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 hover:bg-white border border-slate-200 hover:border-indigo-300 rounded-xl text-sm text-left focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 shadow-sm"
+                                        class="w-full flex items-center justify-between px-3 py-2 bg-slate-50 hover:bg-white border border-slate-200 hover:border-indigo-300 rounded-xl text-sm text-left focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-150 shadow-2xs"
                                         onclick="toggleDropdown('school_dropdown_list')" aria-haspopup="listbox">
                                         <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                                            <div class="w-7 h-7 rounded-lg bg-indigo-100/70 text-indigo-700 flex items-center justify-center shrink-0 font-bold text-xs border border-indigo-200/60">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                            <div class="w-6.5 h-6.5 rounded-lg bg-indigo-100/70 text-indigo-700 flex items-center justify-center shrink-0 font-bold text-xs border border-indigo-200/60">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                             </div>
-                                            <span id="school_display_text" class="font-semibold text-slate-800 text-sm leading-snug break-words">Select School</span>
+                                            <span id="school_display_text" class="font-semibold text-slate-800 text-xs sm:text-sm leading-snug break-words">Select School</span>
                                         </div>
                                         <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-150" id="school_chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                     
                                     <!-- Full-Width School Dropdown Popover -->
                                     <div id="school_dropdown_list" class="hidden absolute z-50 left-0 right-0 sm:right-auto sm:min-w-[480px] max-w-[calc(100vw-2rem)] mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all ring-1 ring-black/5">
-                                        <div class="p-2.5 border-b border-slate-100 bg-slate-50/90">
-                                            <div class="relative">
-                                                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                                <input type="text" id="school_search_input" placeholder="Search school..." oninput="filterSchools(this.value)" class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                                        <div class="p-2 border-b border-slate-100 bg-slate-50/90">
+                                            <div class="relative flex items-center">
+                                                <div class="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                                </div>
+                                                <input type="text" id="school_search_input" placeholder="Search school..." oninput="filterSchools(this.value)" class="w-full !pl-10 !pr-8 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 placeholder-slate-400 text-slate-800 font-medium transition-all" style="padding-left: 2.5rem !important; padding-right: 2rem !important;">
+                                                <button type="button" id="school_search_clear" onclick="clearSearch('school')" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none" title="Clear search">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
                                             </div>
                                         </div>
-                                        <div class="p-2 overflow-y-auto max-h-[460px] custom-scrollbar overscroll-contain space-y-1 pb-4" id="school_options_container">
-                                            <div class="px-3 py-2 cursor-pointer hover:bg-slate-100/80 rounded-xl text-xs text-slate-500 font-semibold transition-colors mb-1" onclick="selectSchool('', 'Select School', '')">
+                                        <div class="p-1.5 overflow-y-auto max-h-60 custom-scrollbar space-y-0.5 pb-2" id="school_options_container" style="max-height: 240px; overflow-y: auto;">
+                                            <div class="px-3 py-1.5 cursor-pointer hover:bg-slate-100/80 rounded-xl text-xs text-slate-500 font-semibold transition-colors mb-0.5" onclick="selectSchool('', 'Select School', '')">
                                                 -- Select School --
                                             </div>
                                             @php
@@ -260,19 +243,21 @@
                                                     $numStr = sprintf('%02d', $idx + 1);
                                                     $schoolDisplayName = $numStr . ' ' . $school->name;
                                                 @endphp
-                                                <div class="school-option p-2.5 cursor-pointer hover:bg-indigo-50/80 rounded-xl text-sm transition-all group flex items-center justify-between gap-3 border border-transparent hover:border-indigo-100" 
+                                                <div class="school-option px-3 py-2 cursor-pointer hover:bg-indigo-50/80 rounded-xl text-xs sm:text-sm transition-all group flex items-center justify-between gap-3 border border-transparent hover:border-indigo-100" 
                                                      data-name="{{ strtolower($school->name) }}"
+                                                     data-code="{{ strtolower($school->code) }}"
+                                                     data-num="{{ $numStr }}"
                                                      data-id="{{ $school->id }}"
                                                      onclick="selectSchool('{{ $school->id }}', '{{ addslashes($schoolDisplayName) }}', '{{ $school->code }}')">
-                                                    <div class="flex items-center gap-3 min-w-0">
-                                                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-bold text-xs border border-indigo-200">
+                                                    <div class="flex items-center gap-2.5 min-w-0">
+                                                        <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-bold text-[11px] border border-indigo-200">
                                                             {{ $numStr }}
                                                         </div>
                                                         <div class="min-w-0">
-                                                            <p class="font-bold text-slate-900 group-hover:text-indigo-600 text-sm leading-snug whitespace-normal">
+                                                            <p class="font-bold text-slate-900 group-hover:text-indigo-600 text-xs sm:text-sm leading-snug whitespace-normal">
                                                                 {{ $school->name }}
                                                             </p>
-                                                            <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-mono mt-0.5">
+                                                            <span class="inline-block px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 text-[10px] font-mono mt-0.5">
                                                                 {{ $school->code }}
                                                             </span>
                                                         </div>
@@ -280,7 +265,10 @@
                                                     <svg class="school-check-icon hidden w-4 h-4 text-indigo-600 shrink-0 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
                                                 </div>
                                             @endforeach
-                                            <div class="h-2"></div>
+                                            <div id="school_no_results" class="hidden px-3.5 py-6 text-center text-xs text-slate-400 font-medium">
+                                                No schools matching your search
+                                            </div>
+                                            <div class="h-1"></div>
                                         </div>
                                     </div>
                                     @error('school_id')
@@ -297,27 +285,32 @@
                                     <input type="hidden" name="department_id" id="department_id_input" value="{{ old('department_id', $preselectedDepartmentId ?? '') }}" required>
                                     
                                     <button type="button" id="department_custom_btn" 
-                                        class="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-sm text-left transition-all duration-150 cursor-not-allowed shadow-sm" 
+                                        class="w-full flex items-center justify-between px-3 py-2 bg-slate-100/80 border border-slate-200 rounded-xl text-sm text-left transition-all duration-150 cursor-not-allowed shadow-2xs" 
                                         onclick="toggleDropdown('department_dropdown_list')" disabled aria-haspopup="listbox">
                                         <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                                            <div class="w-7 h-7 rounded-lg bg-slate-200/80 text-slate-400 flex items-center justify-center shrink-0" id="dept_icon_container">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                            <div class="w-6.5 h-6.5 rounded-lg bg-slate-200/80 text-slate-400 flex items-center justify-center shrink-0" id="dept_icon_container">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                             </div>
-                                            <span id="department_display_text" class="font-medium text-slate-400 text-sm leading-snug break-words">Select School first</span>
+                                            <span id="department_display_text" class="font-medium text-slate-400 text-xs sm:text-sm leading-snug break-words">Select School first</span>
                                         </div>
                                         <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-150" id="dept_chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                     
                                     <!-- Full-Width Department Dropdown Popover -->
                                     <div id="department_dropdown_list" class="hidden absolute z-50 left-0 right-0 sm:right-auto sm:min-w-[480px] max-w-[calc(100vw-2rem)] mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all ring-1 ring-black/5">
-                                        <div class="p-2.5 border-b border-slate-100 bg-slate-50/90" id="dept_search_wrapper">
-                                            <div class="relative">
-                                                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                                <input type="text" id="dept_search_input" placeholder="Search department..." oninput="filterDepartments(this.value)" class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                                        <div class="p-2 border-b border-slate-100 bg-slate-50/90" id="dept_search_wrapper">
+                                            <div class="relative flex items-center">
+                                                <div class="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                                </div>
+                                                <input type="text" id="dept_search_input" placeholder="Search department..." oninput="filterDepartments(this.value)" class="w-full !pl-10 !pr-8 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 placeholder-slate-400 text-slate-800 font-medium transition-all" style="padding-left: 2.5rem !important; padding-right: 2rem !important;">
+                                                <button type="button" id="dept_search_clear" onclick="clearSearch('dept')" class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none" title="Clear search">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                </button>
                                             </div>
                                         </div>
-                                        <div class="p-2 overflow-y-auto max-h-[460px] custom-scrollbar overscroll-contain space-y-1 pb-4" id="department_dropdown_list_inner">
-                                            <div class="px-3.5 py-4 text-xs text-slate-400 font-medium text-center">
+                                        <div class="p-1.5 overflow-y-auto max-h-60 custom-scrollbar space-y-0.5 pb-2" id="department_dropdown_list_inner" style="max-height: 240px; overflow-y: auto;">
+                                            <div class="px-3 py-3 text-xs text-slate-400 font-medium text-center">
                                                 Please select a School first
                                             </div>
                                         </div>
@@ -355,7 +348,7 @@
             </div>
             
             <footer class="mt-8 border-t border-slate-200/80 pt-4 pb-2">
-                <p class="text-center text-xs text-slate-500 font-medium">&copy; {{ date('Y') }} Learning Management System. All rights reserved.</p>
+                <p class="text-center text-xs text-slate-500 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-slate-700">TD</span>.</p>
             </footer>
         </main>
     </div>
@@ -483,10 +476,36 @@
                 // Focus search input if present
                 if (id === 'school_dropdown_list') {
                     const sInput = document.getElementById('school_search_input');
-                    if (sInput) { sInput.value = ''; filterSchools(''); sInput.focus(); }
+                    if (sInput) { 
+                        sInput.value = ''; 
+                        filterSchools(''); 
+                        setTimeout(() => sInput.focus(), 50); 
+                    }
                 } else if (id === 'department_dropdown_list') {
                     const dInput = document.getElementById('dept_search_input');
-                    if (dInput) { dInput.value = ''; filterDepartments(''); dInput.focus(); }
+                    if (dInput) { 
+                        dInput.value = ''; 
+                        filterDepartments(''); 
+                        setTimeout(() => dInput.focus(), 50); 
+                    }
+                }
+            }
+        }
+
+        function clearSearch(type) {
+            if (type === 'school') {
+                const sInput = document.getElementById('school_search_input');
+                if (sInput) {
+                    sInput.value = '';
+                    filterSchools('');
+                    sInput.focus();
+                }
+            } else if (type === 'dept') {
+                const dInput = document.getElementById('dept_search_input');
+                if (dInput) {
+                    dInput.value = '';
+                    filterDepartments('');
+                    dInput.focus();
                 }
             }
         }
@@ -494,29 +513,67 @@
         // Filter Schools
         function filterSchools(query) {
             const term = (query || '').toLowerCase().trim();
+            const clearBtn = document.getElementById('school_search_clear');
+            if (clearBtn) {
+                if (term) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+
             const options = document.querySelectorAll('#school_options_container .school-option');
+            let visibleCount = 0;
             options.forEach(opt => {
                 const name = opt.getAttribute('data-name') || '';
-                if (name.includes(term)) {
+                const code = opt.getAttribute('data-code') || '';
+                const num = opt.getAttribute('data-num') || '';
+                if (!term || name.includes(term) || code.includes(term) || num.includes(term)) {
                     opt.classList.remove('hidden');
+                    visibleCount++;
                 } else {
                     opt.classList.add('hidden');
                 }
             });
+
+            const noResults = document.getElementById('school_no_results');
+            if (noResults) {
+                if (visibleCount === 0 && term) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
         }
 
         // Filter Departments
         function filterDepartments(query) {
             const term = (query || '').toLowerCase().trim();
+            const clearBtn = document.getElementById('dept_search_clear');
+            if (clearBtn) {
+                if (term) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+
             const options = document.querySelectorAll('#department_dropdown_list_inner .dept-option');
+            let visibleCount = 0;
             options.forEach(opt => {
                 const name = opt.getAttribute('data-name') || '';
-                if (name.includes(term)) {
+                const code = opt.getAttribute('data-code') || '';
+                const num = opt.getAttribute('data-num') || '';
+                if (!term || name.includes(term) || code.includes(term) || num.includes(term)) {
                     opt.classList.remove('hidden');
+                    visibleCount++;
                 } else {
                     opt.classList.add('hidden');
                 }
             });
+
+            const noResults = document.getElementById('dept_no_results');
+            if (noResults) {
+                if (visibleCount === 0 && term && options.length > 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
         }
 
         // Close dropdowns when clicking outside
@@ -662,19 +719,21 @@
                                 }
                                 
                                 html += `
-                                    <div class="dept-option p-2.5 cursor-pointer hover:bg-emerald-50/80 rounded-xl text-sm transition-all group flex items-center justify-between gap-3 border ${isCurrent ? 'bg-emerald-50/90 border-emerald-200 text-emerald-900' : 'bg-white border-transparent hover:border-emerald-100'}" 
+                                    <div class="dept-option px-3 py-2 cursor-pointer hover:bg-emerald-50/80 rounded-xl text-xs sm:text-sm transition-all group flex items-center justify-between gap-3 border ${isCurrent ? 'bg-emerald-50/90 border-emerald-200 text-emerald-900' : 'bg-white border-transparent hover:border-emerald-100'}" 
                                          data-name="${dept.name.toLowerCase()}" 
+                                         data-code="${(dept.code || '').toLowerCase()}"
+                                         data-num="${deptNum}"
                                          data-id="${dept.id}"
                                          onclick="selectDepartment('${dept.id}', '${deptNum}. ${formattedDeptName.replace(/'/g, "\\'")}', '${dept.code || ''}')">
-                                        <div class="flex items-center gap-3 min-w-0">
-                                            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 font-bold text-xs border border-emerald-200">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 font-bold text-[11px] border border-emerald-200">
                                                 ${deptNum}
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="font-bold text-slate-900 group-hover:text-emerald-700 text-sm leading-snug whitespace-normal">
+                                                <p class="font-bold text-slate-900 group-hover:text-emerald-700 text-xs sm:text-sm leading-snug whitespace-normal">
                                                     ${deptNum}. ${formattedDeptName}
                                                 </p>
-                                                <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-mono mt-0.5">
+                                                <span class="inline-block px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 text-[10px] font-mono mt-0.5">
                                                     ${dept.code || ''}
                                                 </span>
                                             </div>
@@ -683,6 +742,7 @@
                                     </div>
                                 `;
                             });
+                            html += '<div id="dept_no_results" class="hidden px-3.5 py-6 text-center text-xs text-slate-400 font-medium">No departments matching your search</div>';
                             html += '<div class="h-2"></div>';
                         } else {
                             html += `

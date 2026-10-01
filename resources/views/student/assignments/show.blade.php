@@ -18,19 +18,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center space-x-2">
-                <a href="{{ route('student.assignments.index') }}" class="text-sm font-medium text-gray-500 hover:text-indigo-600">Assignments</a>
-                <span class="text-gray-300">/</span>
-                <span class="text-sm font-semibold text-indigo-700 truncate max-w-xs sm:max-w-md">{{ $assignment->title }}</span>
-            </div>
-            <div class="flex items-center">
-                <a href="{{ route('student.assignments.index') }}" class="text-sm font-medium text-gray-600 hover:text-indigo-600 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Back to Assignments
-                </a>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
@@ -105,11 +94,22 @@
                                     <p class="text-xs text-emerald-800">Submitted on {{ $submission->submitted_at->format('M d, Y h:i A') }}</p>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <div class="text-3xl font-black text-emerald-700">{{ $submission->marks_awarded }} <span class="text-sm font-semibold text-gray-600">/ {{ $assignment->max_marks }}</span></div>
-                                <span class="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-bold {{ $percentage >= 70 ? 'bg-emerald-200 text-emerald-900' : ($percentage >= 40 ? 'bg-amber-200 text-amber-900' : 'bg-red-200 text-red-900') }}">
-                                    Score: {{ $percentage }}%
-                                </span>
+                            <div class="flex items-center gap-4">
+                                <div class="text-right">
+                                    <div class="text-3xl font-black text-emerald-700">{{ $submission->marks_awarded }} <span class="text-sm font-semibold text-gray-600">/ {{ $assignment->max_marks }}</span></div>
+                                    <span class="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-bold {{ $percentage >= 70 ? 'bg-emerald-200 text-emerald-900' : ($percentage >= 40 ? 'bg-amber-200 text-amber-900' : 'bg-red-200 text-red-900') }}">
+                                        Score: {{ $percentage }}%
+                                    </span>
+                                </div>
+                                <div class="no-print border-l border-emerald-200 pl-4">
+                                    <a href="{{ route('student.assignments.download', $assignment->id) }}" class="inline-flex flex-col items-center justify-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow transition-all group cursor-pointer">
+                                        <div class="flex items-center gap-1.5">
+                                            <svg class="w-4 h-4 text-emerald-100 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                            <span>Download</span>
+                                        </div>
+                                        <span class="text-[10px] text-emerald-100 font-normal">PDF Report</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
 

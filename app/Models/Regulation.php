@@ -21,4 +21,15 @@ class Regulation extends Model
     {
         return $this->hasMany(Course::class);
     }
+
+    protected static function booted()
+    {
+        static::saved(function () {
+            \App\Services\CacheService::invalidateRegulations();
+        });
+
+        static::deleted(function () {
+            \App\Services\CacheService::invalidateRegulations();
+        });
+    }
 }

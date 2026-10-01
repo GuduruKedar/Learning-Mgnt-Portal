@@ -41,50 +41,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-xs flex items-center justify-between px-4 sm:px-6 z-40 relative shrink-0 w-full border-b border-gray-200">
-            <div class="flex items-center space-x-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-500 pulse-live"></span>
-                    Live Monitoring Active
-                </span>
-                <span class="text-xs text-gray-300 hidden sm:inline">|</span>
-                
-                <!-- Auto-Refresh Toggle -->
-                <div class="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg text-xs font-medium text-gray-600">
-                    <span class="px-2 py-0.5 text-gray-500 font-semibold hidden sm:inline">Auto-Refresh:</span>
-                    <button type="button" onclick="setAutoRefresh(0)" id="btn-refresh-off" class="px-2 py-0.5 rounded-md transition-all bg-white text-gray-900 shadow-xs font-bold">OFF</button>
-                    <button type="button" onclick="setAutoRefresh(10)" id="btn-refresh-10" class="px-2 py-0.5 rounded-md transition-all hover:text-gray-900 text-gray-600 font-semibold">10s</button>
-                    <button type="button" onclick="setAutoRefresh(30)" id="btn-refresh-30" class="px-2 py-0.5 rounded-md transition-all hover:text-gray-900 text-gray-600 font-semibold">30s</button>
-                </div>
-                <span id="refresh-countdown" class="text-[11px] text-indigo-600 font-mono hidden font-semibold"></span>
-            </div>
-
-            <div class="flex items-center space-x-3">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0">
-                    @if(Auth::check() && Auth::user()->profile && Auth::user()->profile->photo)
-                        <img class="w-8 h-8 rounded-full object-cover shadow-xs border border-indigo-200" src="{{ asset('storage/' . Auth::user()->profile->photo) }}" alt="">
-                    @else
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shadow-xs">
-                            {{ substr(Auth::user()->profile->first_name ?? 'A', 0, 1) }}
-                        </div>
-                    @endif
-                    <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->profile->first_name ?? 'Super Admin' }}</span>
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Edit Profile</a>
-                        <button type="button" id="openPasswordModalBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Change Password</button>
-                        <hr class="my-1 border-gray-100">
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Area -->
         <main class="flex-1 overflow-y-auto bg-gray-50/70 relative custom-scrollbar">
@@ -123,7 +81,7 @@
                             </select>
                         </div>
 
-                        <a href="{{ route('activity_logs.export', request()->query()) }}" class="inline-flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs hover:shadow-sm transition-all">
+                        <a id="exportCsvBtn" href="{{ route('activity_logs.export', request()->query()) }}" class="inline-flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs hover:shadow-sm transition-all">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             Export Log CSV
                         </a>
@@ -354,20 +312,25 @@
                     
                     <!-- Table Search & Filter Toolbar -->
                     <div class="p-5 border-b border-gray-100 bg-gray-50/40">
-                        <form method="GET" action="{{ route('activity_logs.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+                        <form id="liveFilterForm" onsubmit="event.preventDefault(); fetchLiveLogs(1);" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
                             
-                            <!-- Search Field -->
+                            <!-- Search Field with Live Debounce and Spinner -->
                             <div class="lg:col-span-2 relative">
                                 <label for="table-search" class="sr-only">Search logs</label>
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 </div>
-                                <input type="text" id="table-search" name="search" value="{{ $searchTerm }}" placeholder="Search actor, action, IP, entity..." class="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 placeholder-gray-400 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <input type="text" id="table-search" name="search" value="{{ $searchTerm }}" oninput="debounceLiveFilter()" placeholder="Search actor, action, IP, entity..." class="w-full pl-9 pr-9 py-2 bg-white border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 placeholder-gray-400 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                                
+                                <!-- Live Spinner Indicator -->
+                                <div id="liveFilterSpinner" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-indigo-600">
+                                    <svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                </div>
                             </div>
 
                             <!-- Department Filter -->
                             <div>
-                                <select name="department" class="w-full py-2 px-3 bg-white border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <select id="filterDepartment" name="department" onchange="fetchLiveLogs(1)" class="w-full py-2 px-3 bg-white border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer transition-all">
                                     <option value="all">All Departments</option>
                                     @foreach($departments as $dept)
                                         <option value="{{ $dept->code }}" {{ $selectedDepartment === $dept->code ? 'selected' : '' }}>{{ $dept->name }}</option>
@@ -377,7 +340,7 @@
 
                             <!-- Module Filter -->
                             <div>
-                                <select name="module" class="w-full py-2 px-3 bg-white border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <select id="filterModule" name="module" onchange="fetchLiveLogs(1)" class="w-full py-2 px-3 bg-white border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer transition-all">
                                     <option value="all">All Modules</option>
                                     @foreach($modulesList as $mod)
                                         <option value="{{ $mod }}" {{ $selectedModule === $mod ? 'selected' : '' }}>{{ $mod }}</option>
@@ -387,7 +350,7 @@
 
                             <!-- Severity Filter -->
                             <div>
-                                <select name="severity" class="w-full py-2 px-3 bg-white border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <select id="filterSeverity" name="severity" onchange="fetchLiveLogs(1)" class="w-full py-2 px-3 bg-white border border-gray-200 rounded-xl text-xs sm:text-sm font-medium text-gray-800 shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer transition-all">
                                     <option value="all">All Severities</option>
                                     <option value="success" {{ $selectedSeverity === 'success' ? 'selected' : '' }}>✅ Success</option>
                                     <option value="info" {{ $selectedSeverity === 'info' ? 'selected' : '' }}>ℹ️ Info</option>
@@ -398,19 +361,20 @@
 
                             <!-- Filter & Reset Buttons -->
                             <div class="flex items-center space-x-2">
-                                <button type="submit" class="w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition-colors text-center">
+                                <button type="button" onclick="fetchLiveLogs(1)" class="w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs transition-all text-center cursor-pointer flex items-center justify-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
                                     Apply
                                 </button>
-                                <a href="{{ route('activity_logs.index') }}" class="py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs sm:text-sm font-semibold transition-colors">
+                                <button type="button" onclick="clearLiveFilters()" class="py-2 px-3 bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-700 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer">
                                     Clear
-                                </a>
+                                </button>
                             </div>
 
                         </form>
                     </div>
 
                     <!-- Individual Logs Table -->
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto relative">
                         <table class="min-w-full divide-y divide-gray-200 text-left">
                             <thead class="bg-gray-50/80">
                                 <tr>
@@ -423,110 +387,18 @@
                                     <th class="px-5 py-3.5 text-xs font-bold text-gray-600 uppercase tracking-wider text-right">Inspect</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 bg-white">
-                                @forelse($logs as $log)
-                                    <tr class="hover:bg-indigo-50/30 transition-colors">
-                                        <!-- Timestamp -->
-                                        <td class="px-5 py-4 whitespace-nowrap text-xs text-gray-500">
-                                            <div class="font-semibold text-gray-900">{{ $log->created_at->diffForHumans() }}</div>
-                                            <div class="text-[11px] text-gray-400">{{ $log->created_at->format('M d, Y h:i A') }}</div>
-                                        </td>
-
-                                        <!-- Department & School -->
-                                        <td class="px-5 py-4 whitespace-nowrap text-xs">
-                                            @if($log->department)
-                                                <div class="font-bold text-gray-900 flex items-center gap-1.5">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                                                    {{ $log->department->name }}
-                                                </div>
-                                                <div class="text-[11px] text-gray-400 pl-3">{{ $log->department->school->name ?? $log->department->school_id }}</div>
-                                            @elseif($log->department_id)
-                                                <div class="font-bold text-gray-900">{{ strtoupper(str_replace('_', ' ', $log->department_id)) }}</div>
-                                                <div class="text-[11px] text-gray-400">Direct Department</div>
-                                            @else
-                                                <div class="font-bold text-gray-600">Central / System</div>
-                                                <div class="text-[11px] text-gray-400">Global Service</div>
-                                            @endif
-                                        </td>
-
-                                        <!-- User / Actor -->
-                                        <td class="px-5 py-4 whitespace-nowrap text-xs">
-                                            <div class="flex items-center space-x-2.5">
-                                                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                                                    {{ substr($log->user_name ?? 'U', 0, 1) }}
-                                                </div>
-                                                <div>
-                                                    <div class="font-semibold text-gray-900">{{ $log->user_name ?? 'System' }}</div>
-                                                    <div class="text-[10px] text-gray-400 uppercase font-semibold">{{ $log->user_role ?? 'system' }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <!-- Module & Action -->
-                                        <td class="px-5 py-4 whitespace-nowrap text-xs">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border {{ $log->module_badge }}">
-                                                {{ $log->module }}
-                                            </span>
-                                            <div class="mt-1 font-semibold text-gray-800">{{ $log->action_title }}</div>
-                                        </td>
-
-                                        <!-- Description & Target -->
-                                        <td class="px-5 py-4 text-xs text-gray-600 max-w-xs sm:max-w-sm">
-                                            <div class="line-clamp-2">{{ $log->description }}</div>
-                                            @if($log->entity_name)
-                                                <div class="mt-1 inline-flex items-center text-[10px] font-mono-code bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded border border-gray-200">
-                                                    🎯 {{ $log->entity_name }}
-                                                </div>
-                                            @endif
-                                        </td>
-
-                                        <!-- Status / Severity -->
-                                        <td class="px-5 py-4 whitespace-nowrap text-xs">
-                                            @if($log->severity === 'success')
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500"></span> Success
-                                                </span>
-                                            @elseif($log->severity === 'warning')
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-amber-500"></span> Warning
-                                                </span>
-                                            @elseif($log->severity === 'danger')
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                                                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-rose-500"></span> Critical
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                                                    <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-blue-500"></span> Info
-                                                </span>
-                                            @endif
-                                        </td>
-
-                                        <!-- Inspect Action -->
-                                        <td class="px-5 py-4 whitespace-nowrap text-xs text-right">
-                                            <button onclick="openLogDetailsModal({{ $log->id }})" class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-indigo-50 hover:text-indigo-600 text-gray-700 font-semibold rounded-lg transition-colors shadow-2xs">
-                                                <svg class="w-3.5 h-3.5 mr-1 text-gray-500 group-hover:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                Inspect
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="px-6 py-12 text-center text-gray-400">
-                                            <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                            No activity logs found matching the selected filter criteria.
-                                        </td>
-                                    </tr>
-                                @endforelse
+                            <tbody id="logsTableBody" class="divide-y divide-gray-100 bg-white transition-opacity duration-150">
+                                @include('activity_logs.partials.table_rows', ['logs' => $logs])
                             </tbody>
                         </table>
                     </div>
 
                     <!-- Pagination Footer (10 items per page) -->
                     <div class="px-5 py-4 border-t border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="text-xs text-gray-500 font-medium">
+                        <div id="logsPaginationSummary" class="text-xs text-gray-500 font-medium">
                             Showing {{ $logs->firstItem() ?? 0 }} to {{ $logs->lastItem() ?? 0 }} of {{ $logs->total() }} individual log reports (10 per page)
                         </div>
-                        <div>
+                        <div id="logsPaginationLinks">
                             {{ $logs->links() }}
                         </div>
                     </div>
@@ -799,14 +671,149 @@
                 setAutoRefresh(savedInterval);
             }
 
+            // Bind live pagination link interception
+            const paginationContainer = document.getElementById('logsPaginationLinks');
+            if (paginationContainer) {
+                paginationContainer.addEventListener('click', function(e) {
+                    const link = e.target.closest('a');
+                    if (link && link.href) {
+                        e.preventDefault();
+                        try {
+                            const parsedUrl = new URL(link.href);
+                            const page = parsedUrl.searchParams.get('page') || 1;
+                            fetchLiveLogs(page);
+                        } catch (err) {
+                            window.location.href = link.href;
+                        }
+                    }
+                });
+            }
+
         });
+
+        // Live Filters Engine
+        let liveFilterDebounceTimer = null;
+        let currentLiveAbortController = null;
+
+        function debounceLiveFilter() {
+            clearTimeout(liveFilterDebounceTimer);
+            const spinner = document.getElementById('liveFilterSpinner');
+            if (spinner) spinner.classList.remove('hidden');
+            liveFilterDebounceTimer = setTimeout(() => {
+                fetchLiveLogs(1);
+            }, 260);
+        }
+
+        async function fetchLiveLogs(page = 1) {
+            const searchInput = document.getElementById('table-search');
+            const deptSelect = document.getElementById('filterDepartment');
+            const modSelect = document.getElementById('filterModule');
+            const sevSelect = document.getElementById('filterSeverity');
+            const headerDeptSelect = document.getElementById('header-department-select');
+            const spinner = document.getElementById('liveFilterSpinner');
+            const tableBody = document.getElementById('logsTableBody');
+            const paginationLinks = document.getElementById('logsPaginationLinks');
+            const paginationSummary = document.getElementById('logsPaginationSummary');
+            const exportBtn = document.getElementById('exportCsvBtn');
+
+            if (spinner) spinner.classList.remove('hidden');
+            if (tableBody) tableBody.style.opacity = '0.45';
+
+            // Abort previous in-flight request if still running
+            if (currentLiveAbortController) {
+                currentLiveAbortController.abort();
+            }
+            currentLiveAbortController = new AbortController();
+
+            const search = searchInput ? searchInput.value.trim() : '';
+            let dept = deptSelect ? deptSelect.value : 'all';
+            const mod = modSelect ? modSelect.value : 'all';
+            const sev = sevSelect ? sevSelect.value : 'all';
+
+            // If header department selector is used and table dept is 'all', sync them
+            if (dept === 'all' && headerDeptSelect && headerDeptSelect.value !== 'all') {
+                dept = headerDeptSelect.value;
+            }
+
+            const params = new URLSearchParams();
+            if (search) params.set('search', search);
+            if (dept && dept !== 'all') params.set('department', dept);
+            if (mod && mod !== 'all') params.set('module', mod);
+            if (sev && sev !== 'all') params.set('severity', sev);
+            if (page && page > 1) params.set('page', page);
+
+            // Fetch live data via AJAX
+            const requestParams = new URLSearchParams(params);
+            requestParams.set('live', '1');
+
+            try {
+                const response = await fetch(`{{ route('activity_logs.index') }}?${requestParams.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-Live-Filter': '1',
+                        'Accept': 'application/json'
+                    },
+                    signal: currentLiveAbortController.signal
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Update table rows
+                    if (tableBody) {
+                        tableBody.innerHTML = data.table_html;
+                    }
+
+                    // Update pagination controls
+                    if (paginationLinks) {
+                        paginationLinks.innerHTML = data.pagination_html || '';
+                    }
+
+                    // Update pagination summary counter
+                    if (paginationSummary) {
+                        paginationSummary.innerText = `Showing ${data.first_item} to ${data.last_item} of ${data.total} individual log reports (10 per page)`;
+                    }
+
+                    // Sync Export CSV link URL
+                    if (exportBtn) {
+                        exportBtn.href = `{{ route('activity_logs.export') }}?${params.toString()}`;
+                    }
+
+                    // Update browser history URL without page reload
+                    const cleanUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+                    window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('Live filter fetch failed:', err);
+                }
+            } finally {
+                if (spinner) spinner.classList.add('hidden');
+                if (tableBody) tableBody.style.opacity = '1';
+            }
+        }
+
+        function clearLiveFilters() {
+            const searchInput = document.getElementById('table-search');
+            const deptSelect = document.getElementById('filterDepartment');
+            const modSelect = document.getElementById('filterModule');
+            const sevSelect = document.getElementById('filterSeverity');
+
+            if (searchInput) searchInput.value = '';
+            if (deptSelect) deptSelect.value = 'all';
+            if (modSelect) modSelect.value = 'all';
+            if (sevSelect) sevSelect.value = 'all';
+
+            fetchLiveLogs(1);
+        }
 
         // Department filter redirection
         function filterByDepartment(deptCode) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('department', deptCode);
-            url.searchParams.set('page', 1);
-            window.location.href = url.toString();
+            const deptSelect = document.getElementById('filterDepartment');
+            if (deptSelect) {
+                deptSelect.value = deptCode;
+            }
+            fetchLiveLogs(1);
         }
 
         // Time Range filter redirection
@@ -863,7 +870,7 @@
             }, 1000);
 
             autoRefreshTimer = setInterval(() => {
-                window.location.reload();
+                fetchLiveLogs();
             }, seconds * 1000);
         }
 

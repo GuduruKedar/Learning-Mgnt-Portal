@@ -19,33 +19,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0">
-                    @if(Auth::user()->photo)
-                        <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-indigo-200" src="{{ asset('storage/' . Auth::user()->photo) }}" alt="">
-                    @else
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shadow-sm">
-                            {{ substr(Auth::user()->first_name ?? 'A', 0, 1) }}
-                        </div>
-                    @endif
-                    <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->first_name ?? 'Admin' }}</span>
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Edit Profile</a>
-                        <button type="button" id="openPasswordModalBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Change Password</button>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
@@ -195,11 +170,37 @@
                                                     data-status="{{ $reg->status }}">
                                                     Edit
                                                 </button>
-                                                <form action="{{ route('academic.regulations.destroy', $reg->id) }}" method="POST" onsubmit="return confirm('Delete this regulation?');" class="inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                                </form>
+                                                @php
+                                                    $regCoursesCount = $reg->courses_count ?? $reg->courses()->count();
+                                                    $regDelUrl = route('academic.regulations.destroy', $reg->id);
+                                                    $regCode = addslashes($reg->code);
+                                                    $regCurriculum = !empty($reg->curriculum) ? $reg->curriculum : (!empty($reg->name) && $reg->name !== $reg->code ? $reg->name : '');
+                                                    $regDisplayName = !empty($regCurriculum) ? $regCode . ' - ' . $regCurriculum : $regCode;
+                                                    $regProg = addslashes($reg->program_type ?? 'Academic Regulation');
+                                                @endphp
+                                                <button type="button" 
+                                                    onclick="openUniversalDeleteModal({
+                                                        title: 'Delete Regulation & Linked Courses',
+                                                        subtitle: 'Confirm permanent cascade deletion',
+                                                        itemName: '{{ addslashes($regDisplayName) }}',
+                                                        itemCode: 'Regulation: {{ $regCode }}',
+                                                        itemBadge: '{{ $regProg }}',
+                                                        itemMeta: 'Status: {{ $reg->status }} • Year: {{ $reg->year_effective ?? 'Active' }}',
+                                                        cascadeItems: [
+                                                            { title: 'Associated Courses', count: '{{ $regCoursesCount }} ' + ('{{ $regCoursesCount }}' == '1' ? 'Course' : 'Courses'), icon: 'book' },
+                                                            { title: 'Faculty Allocations', count: 'All Teaching Links', icon: 'staff' },
+                                                            { title: 'Course Materials', count: 'Notes & Files', icon: 'file' },
+                                                            { title: 'Assignments', count: 'All Tests & Questions', icon: 'quiz' }
+                                                        ],
+                                                        warningTitle: 'Are you sure you want to delete regulation {{ $regCode }}?',
+                                                        warningBody: 'This action will permanently delete regulation {{ addslashes($regDisplayName) }} and automatically cascade-remove all {{ $regCoursesCount }} associated courses, student enrollments, faculty allocations, and learning materials.',
+                                                        deleteUrl: '{{ $regDelUrl }}',
+                                                        submitBtnText: 'Yes, Delete Regulation & All Linked Data'
+                                                    })"
+                                                    class="text-red-600 hover:text-red-900 cursor-pointer font-medium"
+                                                    title="Delete Regulation & Cascade All Linked Data">
+                                                    Delete
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -543,6 +544,61 @@
                 }
             });
         });
+    </script>
+    <!-- Protected Regulation Modal -->
+    <div id="protectedRegulationModal" class="fixed inset-0 z-[120] hidden flex items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-amber-200">
+            <div class="px-6 py-4.5 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-xs border border-amber-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Protected Regulation</h3>
+                        <p class="text-xs text-amber-700 font-semibold">Active Courses Assigned</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeProtectedRegulationModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-white/60 transition-colors focus:outline-none cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Regulation <span id="protectedRegCodeBadge" class="font-mono text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100"></span> cannot be deleted because it still contains <strong id="protectedRegCourseCount" class="text-slate-900">0</strong> course(s).
+                </p>
+                <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 space-y-1">
+                    <p class="font-bold flex items-center gap-1.5 text-amber-900">
+                        <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Required Action:</span>
+                    </p>
+                    <p class="text-amber-700 leading-relaxed">
+                        Please delete or reassign all courses under this regulation first before deleting it.
+                    </p>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+                <button type="button" onclick="closeProtectedRegulationModal()" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer">
+                    Close
+                </button>
+                <a id="protectedRegManageBtn" href="#" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1.5 cursor-pointer">
+                    <span>Manage Courses</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openProtectedRegulationModal(code, courseCount, manageCoursesUrl) {
+            document.getElementById('protectedRegCodeBadge').innerText = code;
+            document.getElementById('protectedRegCourseCount').innerText = `${courseCount}`;
+            document.getElementById('protectedRegManageBtn').href = manageCoursesUrl;
+            document.getElementById('protectedRegulationModal').classList.remove('hidden');
+        }
+
+        function closeProtectedRegulationModal() {
+            document.getElementById('protectedRegulationModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>

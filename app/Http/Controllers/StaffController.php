@@ -51,7 +51,7 @@ class StaffController extends Controller
             });
         }
 
-        $staffMembers = $query->paginate(10)->withQueryString();
+        $staffMembers = $query->withCount(['courses', 'assignments', 'courseMaterials'])->paginate(10)->withQueryString();
         $schools = School::all();
         $departments = Department::all();
 
@@ -92,8 +92,16 @@ class StaffController extends Controller
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
-            'username' => ['required', 'regex:/^\d{5}$/', 'unique:users'],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email'],
+            'username' => ['required', 'regex:/^\d{5}$/', 'unique:users,username', 'unique:profiles,username'],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email'
+            ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => Auth::user()->role === 'sa' ? 'required|exists:schools,id' : 'nullable',
@@ -103,7 +111,11 @@ class StaffController extends Controller
             ],
             'photo' => 'nullable|image|mimes:webp|max:2048',
         ], [
-
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
+            'username.regex' => 'The Employee ID / Username must be exactly 5 digits (e.g. 10001). Only 5 digits are accepted.',
+            'username.required' => 'The Employee ID / Username is required.',
+            'username.unique' => 'This Employee ID / Username is already registered.',
         ]);
 
         if (Auth::user()->role === 'admin') {
@@ -181,8 +193,16 @@ class StaffController extends Controller
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
-            'username' => ['required', 'regex:/^\d{5}$/', 'unique:users,username,'.$staff->id],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email,'.$staff->profile_id],
+            'username' => ['required', 'regex:/^\d{5}$/', 'unique:users,username,'.$staff->id, 'unique:profiles,username,'.$staff->profile_id],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email,'.$staff->profile_id
+            ],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => Auth::user()->role === 'sa' ? 'required|exists:schools,id' : 'nullable',
             'department_id' => [
@@ -192,7 +212,11 @@ class StaffController extends Controller
             'photo' => 'nullable|image|mimes:webp|max:2048',
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
         ], [
-
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
+            'username.regex' => 'The Employee ID / Username must be exactly 5 digits (e.g. 10001). Only 5 digits are accepted.',
+            'username.required' => 'The Employee ID / Username is required.',
+            'username.unique' => 'This Employee ID / Username is already registered.',
         ]);
 
         if (Auth::user()->role === 'admin') {
@@ -245,24 +269,92 @@ class StaffController extends Controller
     {
         $user = Auth::user();
         $role = $user->role ?? null;
-        $staff = User::role('sta')->findOrFail($id);
+        $staff = User::role('sta')->with(['profile', 'courses', 'assignments.questions', 'assignments.submissions.answers', 'courseMaterials'])->findOrFail($id);
 
-        if ($role === 'sa') {
-            // Super Admins can delete
-        } else {
+        if ($role !== 'sa') {
             abort(403, 'Unauthorized. Only Super Admins can delete staff members.');
         }
-        
-        if ($staff->profile->photo) {
-            Storage::disk('public')->delete($staff->profile->photo);
-        }
-        
-        $profile = $staff->profile;
-        $staff->delete();
-        if ($profile) {
-            $profile->delete();
-        }
 
-        return redirect()->route('staff.index')->with('success', 'Staff member deleted successfully.');
+        \Illuminate\Support\Facades\DB::transaction(function () use ($staff, $id) {
+            $username = $staff->username;
+            $fullName = $staff->full_name;
+            $deptId = $staff->profile?->departments_id;
+            $schoolId = $staff->profile?->schools_id;
+
+            $materialsCount = $staff->courseMaterials->count();
+            $assignmentsCount = $staff->assignments->count();
+            $submissionsCount = $staff->assignments->sum(fn($a) => $a->submissions->count());
+            $coursesCount = $staff->courses->count();
+
+            // 1. Delete all Course Materials created by this faculty
+            foreach ($staff->courseMaterials as $material) {
+                if ($material->url_or_path && Storage::disk('public')->exists($material->url_or_path)) {
+                    Storage::disk('public')->delete($material->url_or_path);
+                }
+                $material->delete();
+            }
+
+            // 2. Delete all Assignments created by this faculty, along with questions, submissions, answers and files
+            foreach ($staff->assignments as $assignment) {
+                if ($assignment->attachment_path && Storage::disk('public')->exists($assignment->attachment_path)) {
+                    Storage::disk('public')->delete($assignment->attachment_path);
+                }
+                
+                foreach ($assignment->submissions as $submission) {
+                    if ($submission->file_path && Storage::disk('public')->exists($submission->file_path)) {
+                        Storage::disk('public')->delete($submission->file_path);
+                    }
+                    $submission->answers()->delete();
+                    $submission->delete();
+                }
+
+                $assignment->questions()->delete();
+                $assignment->delete();
+            }
+
+            // 3. Detach all teaching allocations / assigned courses
+            $staff->courses()->detach();
+
+            // 4. Remove Civil Service enrollments if any
+            if ($staff->civilServiceEnrollment) {
+                $staff->civilServiceEnrollment->delete();
+            }
+
+            // 5. Delete profile photo from storage & profile record
+            $profile = $staff->profile;
+            if ($profile) {
+                if ($profile->photo && Storage::disk('public')->exists($profile->photo)) {
+                    Storage::disk('public')->delete($profile->photo);
+                }
+                $profile->delete();
+            }
+
+            // 6. Delete user record
+            $staff->delete();
+
+            \App\Services\ActivityLogger::log(
+                'cascade_staff_deleted',
+                'Faculty Member & Cascading Data Deleted',
+                'Staff',
+                "Permanently deleted faculty member {$fullName} ({$username}) and cascaded: unallocated {$coursesCount} course(s), removed {$materialsCount} learning material(s), and deleted {$assignmentsCount} assignment(s) with {$submissionsCount} student submission(s).",
+                'danger',
+                [
+                    'department_id' => $deptId,
+                    'school_id' => $schoolId,
+                    'entity_type' => 'User',
+                    'entity_id' => $id,
+                    'entity_name' => $fullName,
+                    'payload' => [
+                        'username' => $username,
+                        'courses_unallocated' => $coursesCount,
+                        'materials_deleted' => $materialsCount,
+                        'assignments_deleted' => $assignmentsCount,
+                        'submissions_deleted' => $submissionsCount,
+                    ]
+                ]
+            );
+        });
+
+        return redirect()->route('staff.index')->with('success', 'Faculty member and all associated courses, materials, and assignments have been permanently removed.');
     }
 }

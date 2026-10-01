@@ -16,26 +16,8 @@
 
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('ssh.dashboard') }}" class="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                </a>
-                <h1 class="text-base sm:text-lg font-bold text-slate-800">1st Year Foundational Courses (Sem 1 & Sem 2)</h1>
-            </div>
-            <div class="flex items-center gap-2.5">
-                <a href="{{ route('ssh.courses.allocations') }}" class="inline-flex items-center px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs shadow-sm transition-all">
-                    <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    Faculty Allocations
-                </a>
-                <a href="{{ route('ssh.courses.create') }}" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-md transition-all">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Add Foundational Course
-                </a>
-                <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Body -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
@@ -212,13 +194,25 @@
                                             <a href="{{ route('ssh.courses.edit', $course->id) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50/90 text-indigo-600 border border-indigo-200/70 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Course">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                             </a>
-                                            <form method="POST" action="{{ route('ssh.courses.destroy', $course->id) }}" onsubmit="return confirm('Delete course {{ $course->code }}?')" class="inline m-0 p-0">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Delete Course">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                </button>
-                                            </form>
+                                            @php
+                                                $cCode = addslashes($course->code);
+                                                $cName = addslashes($course->name);
+                                                $cDept = addslashes($course->department->name ?? $course->department_id);
+                                                $cReg = addslashes(($course->regulation->code ?? 'N/A') . (!empty($course->regulation->curriculum) ? ' - ' . $course->regulation->curriculum : ''));
+                                                $cYear = $course->year ?? 1;
+                                                $cSem = $course->semester ?? 1;
+                                                $cStaffCount = $course->staff_count ?? $course->staff->count();
+                                                $cEnrollCount = $course->enrollments_count ?? 0;
+                                                $cMatCount = $course->materials_count ?? 0;
+                                                $cAssignCount = $course->assignments_count ?? 0;
+                                                $cDelUrl = route('ssh.courses.destroy', $course->id);
+                                            @endphp
+                                            <button type="button" 
+                                                onclick="openDeleteCourseModal('{{ $cCode }}', '{{ $cName }}', '{{ $cDept }}', '{{ $cReg }}', '{{ $cYear }}', '{{ $cSem }}', {{ $cStaffCount }}, {{ $cEnrollCount }}, {{ $cMatCount }}, {{ $cAssignCount }}, '{{ $cDelUrl }}')"
+                                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 cursor-pointer" 
+                                                title="Delete Course & All Linked Records">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -244,5 +238,142 @@
         </main>
     </div>
 
+    <!-- Cascade Delete Course Confirmation Modal -->
+    <div id="deleteCourseModal" class="fixed inset-0 z-[120] hidden flex items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all border border-slate-200">
+            <!-- Modal Header -->
+            <div class="px-6 py-4.5 bg-gradient-to-r from-rose-50 to-orange-50 border-b border-rose-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 shadow-xs border border-rose-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Delete 1st Year Course</h3>
+                        <p class="text-xs text-slate-500">Confirm permanent cascade deletion</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeDeleteCourseModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-white/60 transition-colors focus:outline-none cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-5">
+                <!-- Course Target Preview -->
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span id="delModalCourseCode" class="font-mono text-sm font-bold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-md border border-indigo-100"></span>
+                        <span id="delModalDeptBadge" class="text-xs font-semibold text-slate-600 bg-white px-2.5 py-0.5 rounded-md border border-slate-200"></span>
+                    </div>
+                    <h4 id="delModalCourseName" class="text-base font-bold text-slate-900"></h4>
+                    <p id="delModalMeta" class="text-xs text-slate-500 font-medium"></p>
+                </div>
+
+                <!-- Linked Child Nodes Section -->
+                <div>
+                    <h5 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Linked Records That Will Be Cleaned Up:</span>
+                    </h5>
+                    
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <!-- Faculty Allocations -->
+                        <div class="p-3 rounded-xl bg-indigo-50/70 border border-indigo-100 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                            <div>
+                                <div id="delModalStaffCount" class="text-sm font-bold text-indigo-900">0 Faculty</div>
+                                <div class="text-[11px] text-indigo-600 font-medium">Assigned Faculty</div>
+                            </div>
+                        </div>
+
+                        <!-- Enrolled Students -->
+                        <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-100 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                            </div>
+                            <div>
+                                <div id="delModalEnrollmentCount" class="text-sm font-bold text-amber-900">0 Students</div>
+                                <div class="text-[11px] text-amber-600 font-medium">Enrolled Students</div>
+                            </div>
+                        </div>
+
+                        <!-- Course Materials -->
+                        <div class="p-3 rounded-xl bg-blue-50/70 border border-blue-100 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <div>
+                                <div id="delModalMaterialsCount" class="text-sm font-bold text-blue-900">0 Materials</div>
+                                <div class="text-[11px] text-blue-600 font-medium">Files & Notes</div>
+                            </div>
+                        </div>
+
+                        <!-- Assignments & Tasks -->
+                        <div class="p-3 rounded-xl bg-purple-50/70 border border-purple-100 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            </div>
+                            <div>
+                                <div id="delModalAssignmentsCount" class="text-sm font-bold text-purple-900">0 Assignments</div>
+                                <div class="text-[11px] text-purple-600 font-medium">Tasks & Submissions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning Callout -->
+                <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 space-y-1">
+                    <p class="font-bold flex items-center gap-1.5 text-rose-900">
+                        <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <span>Are you sure you want to delete this course?</span>
+                    </p>
+                    <p class="text-rose-700 leading-relaxed">
+                        This action will permanently delete this 1st year foundational course and automatically clean up all associated faculty allocations, student enrollments, learning materials, and assignment submissions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+                <button type="button" onclick="closeDeleteCourseModal()" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer">
+                    Cancel / Keep Course
+                </button>
+                <form id="deleteCourseForm" method="POST" action="" class="inline m-0 p-0">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md shadow-rose-600/20 transition-all flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <span>Yes, Delete Course & All Linked Data</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDeleteCourseModal(code, name, dept, reg, year, sem, staffCount, enrollmentsCount, materialsCount, assignmentsCount, deleteUrl) {
+            document.getElementById('delModalCourseCode').innerText = code;
+            document.getElementById('delModalCourseName').innerText = name;
+            document.getElementById('delModalDeptBadge').innerText = dept;
+            document.getElementById('delModalMeta').innerText = `${reg} • Year ${year}, Semester ${sem}`;
+            
+            document.getElementById('delModalStaffCount').innerText = `${staffCount} Faculty`;
+            document.getElementById('delModalEnrollmentCount').innerText = `${enrollmentsCount} Students`;
+            document.getElementById('delModalMaterialsCount').innerText = `${materialsCount} Materials`;
+            document.getElementById('delModalAssignmentsCount').innerText = `${assignmentsCount} Assignments`;
+            
+            document.getElementById('deleteCourseForm').action = deleteUrl;
+            
+            const modal = document.getElementById('deleteCourseModal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeDeleteCourseModal() {
+            const modal = document.getElementById('deleteCourseModal');
+            modal.classList.add('hidden');
+        }
+    </script>
 </body>
 </html>

@@ -5,8 +5,9 @@ namespace App\Exports;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class StudentTemplateSheet implements FromArray, WithHeadings, WithTitle
+class StudentTemplateSheet implements FromArray, WithHeadings, WithTitle, ShouldAutoSize
 {
     protected $coordSchoolName;
     protected $coordDeptName;
@@ -23,6 +24,7 @@ class StudentTemplateSheet implements FromArray, WithHeadings, WithTitle
             'school',
             'department',
             'level',
+            'program',
             'register_number',
             'firstname',
             'middlename',
@@ -36,14 +38,15 @@ class StudentTemplateSheet implements FromArray, WithHeadings, WithTitle
 
     public function array(): array
     {
-        $school1 = $this->coordSchoolName ?? 'School of Computing';
+        $school1 = $this->coordSchoolName ?? 'School of Computing & Informatics';
         $dept1 = $this->coordDeptName ?? 'Information Technology';
-        
+        $level1 = 'UG';
+        $program1 = 'B.Tech in Information Technology';
+
         $school2 = $this->coordSchoolName ?? 'School of Core Engineering';
-        $dept2 = $this->coordDeptName ?? 'Mechanical';
-        
-        $level1 = 'B.Tech'; // Maps to UG
-        $level2 = 'Diploma'; // Maps to Diploma
+        $dept2 = $this->coordDeptName ?? 'Mechanical Engineering';
+        $level2 = 'UG';
+        $program2 = 'B.Tech in Mechanical Engineering';
 
         if ($this->coordDeptName) {
             $school2 = $this->coordSchoolName;
@@ -53,12 +56,14 @@ class StudentTemplateSheet implements FromArray, WithHeadings, WithTitle
             if ($dept) {
                 $programs = \App\Models\Program::where('department_id', $dept->id)->take(2)->get();
                 if ($programs->count() > 0) {
-                    // Try to show appropriate levels based on the department's actual programs
-                    $level1 = $programs[0]->level === 'UG' ? 'B.Tech' : $programs[0]->level;
+                    $level1 = $programs[0]->level;
+                    $program1 = $programs[0]->name;
                     if ($programs->count() > 1) {
-                        $level2 = $programs[1]->level === 'UG' ? 'B.Tech' : $programs[1]->level;
+                        $level2 = $programs[1]->level;
+                        $program2 = $programs[1]->name;
                     } else {
                         $level2 = $level1;
+                        $program2 = $program1;
                     }
                 }
             }
@@ -69,6 +74,7 @@ class StudentTemplateSheet implements FromArray, WithHeadings, WithTitle
                 $school1,
                 $dept1,
                 $level1,
+                $program1,
                 '241FA07001',
                 'John',
                 '',
@@ -76,20 +82,21 @@ class StudentTemplateSheet implements FromArray, WithHeadings, WithTitle
                 '',
                 'john.doe@vignan.ac.in',
                 '9876543210',
-                ''
+                'Student#963'
             ],
             [
                 $school2,
                 $dept2,
                 $level2,
-                '241FE08002',
+                $program2,
+                '241FA08002',
                 'Jane',
                 'A',
                 'Smith',
                 '',
                 'jane.smith@vignan.ac.in',
                 '9876543211',
-                'MySecretPass123'
+                'Student#963'
             ]
         ];
     }

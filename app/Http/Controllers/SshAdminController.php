@@ -231,7 +231,15 @@ class SshAdminController extends Controller
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'username' => ['required', 'string', 'size:10', 'regex:/^\d{2}[a-zA-Z0-9]{2}[a-zA-Z0-9]{1,2}\d+$/', 'unique:users,username'],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email'],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email'
+            ],
             'password' => ['nullable', 'string', 'min:6'],
             'phone_number' => ['nullable', 'numeric', 'digits:10'],
             'school_id' => ['required', 'exists:schools,id'],
@@ -247,6 +255,8 @@ class SshAdminController extends Controller
             'section' => ['nullable', 'string', 'max:50'],
             'photo' => ['nullable', 'image', 'mimes:webp,jpeg,png,jpg', 'max:2048'],
         ], [
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
             'username.size' => 'The Register Number must be exactly 10 characters.',
             'username.regex' => 'The Register Number format is invalid (e.g. 261FA04001).',
             'school_id.required' => 'Please select the parent School.',
@@ -277,6 +287,7 @@ class SshAdminController extends Controller
             'departments_id' => $deptCode,
             'level' => $validated['level'] ?? 'UG',
             'programs_id' => $programCode,
+            'section' => !empty($validated['section']) ? strtoupper(trim($validated['section'])) : null,
             'academic_year' => 1,
             'semester' => 1,
             'designation' => 'First Year Student',
@@ -342,6 +353,7 @@ class SshAdminController extends Controller
             ],
             'level' => ['nullable', 'string', 'in:UG,PG,Diploma,PhD'],
             'program_id' => ['nullable', 'exists:programs,id'],
+            'section' => ['nullable', 'string', 'max:50'],
             'photo' => ['nullable', 'image', 'mimes:webp,jpeg,png,jpg', 'max:2048'],
             'password' => ['nullable', 'string', 'min:6'],
         ]);
@@ -362,6 +374,7 @@ class SshAdminController extends Controller
             'departments_id' => $deptCode,
             'level' => $validated['level'] ?? 'UG',
             'programs_id' => $programCode,
+            'section' => !empty($validated['section']) ? strtoupper(trim($validated['section'])) : null,
         ];
 
         if ($request->hasFile('photo')) {
@@ -386,28 +399,71 @@ class SshAdminController extends Controller
      */
     public function destroyStudent($id)
     {
-        $student = User::role('stu')->findOrFail($id);
+        $student = User::role('stu')->with(['profile', 'enrolledCourses', 'civilServiceEnrollment'])->findOrFail($id);
         $username = $student->username;
-        $profile = $student->profile;
+        $fullName = trim(($student->profile->first_name ?? '') . ' ' . ($student->profile->last_name ?? ''));
 
-        if ($profile && $profile->photo) {
-            Storage::disk('public')->delete($profile->photo);
-        }
+        $submissionsCount = \App\Models\AssignmentSubmission::where('student_id', $student->id)->count();
+        $submissionIds = \App\Models\AssignmentSubmission::where('student_id', $student->id)->pluck('id');
+        $answersCount = \App\Models\AssignmentAnswer::whereIn('submission_id', $submissionIds)->count();
+        $enrollmentsCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->count();
+        $civilEnrollmentCount = \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->count();
+        $deptId = $student->profile->departments_id ?? 'ssh';
 
-        $student->delete();
-        if ($profile) {
-            $profile->delete();
-        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($student) {
+            // 1. Delete student assignment submissions and answers
+            $submissions = \App\Models\AssignmentSubmission::where('student_id', $student->id)->get();
+            foreach ($submissions as $sub) {
+                if ($sub->file_path && Storage::disk('public')->exists($sub->file_path)) {
+                    Storage::disk('public')->delete($sub->file_path);
+                }
+                \App\Models\AssignmentAnswer::where('submission_id', $sub->id)->delete();
+                $sub->delete();
+            }
+
+            // 2. Detach / delete enrollments
+            \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->delete();
+
+            // 3. Remove civil service enrollment
+            \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->delete();
+
+            // 4. Delete profile photo & record
+            $profile = $student->profile;
+            if ($profile) {
+                if ($profile->photo && Storage::disk('public')->exists($profile->photo)) {
+                    Storage::disk('public')->delete($profile->photo);
+                }
+                $profile->delete();
+            }
+
+            // 5. Delete student user record
+            $student->delete();
+        });
 
         \App\Services\ActivityLogger::log(
-            'ssh_student_deleted',
-            'First Year Student Deleted',
+            'cascade_ssh_student_deleted',
+            '1st Year Student & Cascading Records Deleted',
             'Students',
-            'SSH Directorate removed student account (' . $username . ').',
-            'warning'
+            "SSH Directorate permanently deleted 1st Year student {$fullName} ({$username}). Cascaded removals: {$submissionsCount} assignment submission(s), {$answersCount} question response(s), {$enrollmentsCount} course enrollment(s), and {$civilEnrollmentCount} civil service enrollment(s).",
+            'danger',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'User',
+                'entity_id'     => $id,
+                'entity_name'   => "{$fullName} ({$username})",
+                'payload'       => [
+                    'student_username'       => $username,
+                    'student_name'           => $fullName,
+                    'department'             => $deptId,
+                    'submissions_deleted'    => $submissionsCount,
+                    'answers_deleted'        => $answersCount,
+                    'enrollments_removed'    => $enrollmentsCount,
+                    'civil_services_removed' => $civilEnrollmentCount,
+                ]
+            ]
         );
 
-        return redirect()->route('ssh.students.index')->with('success', "Student {$username} deleted successfully.");
+        return redirect()->route('ssh.students.index')->with('success', "Student {$username} and all cascading data deleted successfully.");
     }
 
     /**
@@ -463,7 +519,7 @@ class SshAdminController extends Controller
     {
         $query = Course::where('year', 1)
             ->with(['regulation', 'department', 'staff.profile.department', 'staff.profile.school'])
-            ->withCount(['materials', 'assignments', 'enrollments']);
+            ->withCount(['staff', 'materials', 'assignments', 'enrollments']);
 
         if ($request->filled('semester')) {
             $query->where('semester', $request->semester);
@@ -502,8 +558,9 @@ class SshAdminController extends Controller
     {
         $regulations = Regulation::where('status', 'Active')->get();
         $departments = Department::all();
+        $existingCourseCodes = Course::pluck('code')->map(fn($c) => strtoupper(trim($c)))->unique()->values();
 
-        return view('ssh.courses.create', compact('regulations', 'departments'));
+        return view('ssh.courses.create', compact('regulations', 'departments', 'existingCourseCodes'));
     }
 
     /**
@@ -514,17 +571,24 @@ class SshAdminController extends Controller
         $request->validate([
             'regulation_id' => 'required|exists:regulations,id',
             'department_id' => 'required|exists:departments,code',
-            'code' => 'required|string|max:255|unique:courses,code',
+            'code' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'semester' => 'required|integer|in:1,2',
         ]);
+
+        $courseCode = strtoupper(trim($request->code));
+        if (Course::whereRaw('UPPER(TRIM(code)) = ?', [$courseCode])->exists()) {
+            return back()->withInput()->withErrors([
+                'code' => "Course code '{$courseCode}' already exists in the system.",
+            ]);
+        }
 
         $course = Course::create([
             'regulation_id' => $request->regulation_id,
             'department_id' => $request->department_id,
             'year' => 1,
             'semester' => $request->semester,
-            'code' => strtoupper(trim($request->code)),
+            'code' => $courseCode,
             'name' => trim($request->name),
         ]);
 
@@ -545,11 +609,76 @@ class SshAdminController extends Controller
      */
     public function destroyCourse($id)
     {
-        $course = Course::where('year', 1)->findOrFail($id);
-        $courseCode = $course->code;
-        $course->delete();
+        $course = Course::with(['staff', 'materials', 'assignments.submissions', 'assignments.questions'])
+            ->where('year', 1)
+            ->findOrFail($id);
 
-        return redirect()->route('ssh.courses.index')->with('success', "Course {$courseCode} deleted.");
+        $courseName = $course->name;
+        $courseCode = $course->code;
+        $deptId = $course->department_id;
+
+        $staffCount = $course->staff()->count();
+        $enrollmentCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
+        $materialsCount = $course->materials()->count();
+        $assignmentsCount = $course->assignments()->count();
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($course) {
+            foreach ($course->materials as $material) {
+                if ($material->type === 'file' && !empty($material->url_or_path)) {
+                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($material->url_or_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($material->url_or_path);
+                    }
+                }
+                $material->delete();
+            }
+
+            foreach ($course->assignments as $assignment) {
+                if (!empty($assignment->attachment_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($assignment->attachment_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($assignment->attachment_path);
+                }
+
+                foreach ($assignment->submissions as $submission) {
+                    if (!empty($submission->file_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($submission->file_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($submission->file_path);
+                    }
+                    \App\Models\AssignmentAnswer::where('submission_id', $submission->id)->delete();
+                    $submission->delete();
+                }
+
+                $assignment->questions()->delete();
+                $assignment->delete();
+            }
+
+            \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+            $course->staff()->detach();
+            $course->delete();
+        });
+
+        // 6. Log activity
+        \App\Services\ActivityLogger::log(
+            'cascade_ssh_course_deleted',
+            '1st Year Course & Linked Data Deleted',
+            'Academics',
+            "SSH Directorate permanently deleted course {$courseName} ({$courseCode}). Cascaded removals: {$materialsCount} material(s), {$assignmentsCount} assignment(s), {$enrollmentCount} student enrollment(s), and {$staffCount} faculty allocation(s) detached.",
+            'danger',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'Course',
+                'entity_id'     => $id,
+                'entity_name'   => "{$courseCode} - {$courseName}",
+                'payload'       => [
+                    'course_code'          => $courseCode,
+                    'course_name'          => $courseName,
+                    'department'           => $deptId,
+                    'staff_detached'       => $staffCount,
+                    'enrollments_removed'  => $enrollmentCount,
+                    'materials_deleted'    => $materialsCount,
+                    'assignments_deleted'  => $assignmentsCount,
+                ]
+            ]
+        );
+
+        return redirect()->route('ssh.courses.index')->with('success', "Course '{$courseCode} - {$courseName}' and all linked records ({$staffCount} faculty, {$enrollmentCount} students, {$materialsCount} materials, {$assignmentsCount} assignments) deleted successfully.");
     }
 
     /**
@@ -687,7 +816,7 @@ class SshAdminController extends Controller
             });
         }
 
-        $staff = $query->latest('id')->paginate(10)->withQueryString();
+        $staff = $query->withCount(['courses', 'assignments', 'courseMaterials'])->latest('id')->paginate(10)->withQueryString();
         $departments = $this->getShDepartments();
 
         return view('ssh.staff.index', compact('staff', 'departments'));
@@ -712,13 +841,23 @@ class SshAdminController extends Controller
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'username' => ['required', 'string', 'regex:/^[a-zA-Z0-9]{4,10}$/', 'unique:users,username'],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email'],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email'
+            ],
             'password' => ['nullable', 'string', 'min:6'],
             'phone_number' => ['nullable', 'numeric', 'digits:10'],
             'department_id' => ['required', 'exists:departments,id'],
             'designation' => ['required', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:webp,jpeg,png,jpg', 'max:2048'],
         ], [
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
             'username.regex' => 'The Faculty Employee Code must be 4 to 10 alphanumeric characters (e.g. 10008).',
             'department_id.required' => 'Please select the S&H Department.',
             'first_name.regex' => 'First name must contain only alphabetical letters.',
@@ -789,12 +928,23 @@ class SshAdminController extends Controller
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email,' . $staff->profile_id],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email,' . $staff->profile_id
+            ],
             'phone_number' => ['nullable', 'numeric', 'digits:10'],
             'department_id' => ['required', 'exists:departments,id'],
             'designation' => ['required', 'string', 'max:255'],
             'password' => ['nullable', 'string', 'min:6'],
             'photo' => ['nullable', 'image', 'mimes:webp,jpeg,png,jpg', 'max:2048'],
+        ], [
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
         ]);
 
         $deptCode = Department::where('id', $validated['department_id'])->value('code');
@@ -842,25 +992,90 @@ class SshAdminController extends Controller
      */
     public function destroyStaff($id)
     {
-        $staff = User::role('sta')->findOrFail($id);
+        $staff = User::role('sta')->with(['profile', 'courses', 'assignments.questions', 'assignments.submissions.answers', 'courseMaterials'])->findOrFail($id);
         $username = $staff->username;
+        $fullName = $staff->full_name;
+        $deptId = $staff->profile->departments_id ?? 'ssh';
 
-        // Detach allocations
-        $staff->courses()->detach();
-        if ($staff->profile) {
-            $staff->profile->delete();
+        $coursesCount = $staff->courses->count();
+        $materialsCount = $staff->courseMaterials->count();
+        $assignmentsCount = $staff->assignments->count();
+        $submissionsCount = 0;
+        $answersCount = 0;
+        foreach ($staff->assignments as $a) {
+            $submissionsCount += $a->submissions->count();
+            foreach ($a->submissions as $s) {
+                $answersCount += $s->answers->count();
+            }
         }
-        $staff->delete();
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($staff, $username, $fullName) {
+            // 1. Delete course materials
+            foreach ($staff->courseMaterials as $material) {
+                if ($material->url_or_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($material->url_or_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($material->url_or_path);
+                }
+                $material->delete();
+            }
+
+            // 2. Delete assignments and cascade
+            foreach ($staff->assignments as $assignment) {
+                if ($assignment->attachment_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($assignment->attachment_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($assignment->attachment_path);
+                }
+
+                foreach ($assignment->submissions as $submission) {
+                    if ($submission->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($submission->file_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($submission->file_path);
+                    }
+                    $submission->answers()->delete();
+                    $submission->delete();
+                }
+
+                $assignment->questions()->delete();
+                $assignment->delete();
+            }
+
+            // 3. Detach allocations
+            $staff->courses()->detach();
+
+            // 4. Delete profile & photo
+            $profile = $staff->profile;
+            if ($profile) {
+                if ($profile->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($profile->photo)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($profile->photo);
+                }
+                $profile->delete();
+            }
+
+            // 5. Delete staff user
+            $staff->delete();
+        });
 
         \App\Services\ActivityLogger::log(
-            'ssh_staff_deleted',
-            'S&H Faculty Removed',
+            'cascade_ssh_staff_deleted',
+            'S&H Faculty & Cascading Records Deleted',
             'Staff',
-            'SSH Department removed faculty member (' . $username . ').',
-            'warning'
+            "SSH Directorate permanently deleted faculty member {$fullName} ({$username}). Cascaded removals: unallocated from {$coursesCount} course(s), deleted {$materialsCount} material(s), and removed {$assignmentsCount} assignment(s) with {$submissionsCount} student submission(s).",
+            'danger',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'User',
+                'entity_id'     => $id,
+                'entity_name'   => "{$fullName} ({$username})",
+                'payload'       => [
+                    'staff_username'      => $username,
+                    'staff_name'          => $fullName,
+                    'courses_unallocated' => $coursesCount,
+                    'materials_deleted'   => $materialsCount,
+                    'assignments_deleted' => $assignmentsCount,
+                    'submissions_deleted' => $submissionsCount,
+                    'answers_deleted'     => $answersCount,
+                ]
+            ]
         );
 
-        return redirect()->route('ssh.staff.index')->with('success', "Faculty {$username} removed successfully.");
+        return redirect()->route('ssh.staff.index')->with('success', "Faculty {$username} and all cascading data removed successfully.");
     }
 
     /**
@@ -871,8 +1086,9 @@ class SshAdminController extends Controller
         $course = Course::findOrFail($id);
         $regulations = Regulation::where('status', 'Active')->get();
         $departments = Department::all();
+        $existingCourseCodes = Course::where('id', '!=', $course->id)->pluck('code')->map(fn($c) => strtoupper(trim($c)))->unique()->values();
 
-        return view('ssh.courses.edit', compact('course', 'regulations', 'departments'));
+        return view('ssh.courses.edit', compact('course', 'regulations', 'departments', 'existingCourseCodes'));
     }
 
     /**
@@ -884,7 +1100,7 @@ class SshAdminController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:courses,code,' . $course->id,
+            'code' => 'required|string|max:50',
             'credits' => 'required|numeric|min:0|max:10',
             'semester' => 'required|integer|in:1,2',
             'regulation_id' => 'required|exists:regulations,id',
@@ -892,9 +1108,16 @@ class SshAdminController extends Controller
             'type' => 'nullable|string|in:Theory,Practical,Integrated',
         ]);
 
+        $courseCode = strtoupper(trim($validated['code']));
+        if (Course::where('id', '!=', $course->id)->whereRaw('UPPER(TRIM(code)) = ?', [$courseCode])->exists()) {
+            return back()->withInput()->withErrors([
+                'code' => "Course code '{$courseCode}' already exists for another course.",
+            ]);
+        }
+
         $course->update([
             'name' => $validated['name'],
-            'code' => strtoupper($validated['code']),
+            'code' => $courseCode,
             'credits' => $validated['credits'],
             'semester' => $validated['semester'],
             'year' => 1,
@@ -967,14 +1190,34 @@ class SshAdminController extends Controller
      */
     public function destroyMaterial($id)
     {
-        $material = CourseMaterial::findOrFail($id);
+        $material = CourseMaterial::with('course')->findOrFail($id);
         $title = $material->title;
+        $courseCode = $material->course->code ?? 'General';
+        $deptId = $material->course->department_id ?? null;
 
         if ($material->type === 'file' && $material->url_or_path) {
             Storage::disk('public')->delete($material->url_or_path);
         }
 
         $material->delete();
+
+        \App\Services\ActivityLogger::log(
+            'ssh_material_deleted',
+            '1st Year Study Material Removed',
+            'Materials',
+            "SSH Directorate deleted study material \"{$title}\" from course {$courseCode}.",
+            'warning',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'CourseMaterial',
+                'entity_id'     => $id,
+                'entity_name'   => $title,
+                'payload'       => [
+                    'course_code' => $courseCode,
+                    'title'       => $title
+                ]
+            ]
+        );
 
         return back()->with('success', "Material \"{$title}\" removed successfully.");
     }
@@ -1038,16 +1281,51 @@ class SshAdminController extends Controller
      */
     public function destroyAssignment($id)
     {
-        $assignment = Assignment::findOrFail($id);
+        $assignment = Assignment::with(['course', 'submissions.answers', 'questions'])->findOrFail($id);
         $title = $assignment->title;
+        $courseCode = $assignment->course->code ?? 'General';
+        $deptId = $assignment->course->department_id ?? null;
+        $submissionsCount = $assignment->submissions->count();
+        $questionsCount = $assignment->questions->count();
 
-        if ($assignment->attachment_path) {
-            Storage::disk('public')->delete($assignment->attachment_path);
-        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($assignment) {
+            if ($assignment->attachment_path && Storage::disk('public')->exists($assignment->attachment_path)) {
+                Storage::disk('public')->delete($assignment->attachment_path);
+            }
 
-        $assignment->delete();
+            foreach ($assignment->submissions as $sub) {
+                if ($sub->file_path && Storage::disk('public')->exists($sub->file_path)) {
+                    Storage::disk('public')->delete($sub->file_path);
+                }
+                \Illuminate\Support\Facades\DB::table('assignment_answers')->where('submission_id', $sub->id)->delete();
+                $sub->delete();
+            }
 
-        return back()->with('success', "Assignment \"{$title}\" deleted.");
+            $assignment->questions()->delete();
+            $assignment->delete();
+        });
+
+        \App\Services\ActivityLogger::log(
+            'cascade_ssh_assignment_deleted',
+            '1st Year Assignment & Submissions Deleted',
+            'Assignments',
+            "SSH Directorate permanently deleted assignment \"{$title}\" for course {$courseCode}. Cascaded removals: {$submissionsCount} student submission(s) and {$questionsCount} question(s).",
+            'danger',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'Assignment',
+                'entity_id'     => $id,
+                'entity_name'   => $title,
+                'payload'       => [
+                    'course_code'         => $courseCode,
+                    'assignment_title'    => $title,
+                    'submissions_deleted' => $submissionsCount,
+                    'questions_deleted'   => $questionsCount,
+                ]
+            ]
+        );
+
+        return back()->with('success', "Assignment \"{$title}\" and all cascading records deleted.");
     }
 
     /**
@@ -1136,7 +1414,7 @@ class SshAdminController extends Controller
                         continue;
                     }
 
-                    if (User::where('username', $regNo)->exists()) {
+                    if (User::where('username', $regNo)->exists() || Profile::where('username', $regNo)->exists()) {
                         $errors[] = "Row {$rowNum}: Register Number {$regNo} already exists.";
                         continue;
                     }

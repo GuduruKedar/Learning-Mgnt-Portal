@@ -16,24 +16,8 @@
 
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('ssh.assignments.index') }}" class="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                </a>
-                <div>
-                    <h1 class="text-base sm:text-lg font-bold text-slate-800">{{ $assignment->title }}</h1>
-                    <p class="text-xs text-slate-500">{{ $assignment->course->name }} ({{ $assignment->course->code }}) • Due: {{ $assignment->due_date ? date('M d, Y h:i A', strtotime($assignment->due_date)) : 'No deadline' }}</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2.5">
-                <span class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    {{ $assignment->submissions->count() }} Submissions
-                </span>
-                <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Body -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">

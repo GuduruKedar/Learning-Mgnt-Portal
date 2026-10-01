@@ -109,14 +109,10 @@
 
         <!-- Footer Actions -->
         <div class="bg-slate-50 px-6 py-4 flex flex-col-reverse sm:flex-row sm:justify-between items-center border-t border-slate-100 gap-2.5">
-            <form id="facultyModalDeleteForm" method="POST" class="w-full sm:w-auto inline-flex m-0" onsubmit="return confirm('Are you sure you want to remove this faculty from the course?');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" id="facultyModalDeleteBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-xl text-xs font-bold transition-all focus:outline-none">
-                    <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    <span>Remove from this Course</span>
-                </button>
-            </form>
+            <button type="button" id="facultyModalDeleteBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-xl text-xs font-bold transition-all focus:outline-none">
+                <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                <span>Remove from this Course</span>
+            </button>
             <button type="button" onclick="closeFacultyModal()" class="w-full sm:w-auto px-5 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-xs focus:outline-none">
                 Close
             </button>
@@ -200,12 +196,27 @@
         }
 
         // Unallocate action
-        const deleteForm = document.getElementById('facultyModalDeleteForm');
+        const deleteBtn = document.getElementById('facultyModalDeleteBtn');
         if (deleteUrl && deleteUrl.trim() !== '') {
-            deleteForm.action = deleteUrl;
-            deleteForm.classList.remove('hidden');
+            deleteBtn.classList.remove('hidden');
+            deleteBtn.onclick = function() {
+                closeFacultyModal();
+                if (window.openUniversalDeleteModal) {
+                    window.openUniversalDeleteModal({
+                        title: 'Remove Faculty Allocation',
+                        itemName: name + (code ? ' (' + code + ')' : ''),
+                        itemType: 'Course Allocation' + (courseInfo ? ' - ' + courseInfo : ''),
+                        deleteUrl: deleteUrl,
+                        warningMessage: 'Removing this faculty allocation will unassign them from teaching this course section and revoke their permissions to manage materials and grades for this course.',
+                        cascadeItems: [
+                            { label: 'Course Section Teaching Link', count: 'Removed' },
+                            { label: 'Course Materials & Grade Access', count: 'Revoked' }
+                        ]
+                    });
+                }
+            };
         } else {
-            deleteForm.classList.add('hidden');
+            deleteBtn.classList.add('hidden');
         }
 
         const modal = document.getElementById('facultyDetailsModal');

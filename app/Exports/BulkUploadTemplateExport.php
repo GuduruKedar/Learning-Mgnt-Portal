@@ -40,6 +40,7 @@ class BulkUploadTemplateExport implements WithMultipleSheets, Export
             $sheets[] = new StudentTemplateSheet($coordSchoolName, $coordDeptName);
         }
 
+        $sheets[] = new ProgramsSheet();
         $sheets[] = new DepartmentsSheet();
         $sheets[] = new SchoolsSheet();
         $sheets[] = new LevelsSheet();

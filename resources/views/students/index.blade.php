@@ -20,11 +20,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-2.5 ml-auto">
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50/70">
@@ -239,36 +236,38 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($students as $student)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex-shrink-0 h-10 w-10">
+                            <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                                <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap">
+                                    <div class="flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9">
                                         @if($student->photo)
-                                             <img class="h-10 w-10 rounded-full object-cover border" src="{{ asset('storage/' . $student->photo) }}" alt="">
+                                             <img class="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover border border-slate-200" src="{{ asset('storage/' . $student->photo) }}" alt="">
                                         @else
-                                            <div class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold">
+                                            <div class="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-orange-100 dark:bg-orange-950/40 flex items-center justify-center text-orange-600 dark:text-orange-400 font-bold text-xs sm:text-sm">
                                                 {{ substr($student->first_name, 0, 1) }}
                                             </div>
                                         @endif
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">{{ $student->first_name }} {{ $student->last_name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $student->email }}</div>
+                                    <div class="text-xs text-gray-500">{{ $student->email }}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <div class="text-sm text-gray-900">{{ $student->username }}</div>
+                                <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="text-sm font-mono font-medium text-gray-900">{{ $student->username }}</div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs md:max-w-sm">
-                                    <div class="text-xs font-bold text-slate-800 uppercase tracking-tight leading-snug break-words">
-                                        {{ $student->school->name ?? 'N/A' }}
-                                    </div>
-                                    <div class="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1.5 leading-tight">
-                                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0"></span>
-                                        <span class="break-words">{{ $student->department->name ?? 'N/A' }}</span>
+                                <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 text-sm max-w-xs md:max-w-sm">
+                                    <div class="flex flex-col">
+                                        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1 leading-tight">
+                                            <svg class="w-2.5 h-2.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                            <span class="truncate">{{ $student->school->name ?? 'N/A' }}</span>
+                                        </div>
+                                        <div class="text-xs font-semibold text-slate-800 leading-snug">
+                                            {{ $student->department->name ?? 'N/A' }}
+                                        </div>
                                     </div>
                                 </td>
                                 @if(in_array(Auth::user()->role, ['sa', 'admin']))
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                                <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap text-sm font-medium text-center">
                                     <div class="flex items-center justify-center gap-1.5">
                                         <a href="{{ route('students.edit', $student->id) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50/90 text-indigo-600 border border-indigo-200/70 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Student">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -277,13 +276,39 @@
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                                         </button>
                                         @if(Auth::user()->role === 'sa')
-                                        <form action="{{ route('students.destroy', $student->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete student {{ $student->username }}?');" class="inline m-0 p-0">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Delete Student">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                            </button>
-                                        </form>
+                                        @php
+                                            $regEnrolls = $student->enrolled_courses_count ?? $student->enrolledCourses()->count();
+                                            $civEnrolls = $student->civil_service_enrollment_count ?? ($student->civilServiceEnrollment ? 1 : 0);
+                                            $totalEnrolls = $regEnrolls + $civEnrolls;
+                                            $fullName = addslashes(trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')));
+                                            $manageUrl = $civEnrolls > 0 ? route('civil.students.index') : route('academic.courses');
+                                            $sDept = addslashes($student->department->name ?? 'N/A');
+                                            $sProg = addslashes($student->program->name ?? $student->level ?? 'Student');
+                                            $sDelUrl = route('students.destroy', $student->id);
+                                        @endphp
+                                        <button type="button" 
+                                            onclick="openUniversalDeleteModal({
+                                                title: 'Delete Student & Linked Data',
+                                                subtitle: 'Confirm permanent cascade deletion',
+                                                itemName: '{{ $fullName }}',
+                                                itemCode: 'Reg: {{ $student->username }}',
+                                                itemBadge: '{{ $sDept }}',
+                                                itemMeta: '{{ $sProg }} • {{ $student->email ?? 'No email' }}',
+                                                cascadeItems: [
+                                                    { title: 'Enrolled Courses', count: '{{ $regEnrolls }} ' + ('{{ $regEnrolls }}' == '1' ? 'Course' : 'Courses'), icon: 'book' },
+                                                    { title: 'Civil Services', count: '{{ $civEnrolls > 0 ? '1 Active Enrollment' : '0 Enrollments' }}', icon: 'check' },
+                                                    { title: 'Test Submissions', count: 'All Attempted Answers', icon: 'quiz' },
+                                                    { title: 'Student Profile', count: 'Account & Photo Data', icon: 'user' }
+                                                ],
+                                                warningTitle: 'Are you sure you want to delete student {{ $student->username }}?',
+                                                warningBody: 'This action will permanently delete {{ $fullName }} ({{ $student->username }}) and automatically cascade-remove all course enrollments, civil service registrations, test submissions, answers, and profile credentials from the LMS portal.',
+                                                deleteUrl: '{{ $sDelUrl }}',
+                                                submitBtnText: 'Yes, Delete Student & All Linked Data'
+                                            })"
+                                            class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 cursor-pointer" 
+                                            title="Delete Student & Cascade All Linked Data">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
                                         @endif
                                     </div>
                                 </td>
@@ -304,7 +329,7 @@
             </div>
             
             <footer class="mt-8 border-t border-gray-200 pt-4 pb-2">
-                <p class="text-center text-sm text-gray-500">&copy; {{ date('Y') }} Learning Management System. All rights reserved.</p>
+                <p class="text-center text-xs text-gray-500 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700">TD</span>.</p>
             </footer>
         </main>
     </div>
@@ -838,6 +863,7 @@
         });
     </script>
     @include('partials.reset_password_modal')
+    @include('partials.protected_student_modal')
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 </body>
 </html>

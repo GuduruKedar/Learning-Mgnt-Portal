@@ -16,29 +16,8 @@
 
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('ssh.dashboard') }}" class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors" title="Back to Dashboard">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                </a>
-                <div>
-                    <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">1st Year Students Directory</h1>
-                    <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Sciences & Humanities • Freshers & 1st Year Management</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2.5">
-                <button type="button" onclick="document.getElementById('bulk-upload-modal').classList.remove('hidden')" class="inline-flex items-center px-3.5 py-2 rounded-xl border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs shadow-sm transition-all">
-                    <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    Bulk Upload
-                </button>
-                <a href="{{ route('ssh.students.create') }}" class="inline-flex items-center px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-md shadow-indigo-200 transition-all">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-                    Register Fresher
-                </a>
-                <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Body -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
@@ -158,19 +137,19 @@
                                     data-search="{{ $searchString }}">
                                     
                                     <!-- Reg No -->
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="font-mono font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100 text-xs tracking-wider">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap">
+                                        <span class="font-mono font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-lg border border-indigo-100 text-xs tracking-wider">
                                              {{ $student->username }}
                                         </span>
                                     </td>
 
                                     <!-- Student Profile & Name -->
-                                    <td class="px-6 py-4">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5">
                                         <div class="flex items-center gap-3">
                                             @if($student->profile?->photo)
-                                                <img class="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm shrink-0" src="{{ asset('storage/' . $student->profile->photo) }}" alt="{{ $fullName }}">
+                                                <img class="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-slate-200 shadow-sm shrink-0" src="{{ asset('storage/' . $student->profile->photo) }}" alt="{{ $fullName }}">
                                             @else
-                                                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold flex items-center justify-center text-xs shadow-sm shrink-0">
+                                                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold flex items-center justify-center text-xs shadow-sm shrink-0">
                                                     {{ strtoupper(substr($firstName, 0, 1)) }}
                                                 </div>
                                             @endif
@@ -187,27 +166,27 @@
                                     </td>
 
                                     <!-- Parent Branch / Dept -->
-                                    <td class="px-6 py-4">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5">
                                         <div class="font-semibold text-slate-800 text-sm">
                                             {{ $deptName ?: 'General Studies' }}
                                         </div>
                                         @if($schoolName)
-                                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-medium mt-0.5">
+                                        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
                                             {{ $schoolName }}
                                         </div>
                                         @endif
                                     </td>
 
                                     <!-- Program / Batch -->
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                                             {{ $student->profile?->program?->name ?? 'General First Year' }}
                                         </span>
-                                        <div class="text-[11px] text-slate-400 mt-0.5">Batch 20{{ $batchCode }}</div>
+                                        <div class="text-[10px] text-slate-400 mt-0.5">Batch 20{{ $batchCode }}</div>
                                     </td>
 
                                     <!-- Contact Info -->
-                                    <td class="px-6 py-4 text-xs text-slate-600">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 text-xs text-slate-600">
                                         @if($student->profile?->email)
                                         <div class="flex items-center gap-1.5 text-slate-700 hover:text-indigo-600">
                                             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
@@ -226,7 +205,7 @@
                                     </td>
 
                                     <!-- Actions -->
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap text-center">
                                         <div class="flex items-center justify-center gap-1.5">
                                             <a href="{{ route('ssh.students.edit', $student->id) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50/90 text-indigo-600 border border-indigo-200/70 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Student">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -234,13 +213,33 @@
                                             <button type="button" onclick="openManualResetPasswordModal('{{ route('users.reset-password', $student->id) }}', '{{ $student->username }}', '{{ addslashes($fullName) }}', 'Student#963')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-50/90 text-amber-600 border border-amber-200/70 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Reset Password for {{ $student->username }}">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                                             </button>
-                                            <form method="POST" action="{{ route('ssh.students.destroy', $student->id) }}" onsubmit="return confirm('Are you sure you want to delete student {{ $student->username }} ({{ $fullName }})?')" class="inline m-0 p-0">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Delete Student">
+                                            @php
+                                                $sDept = addslashes($student->profile->department->name ?? 'First Year General');
+                                                $sProg = addslashes($student->profile->program->name ?? 'B.Tech Foundational');
+                                                $sDelUrl = route('ssh.students.destroy', $student->id);
+                                            @endphp
+                                            <button type="button" 
+                                                onclick="openUniversalDeleteModal({
+                                                    title: 'Delete 1st Year Student & Linked Data',
+                                                    subtitle: 'Confirm permanent cascade deletion',
+                                                    itemName: '{{ addslashes($fullName) }}',
+                                                    itemCode: 'Reg: {{ $student->username }}',
+                                                    itemBadge: '{{ $sDept }}',
+                                                    itemMeta: '{{ $sProg }} • 1st Year',
+                                                    cascadeItems: [
+                                                        { title: 'Foundational Courses', count: 'All 1st Year Enrollments', icon: 'book' },
+                                                        { title: 'Test Submissions', count: 'Quizzes & Assignments', icon: 'quiz' },
+                                                        { title: 'Student Profile', count: 'Account & Credentials', icon: 'user' }
+                                                    ],
+                                                    warningTitle: 'Are you sure you want to delete student {{ $student->username }}?',
+                                                    warningBody: 'This action will permanently delete {{ addslashes($fullName) }} ({{ $student->username }}) and cascade-remove all foundational course enrollments, test submissions, and student records.',
+                                                    deleteUrl: '{{ $sDelUrl }}',
+                                                    submitBtnText: 'Yes, Delete Student & All Linked Data'
+                                                })" 
+                                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 cursor-pointer" 
+                                                title="Delete Student & Cascade All Linked Data">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                </button>
-                                            </form>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

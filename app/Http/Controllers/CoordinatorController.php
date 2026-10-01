@@ -152,7 +152,15 @@ class CoordinatorController extends Controller
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
             'username' => ['nullable', 'string', 'max:50'],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email'],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email'
+            ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => 'required|exists:schools,id',
@@ -160,42 +168,63 @@ class CoordinatorController extends Controller
                 'required', 
                 Rule::exists('departments', 'id')->where('school_id', \App\Models\School::where('id', $request->school_id)->value('code'))
             ],
+        ], [
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
         ]);
 
         $dept = \App\Models\Department::findOrFail($validated['department_id']);
         $deptCode = strtolower($dept->code ?? '');
         $baseUsername = str_starts_with($deptCode, 'dep_') ? $deptCode : 'dep_' . $deptCode;
 
-        // Auto-generate unique username: dep_mech -> dep_mech1 -> dep_mech2 ...
-        $username = $baseUsername;
-        $counter = 1;
-        while (User::where('username', $username)->exists()) {
-            $username = $baseUsername . $counter;
-            $counter++;
+        $isUsernameTaken = function ($u) {
+            return User::where('username', $u)->exists() || \App\Models\Profile::where('username', $u)->exists();
+        };
+
+        // Auto-generate unique username: dep_che_01 -> dep_che_02 ...
+        if (!empty($validated['username'])) {
+            $username = $validated['username'];
+            if ($isUsernameTaken($username)) {
+                $counter = 1;
+                do {
+                    $username = sprintf('%s_%02d', $baseUsername, $counter);
+                    $counter++;
+                } while ($isUsernameTaken($username));
+            }
+        } else {
+            $counter = 1;
+            do {
+                $username = sprintf('%s_%02d', $baseUsername, $counter);
+                $counter++;
+            } while ($isUsernameTaken($username));
         }
 
         $password = $request->filled('password') ? $request->password : 'Admin!741';
 
-        $profile = \App\Models\Profile::create([
-            'first_name' => $validated['first_name'],
-            'middle_name' => $validated['middle_name'] ?? null,
-            'last_name' => $validated['last_name'],
-            'username' => $username,
-            'email' => $validated['email'],
-            'phone' => $validated['phone_number'],
-            'schools_id' => \App\Models\School::where('id', $validated['school_id'])->value('code'),
-            'departments_id' => $dept->code,
-            'level' => $validated['level'] ?? null,
-            'programs_id' => isset($validated['program_id']) ? \App\Models\Program::where('id', $validated['program_id'])->value('code') : null,
-            'designation' => $validated['designation'] ?? null,
-            'roles_id' => 'admin',
-        ]);
+        $profile = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $username, $dept, $password) {
+            $profile = \App\Models\Profile::create([
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'] ?? null,
+                'last_name' => $validated['last_name'],
+                'username' => $username,
+                'email' => $validated['email'],
+                'phone' => $validated['phone_number'],
+                'schools_id' => \App\Models\School::where('id', $validated['school_id'])->value('code'),
+                'departments_id' => $dept->code,
+                'level' => $validated['level'] ?? null,
+                'programs_id' => isset($validated['program_id']) ? \App\Models\Program::where('id', $validated['program_id'])->value('code') : null,
+                'designation' => $validated['designation'] ?? null,
+                'roles_id' => 'admin',
+            ]);
 
-        User::create([
-            'username' => $username,
-            'password' => Hash::make($password),
-            'profile_id' => $profile->id,
-        ]);
+            User::create([
+                'username' => $username,
+                'password' => Hash::make($password),
+                'profile_id' => $profile->id,
+            ]);
+
+            return $profile;
+        });
 
         return redirect()->route('coordinators.index')->with('success', "Coordinator created successfully. Login Username: {$username}");
     }
@@ -222,8 +251,16 @@ class CoordinatorController extends Controller
             'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
-            'username' => ['required', 'string', 'max:50', 'unique:users,username,'.$coordinator->id],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email,'.$coordinator->profile_id],
+            'username' => ['required', 'string', 'max:50', 'unique:users,username,'.$coordinator->id, 'unique:profiles,username,'.$coordinator->profile_id],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email,'.$coordinator->profile_id
+            ],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => 'required|exists:schools,id',
             'department_id' => [
@@ -231,6 +268,9 @@ class CoordinatorController extends Controller
                 Rule::exists('departments', 'id')->where('school_id', \App\Models\School::where('id', $request->school_id)->value('code'))
             ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
+        ], [
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
         ]);
 
         $profileData = [
@@ -268,15 +308,47 @@ class CoordinatorController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $coordinator = User::role('admin')->findOrFail($id);
+        $coordinator = User::role('admin')->with('profile')->findOrFail($id);
+        $profile = $coordinator->profile;
+        $coordName = trim(($profile->first_name ?? '') . ' ' . ($profile->last_name ?? '')) ?: $coordinator->username;
+        $username = $coordinator->username;
+        $deptId = $profile->departments_id ?? null;
         
-        if ($coordinator->photo) {
-            Storage::disk('public')->delete($coordinator->photo);
-        }
-        
-        $coordinator->delete();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($coordinator, $profile) {
+            // 1. Delete coordinator profile photo if stored
+            if ($profile && $profile->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($profile->photo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($profile->photo);
+            }
+            
+            // 2. Delete the user account
+            $coordinator->delete();
 
-        return redirect()->route('coordinators.index')->with('success', 'Coordinator deleted successfully.');
+            // 3. Delete the profile record
+            if ($profile) {
+                $profile->delete();
+            }
+        });
+
+        \App\Services\ActivityLogger::log(
+            'coordinator_deleted',
+            'Department Coordinator & Profile Deleted',
+            'System',
+            "SuperAdmin permanently deleted Department Coordinator account {$coordName} ({$username}) and associated profile.",
+            'danger',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'User',
+                'entity_id'     => $id,
+                'entity_name'   => "{$coordName} ({$username})",
+                'payload'       => [
+                    'username'   => $username,
+                    'name'       => $coordName,
+                    'department' => $deptId
+                ]
+            ]
+        );
+
+        return redirect()->route('coordinators.index')->with('success', "Coordinator '{$username}' ({$coordName}) and profile record deleted successfully.");
     }
 
     public function getDepartments(School $school)
@@ -298,12 +370,11 @@ class CoordinatorController extends Controller
         $deptCode = strtolower($department->code ?? '');
         $baseUsername = str_starts_with($deptCode, 'dep_') ? $deptCode : 'dep_' . $deptCode;
 
-        $username = $baseUsername;
         $counter = 1;
-        while (User::where('username', $username)->exists()) {
-            $username = $baseUsername . $counter;
+        do {
+            $username = sprintf('%s_%02d', $baseUsername, $counter);
             $counter++;
-        }
+        } while (User::where('username', $username)->exists() || \App\Models\Profile::where('username', $username)->exists());
 
         return response()->json([
             'username' => $username,

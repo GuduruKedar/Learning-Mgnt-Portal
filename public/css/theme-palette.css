@@ -1,0 +1,507 @@
+/**
+ * ==============================================================================
+ * LMS PORTAL - DYNAMIC COLOR PALETTE & THEME SYSTEM
+ * ==============================================================================
+ * 
+ * 6 Dynamic Color Themes:
+ * 1. Blue   - Royal Blue & Electric Cyan
+ * 2. Green  - Emerald & Mint
+ * 3. Violet - Purple & Fuchsia
+ * 4. Orange - Sunset Orange & Amber
+ * 5. Rose   - Ruby Rose & Pink
+ * 6. Indigo - Electric Indigo & Sky Blue
+ * 
+ * Supported Modes: Light Mode (default) & Dark / Night Mode
+ * ==============================================================================
+ */
+
+/* ==========================================================================
+   1. Base Root Tokens (Light Mode Default)
+   ========================================================================== */
+:root {
+    color-scheme: light;
+
+    /* Backgrounds & Surfaces */
+    --bg-main: #F8FAFC;
+    --bg-secondary: #FFFFFF;
+    --bg-surface: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-elevated: #F1F5F9;
+
+    /* Borders */
+    --border-subtle: #E2E8F0;
+    --border-card: #E2E8F0;
+    --border-hover: #3B82F6;
+
+    /* Typography */
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+
+    /* Semantic Status Colors */
+    --color-success: #22C55E;
+    --color-warning: #F59E0B;
+    --color-error: #EF4444;
+    --color-info: #3B82F6;
+
+    /* Default Theme Engine Tokens (Theme 1: Blue) */
+    --theme-primary: #3B82F6;
+    --theme-primary-hover: #2563EB;
+    --theme-primary-light: rgba(59, 130, 246, 0.12);
+    --theme-primary-dark: #1D4ED8;
+    --theme-secondary: #60A5FA;
+    --theme-secondary-hover: #3B82F6;
+    --theme-secondary-light: rgba(96, 165, 250, 0.1);
+    --theme-gradient: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    --theme-focus-ring: rgba(59, 130, 246, 0.35);
+    --theme-glow: rgba(59, 130, 246, 0.28);
+
+    /* Sidebar Navigation Light Tokens */
+    --theme-sidebar-bg: #DBEAFE;
+    --theme-sidebar-border: #BFDBFE;
+    --theme-sidebar-text: #1E293B;
+    --theme-sidebar-text-hover: #1D4ED8;
+    --theme-sidebar-hover-bg: #BFDBFE;
+    --theme-sidebar-active-bg: #93C5FD;
+    --theme-sidebar-active-border: #60A5FA;
+    --theme-sidebar-logo-text: #0F172A;
+
+    --theme-active-tab: #EFF6FF;
+    --theme-header-brand: #0F172A;
+}
+
+/* ==========================================================================
+   2. Dark Mode Base Tokens
+   ========================================================================== */
+html.dark {
+    color-scheme: dark;
+
+    /* Backgrounds & Surfaces */
+    --bg-main: #0B0F14;
+    --bg-secondary: #111827;
+    --bg-surface: #1E293B;
+    --bg-card: #151B23;
+    --bg-elevated: #1C2430;
+
+    /* Borders */
+    --border-subtle: #273244;
+    --border-card: #273244;
+    --border-hover: #3B82F6;
+
+    /* Typography */
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+
+    /* Semantic Status Colors */
+    --color-success: #22C55E;
+    --color-warning: #F59E0B;
+    --color-error: #EF4444;
+    --color-info: #3B82F6;
+
+    /* Sidebar Navigation Dark Tokens */
+    --theme-sidebar-bg: #0F1A30;
+    --theme-sidebar-border: #1E335C;
+    --theme-sidebar-text: #E2E8F0;
+    --theme-sidebar-text-hover: #93C5FD;
+    --theme-sidebar-hover-bg: rgba(59, 130, 246, 0.18);
+    --theme-sidebar-active-bg: rgba(59, 130, 246, 0.25);
+    --theme-sidebar-active-border: rgba(59, 130, 246, 0.5);
+    --theme-sidebar-logo-text: #F8FAFC;
+
+    --theme-active-tab: #1C2430;
+    --theme-header-brand: #F8FAFC;
+}
+
+/* ==========================================================================
+   3. 6 Dynamic Accent Color Palettes (Light Mode)
+   ========================================================================== */
+
+/* Theme 1: Blue */
+html[data-theme-color="blue"] {
+    --theme-primary: #3B82F6;
+    --theme-primary-hover: #2563EB;
+    --theme-primary-light: rgba(59, 130, 246, 0.12);
+    --theme-primary-dark: #1D4ED8;
+    --theme-secondary: #60A5FA;
+    --theme-secondary-hover: #3B82F6;
+    --theme-gradient: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    --theme-hero-bg: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #1E3A8A 100%);
+    --theme-hero-border: rgba(59, 130, 246, 0.35);
+    --theme-focus-ring: rgba(59, 130, 246, 0.35);
+    --theme-glow: rgba(59, 130, 246, 0.28);
+    --theme-sidebar-bg: #DBEAFE;
+    --theme-sidebar-border: #BFDBFE;
+    --theme-sidebar-text: #1E293B;
+    --theme-sidebar-text-hover: #1D4ED8;
+    --theme-sidebar-hover-bg: #BFDBFE;
+    --theme-sidebar-active-bg: #93C5FD;
+    --theme-sidebar-active-border: #60A5FA;
+}
+
+/* Theme 2: Green */
+html[data-theme-color="green"] {
+    --theme-primary: #10B981;
+    --theme-primary-hover: #059669;
+    --theme-primary-light: rgba(16, 185, 129, 0.12);
+    --theme-primary-dark: #047857;
+    --theme-secondary: #34D399;
+    --theme-secondary-hover: #10B981;
+    --theme-gradient: linear-gradient(135deg, #10B981 0%, #047857 100%);
+    --theme-hero-bg: linear-gradient(135deg, #06281E 0%, #064E3B 45%, #047857 100%);
+    --theme-hero-border: rgba(16, 185, 129, 0.35);
+    --theme-focus-ring: rgba(16, 185, 129, 0.35);
+    --theme-glow: rgba(16, 185, 129, 0.28);
+    --theme-sidebar-bg: #D1FAE5;
+    --theme-sidebar-border: #A7F3D0;
+    --theme-sidebar-text: #064E3B;
+    --theme-sidebar-text-hover: #047857;
+    --theme-sidebar-hover-bg: #A7F3D0;
+    --theme-sidebar-active-bg: #6EE7B7;
+    --theme-sidebar-active-border: #34D399;
+}
+
+/* Theme 3: Violet */
+html[data-theme-color="violet"] {
+    --theme-primary: #8B5CF6;
+    --theme-primary-hover: #7C3AED;
+    --theme-primary-light: rgba(139, 92, 246, 0.12);
+    --theme-primary-dark: #6D28D9;
+    --theme-secondary: #A78BFA;
+    --theme-secondary-hover: #8B5CF6;
+    --theme-gradient: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+    --theme-hero-bg: linear-gradient(135deg, #1B0D2E 0%, #3B0764 45%, #581C87 100%);
+    --theme-hero-border: rgba(139, 92, 246, 0.35);
+    --theme-focus-ring: rgba(139, 92, 246, 0.35);
+    --theme-glow: rgba(139, 92, 246, 0.28);
+    --theme-sidebar-bg: #EDE9FE;
+    --theme-sidebar-border: #DDD6FE;
+    --theme-sidebar-text: #3B0764;
+    --theme-sidebar-text-hover: #6D28D9;
+    --theme-sidebar-hover-bg: #DDD6FE;
+    --theme-sidebar-active-bg: #C4B5FD;
+    --theme-sidebar-active-border: #A78BFA;
+}
+
+/* Theme 4: Orange */
+html[data-theme-color="orange"] {
+    --theme-primary: #F97316;
+    --theme-primary-hover: #EA580C;
+    --theme-primary-light: rgba(249, 115, 22, 0.12);
+    --theme-primary-dark: #C2410C;
+    --theme-secondary: #FB923C;
+    --theme-secondary-hover: #F97316;
+    --theme-gradient: linear-gradient(135deg, #F97316 0%, #C2410C 100%);
+    --theme-hero-bg: linear-gradient(135deg, #271007 0%, #7C2D12 45%, #9A3412 100%);
+    --theme-hero-border: rgba(249, 115, 22, 0.35);
+    --theme-focus-ring: rgba(249, 115, 22, 0.35);
+    --theme-glow: rgba(249, 115, 22, 0.28);
+    --theme-sidebar-bg: #FFEDD5;
+    --theme-sidebar-border: #FED7AA;
+    --theme-sidebar-text: #7C2D12;
+    --theme-sidebar-text-hover: #C2410C;
+    --theme-sidebar-hover-bg: #FED7AA;
+    --theme-sidebar-active-bg: #FDBA74;
+    --theme-sidebar-active-border: #FB923C;
+}
+
+/* Theme 5: Rose */
+html[data-theme-color="rose"] {
+    --theme-primary: #F43F5E;
+    --theme-primary-hover: #E11D48;
+    --theme-primary-light: rgba(244, 63, 94, 0.12);
+    --theme-primary-dark: #BE123C;
+    --theme-secondary: #FB7185;
+    --theme-secondary-hover: #F43F5E;
+    --theme-gradient: linear-gradient(135deg, #F43F5E 0%, #BE123C 100%);
+    --theme-hero-bg: linear-gradient(135deg, #2A0914 0%, #881337 45%, #9F1239 100%);
+    --theme-hero-border: rgba(244, 63, 94, 0.35);
+    --theme-focus-ring: rgba(244, 63, 94, 0.35);
+    --theme-glow: rgba(244, 63, 94, 0.28);
+    --theme-sidebar-bg: #FFE4E6;
+    --theme-sidebar-border: #FECDD3;
+    --theme-sidebar-text: #881337;
+    --theme-sidebar-text-hover: #BE123C;
+    --theme-sidebar-hover-bg: #FECDD3;
+    --theme-sidebar-active-bg: #FDA4AF;
+    --theme-sidebar-active-border: #FB7185;
+}
+
+/* Theme 6: Indigo */
+html[data-theme-color="indigo"] {
+    --theme-primary: #6366F1;
+    --theme-primary-hover: #4F46E5;
+    --theme-primary-light: rgba(99, 102, 241, 0.12);
+    --theme-primary-dark: #4338CA;
+    --theme-secondary: #818CF8;
+    --theme-secondary-hover: #6366F1;
+    --theme-gradient: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+    --theme-hero-bg: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #312E81 100%);
+    --theme-hero-border: rgba(99, 102, 241, 0.35);
+    --theme-focus-ring: rgba(99, 102, 241, 0.35);
+    --theme-glow: rgba(99, 102, 241, 0.28);
+    --theme-sidebar-bg: #E0E7FF;
+    --theme-sidebar-border: #C7D2FE;
+    --theme-sidebar-text: #1E1B4B;
+    --theme-sidebar-text-hover: #4338CA;
+    --theme-sidebar-hover-bg: #C7D2FE;
+    --theme-sidebar-active-bg: #A5B4FC;
+    --theme-sidebar-active-border: #818CF8;
+}
+
+/* ==========================================================================
+   4. 6 Dynamic Accent Color Palettes (Dark Mode)
+   ========================================================================== */
+
+/* Dark Theme 1: Blue */
+html.dark[data-theme-color="blue"] {
+    --theme-primary: #3B82F6;
+    --theme-primary-hover: #60A5FA;
+    --theme-primary-light: rgba(59, 130, 246, 0.2);
+    --theme-secondary: #60A5FA;
+    --theme-gradient: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    --theme-hero-bg: linear-gradient(135deg, #080C14 0%, #101935 45%, #172554 100%);
+    --theme-hero-border: rgba(59, 130, 246, 0.4);
+    --theme-focus-ring: rgba(59, 130, 246, 0.45);
+    --theme-glow: rgba(59, 130, 246, 0.35);
+    --theme-sidebar-bg: #0F1A30;
+    --theme-sidebar-border: #1E335C;
+    --theme-sidebar-text: #E2E8F0;
+    --theme-sidebar-text-hover: #93C5FD;
+    --theme-sidebar-active-bg: rgba(59, 130, 246, 0.25);
+    --theme-sidebar-active-border: rgba(59, 130, 246, 0.5);
+    --theme-sidebar-hover-bg: rgba(59, 130, 246, 0.18);
+}
+
+/* Dark Theme 2: Green */
+html.dark[data-theme-color="green"] {
+    --theme-primary: #10B981;
+    --theme-primary-hover: #34D399;
+    --theme-primary-light: rgba(16, 185, 129, 0.2);
+    --theme-secondary: #34D399;
+    --theme-gradient: linear-gradient(135deg, #10B981 0%, #047857 100%);
+    --theme-hero-bg: linear-gradient(135deg, #051A14 0%, #064E3B 50%, #065F46 100%);
+    --theme-hero-border: rgba(16, 185, 129, 0.4);
+    --theme-focus-ring: rgba(16, 185, 129, 0.45);
+    --theme-glow: rgba(16, 185, 129, 0.35);
+    --theme-sidebar-bg: #08241C;
+    --theme-sidebar-border: #134B3B;
+    --theme-sidebar-text: #E2E8F0;
+    --theme-sidebar-text-hover: #6EE7B7;
+    --theme-sidebar-active-bg: rgba(16, 185, 129, 0.25);
+    --theme-sidebar-active-border: rgba(16, 185, 129, 0.5);
+    --theme-sidebar-hover-bg: rgba(16, 185, 129, 0.18);
+}
+
+/* Dark Theme 3: Violet */
+html.dark[data-theme-color="violet"] {
+    --theme-primary: #8B5CF6;
+    --theme-primary-hover: #A78BFA;
+    --theme-primary-light: rgba(139, 92, 246, 0.2);
+    --theme-secondary: #A78BFA;
+    --theme-gradient: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+    --theme-hero-bg: linear-gradient(135deg, #120720 0%, #2E1065 50%, #4C1D95 100%);
+    --theme-hero-border: rgba(139, 92, 246, 0.4);
+    --theme-focus-ring: rgba(139, 92, 246, 0.45);
+    --theme-glow: rgba(139, 92, 246, 0.35);
+    --theme-sidebar-bg: #1D0F33;
+    --theme-sidebar-border: #3D1E68;
+    --theme-sidebar-text: #E2E8F0;
+    --theme-sidebar-text-hover: #C4B5FD;
+    --theme-sidebar-active-bg: rgba(139, 92, 246, 0.25);
+    --theme-sidebar-active-border: rgba(139, 92, 246, 0.5);
+    --theme-sidebar-hover-bg: rgba(139, 92, 246, 0.18);
+}
+
+/* Dark Theme 4: Orange */
+html.dark[data-theme-color="orange"] {
+    --theme-primary: #F97316;
+    --theme-primary-hover: #FB923C;
+    --theme-primary-light: rgba(249, 115, 22, 0.2);
+    --theme-secondary: #FB923C;
+    --theme-gradient: linear-gradient(135deg, #F97316 0%, #C2410C 100%);
+    --theme-hero-bg: linear-gradient(135deg, #1C0B05 0%, #431407 50%, #7C2D12 100%);
+    --theme-hero-border: rgba(249, 115, 22, 0.4);
+    --theme-focus-ring: rgba(249, 115, 22, 0.45);
+    --theme-glow: rgba(249, 115, 22, 0.35);
+    --theme-sidebar-bg: #271309;
+    --theme-sidebar-border: #522510;
+    --theme-sidebar-text: #E2E8F0;
+    --theme-sidebar-text-hover: #FDBA74;
+    --theme-sidebar-active-bg: rgba(249, 115, 22, 0.25);
+    --theme-sidebar-active-border: rgba(249, 115, 22, 0.5);
+    --theme-sidebar-hover-bg: rgba(249, 115, 22, 0.18);
+}
+
+/* Dark Theme 5: Rose */
+html.dark[data-theme-color="rose"] {
+    --theme-primary: #F43F5E;
+    --theme-primary-hover: #FB7185;
+    --theme-primary-light: rgba(244, 63, 94, 0.2);
+    --theme-secondary: #FB7185;
+    --theme-gradient: linear-gradient(135deg, #F43F5E 0%, #BE123C 100%);
+    --theme-hero-bg: linear-gradient(135deg, #1A050C 0%, #4C0519 50%, #881337 100%);
+    --theme-hero-border: rgba(244, 63, 94, 0.4);
+    --theme-focus-ring: rgba(244, 63, 94, 0.45);
+    --theme-glow: rgba(244, 63, 94, 0.35);
+    --theme-sidebar-bg: #270B18;
+    --theme-sidebar-border: #521431;
+    --theme-sidebar-text: #E2E8F0;
+    --theme-sidebar-text-hover: #FDA4AF;
+    --theme-sidebar-active-bg: rgba(244, 63, 94, 0.25);
+    --theme-sidebar-active-border: rgba(244, 63, 94, 0.5);
+    --theme-sidebar-hover-bg: rgba(244, 63, 94, 0.18);
+}
+
+/* Dark Theme 6: Indigo */
+html.dark[data-theme-color="indigo"] {
+    --theme-primary: #6366F1;
+    --theme-primary-hover: #818CF8;
+    --theme-primary-light: rgba(99, 102, 241, 0.2);
+    --theme-secondary: #818CF8;
+    --theme-gradient: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+    --theme-hero-bg: linear-gradient(135deg, #080C14 0%, #0F172A 50%, #1E1B4B 100%);
+    --theme-hero-border: rgba(99, 102, 241, 0.4);
+    --theme-focus-ring: rgba(99, 102, 241, 0.45);
+    --theme-glow: rgba(99, 102, 241, 0.35);
+    --theme-sidebar-bg: #11143A;
+    --theme-sidebar-border: #252D74;
+    --theme-sidebar-text: #E2E8F0;
+    --theme-sidebar-text-hover: #A5B4FC;
+    --theme-sidebar-active-bg: rgba(99, 102, 241, 0.25);
+    --theme-sidebar-active-border: rgba(99, 102, 241, 0.5);
+    --theme-sidebar-hover-bg: rgba(99, 102, 241, 0.18);
+}
+
+/* ==========================================================================
+   5. Dynamic Theme Utility Classes
+   ========================================================================== */
+.text-theme-primary {
+    color: var(--theme-primary) !important;
+}
+
+.text-theme-secondary {
+    color: var(--theme-secondary) !important;
+}
+
+.bg-theme-primary {
+    background-color: var(--theme-primary) !important;
+}
+
+.bg-theme-light {
+    background-color: var(--theme-primary-light) !important;
+}
+
+.bg-theme-gradient {
+    background: var(--theme-gradient) !important;
+}
+
+.border-theme-primary {
+    border-color: var(--theme-primary) !important;
+}
+
+.border-theme-light {
+    border-color: var(--theme-focus-ring) !important;
+}
+
+.shadow-theme-glow {
+    box-shadow: 0 4px 14px var(--theme-glow) !important;
+}
+
+.shadow-theme-btn {
+    box-shadow: 0 8px 20px -4px var(--theme-glow) !important;
+}
+
+.ring-theme {
+    --tw-ring-color: var(--theme-primary) !important;
+}
+
+/* Theme Hero Banner */
+.theme-hero-card {
+    background: var(--theme-hero-bg, linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #1E3A8A 100%)) !important;
+    border: 1px solid var(--theme-hero-border, rgba(59, 130, 246, 0.35)) !important;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.theme-hero-badge {
+    background: var(--theme-primary-light) !important;
+    border: 1px solid var(--theme-focus-ring) !important;
+    color: #FFFFFF !important;
+}
+
+/* Theme Buttons & Badges */
+.btn-theme-primary {
+    background: var(--theme-gradient) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 8px 18px -3px var(--theme-glow) !important;
+    border: none !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-theme-primary:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px -4px var(--theme-glow) !important;
+}
+
+.btn-theme-ghost {
+    background: var(--theme-primary-light) !important;
+    color: var(--theme-primary) !important;
+    border: 1px solid var(--theme-focus-ring) !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-theme-ghost:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.theme-icon-box {
+    background: var(--theme-primary-light) !important;
+    border: 1px solid var(--theme-focus-ring) !important;
+    color: var(--theme-primary) !important;
+}
+
+.hover-theme-text:hover {
+    color: var(--theme-primary) !important;
+}
+
+.hover-border-theme:hover {
+    border-color: var(--theme-primary) !important;
+}
+
+.badge-theme {
+    background-color: var(--theme-primary-light) !important;
+    border: 1px solid var(--theme-focus-ring) !important;
+    color: var(--theme-primary) !important;
+}
+
+.tab-theme-active {
+    background: var(--theme-gradient) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px var(--theme-glow) !important;
+    border-color: transparent !important;
+}
+
+.theme-card-hover {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.theme-card-hover:hover {
+    border-color: var(--theme-primary) !important;
+    box-shadow: 0 10px 25px -5px var(--theme-glow), 0 8px 10px -6px var(--theme-glow) !important;
+    transform: translateY(-2px);
+}
+
+.theme-avatar {
+    background: var(--theme-gradient) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 12px var(--theme-glow) !important;
+}
+
+.theme-pill {
+    background-color: var(--theme-primary-light) !important;
+    color: var(--theme-primary) !important;
+    border: 1px solid var(--theme-focus-ring) !important;
+}
+

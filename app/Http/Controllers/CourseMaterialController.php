@@ -262,11 +262,36 @@ class CourseMaterialController extends Controller
             abort(403, 'You do not have permission to delete this material.');
         }
 
+        $materialTitle = $material->title;
+        $courseCode = $course->code ?? 'General';
+        $courseName = $course->name ?? 'Course';
+        $deptId = $course->department_id ?? null;
+
         if ($material->type === 'file' && $material->url_or_path) {
             Storage::disk('public')->delete($material->url_or_path);
         }
 
         $material->delete();
+
+        \App\Services\ActivityLogger::log(
+            'course_material_deleted',
+            'Course Material Deleted',
+            'Materials',
+            "Deleted course material \"{$materialTitle}\" from course {$courseName} ({$courseCode}).",
+            'warning',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'CourseMaterial',
+                'entity_id'     => $id,
+                'entity_name'   => $materialTitle,
+                'payload'       => [
+                    'title'       => $materialTitle,
+                    'course_code' => $courseCode,
+                    'course_name' => $courseName,
+                    'type'        => $material->type
+                ]
+            ]
+        );
 
         return back()->with('success', 'Material deleted successfully.');
     }

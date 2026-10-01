@@ -14,4 +14,14 @@ class Program extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    protected static function booted()
+    {
+        static::saved(function () {
+            \App\Services\CacheService::invalidatePrograms();
+        });
+        static::deleted(function () {
+            \App\Services\CacheService::invalidatePrograms();
+        });
+    }
 }

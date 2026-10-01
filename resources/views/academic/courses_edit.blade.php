@@ -20,33 +20,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0">
-                    @if(Auth::user()->photo)
-                        <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-indigo-200" src="{{ asset('storage/' . Auth::user()->photo) }}" alt="">
-                    @else
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shadow-sm">
-                            {{ substr(Auth::user()->first_name ?? 'A', 0, 1) }}
-                        </div>
-                    @endif
-                    <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->first_name ?? 'Admin' }}</span>
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Edit Profile</a>
-                        <button type="button" id="openPasswordModalBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Change Password</button>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</a>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
@@ -145,6 +120,14 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                @else
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                                    <div class="px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm font-semibold text-gray-800 flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        <span>{{ $course->department->name ?? $course->department_id }}</span>
+                                    </div>
+                                </div>
                                 @endif
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
@@ -170,9 +153,12 @@
                                     <span class="text-xs font-semibold text-gray-500 flex-1">Subject Name</span>
                                 </div>
                                 <div class="space-y-2 mb-4 pr-2">
-                                    <div class="flex items-center gap-2">
-                                        <input type="text" name="code" placeholder="Code" class="w-24 sm:w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm" value="{{ old('code', $course->code) }}" required>
-                                        <input type="text" name="name" placeholder="Name" class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm" value="{{ old('name', $course->name) }}" required>
+                                    <div class="flex flex-col gap-1">
+                                        <div class="flex items-center gap-2">
+                                            <input type="text" name="code" id="academic_edit_code" placeholder="Code" class="w-24 sm:w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm font-mono uppercase font-bold" value="{{ old('code', $course->code) }}" required>
+                                            <input type="text" name="name" placeholder="Name" class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm font-semibold" value="{{ old('name', $course->name) }}" required>
+                                        </div>
+                                        <div id="academic_edit_code_error" class="hidden text-[11px] text-rose-600 font-bold mt-1 flex items-center gap-1 leading-tight"></div>
                                     </div>
                                 </div>
                                 <div class="pt-2 border-t border-gray-100 mt-4">
@@ -346,6 +332,46 @@
                 }
             });
             
+            // Real-time Course Code Duplicate Validation
+            const existingDatabaseCodes = @json($existingCourseCodes ?? []);
+            const codeInput = document.getElementById('academic_edit_code');
+            const errorDiv = document.getElementById('academic_edit_code_error');
+            const form = document.querySelector('form[action="{{ route('academic.courses.update', $course->id) }}"]');
+
+            function validateEditCode() {
+                if (!codeInput) return true;
+                const val = codeInput.value.trim().toUpperCase();
+
+                if (val !== '' && existingDatabaseCodes.includes(val)) {
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.innerHTML = `<svg class="w-3.5 h-3.5 text-rose-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg> Course code '${val}' already exists for another course! Duplicate code is NOT allowed.`;
+                    codeInput.classList.add('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                    return false;
+                } else {
+                    errorDiv.classList.add('hidden');
+                    errorDiv.innerHTML = '';
+                    codeInput.classList.remove('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                    return true;
+                }
+            }
+
+            if (codeInput) {
+                codeInput.addEventListener('input', validateEditCode);
+                codeInput.addEventListener('change', validateEditCode);
+                codeInput.addEventListener('blur', validateEditCode);
+            }
+
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!validateEditCode()) {
+                        e.preventDefault();
+                        codeInput.focus();
+                        alert('Course code already exists! Duplicate course code is not allowed.');
+                        return false;
+                    }
+                });
+            }
+
             // Apply initial filtering based on selection
             if(programTypeSelect.value) {
                 programTypeSelect.dispatchEvent(new Event('change'));

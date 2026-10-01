@@ -18,19 +18,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center space-x-2">
-                <a href="{{ route('staff.assignments.index') }}" class="text-sm font-medium text-gray-500 hover:text-indigo-600">Assignments</a>
-                <span class="text-gray-300">/</span>
-                <span class="text-sm font-semibold text-indigo-700">Edit Assignment</span>
-            </div>
-            <div class="flex items-center">
-                <a href="{{ route('staff.assignments.show', $assignment->id) }}" class="text-sm font-medium text-gray-600 hover:text-indigo-600 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Back to Details
-                </a>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">

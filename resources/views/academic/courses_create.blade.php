@@ -46,17 +46,36 @@
             border-color: #6366f1 !important;
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
         }
-        .ts-wrapper .ts-dropdown .option {
-            padding: 0.5rem 0.75rem !important;
+        .ts-wrapper .ts-dropdown .optgroup-header {
+            padding: 0.5rem 0.75rem 0.25rem !important;
             font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            color: #64748b !important;
+            background-color: #f8fafc !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        .ts-wrapper .ts-dropdown .option {
+            padding: 0.55rem 0.75rem !important;
+            font-size: 0.75rem !important;
+            font-weight: 500 !important;
+            color: #1e293b !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
+            cursor: pointer !important;
         }
         .ts-wrapper .ts-dropdown .option:hover,
         .ts-wrapper .ts-dropdown .option.active {
-            background-color: #f1f5f9 !important;
-            color: #4f46e5 !important;
+            background-color: #eef2ff !important;
+            color: #4338ca !important;
+            font-weight: 600 !important;
+        }
+        .ts-wrapper .ts-dropdown .option.selected {
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
         }
         /* Multi-select tag styles */
         .ts-wrapper.multi .ts-control {
@@ -65,7 +84,7 @@
             align-items: center !important;
             gap: 4px !important;
             padding: 4px 6px !important;
-            min-height: 36px !important;
+            min-height: 38px !important;
             font-size: 0.75rem !important;
             border-radius: 0.5rem !important;
             background-color: #ffffff !important;
@@ -73,31 +92,61 @@
         }
         .ts-wrapper.multi .ts-control .item {
             background-color: #eef2ff !important;
-            color: #4338ca !important;
+            color: #3730a3 !important;
             border: 1px solid #c7d2fe !important;
             border-radius: 0.375rem !important;
-            padding: 1px 6px !important;
-            font-size: 0.7rem !important;
+            padding: 2px 4px 2px 8px !important;
+            font-size: 0.75rem !important;
             font-weight: 600 !important;
             display: inline-flex !important;
             align-items: center !important;
+            justify-content: space-between !important;
+            gap: 4px !important;
             line-height: 1.3 !important;
-            white-space: nowrap !important;
+            max-width: calc(100% - 6px) !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+            overflow: hidden !important;
         }
-        .ts-wrapper.multi .ts-control .item .remove {
-            margin-left: 4px !important;
-            color: #6366f1 !important;
-            font-weight: bold !important;
+        .ts-wrapper.multi .ts-control .item span.item-label,
+        .ts-wrapper.multi .ts-control .item span {
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            display: inline-block !important;
+        }
+        .ts-wrapper.multi .ts-control .item .remove,
+        .ts-wrapper.multi .ts-control .item a.remove {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 16px !important;
+            height: 16px !important;
+            min-width: 16px !important;
+            border-radius: 9999px !important;
+            background-color: #c7d2fe !important;
+            color: #1e1b4b !important;
+            font-size: 13px !important;
+            font-weight: 900 !important;
             text-decoration: none !important;
             cursor: pointer !important;
-            padding: 0 2px !important;
+            line-height: 1 !important;
+            transition: all 0.15s ease !important;
+            margin-left: 4px !important;
+            padding: 0 !important;
+            flex: 0 0 16px !important;
         }
-        .ts-wrapper.multi .ts-control .item .remove:hover {
-            color: #dc2626 !important;
+        .ts-wrapper.multi .ts-control .item .remove:hover,
+        .ts-wrapper.multi .ts-control .item a.remove:hover {
+            background-color: #ef4444 !important;
+            color: #ffffff !important;
+            transform: scale(1.15) !important;
         }
         .ts-wrapper.multi .ts-control input {
             font-size: 0.75rem !important;
-            min-width: 60px !important;
+            min-width: 80px !important;
+            flex: 1 1 auto !important;
         }
         /* Remove number input spinner arrows */
         input[type="number"]::-webkit-inner-spin-button,
@@ -120,33 +169,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0">
-                    @if(Auth::user()->photo)
-                        <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-indigo-200" src="{{ asset('storage/' . Auth::user()->photo) }}" alt="">
-                    @else
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shadow-sm">
-                            {{ substr(Auth::user()->first_name ?? 'A', 0, 1) }}
-                        </div>
-                    @endif
-                    <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->first_name ?? 'Admin' }}</span>
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Edit Profile</a>
-                        <button type="button" id="openPasswordModalBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Change Password</button>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</a>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50">
@@ -258,7 +282,7 @@
                                     </div>
                                 </div>
 
-                                @if(in_array(Auth::user()->role, ['sa', 'ssh_admin']))
+                                @if(Auth::user()->role === 'sa')
                                 <!-- Department (For Super Admin) -->
                                 <div class="space-y-1.5">
                                     <label for="department_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -271,6 +295,32 @@
                                                 <option value="{{ $dept->code }}" {{ old('department_id') == $dept->code ? 'selected' : '' }}>{{ $dept->name }}</option>
                                             @endforeach
                                         </select>
+                                    </div>
+                                </div>
+                                @elseif(Auth::user()->role === 'ssh_admin')
+                                <!-- Department (Fixed for SSH Admin - 1st Year Central Directorate) -->
+                                <input type="hidden" name="department_id" value="dep_ssh">
+                                <div class="space-y-1.5">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                        Directorate / Department
+                                    </label>
+                                    <div class="px-3.5 py-2.5 bg-indigo-50/80 border border-indigo-200 rounded-xl text-xs font-bold text-indigo-900 flex items-center gap-2 shadow-xs">
+                                        <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        <div class="truncate">
+                                            <span>Social Sciences & Humanities</span>
+                                            <span class="block text-[10px] font-normal text-indigo-600">1st Year Directorate (Common to all Branches)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @else
+                                <!-- Department (Fixed for Department Coordinator) -->
+                                <div class="space-y-1.5">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                        Department
+                                    </label>
+                                    <div class="px-3.5 py-2.5 bg-slate-100/90 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        <span class="truncate">{{ Auth::user()->profile->department->name ?? Auth::user()->profile->departments_id }}</span>
                                     </div>
                                 </div>
                                 @endif
@@ -344,6 +394,7 @@
                                             <div class="col-span-1 text-center font-bold text-xs text-slate-400 row-num">1</div>
                                             <div class="col-span-3 sm:col-span-3">
                                                 <input type="text" name="code[]" placeholder="e.g. 22CS101" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono uppercase font-bold text-indigo-700 bg-white shadow-2xs" required>
+                                                <div class="code-error-msg hidden text-[10px] sm:text-[11px] text-rose-600 font-bold mt-1 leading-tight"></div>
                                             </div>
                                             <div class="col-span-4 sm:col-span-4">
                                                 <input type="text" name="name[]" placeholder="e.g. Programming in C" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold text-slate-800 bg-white shadow-2xs" required>
@@ -446,21 +497,69 @@
 
             if (typeof TomSelect !== 'undefined') {
                 try {
-                    new TomSelect(el, {
-                        plugins: ['remove_button'],
+                    const ts = new TomSelect(el, {
+                        plugins: {
+                            remove_button: {
+                                title: 'Remove faculty',
+                                label: '×',
+                                className: 'remove'
+                            }
+                        },
                         create: false,
                         maxOptions: null,
                         placeholder: 'Type Emp Code or Name (Multi)...',
-                        sortField: { field: "text", direction: "asc" }
+                        sortField: { field: "text", direction: "asc" },
+                        render: {
+                            item: function(data, escape) {
+                                return '<div class="item" data-value="' + escape(data.value) + '">' +
+                                    '<span class="item-label" title="' + escape(data.text) + '">' + escape(data.text) + '</span>' +
+                                '</div>';
+                            }
+                        }
                     });
+
+                    if (ts && ts.control) {
+                        ts.control.addEventListener('click', function(e) {
+                            const removeBtn = e.target.closest('.remove');
+                            if (removeBtn) {
+                                const itemEl = removeBtn.closest('.item');
+                                if (itemEl && itemEl.dataset.value) {
+                                    ts.removeItem(itemEl.dataset.value);
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                }
+                            }
+                        });
+                    }
                 } catch (e) {
                     try {
-                        new TomSelect(el, {
+                        const ts = new TomSelect(el, {
+                            plugins: ['remove_button'],
                             create: false,
                             maxOptions: null,
                             placeholder: 'Type Emp Code or Name (Multi)...',
-                            sortField: { field: "text", direction: "asc" }
+                            sortField: { field: "text", direction: "asc" },
+                            render: {
+                                item: function(data, escape) {
+                                    return '<div class="item" data-value="' + escape(data.value) + '">' +
+                                        '<span class="item-label" title="' + escape(data.text) + '">' + escape(data.text) + '</span>' +
+                                    '</div>';
+                                }
+                            }
                         });
+                        if (ts && ts.control) {
+                            ts.control.addEventListener('click', function(e) {
+                                const removeBtn = e.target.closest('.remove');
+                                if (removeBtn) {
+                                    const itemEl = removeBtn.closest('.item');
+                                    if (itemEl && itemEl.dataset.value) {
+                                        ts.removeItem(itemEl.dataset.value);
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                    }
+                                }
+                            });
+                        }
                     } catch (err) {
                         console.error('TomSelect init error:', err);
                     }
@@ -499,6 +598,7 @@
                         <div class="col-span-1 text-center font-bold text-xs text-slate-400 row-num">${i}</div>
                         <div class="col-span-3 sm:col-span-3">
                             <input type="text" name="code[]" placeholder="e.g. Code" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-mono uppercase font-bold text-indigo-700 bg-white shadow-2xs" required>
+                            <div class="code-error-msg hidden text-[10px] sm:text-[11px] text-rose-600 font-bold mt-1 leading-tight"></div>
                         </div>
                         <div class="col-span-4 sm:col-span-4">
                             <input type="text" name="name[]" placeholder="e.g. Subject Name" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-semibold text-slate-800 bg-white shadow-2xs" required>
@@ -717,6 +817,95 @@
                 }
             }
             
+            // Real-time Course Code Duplicate & Existence Validation
+            const existingDatabaseCodes = @json($existingCourseCodes ?? []);
+
+            function validateAllCourseCodes() {
+                const codeInputs = Array.from(document.querySelectorAll('input[name="code[]"]'));
+                const seenCodes = {};
+                let hasDuplicateError = false;
+                let hasExistingDbError = false;
+
+                codeInputs.forEach(input => {
+                    const val = input.value.trim().toUpperCase();
+                    if (val !== '') {
+                        seenCodes[val] = (seenCodes[val] || 0) + 1;
+                    }
+                });
+
+                codeInputs.forEach(input => {
+                    const val = input.value.trim().toUpperCase();
+                    const container = input.closest('div');
+                    let errorDiv = container.querySelector('.code-error-msg');
+                    if (!errorDiv) {
+                        errorDiv = document.createElement('div');
+                        errorDiv.className = 'code-error-msg text-[10px] sm:text-[11px] text-rose-600 font-bold mt-1 leading-tight';
+                        container.appendChild(errorDiv);
+                    }
+
+                    if (val === '') {
+                        errorDiv.classList.add('hidden');
+                        errorDiv.innerHTML = '';
+                        input.classList.remove('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                        return;
+                    }
+
+                    if (seenCodes[val] > 1) {
+                        hasDuplicateError = true;
+                        errorDiv.classList.remove('hidden');
+                        errorDiv.innerHTML = `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-rose-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg> Same course code '${val}' entered multiple times. Duplicate code is NOT allowed!</span>`;
+                        input.classList.add('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                    } else if (existingDatabaseCodes.includes(val)) {
+                        hasExistingDbError = true;
+                        errorDiv.classList.remove('hidden');
+                        errorDiv.innerHTML = `<span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-rose-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg> Course code '${val}' already exists in the system!</span>`;
+                        input.classList.add('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                    } else {
+                        errorDiv.classList.add('hidden');
+                        errorDiv.innerHTML = '';
+                        input.classList.remove('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                    }
+                });
+
+                return !(hasDuplicateError || hasExistingDbError);
+            }
+
+            // Real-time event delegation on course code inputs
+            const dynamicContainer = document.getElementById('dynamic_course_fields');
+            if (dynamicContainer) {
+                dynamicContainer.addEventListener('input', function(e) {
+                    if (e.target && e.target.name === 'code[]') {
+                        validateAllCourseCodes();
+                    }
+                });
+                dynamicContainer.addEventListener('change', function(e) {
+                    if (e.target && e.target.name === 'code[]') {
+                        validateAllCourseCodes();
+                    }
+                });
+                dynamicContainer.addEventListener('blur', function(e) {
+                    if (e.target && e.target.name === 'code[]') {
+                        validateAllCourseCodes();
+                    }
+                }, true);
+            }
+
+            const courseForm = document.querySelector('form[action="{{ route('academic.courses.store') }}"]');
+            if (courseForm) {
+                courseForm.addEventListener('submit', function(e) {
+                    if (!validateAllCourseCodes()) {
+                        e.preventDefault();
+                        const firstError = document.querySelector('input[name="code[]"].\\!border-rose-500');
+                        if (firstError) {
+                            firstError.focus();
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        alert('Duplicate or already existing course code detected! Two courses cannot have the same code. Please enter unique course codes.');
+                        return false;
+                    }
+                });
+            }
+
             if (programTypeSelect.value) {
                 programTypeSelect.dispatchEvent(new Event('change'));
             }

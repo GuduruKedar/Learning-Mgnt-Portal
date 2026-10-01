@@ -16,22 +16,8 @@
 
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('ssh.dashboard') }}" class="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                </a>
-                <h1 class="text-base sm:text-lg font-bold text-slate-800">1st Year Learning Materials & Notes</h1>
-            </div>
-            <div class="flex items-center gap-2.5">
-                <button type="button" onclick="document.getElementById('upload-material-modal').classList.remove('hidden')" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-md transition-all">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    Upload Material
-                </button>
-                <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Body -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
@@ -102,13 +88,30 @@
                                     </a>
                                 @endif
 
-                                <form method="POST" action="{{ route('ssh.materials.destroy', $material->id) }}" onsubmit="return confirm('Remove material {{ $material->title }}?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-slate-400 hover:text-rose-600 p-1" title="Delete Material">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
-                                </form>
+                                @php
+                                    $sshMatDelUrl = route('ssh.materials.destroy', $material->id);
+                                @endphp
+                                <button type="button" 
+                                    onclick="openUniversalDeleteModal({
+                                        title: 'Remove S&H Course Material',
+                                        subtitle: 'Confirm learning material removal',
+                                        itemName: '{{ addslashes($material->title) }}',
+                                        itemCode: '{{ strtoupper($material->type) }}',
+                                        itemBadge: '1st Year Material',
+                                        itemMeta: 'Course: {{ addslashes($material->course->code ?? '') }} - {{ addslashes($material->course->name ?? '') }}',
+                                        cascadeItems: [
+                                            { title: 'Material Type', count: '{{ ucfirst($material->type) }} Resource', icon: 'file' },
+                                            { title: 'Storage Clean', count: 'Removed from Server', icon: 'material' }
+                                        ],
+                                        warningTitle: 'Remove material {{ addslashes($material->title) }}?',
+                                        warningBody: 'Are you sure you want to remove this foundational learning resource? All associated files will be removed from storage.',
+                                        deleteUrl: '{{ $sshMatDelUrl }}',
+                                        submitBtnText: 'Yes, Delete Material'
+                                    })"
+                                    class="text-slate-400 hover:text-rose-600 p-1 cursor-pointer" 
+                                    title="Delete Material">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
                             </div>
                         </div>
                     </div>

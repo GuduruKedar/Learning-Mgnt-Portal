@@ -15,4 +15,14 @@ class School extends Model
     {
         return $this->hasMany(Department::class, 'school_id', 'code');
     }
+
+    protected static function booted()
+    {
+        static::saved(function () {
+            \App\Services\CacheService::invalidateSchools();
+        });
+        static::deleted(function () {
+            \App\Services\CacheService::invalidateSchools();
+        });
+    }
 }

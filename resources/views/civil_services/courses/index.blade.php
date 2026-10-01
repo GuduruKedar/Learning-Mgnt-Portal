@@ -18,11 +18,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-2.5 ml-auto">
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
@@ -124,13 +121,32 @@
                                             <button type="button" onclick="openEditModal({{ $course->id }}, '{{ addslashes($course->code) }}', '{{ addslashes($course->name) }}', '{{ addslashes($course->semester ?? '') }}', '{{ addslashes($course->year ?? '') }}')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50/90 text-indigo-600 border border-indigo-200/70 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Course">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                             </button>
-                                            <form method="POST" action="{{ route('civil.courses.destroy', $course->id) }}" onsubmit="return confirm('Delete course {{ $course->code }} and all its uploaded modules?');" class="inline m-0 p-0">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Delete Course">
-                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                </button>
-                                            </form>
+                                            @php
+                                                $civMatCount = (int)($course->materials_count ?? $course->materials()->count());
+                                                $civDelUrl = route('civil.courses.destroy', $course->id);
+                                            @endphp
+                                            <button type="button" 
+                                                onclick="openUniversalDeleteModal({
+                                                    title: 'Delete Civil Services Course',
+                                                    subtitle: 'Confirm permanent cascade deletion',
+                                                    itemName: '{{ addslashes($course->name) }}',
+                                                    itemCode: '{{ addslashes($course->code) }}',
+                                                    itemBadge: 'Civil Services',
+                                                    itemMeta: 'Category: {{ addslashes($course->semester ?? 'General Studies') }}',
+                                                    cascadeItems: [
+                                                        { title: 'Course Modules', count: '{{ $civMatCount }} ' + ('{{ $civMatCount }}' == '1' ? 'Module' : 'Modules'), icon: 'file' },
+                                                        { title: 'Uploaded Files', count: 'All PDFs & Notes', icon: 'material' },
+                                                        { title: 'Enrollments', count: 'Student Links', icon: 'student' }
+                                                    ],
+                                                    warningTitle: 'Are you sure you want to delete course {{ addslashes($course->code) }}?',
+                                                    warningBody: 'This action will permanently delete {{ addslashes($course->name) }} ({{ addslashes($course->code) }}) and automatically remove all {{ $civMatCount }} uploaded modules, document files, and enrollment associations.',
+                                                    deleteUrl: '{{ $civDelUrl }}',
+                                                    submitBtnText: 'Yes, Delete Course & All Modules'
+                                                })"
+                                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 cursor-pointer" 
+                                                title="Delete Course">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -169,7 +185,8 @@
                 @csrf
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Course Code <span class="text-red-500">*</span></label>
-                    <input type="text" name="code" required placeholder="e.g. UPSC-GS1, CSAT-01, POL-101" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                    <input type="text" id="add_cs_code" name="code" required placeholder="e.g. UPSC-GS1, CSAT-01, POL-101" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                    <div id="add_cs_code_error" class="hidden text-[11px] text-rose-600 font-bold mt-1.5 flex items-center gap-1 leading-tight"></div>
                     <p class="text-xs text-gray-400 mt-1">Unique course identifier.</p>
                 </div>
 
@@ -228,6 +245,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Course Code <span class="text-red-500">*</span></label>
                     <input type="text" id="edit_code" name="code" required class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                    <div id="edit_cs_code_error" class="hidden text-[11px] text-rose-600 font-bold mt-1.5 flex items-center gap-1 leading-tight"></div>
                 </div>
 
                 <div>
@@ -260,6 +278,9 @@
     </div>
 
     <script>
+        const existingDatabaseCodes = @json($existingCourseCodes ?? []);
+        let currentEditingCode = '';
+
         function openAddCourseModal() {
             document.getElementById('addCourseModal').classList.remove('hidden');
         }
@@ -267,12 +288,87 @@
         function openEditModal(id, code, name, category, year) {
             const form = document.getElementById('editCourseForm');
             form.action = `/civil-services/courses/${id}`;
+            currentEditingCode = (code || '').trim().toUpperCase();
             document.getElementById('edit_code').value = code;
             document.getElementById('edit_name').value = name;
             document.getElementById('edit_category').value = category;
             document.getElementById('edit_year').value = year;
             document.getElementById('editCourseModal').classList.remove('hidden');
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const addCodeInput = document.getElementById('add_cs_code');
+            const addErrorDiv = document.getElementById('add_cs_code_error');
+            const addForm = document.querySelector('form[action="{{ route('civil.courses.store') }}"]');
+
+            function validateAddCode() {
+                if (!addCodeInput) return true;
+                const val = addCodeInput.value.trim().toUpperCase();
+                if (val !== '' && existingDatabaseCodes.includes(val)) {
+                    addErrorDiv.classList.remove('hidden');
+                    addErrorDiv.innerHTML = `<svg class="w-3.5 h-3.5 text-rose-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg> Course code '${val}' already exists! Same code is NOT allowed.`;
+                    addCodeInput.classList.add('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                    return false;
+                } else {
+                    addErrorDiv.classList.add('hidden');
+                    addErrorDiv.innerHTML = '';
+                    addCodeInput.classList.remove('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                    return true;
+                }
+            }
+
+            if (addCodeInput) {
+                addCodeInput.addEventListener('input', validateAddCode);
+                addCodeInput.addEventListener('change', validateAddCode);
+            }
+
+            if (addForm) {
+                addForm.addEventListener('submit', function(e) {
+                    if (!validateAddCode()) {
+                        e.preventDefault();
+                        addCodeInput.focus();
+                        alert('Course code already exists! Duplicate course code is not allowed.');
+                        return false;
+                    }
+                });
+            }
+
+            const editCodeInput = document.getElementById('edit_code');
+            const editErrorDiv = document.getElementById('edit_cs_code_error');
+            const editForm = document.getElementById('editCourseForm');
+
+            function validateEditCode() {
+                if (!editCodeInput) return true;
+                const val = editCodeInput.value.trim().toUpperCase();
+                if (val !== '' && val !== currentEditingCode && existingDatabaseCodes.includes(val)) {
+                    editErrorDiv.classList.remove('hidden');
+                    editErrorDiv.innerHTML = `<svg class="w-3.5 h-3.5 text-rose-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg> Course code '${val}' already exists for another course! Same code is NOT allowed.`;
+                    editCodeInput.classList.add('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                    return false;
+                } else {
+                    editErrorDiv.classList.add('hidden');
+                    editErrorDiv.innerHTML = '';
+                    editCodeInput.classList.remove('!border-rose-500', '!bg-rose-50/70', '!text-rose-700', 'ring-2', 'ring-rose-400');
+                    return true;
+                }
+            }
+
+            if (editCodeInput) {
+                editCodeInput.addEventListener('input', validateEditCode);
+                editCodeInput.addEventListener('change', validateEditCode);
+            }
+
+            if (editForm) {
+                editForm.addEventListener('submit', function(e) {
+                    if (!validateEditCode()) {
+                        e.preventDefault();
+                        editCodeInput.focus();
+                        alert('Course code already exists! Duplicate course code is not allowed.');
+                        return false;
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

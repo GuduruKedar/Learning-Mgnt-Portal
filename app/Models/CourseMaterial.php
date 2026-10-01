@@ -27,4 +27,14 @@ class CourseMaterial extends Model
     {
         return $this->belongsTo(User::class, 'staff_id');
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($material) {
+            \App\Services\CacheService::invalidateCourseMaterials($material->course_id);
+        });
+        static::deleted(function ($material) {
+            \App\Services\CacheService::invalidateCourseMaterials($material->course_id);
+        });
+    }
 }

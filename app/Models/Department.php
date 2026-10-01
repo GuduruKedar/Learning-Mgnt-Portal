@@ -25,4 +25,14 @@ class Department extends Model
     {
         return $this->hasMany(Profile::class, 'departments_id', 'code');
     }
+
+    protected static function booted()
+    {
+        static::saved(function () {
+            \App\Services\CacheService::invalidateDepartments();
+        });
+        static::deleted(function () {
+            \App\Services\CacheService::invalidateDepartments();
+        });
+    }
 }

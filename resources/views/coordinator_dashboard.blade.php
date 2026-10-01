@@ -20,21 +20,17 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-2.5 ml-auto">
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50/70">
             <div class="w-full space-y-6">
                 
                 <!-- Welcome Banner -->
-                <div class="bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-800 rounded-2xl p-6 sm:p-7 shadow-xl relative overflow-hidden border border-blue-700/50">
+                <div class="theme-hero-card rounded-2xl p-6 sm:p-7 shadow-xl relative overflow-hidden text-white">
                     <!-- Abstract modern background elements -->
-                    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-500 opacity-20 blur-3xl pointer-events-none"></div>
-                    <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-56 h-56 rounded-full bg-indigo-500 opacity-20 blur-2xl pointer-events-none"></div>
+                    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full blur-3xl pointer-events-none opacity-40" style="background: var(--theme-glow);"></div>
+                    <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-56 h-56 rounded-full blur-2xl pointer-events-none opacity-30" style="background: var(--theme-primary-light);"></div>
                     
                     <div class="relative z-10 flex flex-col gap-6">
                         <div>
@@ -42,28 +38,28 @@
                                 <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 text-white backdrop-blur-md border border-white/20 shadow-sm shrink-0">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </span>
-                                <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">Welcome back,<br class="sm:hidden"/><span class="text-blue-200"> {{ $admin->first_name }}!</span></h2>
+                                <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">Welcome back,<br class="sm:hidden"/><span class="text-white/90"> {{ $admin->first_name }}!</span></h2>
                             </div>
-                            <p class="text-blue-100/90 text-base sm:text-lg max-w-2xl font-normal leading-relaxed">
+                            <p class="text-white/80 text-base sm:text-lg max-w-2xl font-normal leading-relaxed">
                                 Coordinate and manage your department's staff, students, and academic programs seamlessly.
                             </p>
                         </div>
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                             <!-- School Card -->
-                            <div class="flex items-start gap-4 bg-white/5 backdrop-blur-md p-4 sm:p-5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors shadow-inner">
-                                <div class="p-2.5 rounded-lg bg-blue-400/20 text-blue-200 shrink-0 border border-blue-400/20">
+                            <div class="flex items-start gap-4 bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-xl border border-white/10 hover:bg-white/15 transition-colors shadow-inner">
+                                <div class="p-2.5 rounded-lg bg-white/10 text-white shrink-0 border border-white/15">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                 </div>
                                 <div class="flex flex-col min-w-0 pt-0.5">
-                                    <span class="text-[11px] font-semibold text-blue-300/80 uppercase tracking-wider mb-1">School</span>
+                                    <span class="text-[11px] font-semibold text-white/70 uppercase tracking-wider mb-1">School</span>
                                     <span class="text-sm sm:text-base font-semibold text-white whitespace-normal leading-snug break-words">{{ $admin->school->name ?? 'N/A' }}</span>
                                 </div>
                             </div>
                             
                             <!-- Department Card -->
-                            <div class="flex items-start gap-4 bg-white/5 backdrop-blur-md p-4 sm:p-5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors shadow-inner">
-                                <div class="p-2.5 rounded-lg bg-indigo-400/20 text-indigo-200 shrink-0 border border-indigo-400/20">
+                            <div class="flex items-start gap-4 bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-xl border border-white/10 hover:bg-white/15 transition-colors shadow-inner">
+                                <div class="p-2.5 rounded-lg bg-white/10 text-white shrink-0 border border-white/15">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                 </div>
                                 <div class="flex flex-col min-w-0 pt-0.5">
@@ -76,56 +72,56 @@
                 </div>
 
                 <div>
-                    <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-3">Dashboard Overview</h3>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-[#F8FAFC] mb-3">Dashboard Overview</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5">
                         <!-- Regulations Card -->
-                        <button type="button" id="openRegulationsModalBtn" class="group bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 flex flex-col hover:shadow-lg hover:border-indigo-300 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 overflow-hidden relative z-0">
-                            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-indigo-50/50 rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div>
+                        <button type="button" id="openRegulationsModalBtn" class="group bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-slate-200/80 dark:border-[#273244] p-4 sm:p-5 flex flex-col hover:shadow-lg hover:border-theme-primary hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none focus:ring-2 focus:ring-theme-primary overflow-hidden relative z-0">
+                            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-theme-light rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div>
                             <div class="flex items-start justify-between w-full mb-2 sm:mb-3">
-                                <div class="p-2 sm:p-3 rounded-xl bg-indigo-50 text-indigo-600 shadow-xs border border-indigo-100/50 group-hover:bg-indigo-500 group-hover:text-white transition-colors duration-200">
+                                <div class="p-2 sm:p-3 rounded-xl theme-icon-box shadow-xs group-hover:bg-theme-primary group-hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                 </div>
-                                <div class="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                                <div class="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-50 dark:bg-[#1C2430] text-slate-400 group-hover:bg-theme-light group-hover:text-theme-primary transition-colors">
                                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             </div>
                             <div class="w-full mt-auto">
-                                <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1 group-hover:text-indigo-500 transition-colors leading-tight">Total Regulations</p>
-                                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 group-hover:text-indigo-700 transition-colors">{{ $totalRegulations ?? 0 }}</p>
+                                <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-1 group-hover:text-theme-primary transition-colors leading-tight">Total Regulations</p>
+                                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F8FAFC] group-hover:text-theme-primary transition-colors">{{ $totalRegulations ?? 0 }}</p>
                             </div>
                         </button>
 
                         <!-- Faculty / Staff Card -->
-                        <a href="{{ route('staff.index') }}" class="group bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 flex flex-col hover:shadow-lg hover:border-teal-300 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none overflow-hidden relative z-0">
-                            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-teal-50/50 rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div>
+                        <a href="{{ route('staff.index') }}" class="group bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-slate-200/80 dark:border-[#273244] p-4 sm:p-5 flex flex-col hover:shadow-lg hover:border-teal-400 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none overflow-hidden relative z-0">
+                            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-teal-50/50 dark:bg-teal-900/20 rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div>
                             <div class="flex items-start justify-between w-full mb-2 sm:mb-3">
-                                <div class="p-2 sm:p-3 rounded-xl bg-teal-50 text-teal-600 shadow-xs border border-teal-100/50 group-hover:bg-teal-500 group-hover:text-white transition-colors duration-200">
+                                <div class="p-2 sm:p-3 rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400 shadow-xs border border-teal-100/50 dark:border-teal-800/40 group-hover:bg-teal-500 group-hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                 </div>
-                                <div class="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-teal-100 group-hover:text-teal-600 transition-colors">
+                                <div class="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-50 dark:bg-[#1C2430] text-slate-400 group-hover:bg-teal-100 dark:group-hover:bg-teal-900/40 group-hover:text-teal-600 transition-colors">
                                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             </div>
                             <div class="w-full mt-auto">
-                                <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1 group-hover:text-teal-500 transition-colors leading-tight">Dept. Faculty</p>
-                                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 group-hover:text-teal-700 transition-colors">{{ $totalStaff ?? 0 }}</p>
+                                <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-1 group-hover:text-teal-500 transition-colors leading-tight">Dept. Faculty</p>
+                                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F8FAFC] group-hover:text-teal-600 transition-colors">{{ $totalStaff ?? 0 }}</p>
                             </div>
                         </a>
 
                         <!-- Students Card -->
-                        <a href="{{ route('students.index') }}" class="group bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 flex flex-col hover:shadow-lg hover:border-orange-300 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none overflow-hidden relative z-0">
-                            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-orange-50/50 rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div>
+                        <a href="{{ route('students.index') }}" class="group bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-slate-200/80 dark:border-[#273244] p-4 sm:p-5 flex flex-col hover:shadow-lg hover:border-orange-400 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left w-full focus:outline-none overflow-hidden relative z-0">
+                            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-orange-50/50 dark:bg-orange-900/20 rounded-bl-full -z-10 group-hover:scale-125 transition-transform duration-500"></div>
                             <div class="flex items-start justify-between w-full mb-2 sm:mb-3">
-                                <div class="p-2 sm:p-3 rounded-xl bg-orange-50 text-orange-600 shadow-xs border border-orange-100/50 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-200">
+                                <div class="p-2 sm:p-3 rounded-xl bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 shadow-xs border border-orange-100/50 dark:border-orange-800/40 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-200">
                                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
                                 </div>
-                                <div class="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
+                                <div class="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-slate-50 dark:bg-[#1C2430] text-slate-400 group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 group-hover:text-orange-600 transition-colors">
                                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             </div>
                             <div class="w-full mt-auto">
-                                <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1 group-hover:text-orange-500 transition-colors leading-tight">Dept. Students</p>
-                                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 group-hover:text-orange-700 transition-colors">{{ $totalStudents ?? 0 }}</p>
+                                <p class="text-[10px] sm:text-[11px] font-bold text-slate-400 dark:text-[#94A3B8] uppercase tracking-wider mb-1 group-hover:text-orange-500 transition-colors leading-tight">Dept. Students</p>
+                                <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F8FAFC] group-hover:text-orange-600 transition-colors">{{ $totalStudents ?? 0 }}</p>
                             </div>
                         </a>
                     </div>
@@ -134,7 +130,7 @@
                 <!-- Department Programs Section -->
                 <div>
                     <div class="flex items-center justify-between mb-3.5">
-                        <h3 class="text-base sm:text-lg font-bold text-slate-900">Department Programs <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-0.5 rounded-full ml-1.5 border border-indigo-100">{{ $departmentPrograms->count() ?? 0 }}</span></h3>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-[#F8FAFC]">Department Programs <span class="badge-theme text-xs font-bold px-2.5 py-0.5 rounded-full ml-1.5">{{ $departmentPrograms->count() ?? 0 }}</span></h3>
                     </div>
                     
                     @if(isset($departmentPrograms) && $departmentPrograms->count() > 0)
@@ -190,7 +186,7 @@
             </div>
             
             <footer class="mt-8 border-t border-gray-200 pt-4 pb-2">
-                <p class="text-center text-sm text-gray-500">&copy; {{ date('Y') }} Learning Management System. All rights reserved.</p>
+                <p class="text-center text-xs text-gray-500 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700">TD</span>.</p>
             </footer>
         </main>
     </div>

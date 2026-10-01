@@ -18,19 +18,7 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-                    <svg class="w-3.5 h-3.5 mr-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                    Sciences & Humanities Division
-                </span>
-                <span class="text-xs text-slate-500 font-medium hidden md:inline">University First Year Academic Directorate</span>
-            </div>
-
-            <div class="flex items-center ml-auto gap-4">
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        @include('partials.top_header')
 
         <!-- Main Scrollable Body -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
@@ -315,7 +303,7 @@
 
                 <!-- Footer -->
                 <footer class="mt-8 border-t border-slate-200 pt-4 pb-2">
-                    <p class="text-center text-xs text-slate-500">&copy; {{ date('Y') }} Learning Management System - School of Applied Sciences & Humanities (First Year Directorate). All rights reserved.</p>
+                    <p class="text-center text-xs text-slate-500 font-medium">&copy; {{ date('Y') }} Learning Management System - School of Applied Sciences & Humanities (First Year Directorate). Powered by <span class="font-semibold text-slate-700">TD</span>.</p>
                 </footer>
 
             </div>

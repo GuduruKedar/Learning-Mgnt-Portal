@@ -23,7 +23,12 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = \App\Models\User::where('username', $request->emp_id)->first();
+        $empId = trim($request->emp_id);
+        $password = $request->password;
+
+        $user = \App\Models\User::where('username', $empId)
+            ->orWhereRaw('LOWER(TRIM(username)) = ?', [strtolower($empId)])
+            ->first();
 
         if ($user && $user->requires_password_reset) {
             return back()->withErrors([
@@ -31,9 +36,16 @@ class LoginController extends Controller
             ]);
         }
 
-        if (Auth::attempt(['username' => $request->emp_id, 'password' => $request->password])) {
+        $canonicalUsername = $user ? $user->username : $empId;
+        $credentials = ['username' => $canonicalUsername, 'password' => $password];
+
+        // Also fallback to trimmed password if user accidentally added leading/trailing whitespace
+        $authenticated = Auth::attempt($credentials) || (trim($password) !== $password && Auth::attempt(['username' => $canonicalUsername, 'password' => trim($password)]));
+
+        if ($authenticated) {
             if ($user) {
                 $user->failed_login_attempts = 0;
+                $user->requires_password_reset = false;
                 $user->save();
             }
             
@@ -85,12 +97,12 @@ class LoginController extends Controller
             
             $attemptsLeft = 3 - $user->failed_login_attempts;
             return back()->withErrors([
-                'emp_id' => "Invalid Employee ID or Password. You have {$attemptsLeft} attempt(s) left before your account is locked.",
+                'emp_id' => "Invalid Username / Employee ID or Password. You have {$attemptsLeft} attempt(s) left before your account is locked.",
             ]);
         }
 
         return back()->withErrors([
-            'emp_id' => 'Invalid Employee ID or Password.',
+            'emp_id' => 'Invalid Username / Employee ID or Password.',
         ]);
     }
 

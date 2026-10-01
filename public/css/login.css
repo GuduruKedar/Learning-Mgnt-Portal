@@ -1,9 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-    --primary: #4f46e5;
-    --primary-hover: #4338ca;
-    --accent: #38bdf8;
+    --primary: #3B82F6;
+    --primary-hover: #2563EB;
+    --accent: #60A5FA;
+    --border: #E2E8F0;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
 }
 
 * {
@@ -12,7 +16,7 @@
 
 body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #0f172a;
+    color: var(--text-primary) !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -34,14 +38,14 @@ body {
     }
 }
 
-/* Ambient dynamic background lighting effects with floating animation */
+/* Ambient background lighting effects - Stable & Static for optimal performance */
 .ambient-glow {
     position: absolute;
     width: 480px;
     height: 480px;
     border-radius: 50%;
-    filter: blur(110px);
-    opacity: 0.22;
+    filter: blur(120px);
+    opacity: 0.12;
     pointer-events: none;
     z-index: 1;
 }
@@ -49,27 +53,13 @@ body {
 .ambient-glow-1 {
     top: 5%;
     left: 10%;
-    background: radial-gradient(circle, #38bdf8 0%, #6366f1 70%);
-    animation: drift-1 14s ease-in-out infinite alternate;
+    background: radial-gradient(circle, #3B82F6 0%, #1D4ED8 70%);
 }
 
 .ambient-glow-2 {
     bottom: 5%;
     right: 5%;
-    background: radial-gradient(circle, #818cf8 0%, #c084fc 70%);
-    animation: drift-2 16s ease-in-out infinite alternate;
-}
-
-@keyframes drift-1 {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(45px, -35px) scale(1.12); }
-    100% { transform: translate(-20px, 25px) scale(0.95); }
-}
-
-@keyframes drift-2 {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-40px, -45px) scale(1.15); }
-    100% { transform: translate(30px, 20px) scale(0.9); }
+    background: radial-gradient(circle, #6366F1 0%, #4338CA 70%);
 }
 
 /* Animated gradient text */
@@ -80,159 +70,118 @@ body {
 }
 
 .animated-gradient-text {
-    background: linear-gradient(90deg, #38bdf8, #a5b4fc, #e879f9, #38bdf8);
+    background: linear-gradient(90deg, #93C5FD, #60A5FA, #38BDF8, #93C5FD);
     background-size: 300% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: gradient-flow 6s ease infinite;
 }
 
-/* Glass panel for the right-side form card */
+/* Glass panel for the login form card (Normal Light Theme) */
 .glass-panel {
     position: relative;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.96) !important;
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 1.75rem; /* rounded-3xl */
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    border-radius: 1.75rem;
     box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35),
-                0 0 0 1px rgba(255, 255, 255, 0.8) inset,
-                0 10px 20px -5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                0 0 0 1px rgba(255, 255, 255, 0.9) inset;
 }
 
-.glass-panel:hover {
-    box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.42),
-                0 0 0 1px rgba(255, 255, 255, 0.95) inset;
-}
-
-.glass-panel::before {
-    content: '';
+/* Institutional Card Watermark Emblem */
+.card-watermark {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 310px;
-    height: 310px;
-    background-image: url('/images/vignanwatermark.png');
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: contain;
-    opacity: 0.15;
-    filter: saturate(1.15) contrast(1.05);
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     pointer-events: none;
-    z-index: 0;
     user-select: none;
-}
-
-.glass-panel > * {
-    position: relative;
-    z-index: 1;
-}
-
-/* Left side feature cards (Crystal Light Frosted Glassmorphism) */
-@keyframes float-subtle {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-4px); }
-}
-
-.card-anim-1 { animation: float-subtle 6s ease-in-out infinite 0s; }
-.card-anim-2 { animation: float-subtle 6s ease-in-out infinite 1.5s; }
-.card-anim-3 { animation: float-subtle 6s ease-in-out infinite 3s; }
-.card-anim-4 { animation: float-subtle 6s ease-in-out infinite 4.5s; }
-.card-anim-5 { animation: float-subtle 7s ease-in-out infinite 2s; }
-
-.feature-card {
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.95);
-    box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.18),
-                0 0 0 1px rgba(255, 255, 255, 0.85) inset;
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
+    -webkit-user-select: none;
+    z-index: 0;
     overflow: hidden;
 }
 
-.feature-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.8), transparent 70%);
+.card-watermark img {
+    width: 320px;
+    height: 320px;
+    object-fit: contain;
+    opacity: 0.055;
+    transform: translateY(15px);
     pointer-events: none;
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
+}
+
+/* Feature card on the left showcase - 100% Stable, No Shuffling or Displacement */
+.feature-card {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.7) !important;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12),
+                0 4px 6px -4px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transform: none !important;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .feature-card:hover {
-    background: rgba(255, 255, 255, 0.98) !important;
-    border-color: rgba(99, 102, 241, 0.45) !important;
-    transform: translateY(-4px) scale(1.015) !important;
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.22),
-                0 0 25px rgba(99, 102, 241, 0.2),
-                0 0 0 1px rgba(255, 255, 255, 1) inset !important;
+    background: #FFFFFF !important;
+    border-color: rgba(59, 130, 246, 0.45) !important;
+    transform: none !important;
+    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.16);
 }
 
-.feature-card:hover::before {
-    opacity: 1;
+.feature-card:active {
+    transform: none !important;
 }
 
-/* Pulse radar ring for live tags */
-@keyframes radar-pulse {
-    0% { transform: scale(0.95); opacity: 0.8; }
-    50% { transform: scale(1.3); opacity: 0; }
-    100% { transform: scale(0.95); opacity: 0.8; }
+.feature-card h3 {
+    color: #0F172A !important;
 }
 
-.radar-dot {
-    animation: radar-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.feature-card p {
+    color: #475569 !important;
 }
 
-/* Modern Form input styling */
-.input-animated {
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    background: rgba(255, 255, 255, 0.95);
+/* Custom Styled Form Elements (Normal Light Theme) */
+input[type="text"],
+input[type="password"] {
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    color: #0F172A !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.input-animated:focus {
-    transform: translateY(-1px);
-    border-color: #4f46e5 !important;
-    background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.14), 0 4px 14px rgba(79, 70, 229, 0.1);
+input[type="text"]:focus,
+input[type="password"]:focus {
+    background: #FFFFFF !important;
+    border-color: #3B82F6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
 }
 
-/* Primary Button Styling */
+input::placeholder {
+    color: #94A3B8 !important;
+}
+
+/* Glow submit button */
 .btn-animated {
     position: relative;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
-}
-
-.btn-animated::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-    transition: all 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.btn-animated:hover::after {
-    left: 100%;
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 20px -2px rgba(59, 130, 246, 0.45);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-animated:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(135deg, #4338ca 0%, #1d4ed8 100%);
-    box-shadow: 0 14px 30px -6px rgba(79, 70, 229, 0.5),
-                0 4px 12px rgba(37, 99, 235, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px -2px rgba(59, 130, 246, 0.6);
+    filter: brightness(1.06);
 }
 
 .btn-animated:active {
-    transform: translateY(0);
-    box-shadow: 0 6px 16px -3px rgba(79, 70, 229, 0.4);
+    transform: translateY(1px);
 }

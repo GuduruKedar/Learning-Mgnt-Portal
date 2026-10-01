@@ -19,11 +19,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden main-content-wrapper transition-all duration-300">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-2.5 ml-auto">
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50/70">
@@ -163,7 +160,7 @@
             </div>
 
             <footer class="mt-12 border-t border-gray-200 pt-4 pb-2">
-                <p class="text-center text-sm text-gray-500">&copy; {{ date('Y') }} Learning Management System. All rights reserved.</p>
+                <p class="text-center text-xs text-gray-500 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700">TD</span>.</p>
             </footer>
         </main>
     </div>

@@ -24,4 +24,14 @@ class CivilServiceEnrollment extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected static function booted()
+    {
+        static::saved(function () {
+            \App\Services\CacheService::invalidateCivilServicesStats();
+        });
+        static::deleted(function () {
+            \App\Services\CacheService::invalidateCivilServicesStats();
+        });
+    }
 }

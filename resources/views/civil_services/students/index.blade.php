@@ -18,11 +18,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-2.5 ml-auto">
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
@@ -141,52 +138,69 @@
                             <tbody class="divide-y divide-gray-100 text-sm">
                                 @forelse($students as $student)
                                 <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
                                             {{ $student->username }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap">
                                         <div class="flex items-center">
                                             @if($student->photo)
-                                                <img class="w-9 h-9 rounded-full object-cover mr-3 border border-gray-200" src="{{ asset('storage/' . $student->photo) }}" alt="">
+                                                <img class="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover mr-3 border border-gray-200" src="{{ asset('storage/' . $student->photo) }}" alt="">
                                             @else
-                                                <div class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-700 font-bold flex items-center justify-center mr-3 text-xs border border-indigo-100">
+                                                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-indigo-50 text-indigo-700 font-bold flex items-center justify-center mr-3 text-xs border border-indigo-100">
                                                     {{ substr($student->first_name ?? 'S', 0, 1) }}
                                                 </div>
                                             @endif
                                             <div>
-                                                <div class="font-semibold text-gray-900">{{ $student->first_name }} {{ $student->last_name }}</div>
+                                                <div class="font-semibold text-gray-900 text-sm">{{ $student->first_name }} {{ $student->last_name }}</div>
                                                 <div class="text-xs text-gray-400">{{ $student->email ?? 'No email' }}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <div class="font-medium text-gray-800">{{ $student->profile->department->name ?? 'N/A' }}</div>
-                                        <div class="text-xs text-gray-400">{{ $student->profile->school->name ?? 'N/A' }}</div>
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5">
+                                        <div class="font-medium text-gray-800 text-sm">{{ $student->profile->department->name ?? 'N/A' }}</div>
+                                        <div class="text-[10px] uppercase tracking-wider text-gray-400">{{ $student->profile->school->name ?? 'N/A' }}</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap">
                                         <span class="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700">
                                             {{ $student->profile->level ?? 'UG' }}
                                         </span>
                                         <span class="text-xs text-gray-500 ml-1">{{ $student->profile->program->name ?? '' }}</span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-600 font-medium text-xs">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap text-gray-600 font-medium text-xs">
                                         {{ $student->civilServiceEnrollment->batch_year ?? '2026' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap">
+                                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
                                             {{ ucfirst($student->civilServiceEnrollment->status ?? 'active') }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <form method="POST" action="{{ route('civil.students.unenroll', $student->id) }}" onsubmit="return confirm('Are you sure you want to remove {{ $student->username }} from Civil Services enrollment? (Their core degree and academic record will remain intact).');" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800 px-3 py-1 rounded-lg bg-red-50 hover:bg-red-100 transition-colors">
-                                                Unenroll
-                                            </button>
-                                        </form>
+                                    <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap text-right">
+                                        @php
+                                            $stName = addslashes(trim(($student->profile->first_name ?? '') . ' ' . ($student->profile->last_name ?? '')));
+                                            $unenrollUrl = route('civil.students.unenroll', $student->id);
+                                        @endphp
+                                        <button type="button" 
+                                            onclick="openUniversalDeleteModal({
+                                                title: 'Unenroll Student from Civil Services',
+                                                subtitle: 'Confirm track unenrollment',
+                                                itemName: '{{ $stName }}',
+                                                itemCode: 'Reg: {{ $student->username }}',
+                                                itemBadge: 'Civil Services Coaching',
+                                                itemMeta: 'Batch: {{ $student->civilServiceEnrollment->batch_year ?? '2026' }} • Department: {{ addslashes($student->profile->department->name ?? 'N/A') }}',
+                                                cascadeItems: [
+                                                    { title: 'Civil Services Track', count: 'Active Enrollment Removed', icon: 'check' },
+                                                    { title: 'Degree Academic Record', count: '100% Intact & Preserved', icon: 'student' }
+                                                ],
+                                                warningTitle: 'Unenroll {{ $student->username }} from Civil Services?',
+                                                warningBody: 'Are you sure you want to remove {{ $student->username }} from the Civil Services coaching track? Their main academic record and degree credentials will remain safe and untouched.',
+                                                deleteUrl: '{{ $unenrollUrl }}',
+                                                submitBtnText: 'Yes, Unenroll Student'
+                                            })"
+                                            class="text-xs font-semibold text-red-600 hover:text-red-800 px-3 py-1 rounded-lg bg-red-50 hover:bg-red-100 transition-colors cursor-pointer">
+                                            Unenroll
+                                        </button>
                                     </td>
                                 </tr>
                                 @empty
@@ -227,11 +241,6 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Registration Number <span class="text-red-500">*</span></label>
                     <input type="text" name="reg_number" required maxlength="10" minlength="10" placeholder="e.g. 241FA04001 (10 chars)" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '')" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase font-mono">
                     <p class="text-xs text-gray-400 mt-1">Enter the 10-character student university registration number.</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Batch Year</label>
-                    <input type="text" name="batch_year" value="{{ date('Y') }}" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">

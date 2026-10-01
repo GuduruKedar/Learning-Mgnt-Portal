@@ -62,4 +62,18 @@ class Profile extends Model
     {
         return $this->belongsTo(Program::class, 'programs_id', 'code');
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($profile) {
+            \App\Services\CacheService::invalidateSuperAdminStats();
+            \App\Services\CacheService::invalidateCoordinatorStats($profile->departments_id);
+            \App\Services\CacheService::invalidateSshAdminStats();
+        });
+        static::deleted(function ($profile) {
+            \App\Services\CacheService::invalidateSuperAdminStats();
+            \App\Services\CacheService::invalidateCoordinatorStats($profile->departments_id);
+            \App\Services\CacheService::invalidateSshAdminStats();
+        });
+    }
 }

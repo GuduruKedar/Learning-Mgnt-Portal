@@ -18,24 +18,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('civil.courses.index') }}" class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors" title="Back to Courses">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                </a>
-                <div>
-                    <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Course Modules & Materials</h1>
-                    <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Civil Services Academy • Module Manager</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2.5">
-                <a href="{{ route('civil.courses.index') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-xs transition-all">
-                    Back to Courses
-                </a>
-                <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
-                @include('partials.profile_dropdown')
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
@@ -141,13 +125,29 @@
                                                 Open Link
                                             </a>
                                         @endif
-                                        <form method="POST" action="{{ route('civil.courses.modules.destroy', [$course->id, $item->id]) }}" onsubmit="return confirm('Delete module {{ $item->title }}?');" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
-                                                Delete
-                                            </button>
-                                        </form>
+                                        @php
+                                            $modDelUrl = route('civil.courses.modules.destroy', [$course->id, $item->id]);
+                                        @endphp
+                                        <button type="button" 
+                                            onclick="openUniversalDeleteModal({
+                                                title: 'Delete Module / Study Material',
+                                                subtitle: 'Confirm file removal',
+                                                itemName: '{{ addslashes($item->title) }}',
+                                                itemCode: '{{ strtoupper($item->type) }}',
+                                                itemBadge: '{{ addslashes($item->platform ?? 'Civil Services') }}',
+                                                itemMeta: 'Course: {{ addslashes($course->code) }} - {{ addslashes($course->name) }}',
+                                                cascadeItems: [
+                                                    { title: 'Resource Type', count: '{{ ucfirst($item->type) }} Material', icon: 'file' },
+                                                    { title: 'Server File', count: 'Storage Cleaned', icon: 'material' }
+                                                ],
+                                                warningTitle: 'Delete {{ addslashes($item->title) }}?',
+                                                warningBody: 'This action will permanently delete this learning resource from {{ addslashes($course->code) }} and remove any uploaded file from storage.',
+                                                deleteUrl: '{{ $modDelUrl }}',
+                                                submitBtnText: 'Yes, Delete Module'
+                                            })"
+                                            class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors cursor-pointer">
+                                            Delete
+                                        </button>
                                     </td>
                                 </tr>
                                 @empty

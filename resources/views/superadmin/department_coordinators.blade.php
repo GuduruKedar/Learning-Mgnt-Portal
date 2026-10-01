@@ -18,33 +18,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center ml-auto">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0">
-                    @if(Auth::user()->photo)
-                        <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-indigo-200" src="{{ asset('storage/' . Auth::user()->photo) }}" alt="">
-                    @else
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shadow-sm">
-                            {{ substr(Auth::user()->first_name ?? 'A', 0, 1) }}
-                        </div>
-                    @endif
-                    <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->first_name ?? 'Superadmin' }}</span>
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Edit Profile</a>
-                        <button type="button" id="openPasswordModalBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Change Password</button>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</a>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
@@ -342,16 +317,16 @@
                             <tbody class="bg-white divide-y divide-gray-100">
                                 @forelse($departments as $dept)
                                 <tr class="hover:bg-gray-50/50 transition-colors">
-                                    <td class="px-5 py-4 align-top">
+                                    <td class="px-5 py-2.5 sm:py-3 align-middle">
                                         <div class="flex flex-col">
                                             <span class="text-sm font-bold text-gray-800">{{ $dept->name }}</span>
-                                            <span class="text-xs font-mono text-gray-400 mt-0.5">{{ $dept->code }}</span>
+                                            <span class="text-xs font-mono text-gray-400">{{ $dept->code }}</span>
                                         </div>
                                     </td>
-                                    <td class="px-5 py-4 align-top">
+                                    <td class="px-5 py-2.5 sm:py-3 align-middle">
                                         <span class="text-xs font-medium text-gray-600">{{ $dept->school->name ?? 'N/A' }}</span>
                                     </td>
-                                    <td class="px-5 py-4 align-top text-center">
+                                    <td class="px-5 py-2.5 sm:py-3 align-middle text-center">
                                         @if($dept->profiles->count() > 0)
                                             <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
                                                 {{ $dept->profiles->count() }} Coordinator{{ $dept->profiles->count() > 1 ? 's' : '' }}
@@ -362,7 +337,7 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-5 py-4 align-top">
+                                    <td class="px-5 py-2.5 sm:py-3 align-middle">
                                         @if($dept->profiles->count() > 0)
                                             <div class="flex flex-col gap-2 items-start w-full">
                                                 @foreach($dept->profiles as $profile)
@@ -401,13 +376,34 @@
                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                                                         </button>
                                                         @if(Auth::user()->role === 'sa')
-                                                        <form action="{{ route('coordinators.destroy', $profile->user->id ?? $profile->user_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this Coordinator?');" class="inline m-0 p-0">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors" title="Delete">
-                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                            </button>
-                                                        </form>
+                                                        @php
+                                                            $coordFullName = addslashes(trim(($profile->first_name ?? '') . ' ' . ($profile->last_name ?? '')));
+                                                            $coordUser = addslashes($profile->user->username ?? $profile->username ?? 'Coordinator');
+                                                            $coordDept = addslashes($dept->name ?? 'Department');
+                                                            $coordDelUrl = route('coordinators.destroy', $profile->user->id ?? $profile->user_id);
+                                                        @endphp
+                                                        <button type="button" 
+                                                            onclick="openUniversalDeleteModal({
+                                                                title: 'Delete Department Coordinator',
+                                                                subtitle: 'Confirm permanent account deletion',
+                                                                itemName: '{{ $coordFullName }}',
+                                                                itemCode: 'User: {{ $coordUser }}',
+                                                                itemBadge: '{{ $coordDept }}',
+                                                                itemMeta: '{{ $dept->school->name ?? 'N/A' }} • {{ $profile->email ?? 'No email' }}',
+                                                                cascadeItems: [
+                                                                    { title: 'Coordinator Role', count: 'Admin Permissions', icon: 'badge' },
+                                                                    { title: 'Department Link', count: '{{ $coordDept }}', icon: 'course' },
+                                                                    { title: 'Profile Record', count: 'User Credentials', icon: 'user' }
+                                                                ],
+                                                                warningTitle: 'Are you sure you want to delete this Coordinator?',
+                                                                warningBody: 'This action will permanently delete coordinator {{ $coordFullName }} ({{ $coordUser }}), revoke administrative access, and remove their account.',
+                                                                deleteUrl: '{{ $coordDelUrl }}',
+                                                                submitBtnText: 'Yes, Delete Coordinator'
+                                                            })"
+                                                            class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer" 
+                                                            title="Delete Coordinator">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                        </button>
                                                         @endif
                                                      </div>
                                                 </div>
@@ -452,7 +448,7 @@
                 </div>
             </div>
             <footer class="mt-8 border-t border-gray-200 pt-4 pb-2">
-                <p class="text-center text-sm text-gray-500">&copy; {{ date('Y') }} Learning Management System. All rights reserved.</p>
+                <p class="text-center text-xs text-gray-500 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700">TD</span>.</p>
             </footer>
         </main>
     </div>

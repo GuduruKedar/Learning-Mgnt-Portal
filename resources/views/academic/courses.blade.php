@@ -69,72 +69,93 @@
                 </div>
 
                 <!-- Filters Section -->
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6 transition-all hover:shadow-md">
-                    <form action="{{ route('academic.courses') }}" method="GET" class="flex flex-row flex-wrap items-center gap-3 w-full" id="filterForm">
-                        <div class="flex-1 min-w-[200px]">
+                <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-xs border border-slate-200/80 mb-6 transition-all hover:shadow-sm">
+                    <form action="{{ route('academic.courses') }}" method="GET" class="flex flex-wrap items-center gap-3 w-full" id="filterForm">
+                        <!-- Search Box -->
+                        <div class="flex-1 min-w-[220px] w-full">
                             <label for="search" class="sr-only">Search</label>
-                            <div class="relative group">
-                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 </div>
-                                <input type="text" name="search" id="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" placeholder="Search by course code or name...">
+                                <input type="text" name="search" id="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3.5 py-2.5 border border-slate-200 rounded-xl text-xs sm:text-sm bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium" placeholder="Search by course code or name...">
                             </div>
                         </div>
                         
-                        <div class="w-full sm:w-48 shrink-0">
+                        <!-- Regulation -->
+                        <div class="w-full sm:w-48 lg:w-56 shrink-0">
                             <label for="regulation_id" class="sr-only">Regulation</label>
-                            <select name="regulation_id" id="regulation_id" onchange="this.form.submit()" class="block w-full pl-3 pr-10 py-2.5 text-sm border-gray-200 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-all duration-200 cursor-pointer appearance-none">
-                                <option value="">All Regulations</option>
-                                @foreach($regulations as $reg)
-                                    <option value="{{ $reg->id }}" {{ request('regulation_id') == $reg->id ? 'selected' : '' }}>{{ $reg->code }}{{ !empty($reg->curriculum) ? ' - ' . $reg->curriculum : ($reg->name && $reg->name !== $reg->code ? ' - ' . $reg->name : '') }} ({{ $reg->program_type }})</option>
-                                @endforeach
-                            </select>
+                            <div class="relative">
+                                <select name="regulation_id" id="regulation_id" onchange="this.form.submit()" class="block w-full pl-3.5 pr-8 py-2.5 text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer appearance-none">
+                                    <option value="">All Regulations</option>
+                                    @foreach($regulations as $reg)
+                                        <option value="{{ $reg->id }}" {{ request('regulation_id') == $reg->id ? 'selected' : '' }}>{{ $reg->code }}{{ !empty($reg->curriculum) ? ' - ' . $reg->curriculum : ($reg->name && $reg->name !== $reg->code ? ' - ' . $reg->name : '') }} ({{ $reg->program_type }})</option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
                         </div>
                         
+                        <!-- Department -->
                         @if(in_array(Auth::user()->role, ['sa', 'ssh_admin']))
                         <div class="w-full sm:w-48 shrink-0">
                             <label for="department" class="sr-only">Department</label>
-                            <select name="department" id="department" onchange="this.form.submit()" class="block w-full pl-3 pr-10 py-2.5 text-sm border-gray-200 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-all duration-200 cursor-pointer appearance-none">
-                                <option value="">All Departments</option>
-                                @foreach($departments as $dept)
-                                    <option value="{{ $dept->code }}" {{ request('department') == $dept->code ? 'selected' : '' }}>{{ $dept->name }}</option>
-                                @endforeach
-                            </select>
+                            <div class="relative">
+                                <select name="department" id="department" onchange="this.form.submit()" class="block w-full pl-3.5 pr-8 py-2.5 text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer appearance-none">
+                                    <option value="">All Departments</option>
+                                    @foreach($departments as $dept)
+                                        <option value="{{ $dept->code }}" {{ request('department') == $dept->code ? 'selected' : '' }}>{{ $dept->name }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
                         </div>
                         @endif
                         
-                        <div class="w-full sm:w-32 shrink-0">
-                            <label for="year" class="sr-only">Year</label>
-                            <select name="year" id="year" onchange="this.form.submit()" class="no-tomselect block w-full pl-3 pr-10 py-2.5 text-sm border-gray-200 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-all duration-200 cursor-pointer appearance-none">
-                                @if(Auth::user()->role === 'ssh_admin')
-                                    <option value="1">Year 1</option>
-                                @else
-                                    <option value="">All Years</option>
-                                    @for($i = 1; $i <= 4; $i++)
-                                        <option value="{{ $i }}" {{ request('year') == $i ? 'selected' : '' }}>Year {{ $i }}</option>
+                        <!-- Year & Semester Dual Grid on Mobile -->
+                        <div class="grid grid-cols-2 gap-3 w-full sm:w-auto sm:flex sm:items-center sm:gap-3 shrink-0">
+                            <div class="w-full sm:w-28 relative">
+                                <label for="year" class="sr-only">Year</label>
+                                <select name="year" id="year" onchange="this.form.submit()" class="no-tomselect block w-full pl-3.5 pr-8 py-2.5 text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer appearance-none">
+                                    @if(Auth::user()->role === 'ssh_admin')
+                                        <option value="1">Year 1</option>
+                                    @else
+                                        <option value="">All Years</option>
+                                        @for($i = 1; $i <= 4; $i++)
+                                            <option value="{{ $i }}" {{ request('year') == $i ? 'selected' : '' }}>Year {{ $i }}</option>
+                                        @endfor
+                                    @endif
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+
+                            <div class="w-full sm:w-28 relative">
+                                <label for="semester" class="sr-only">Semester</label>
+                                <select name="semester" id="semester" onchange="this.form.submit()" class="no-tomselect block w-full pl-3.5 pr-8 py-2.5 text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer appearance-none">
+                                    <option value="">All Sems</option>
+                                    @for($i = 1; $i <= 2; $i++)
+                                        <option value="{{ $i }}" {{ request('semester') == $i ? 'selected' : '' }}>Sem {{ $i }}</option>
                                     @endfor
-                                @endif
-                            </select>
-                        </div>
-
-                        <div class="w-full sm:w-32 shrink-0">
-                            <label for="semester" class="sr-only">Semester</label>
-                            <select name="semester" id="semester" onchange="this.form.submit()" class="no-tomselect block w-full pl-3 pr-10 py-2.5 text-sm border-gray-200 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg transition-all duration-200 cursor-pointer appearance-none">
-                                <option value="">All Sems</option>
-                                @for($i = 1; $i <= 2; $i++)
-                                    <option value="{{ $i }}" {{ request('semester') == $i ? 'selected' : '' }}>Sem {{ $i }}</option>
-                                @endfor
-                            </select>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
                         </div>
                         
-
-                        
-                        <div class="flex items-center space-x-3 shrink-0">
-                            <button type="submit" class="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
+                        <!-- Buttons in responsive flex / dual grid -->
+                        <div class="grid grid-cols-2 gap-3 w-full sm:w-auto sm:flex sm:items-center sm:gap-2.5 shrink-0">
+                            <button type="submit" class="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-xs sm:text-sm font-semibold rounded-xl shadow-xs text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors">
                                 Apply Filters
                             </button>
-                            <a href="{{ route('academic.courses') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-gray-200 text-sm font-medium rounded-lg text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-xs" title="Reset all filters">
-                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            <a href="{{ route('academic.courses') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-slate-200 text-xs sm:text-sm font-medium rounded-xl text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-xs" title="Reset all filters">
+                                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 <span>Reset</span>
                             </a>
                         </div>

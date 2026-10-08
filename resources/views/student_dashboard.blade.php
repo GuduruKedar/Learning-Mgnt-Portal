@@ -37,7 +37,7 @@
                                 Student Portal
                             </div>
                             <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                                Welcome back, {{ Auth::user()->first_name ?? Auth::user()->username }}!
+                                Welcome back, {{ Auth::user()->first_name ?? Auth::user()->username }}
                             </h1>
                             <p class="text-sm text-white/80 mt-1 max-w-2xl font-normal">
                                 Access your enrolled course materials, download study resources, and submit academic assessments.

@@ -52,8 +52,8 @@ class StaffController extends Controller
         }
 
         $staffMembers = $query->withCount(['courses', 'assignments', 'courseMaterials'])->paginate(10)->withQueryString();
-        $schools = School::all();
-        $departments = Department::all();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartments();
 
         $totalStaff = ($role === 'admin') 
             ? User::role('sta')->whereHas('profile', function ($q) use ($user) {
@@ -81,8 +81,8 @@ class StaffController extends Controller
 
     public function create()
     {
-        $schools = School::all();
-        $departments = Department::with('school')->get();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartmentsWithSchool();
         return view('staff.create', compact('schools', 'departments'));
     }
 
@@ -176,8 +176,8 @@ class StaffController extends Controller
             abort(403, 'Unauthorized to edit this staff member.');
         }
 
-        $schools = School::all();
-        $departments = Department::with('school')->get();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartmentsWithSchool();
         return view('staff.edit', compact('staff', 'schools', 'departments'));
     }
 

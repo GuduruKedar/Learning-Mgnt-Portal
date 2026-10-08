@@ -50,12 +50,12 @@
                             <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2.5">
+                            <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
                                 <span class="text-2xl sm:text-3xl font-bold text-gray-900 @if(Auth::user()->role === 'sa') group-hover:text-teal-600 @endif transition-colors">{{ $totalStaff }}</span>
                                 @if(Auth::user()->role === 'sa')
-                                <span class="inline-flex items-center gap-1 text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-200 px-2.5 py-0.5 rounded-full group-hover:bg-teal-600 group-hover:text-white transition-all">
-                                    Click for Department Breakdown
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                <span class="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-300 border border-teal-200/80 dark:border-teal-800/60 px-2.5 py-0.5 rounded-full group-hover:bg-teal-600 group-hover:text-white group-hover:border-teal-600 transition-all whitespace-nowrap shrink-0 shadow-xs">
+                                    <span class="hidden sm:inline">Click for </span><span>Department Breakdown</span>
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </span>
                                 @endif
                             </div>

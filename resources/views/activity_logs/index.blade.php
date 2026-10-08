@@ -10,28 +10,6 @@
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono-code { font-family: 'JetBrains Mono', monospace; }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        .pulse-live {
-            animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: .4; transform: scale(1.15); }
-        }
-    </style>
 </head>
 <body class="h-screen overflow-hidden flex bg-gray-50 text-gray-800">
 
@@ -90,24 +68,24 @@
 
                 <!-- Incident & Security Alert Banner (If Warning / Danger Logs Exist) -->
                 @if(isset($recentCriticalLogs) && $recentCriticalLogs->isNotEmpty())
-                    <div class="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
+                    <div class="bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
                         <div class="flex items-start sm:items-center space-x-3">
-                            <span class="p-2 bg-amber-500 text-white rounded-xl shrink-0">
+                            <span class="p-2.5 bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/25 rounded-xl shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                             </span>
                             <div>
-                                <h2 class="text-xs font-bold text-amber-900 uppercase tracking-wide">Security & Audit Notice: {{ $warningCount + $dangerCount }} Alerts Detected</h2>
-                                <p class="text-xs text-amber-800 mt-0.5">
-                                    Latest: <span class="font-semibold">{{ $recentCriticalLogs->first()->action_title }}</span> — {{ $recentCriticalLogs->first()->description }} 
-                                    <span class="text-[11px] text-amber-600 font-mono">({{ $recentCriticalLogs->first()->created_at->diffForHumans() }})</span>
+                                <h2 class="text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wide">Security & Audit Notice: {{ $warningCount + $dangerCount }} Alerts Detected</h2>
+                                <p class="text-xs text-amber-800 dark:text-amber-300/90 mt-0.5">
+                                    Latest: <span class="font-semibold text-amber-900 dark:text-white">{{ $recentCriticalLogs->first()->action_title }}</span> — {{ $recentCriticalLogs->first()->description }} 
+                                    <span class="text-[11px] text-amber-600 dark:text-amber-400 font-mono">({{ $recentCriticalLogs->first()->created_at->diffForHumans() }})</span>
                                 </p>
                             </div>
                         </div>
                         <div class="flex items-center space-x-2 shrink-0 self-end md:self-auto">
-                            <a href="{{ route('activity_logs.index', array_merge(request()->query(), ['severity' => 'warning'])) }}" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors shadow-2xs">
+                            <a href="{{ route('activity_logs.index', array_merge(request()->query(), ['severity' => 'warning'])) }}" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-xs hover:shadow-sm">
                                 View Warnings ({{ $warningCount }})
                             </a>
-                            <a href="{{ route('activity_logs.index', array_merge(request()->query(), ['severity' => 'danger'])) }}" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition-colors shadow-2xs">
+                            <a href="{{ route('activity_logs.index', array_merge(request()->query(), ['severity' => 'danger'])) }}" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-xs hover:shadow-sm">
                                 View Critical ({{ $dangerCount }})
                             </a>
                         </div>
@@ -290,17 +268,17 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         @foreach(array_slice($departmentSummaries, 0, 8) as $dSumm)
-                            <div onclick="filterByDepartment('{{ $dSumm['code'] }}')" class="p-3.5 rounded-xl border {{ $selectedDepartment === $dSumm['code'] ? 'border-indigo-600 bg-indigo-50/50 shadow-xs ring-2 ring-indigo-500' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50' }} transition-all cursor-pointer flex flex-col justify-between">
+                            <div onclick="filterByDepartment('{{ $dSumm['code'] }}')" class="p-3.5 rounded-xl border {{ $selectedDepartment === $dSumm['code'] ? 'border-indigo-600 dark:border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/40 shadow-xs ring-2 ring-indigo-500/40' : 'border-gray-200 dark:border-slate-800 bg-white dark:bg-[#151B23] hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:bg-gray-50 dark:hover:bg-[#1C2430]' }} transition-all cursor-pointer flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between">
-                                        <span class="text-xs font-bold text-gray-900 truncate pr-2" title="{{ $dSumm['name'] }}">{{ $dSumm['name'] }}</span>
-                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 shrink-0">{{ $dSumm['code'] }}</span>
+                                        <span class="text-xs font-bold text-gray-900 dark:text-white truncate pr-2" title="{{ $dSumm['name'] }}">{{ $dSumm['name'] }}</span>
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 border border-transparent dark:border-slate-700/60 shrink-0">{{ $dSumm['code'] }}</span>
                                     </div>
-                                    <div class="text-[11px] text-gray-500 truncate mt-0.5">{{ $dSumm['school_name'] }}</div>
+                                    <div class="text-[11px] text-gray-500 dark:text-slate-400 truncate mt-0.5">{{ $dSumm['school_name'] }}</div>
                                 </div>
-                                <div class="mt-3 flex items-center justify-between border-t border-gray-100/80 pt-2 text-xs">
-                                    <span class="font-bold text-indigo-600">{{ $dSumm['total_logs'] }} logs</span>
-                                    <span class="text-gray-400 text-[10px]">{{ $dSumm['latest_activity'] }}</span>
+                                <div class="mt-3 flex items-center justify-between border-t border-gray-100/80 dark:border-slate-800 pt-2 text-xs">
+                                    <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ $dSumm['total_logs'] }} logs</span>
+                                    <span class="text-gray-400 dark:text-slate-500 text-[10px]">{{ $dSumm['latest_activity'] }}</span>
                                 </div>
                             </div>
                         @endforeach

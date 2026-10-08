@@ -38,7 +38,7 @@
                                 <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 text-white backdrop-blur-md border border-white/20 shadow-sm shrink-0">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </span>
-                                <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">Welcome back,<br class="sm:hidden"/><span class="text-white/90"> {{ $admin->first_name }}!</span></h2>
+                                <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">Welcome back,<br class="sm:hidden"/><span class="text-white/90"> {{ $admin->first_name }}</span></h2>
                             </div>
                             <p class="text-white/80 text-base sm:text-lg max-w-2xl font-normal leading-relaxed">
                                 Coordinate and manage your department's staff, students, and academic programs seamlessly.

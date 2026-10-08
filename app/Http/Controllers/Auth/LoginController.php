@@ -43,10 +43,25 @@ class LoginController extends Controller
         $authenticated = Auth::attempt($credentials) || (trim($password) !== $password && Auth::attempt(['username' => $canonicalUsername, 'password' => trim($password)]));
 
         if ($authenticated) {
-            if ($user) {
-                $user->failed_login_attempts = 0;
-                $user->requires_password_reset = false;
-                $user->save();
+            $authUser = Auth::user();
+            if ($authUser) {
+                $authUser->failed_login_attempts = 0;
+                $authUser->requires_password_reset = false;
+                $authUser->save();
+
+                // Prime session with user identity to eliminate redundant SQL queries across all routes
+                $profile = $authUser->profile;
+                $roleName = $profile->roles_id ?? 'stu';
+                $fullName = $roleName === 'sa' ? 'Super Admin' : trim(($profile->first_name ?? '') . ' ' . ($profile->last_name ?? ''));
+                $firstName = $profile->first_name ? ucwords(strtolower($profile->first_name)) : $authUser->username;
+
+                session([
+                    'auth_user_role' => $roleName,
+                    'auth_user_name' => !empty($fullName) ? ucwords(strtolower($fullName)) : $authUser->username,
+                    'auth_user_first_name' => $firstName,
+                    'auth_user_dept' => $profile->departments_id ?? null,
+                    'auth_user_school' => $profile->schools_id ?? null,
+                ]);
             }
             
             $request->session()->regenerate();

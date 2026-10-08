@@ -66,44 +66,21 @@ class SshAdminController extends Controller
     }
 
     /**
-     * SSH Department Dashboard
+     * SSH Department Dashboard (Cached - 10 Minutes TTL)
      */
     public function index()
     {
         $user = Auth::user();
+        $stats = \App\Services\CacheService::getSshAdminDashboardStats();
 
-        // 1. First Year Students KPI
-        $firstYearsQuery = $this->firstYearStudentsQuery();
-        $totalFirstYears = (clone $firstYearsQuery)->count();
-
-        // 2. Branch Breakdown of 1st Years
-        $branchBreakdown = DB::table('users')
-            ->join('profiles', 'users.profile_id', '=', 'profiles.id')
-            ->leftJoin('departments', 'profiles.departments_id', '=', 'departments.code')
-            ->where('profiles.roles_id', 'stu')
-            ->select('departments.name as department_name', 'profiles.departments_id', DB::raw('count(*) as student_count'))
-            ->groupBy('departments.name', 'profiles.departments_id')
-            ->orderByDesc('student_count')
-            ->get();
-
-        // 3. S&H Faculty Members
-        $shDeptCodes = $this->getShDeptCodes();
-        $shFaculty = User::role('sta')->whereHas('profile', function($q) use ($shDeptCodes) {
-            $q->whereIn('departments_id', $shDeptCodes)->orWhere('schools_id', 'sc_ash');
-        })->with(['profile.department'])->get();
-        $totalShFaculty = $shFaculty->count();
-
-        // 4. First Year Foundational Courses (Year 1)
-        $firstYearCourses = Course::where('year', 1)
-            ->with(['regulation', 'department', 'staff.profile'])
-            ->get();
-        $totalFirstYearCourses = $firstYearCourses->count();
-        $allocatedCoursesCount = $firstYearCourses->filter(function($c) {
-            return $c->staff->count() > 0;
-        })->count();
-
-        // 5. Recent 1st Year Freshers
-        $recentFreshers = (clone $firstYearsQuery)->latest('id')->take(6)->get();
+        $totalFirstYears = $stats['totalFirstYears'];
+        $branchBreakdown = $stats['branchBreakdown'];
+        $totalShFaculty = $stats['totalShFaculty'];
+        $shFaculty = $stats['shFaculty'];
+        $firstYearCourses = $stats['firstYearCourses'];
+        $totalFirstYearCourses = $stats['totalFirstYearCourses'];
+        $allocatedCoursesCount = $stats['allocatedCoursesCount'];
+        $recentFreshers = $stats['recentFreshers'];
 
         return view('ssh.dashboard', compact(
             'user',
@@ -214,9 +191,9 @@ class SshAdminController extends Controller
      */
     public function createStudent()
     {
-        $schools = School::all();
-        $departments = Department::all();
-        $programs = Program::all();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartmentsWithSchool();
+        $programs = \App\Services\CacheService::getPrograms();
 
         return view('ssh.students.create', compact('schools', 'departments', 'programs'));
     }
@@ -322,9 +299,9 @@ class SshAdminController extends Controller
             ->with(['profile.school', 'profile.department', 'profile.program'])
             ->findOrFail($id);
 
-        $schools = School::orderBy('name')->get();
-        $departments = Department::with('school')->orderBy('name')->get();
-        $programs = Program::orderBy('name')->get();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartmentsWithSchool();
+        $programs = \App\Services\CacheService::getPrograms();
 
         return view('ssh.students.edit', compact('student', 'schools', 'departments', 'programs'));
     }

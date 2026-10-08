@@ -36,7 +36,7 @@
                                 Civil Services Academy
                             </div>
                             <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
-                                Welcome, <span>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>!
+                                Welcome, <span>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
                             </h1>
                             <p class="text-white/80 text-sm sm:text-base max-w-2xl font-normal leading-relaxed mt-2">
                                 Manage university-wide UPSC & Civil Services training enrollments. Students from any academic department and year can participate while maintaining their core degree.

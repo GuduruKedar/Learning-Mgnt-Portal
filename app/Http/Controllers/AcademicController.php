@@ -253,18 +253,14 @@ class AcademicController extends Controller
     public function createCourse(Request $request)
     {
         $user = Auth::user();
-        $departments = Department::all();
+        $departments = \App\Services\CacheService::getDepartmentsWithSchool();
 
-        $programsQuery = \App\Models\Program::query();
         if ($user->role === 'admin' && !empty($user->profile->departments_id)) {
-            $dept = \App\Models\Department::where('code', $user->profile->departments_id)->first();
-            if ($dept) {
-                $programsQuery->where('department_id', $dept->id);
-            } else {
-                $programsQuery->where('department_id', -1);
-            }
+            $dept = $departments->firstWhere('code', $user->profile->departments_id);
+            $programs = $dept ? \App\Services\CacheService::getProgramsByDepartment($dept->id) : collect();
+        } else {
+            $programs = \App\Services\CacheService::getPrograms();
         }
-        $programs = $programsQuery->get();
         
         $availableProgramTypes = [];
         foreach ($programs as $prog) {
@@ -290,19 +286,19 @@ class AcademicController extends Controller
             else $availableProgramTypes[] = explode(' ', $pName)[0];
         }
 
-        // Include any custom program types from existing regulations
-        $existingRegTypes = Regulation::whereNotNull('program_type')->pluck('program_type')->toArray();
+        // Include any custom program types from cached regulations
+        $allCachedRegulations = \App\Services\CacheService::getRegulations();
+        $existingRegTypes = $allCachedRegulations->whereNotNull('program_type')->pluck('program_type')->toArray();
         $availableProgramTypes = array_unique(array_merge($availableProgramTypes, $existingRegTypes));
         sort($availableProgramTypes);
 
         if ($user->role === 'admin') {
-            $regulations = Regulation::whereIn('program_type', $availableProgramTypes)->get();
+            $regulations = $allCachedRegulations->whereIn('program_type', $availableProgramTypes);
         } else {
-            $regulations = Regulation::all();
+            $regulations = $allCachedRegulations;
         }
 
-        $schools = \App\Models\School::orderBy('name')->get();
-        $departments = Department::with('school')->orderBy('name')->get();
+        $schools = \App\Services\CacheService::getSchools();
 
         // Available staff for direct faculty allocation
         $staffQuery = User::role('sta')->with(['profile.department', 'profile.school']);
@@ -365,7 +361,7 @@ class AcademicController extends Controller
         }
 
         $courses = $query->latest()->paginate(10)->withQueryString();
-        $departments = Department::all();
+        $departments = \App\Services\CacheService::getDepartments();
 
         // Get available staff for dropdown
         $staffQuery = User::role('sta')->with(['profile.department', 'profile.school']);
@@ -378,16 +374,12 @@ class AcademicController extends Controller
             return ($s->profile->department->name ?? 'Z') . ' ' . ($s->profile->first_name ?? $s->username);
         });
 
-        $programsQuery = \App\Models\Program::query();
         if ($user->role === 'admin' && !empty($user->profile->departments_id)) {
-            $dept = \App\Models\Department::where('code', $user->profile->departments_id)->first();
-            if ($dept) {
-                $programsQuery->where('department_id', $dept->id);
-            } else {
-                $programsQuery->where('department_id', -1);
-            }
+            $dept = $departments->firstWhere('code', $user->profile->departments_id);
+            $programs = $dept ? \App\Services\CacheService::getProgramsByDepartment($dept->id) : collect();
+        } else {
+            $programs = \App\Services\CacheService::getPrograms();
         }
-        $programs = $programsQuery->get();
         
         $availableProgramTypes = [];
         foreach ($programs as $prog) {
@@ -413,15 +405,16 @@ class AcademicController extends Controller
             else $availableProgramTypes[] = explode(' ', $pName)[0];
         }
 
-        // Include any custom program types from existing regulations
-        $existingRegTypes = Regulation::whereNotNull('program_type')->pluck('program_type')->toArray();
+        // Include any custom program types from cached regulations
+        $allCachedRegulations = \App\Services\CacheService::getRegulations();
+        $existingRegTypes = $allCachedRegulations->whereNotNull('program_type')->pluck('program_type')->toArray();
         $availableProgramTypes = array_unique(array_merge($availableProgramTypes, $existingRegTypes));
         sort($availableProgramTypes);
 
         if ($user->role === 'admin') {
-            $regulations = Regulation::whereIn('program_type', $availableProgramTypes)->get();
+            $regulations = $allCachedRegulations->whereIn('program_type', $availableProgramTypes);
         } else {
-            $regulations = Regulation::all();
+            $regulations = $allCachedRegulations;
         }
 
         $courseDistribution = \App\Models\Course::select('regulation_id', 'year', 'semester', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
@@ -522,7 +515,7 @@ class AcademicController extends Controller
         }
 
         $courses = $query->latest()->paginate(10)->withQueryString();
-        $departments = Department::all();
+        $departments = \App\Services\CacheService::getDepartments();
 
         // Get available staff for dropdown
         $staffQuery = User::role('sta')->with(['profile.department', 'profile.school']);
@@ -535,16 +528,12 @@ class AcademicController extends Controller
             return ($s->profile->department->name ?? 'Z') . ' ' . ($s->profile->first_name ?? $s->username);
         });
 
-        $programsQuery = \App\Models\Program::query();
         if ($user->role === 'admin' && !empty($user->profile->departments_id)) {
-            $dept = \App\Models\Department::where('code', $user->profile->departments_id)->first();
-            if ($dept) {
-                $programsQuery->where('department_id', $dept->id);
-            } else {
-                $programsQuery->where('department_id', -1);
-            }
+            $dept = $departments->firstWhere('code', $user->profile->departments_id);
+            $programs = $dept ? \App\Services\CacheService::getProgramsByDepartment($dept->id) : collect();
+        } else {
+            $programs = \App\Services\CacheService::getPrograms();
         }
-        $programs = $programsQuery->get();
         
         $availableProgramTypes = [];
         foreach ($programs as $prog) {
@@ -570,15 +559,16 @@ class AcademicController extends Controller
             else $availableProgramTypes[] = explode(' ', $pName)[0];
         }
 
-        // Include any custom program types from existing regulations
-        $existingRegTypes = Regulation::whereNotNull('program_type')->pluck('program_type')->toArray();
+        // Include any custom program types from cached regulations
+        $allCachedRegulations = \App\Services\CacheService::getRegulations();
+        $existingRegTypes = $allCachedRegulations->whereNotNull('program_type')->pluck('program_type')->toArray();
         $availableProgramTypes = array_unique(array_merge($availableProgramTypes, $existingRegTypes));
         sort($availableProgramTypes);
 
         if ($user->role === 'admin') {
-            $regulations = Regulation::whereIn('program_type', $availableProgramTypes)->get();
+            $regulations = $allCachedRegulations->whereIn('program_type', $availableProgramTypes);
         } else {
-            $regulations = Regulation::all();
+            $regulations = $allCachedRegulations;
         }
 
         $courseDistribution = \App\Models\Course::select('regulation_id', 'year', 'semester', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
@@ -805,18 +795,14 @@ class AcademicController extends Controller
             abort(403, 'Unauthorized. SSH Admin can only manage 1st Year courses.');
         }
 
-        $departments = Department::all();
+        $departments = \App\Services\CacheService::getDepartments();
 
-        $programsQuery = \App\Models\Program::query();
         if ($user->role === 'admin' && !empty($user->profile->departments_id)) {
-            $dept = \App\Models\Department::where('code', $user->profile->departments_id)->first();
-            if ($dept) {
-                $programsQuery->where('department_id', $dept->id);
-            } else {
-                $programsQuery->where('department_id', -1);
-            }
+            $dept = $departments->firstWhere('code', $user->profile->departments_id);
+            $programs = $dept ? \App\Services\CacheService::getProgramsByDepartment($dept->id) : collect();
+        } else {
+            $programs = \App\Services\CacheService::getPrograms();
         }
-        $programs = $programsQuery->get();
         
         $availableProgramTypes = [];
         foreach ($programs as $prog) {
@@ -842,15 +828,16 @@ class AcademicController extends Controller
             else $availableProgramTypes[] = explode(' ', $pName)[0];
         }
 
-        // Include any custom program types from existing regulations
-        $existingRegTypes = Regulation::whereNotNull('program_type')->pluck('program_type')->toArray();
+        // Include any custom program types from cached regulations
+        $allCachedRegulations = \App\Services\CacheService::getRegulations();
+        $existingRegTypes = $allCachedRegulations->whereNotNull('program_type')->pluck('program_type')->toArray();
         $availableProgramTypes = array_unique(array_merge($availableProgramTypes, $existingRegTypes));
         sort($availableProgramTypes);
 
         if ($user->role === 'admin') {
-            $regulations = Regulation::whereIn('program_type', $availableProgramTypes)->get();
+            $regulations = $allCachedRegulations->whereIn('program_type', $availableProgramTypes);
         } else {
-            $regulations = Regulation::all();
+            $regulations = $allCachedRegulations;
         }
 
         $existingCourseCodes = Course::where('id', '!=', $course->id)->pluck('code')->map(fn($c) => strtoupper(trim($c)))->unique()->values();
@@ -1073,6 +1060,8 @@ class AcademicController extends Controller
 
         // Attach without detaching others
         $course->staff()->syncWithoutDetaching([$staff->id]);
+        \App\Services\CacheService::invalidateCourseAllocations($course->id);
+        \App\Services\CacheService::invalidateCourses($course->department_id);
 
         $staffName = trim(($staff->profile->first_name ?? '') . ' ' . ($staff->profile->last_name ?? '')) ?: $staff->username;
         $deptName = $staff->profile->department->name ?? 'Department';
@@ -1112,6 +1101,8 @@ class AcademicController extends Controller
         $staffName = $staffUser ? trim(($staffUser->profile->first_name ?? '') . ' ' . ($staffUser->profile->last_name ?? '')) : "Faculty ID #{$staffId}";
 
         $course->staff()->detach($staffId);
+        \App\Services\CacheService::invalidateCourseAllocations($course->id);
+        \App\Services\CacheService::invalidateCourses($course->department_id);
 
         \App\Services\ActivityLogger::log(
             'faculty_unallocated',

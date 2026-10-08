@@ -82,12 +82,12 @@ class CourseMaterialController extends Controller
         // Verify the staff is assigned to this course OR is in the same department
         $isAssigned = $course->staff->contains($user->id);
         $isSameDept = $user->profile && $user->profile->departments_id === $course->department_id;
-        
+
         if (!$isAssigned && !$isSameDept) {
             abort(403, 'You do not have permission to access this course.');
         }
 
-        $materials = CourseMaterial::where('course_id', $course_id)->latest()->get();
+        $materials = \App\Services\CacheService::getCourseMaterials($course_id);
 
         // Exact counts and breakdown for stats cards
         $totalMaterialsCount = $materials->count();

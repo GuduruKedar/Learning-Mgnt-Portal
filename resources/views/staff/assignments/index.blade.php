@@ -82,7 +82,7 @@
                 @php
                     $currentStatus = request('status');
                 @endphp
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
                     <!-- Total Assignments -->
                     <a href="{{ route('staff.assignments.index', array_filter(array_merge(request()->except(['page', 'status']), ['status' => null]))) }}" 
                        class="group rounded-2xl shadow-sm border p-5 flex items-center justify-between transition-all duration-200 {{ empty($currentStatus) ? 'bg-indigo-50/50 border-indigo-300 ring-2 ring-indigo-500/20 shadow-md' : 'bg-white border-gray-100 hover:border-indigo-200 hover:shadow-md hover:-translate-y-0.5' }}">

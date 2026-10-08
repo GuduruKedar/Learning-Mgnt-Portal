@@ -52,12 +52,12 @@
                             <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         </div>
                         <div>
-                            <div class="flex items-center gap-2.5">
+                            <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
                                 <span class="text-2xl sm:text-3xl font-bold text-gray-900 @if(Auth::user()->role === 'sa') group-hover:text-orange-600 @endif transition-colors">{{ $totalStudents }}</span>
                                 @if(Auth::user()->role === 'sa')
-                                <span class="inline-flex items-center gap-1 text-xs font-semibold bg-orange-50 text-orange-700 border border-orange-200 px-2.5 py-0.5 rounded-full group-hover:bg-orange-600 group-hover:text-white transition-all">
-                                    Click for Department Breakdown
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                <span class="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold bg-orange-50 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 border border-orange-200/80 dark:border-orange-800/60 px-2.5 py-0.5 rounded-full group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-600 transition-all whitespace-nowrap shrink-0 shadow-xs">
+                                    <span class="hidden sm:inline">Click for </span><span>Department Breakdown</span>
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </span>
                                 @endif
                             </div>

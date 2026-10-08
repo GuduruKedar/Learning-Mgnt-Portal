@@ -9,26 +9,6 @@
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <script src="{{ asset('js/main.js') }}"></script>
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .font-mono-code { font-family: 'JetBrains Mono', monospace; }
-        .stat-card-glow {
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .stat-card-glow:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px -10px rgba(79, 70, 229, 0.12);
-        }
-        .custom-select-control {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.65rem center;
-            background-repeat: no-repeat;
-            background-size: 1.25em 1.25em;
-            padding-right: 2.2rem;
-            -webkit-print-color-adjust: exact;
-            appearance: none;
-        }
-    </style>
 </head>
 <body class="h-screen overflow-hidden flex bg-slate-50 text-slate-800">
 
@@ -154,44 +134,34 @@
                         <!-- Regulation -->
                         <div class="w-full sm:w-48 lg:w-56 shrink-0">
                             <label for="regulation_id" class="sr-only">Regulation</label>
-                            <div class="relative">
-                                <select name="regulation_id" id="regulation_id" onchange="this.form.submit()" class="block w-full pl-3.5 pr-8 py-2.5 text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer appearance-none">
-                                    <option value="">All Regulations</option>
-                                    @foreach($regulations as $reg)
-                                        <option value="{{ $reg->id }}" {{ request('regulation_id') == $reg->id ? 'selected' : '' }}>
-                                            {{ $reg->code }}{{ !empty($reg->curriculum) ? ' - ' . $reg->curriculum : ($reg->name && $reg->name !== $reg->code ? ' - ' . $reg->name : '') }} ({{ $reg->program_type }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
+                            <select name="regulation_id" id="regulation_id" onchange="this.form.submit()" class="block w-full text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer">
+                                <option value="">All Regulations</option>
+                                @foreach($regulations as $reg)
+                                    <option value="{{ $reg->id }}" {{ request('regulation_id') == $reg->id ? 'selected' : '' }}>
+                                        {{ $reg->code }}{{ !empty($reg->curriculum) ? ' - ' . $reg->curriculum : ($reg->name && $reg->name !== $reg->code ? ' - ' . $reg->name : '') }} ({{ $reg->program_type }})
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <!-- Department (Privileged) -->
                         @if(in_array(Auth::user()->role, ['sa', 'ssh_admin']))
                         <div class="w-full sm:w-48 shrink-0">
                             <label for="department" class="sr-only">Department</label>
-                            <div class="relative">
-                                <select name="department" id="department" onchange="this.form.submit()" class="block w-full pl-3.5 pr-8 py-2.5 text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer appearance-none">
-                                    <option value="">All Departments</option>
-                                    @foreach($departments as $dept)
-                                        <option value="{{ $dept->code }}" {{ request('department') == $dept->code ? 'selected' : '' }}>{{ $dept->name }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
-                            </div>
+                            <select name="department" id="department" onchange="this.form.submit()" class="block w-full text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer">
+                                <option value="">All Departments</option>
+                                @foreach($departments as $dept)
+                                    <option value="{{ $dept->code }}" {{ request('department') == $dept->code ? 'selected' : '' }}>{{ $dept->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         @endif
 
                         <!-- Year & Semester Dual Grid on Mobile -->
                         <div class="grid grid-cols-2 gap-3 w-full sm:w-auto sm:flex sm:items-center sm:gap-3 shrink-0">
-                            <div class="w-full sm:w-28 relative">
+                            <div class="w-full sm:w-28">
                                 <label for="year" class="sr-only">Year</label>
-                                <select name="year" id="year" onchange="this.form.submit()" class="block w-full pl-3.5 pr-8 py-2.5 text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer appearance-none">
+                                <select name="year" id="year" onchange="this.form.submit()" class="block w-full text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer">
                                     @if(Auth::user()->role === 'ssh_admin')
                                         <option value="1">Year 1</option>
                                     @else
@@ -201,22 +171,16 @@
                                         @endfor
                                     @endif
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
                             </div>
 
-                            <div class="w-full sm:w-28 relative">
+                            <div class="w-full sm:w-28">
                                 <label for="semester" class="sr-only">Semester</label>
-                                <select name="semester" id="semester" onchange="this.form.submit()" class="block w-full pl-3.5 pr-8 py-2.5 text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer appearance-none">
+                                <select name="semester" id="semester" onchange="this.form.submit()" class="block w-full text-xs sm:text-sm font-medium border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 rounded-xl transition-all cursor-pointer">
                                     <option value="">All Sems</option>
                                     @for($i = 1; $i <= 2; $i++)
                                         <option value="{{ $i }}" {{ request('semester') == $i ? 'selected' : '' }}>Sem {{ $i }}</option>
                                     @endfor
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
                             </div>
                         </div>
                         
@@ -570,6 +534,27 @@
                 closeFacultyModal();
             }
         });
+    </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (typeof TomSelect !== "undefined") {
+            ["regulation_id", "department", "year", "semester"].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el && !el.tomselect && !el.classList.contains("tomselected")) {
+                    const ts = new TomSelect(el, {
+                        create: false,
+                        maxOptions: null,
+                        allowEmptyOption: true,
+                        controlInput: null
+                    });
+                    ts.on("change", function(val) {
+                        if (el.form) el.form.submit();
+                    });
+                }
+            });
+        }
+    });
     </script>
 </body>
 </html>

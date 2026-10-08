@@ -47,16 +47,16 @@ class CoordinatorController extends Controller
 
         $coordinators = $query->paginate(10)->withQueryString();
         
-        $schools = School::all();
-        $departments = Department::all();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartments();
 
         return view('coordinators.index', compact('coordinators', 'schools', 'departments'));
     }
 
     public function create(Request $request)
     {
-        $schools = School::all();
-        $departments = Department::all();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartments();
         
         $preselectedSchoolId = null;
         $preselectedDepartmentId = null;
@@ -78,7 +78,7 @@ class CoordinatorController extends Controller
 
     public function departmentCoordinators(Request $request)
     {
-        $schools = School::all();
+        $schools = \App\Services\CacheService::getSchools();
         
         $query = Department::with(['school', 'profiles' => function($q) {
             $q->where('roles_id', 'admin')->has('user')->with('user');
@@ -238,8 +238,8 @@ class CoordinatorController extends Controller
     public function edit($id)
     {
         $coordinator = User::role('admin')->findOrFail($id);
-        $schools = School::all();
-        $departments = Department::all();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartments();
         return view('coordinators.edit', compact('coordinator', 'schools', 'departments'));
     }
 

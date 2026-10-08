@@ -63,15 +63,38 @@ class User extends Authenticatable
         return $this->civilServiceEnrollment()->where('status', 'active')->exists();
     }
 
-    // Accessors to ensure old views still work
+    // Fast session-cached accessors to eliminate redundant database queries on every request
     public function getRoleAttribute()
     {
-        return $this->profile->role->name ?? null;
+        // 1. If checking the currently authenticated user and role is stored in session, return instantly (0 SQL queries)
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && session()->has('auth_user_role')) {
+            return session('auth_user_role');
+        }
+
+        // 2. Read role directly from profile (roles_id holds the role name, avoiding a secondary join to roles table)
+        $role = $this->profile->roles_id ?? ($this->profile->role->name ?? null);
+
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && $role) {
+            session(['auth_user_role' => $role]);
+        }
+
+        return $role;
     }
 
     public function getFirstNameAttribute()
     {
-        return $this->profile->first_name ? ucwords(strtolower($this->profile->first_name)) : null;
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && session()->has('auth_user_first_name')) {
+            return session('auth_user_first_name');
+        }
+
+        $fname = $this->profile->first_name ?? null;
+        $formatted = $fname ? ucwords(strtolower($fname)) : null;
+
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && $formatted) {
+            session(['auth_user_first_name' => $formatted]);
+        }
+
+        return $formatted;
     }
 
     public function getLastNameAttribute()
@@ -81,11 +104,22 @@ class User extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        if ($this->role === 'sa') {
-            return 'Super Admin';
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && session()->has('auth_user_name')) {
+            return session('auth_user_name');
         }
-        $full = trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
-        return !empty($full) ? $full : ($this->username ?? 'User');
+
+        if ($this->role === 'sa') {
+            $name = 'Super Admin';
+        } else {
+            $full = trim(($this->profile->first_name ?? '') . ' ' . ($this->profile->last_name ?? ''));
+            $name = !empty($full) ? ucwords(strtolower($full)) : ($this->username ?? 'User');
+        }
+
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && $name) {
+            session(['auth_user_name' => $name]);
+        }
+
+        return $name;
     }
 
     public function getEmailAttribute()
@@ -138,6 +172,25 @@ class User extends Authenticatable
     {
         return $query->whereHas('profile.role', function ($q) use ($roleName) {
             $q->where('name', $roleName);
+        });
+    }
+
+    protected static function booted()
+    {
+        static::saved(function ($user) {
+            \App\Services\CacheService::invalidateSuperAdminStats();
+            \App\Services\CacheService::invalidateSshAdminStats();
+            if ($user->profile?->departments_id) {
+                \App\Services\CacheService::invalidateCoordinatorStats($user->profile->departments_id);
+            }
+        });
+
+        static::deleted(function ($user) {
+            \App\Services\CacheService::invalidateSuperAdminStats();
+            \App\Services\CacheService::invalidateSshAdminStats();
+            if ($user->profile?->departments_id) {
+                \App\Services\CacheService::invalidateCoordinatorStats($user->profile->departments_id);
+            }
         });
     }
 }

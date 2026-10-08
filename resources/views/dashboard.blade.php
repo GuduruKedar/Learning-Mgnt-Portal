@@ -54,7 +54,7 @@
                             <!-- Main Heading -->
                             <div>
                                 <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                                    Welcome back, <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-sky-200 to-white">{{ Auth::user()->role === 'sa' ? 'Super Admin' : (Auth::user()->first_name ?? 'Super Admin') }}</span>!
+                                    Welcome back, <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 via-sky-200 to-white">{{ Auth::user()->role === 'sa' ? 'Super Admin' : (Auth::user()->first_name ?? 'Super Admin') }}</span>
                                 </h1>
                                 <p class="text-sm sm:text-base text-slate-200/90 mt-1.5 font-normal leading-relaxed">
                                     System-wide overview of academic departments, coordinator leadership, student enrollments, and institutional modules.
@@ -343,18 +343,18 @@
                                     if (empty($sFullName)) $sFullName = $staff->username ?? 'Staff Member';
                                     $sInitial = strtoupper(substr($sFirstName ?: 'S', 0, 1));
                                 @endphp
-                                <div class="px-4 py-2.5 sm:px-5 sm:py-2.5 flex items-center justify-between hover:bg-slate-50/80 dark:hover:bg-[#1C2430]/60 transition-colors">
-                                    <div class="flex items-center gap-2.5">
-                                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-100 dark:border-blue-800/40">
+                                <div class="px-4 py-2.5 sm:px-5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-[#1C2430]/60 transition-colors">
+                                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-100 dark:border-blue-800/40 shrink-0">
                                             {{ $sInitial }}
                                         </div>
-                                        <div>
-                                            <p class="text-xs font-bold text-slate-900 dark:text-[#F8FAFC]">{{ $sFullName }}</p>
-                                            <p class="text-[11px] text-slate-500 dark:text-[#94A3B8]">{{ $staff->profile->email ?? ($staff->username ?? '') }}</p>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-xs font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{{ $sFullName }}</p>
+                                            <p class="text-[11px] text-slate-500 dark:text-[#94A3B8] truncate">{{ $staff->profile->email ?? ($staff->username ?? '') }}</p>
                                         </div>
                                     </div>
-                                    <div class="text-right">
-                                        <span class="inline-block px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-slate-100 dark:bg-[#1C2430] text-slate-700 dark:text-[#94A3B8]">
+                                    <div class="text-right shrink-0">
+                                        <span class="inline-block px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-[#1C2430] text-slate-700 dark:text-[#94A3B8] whitespace-nowrap">
                                             {{ $staff->profile->department->name ?? 'General' }}
                                         </span>
                                     </div>
@@ -390,18 +390,18 @@
                                     if (empty($stFullName)) $stFullName = $student->username ?? 'Student';
                                     $stInitial = strtoupper(substr($stFirstName ?: 'U', 0, 1));
                                 @endphp
-                                <div class="px-4 py-2.5 sm:px-5 sm:py-2.5 flex items-center justify-between hover:bg-slate-50/80 dark:hover:bg-[#1C2430]/60 transition-colors">
-                                    <div class="flex items-center gap-2.5">
-                                        <div class="w-8 h-8 rounded-lg bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 font-bold text-xs flex items-center justify-center border border-violet-100 dark:border-violet-800/40">
+                                <div class="px-4 py-2.5 sm:px-5 sm:py-2.5 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-[#1C2430]/60 transition-colors">
+                                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                        <div class="w-8 h-8 rounded-lg bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 font-bold text-xs flex items-center justify-center border border-violet-100 dark:border-violet-800/40 shrink-0">
                                             {{ $stInitial }}
                                         </div>
-                                        <div>
-                                            <p class="text-xs font-bold text-slate-900 dark:text-[#F8FAFC]">{{ $stFullName }}</p>
-                                            <p class="text-[11px] text-slate-500 dark:text-[#94A3B8] font-mono">{{ $student->username ?? ($student->profile->username ?? '') }}</p>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-xs font-bold text-slate-900 dark:text-[#F8FAFC] truncate">{{ $stFullName }}</p>
+                                            <p class="text-[11px] text-slate-500 dark:text-[#94A3B8] font-mono truncate">{{ $student->username ?? ($student->profile->username ?? '') }}</p>
                                         </div>
                                     </div>
-                                    <div class="text-right">
-                                        <span class="inline-block px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-slate-100 dark:bg-[#1C2430] text-slate-700 dark:text-[#94A3B8]">
+                                    <div class="text-right shrink-0">
+                                        <span class="inline-block px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-[#1C2430] text-slate-700 dark:text-[#94A3B8] whitespace-nowrap">
                                             {{ $student->profile->department->name ?? 'General' }}
                                         </span>
                                     </div>

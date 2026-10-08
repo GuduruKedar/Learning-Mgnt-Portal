@@ -9,14 +9,6 @@
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <script src="{{ asset('js/main.js') }}"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .tab-btn.active {
-            color: #4f46e5;
-            border-bottom: 2px solid #4f46e5;
-            background-color: #eef2ff;
-        }
-    </style>
 </head>
 <body class="h-screen overflow-hidden flex bg-gray-50 text-gray-800">
 

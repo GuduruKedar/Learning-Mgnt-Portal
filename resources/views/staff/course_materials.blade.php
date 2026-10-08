@@ -1094,15 +1094,23 @@
                     return;
                 }
 
-                if (fileNameInput) fileNameInput.value = file.name;
-
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    if (fileBase64Input) {
-                        fileBase64Input.value = evt.target.result;
+                // Check file size (25MB limit)
+                const maxBytes = 25 * 1024 * 1024;
+                if (file.size > maxBytes) {
+                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                    alert(`The selected file (${fileSizeMB} MB) is too large. Maximum allowed file size is 25 MB. Please select a smaller file.`);
+                    e.target.value = '';
+                    if (fileBase64Input) fileBase64Input.value = '';
+                    if (fileNameInput) fileNameInput.value = '';
+                    if (fileIconPreview) {
+                        fileIconPreview.innerHTML = '';
+                        fileIconPreview.classList.add('hidden');
+                        fileIconPreview.classList.remove('flex');
                     }
-                };
-                reader.readAsDataURL(file);
+                    return;
+                }
+
+                if (fileNameInput) fileNameInput.value = file.name;
 
                 const filename = file.name.toLowerCase();
                 let type = '';

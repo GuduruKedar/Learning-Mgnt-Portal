@@ -7,41 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-
-        /* Suppress all browser default headers and URLs on print */
-        @page {
-            size: auto;
-            margin: 0mm !important;
-        }
-
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            html, body {
-                background: white !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .print-container {
-                max-width: 100% !important;
-                box-shadow: none !important;
-                border: none !important;
-                padding: 15mm 15mm !important;
-                margin: 0 auto !important;
-            }
-            .page-break-inside-avoid {
-                break-inside: avoid !important;
-                page-break-inside: avoid !important;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/reports.css') }}">
 </head>
 <body class="bg-gray-100 text-gray-800 antialiased min-h-screen py-6 px-4 sm:px-6 lg:px-8">
 

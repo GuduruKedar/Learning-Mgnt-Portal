@@ -53,31 +53,6 @@
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-    <style>
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 7px;
-            height: 7px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 9999px;
-            margin: 4px 0;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #94a3b8;
-            border-radius: 9999px;
-            border: 1.5px solid #f1f5f9;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
-        .custom-scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: #94a3b8 #f1f5f9;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
-    </style>
 <script src="{{ asset('js/main.js') }}"></script>
 </head>
 <body class="h-screen overflow-hidden flex bg-gray-50 text-gray-800">

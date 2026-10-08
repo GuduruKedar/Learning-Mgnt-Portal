@@ -343,6 +343,11 @@ window.initLMSUI = function() {
                     maxOptions: null,
                     sortField: { field: "text", direction: "asc" }
                 });
+                if (el.getAttribute('onchange') && el.getAttribute('onchange').includes('submit')) {
+                    ts.on('change', function(value) {
+                        if (el.form) el.form.submit();
+                    });
+                }
                 
                 // Safe auto-sync TomSelect when original select options are modified via JS
                 let syncTimeout = null;
@@ -402,15 +407,17 @@ window.toggleThemeMode = function() {
     window.dispatchEvent(new CustomEvent('themeChanged', { detail: { isDark } }));
 };
 
-// Color Palette Theme Engine (1. Blue, 2. Green, 3. Violet, 4. Orange, 5. Rose, 6. Indigo)
+// Color Palette Theme Engine (1. Blue, 2. Green, 3. Violet)
 window.initColorTheme = function() {
     const savedColor = localStorage.getItem('colorTheme') || 'blue';
-    document.documentElement.setAttribute('data-theme-color', savedColor);
-    window.updateColorThemeUI(savedColor);
+    const validColors = ['blue', 'green', 'violet'];
+    const activeColor = validColors.includes(savedColor) ? savedColor : 'blue';
+    document.documentElement.setAttribute('data-theme-color', activeColor);
+    window.updateColorThemeUI(activeColor);
 };
 
 window.setColorTheme = function(color) {
-    const validColors = ['blue', 'green', 'violet', 'orange', 'rose', 'indigo'];
+    const validColors = ['blue', 'green', 'violet'];
     if (!validColors.includes(color)) color = 'blue';
     document.documentElement.setAttribute('data-theme-color', color);
     localStorage.setItem('colorTheme', color);
@@ -418,14 +425,29 @@ window.setColorTheme = function(color) {
     window.dispatchEvent(new CustomEvent('colorThemeChanged', { detail: { color } }));
 };
 
+window.toggleMobileThemePalette = function(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    const popover = document.getElementById('mobileThemeColorPopover');
+    if (popover) {
+        popover.classList.toggle('hidden');
+    }
+};
+
+window.closeMobileThemePalette = function() {
+    const popover = document.getElementById('mobileThemeColorPopover');
+    if (popover) {
+        popover.classList.add('hidden');
+    }
+};
+
 window.updateColorThemeUI = function(color) {
     const ringClasses = [
         'ring-blue-500', 
         'ring-emerald-500', 
-        'ring-purple-500', 
-        'ring-orange-500', 
-        'ring-rose-500', 
-        'ring-indigo-500'
+        'ring-purple-500'
     ];
     document.querySelectorAll('.color-theme-btn').forEach(btn => {
         const btnColor = btn.getAttribute('data-color');
@@ -437,9 +459,6 @@ window.updateColorThemeUI = function(color) {
             if (color === 'blue') btn.classList.add('ring-blue-500');
             else if (color === 'green') btn.classList.add('ring-emerald-500');
             else if (color === 'violet') btn.classList.add('ring-purple-500');
-            else if (color === 'orange') btn.classList.add('ring-orange-500');
-            else if (color === 'rose') btn.classList.add('ring-rose-500');
-            else if (color === 'indigo') btn.classList.add('ring-indigo-500');
             btn.setAttribute('aria-pressed', 'true');
             if (checkIcon) checkIcon.classList.remove('hidden');
         } else {
@@ -447,7 +466,37 @@ window.updateColorThemeUI = function(color) {
             if (checkIcon) checkIcon.classList.add('hidden');
         }
     });
+
+    // Update active state in mobile popover items
+    document.querySelectorAll('.mobile-theme-item').forEach(item => {
+        const itemColor = item.getAttribute('data-color');
+        const check = item.querySelector('.mobile-theme-check');
+        if (itemColor === color) {
+            item.classList.add('bg-slate-100', 'dark:bg-[#1C2430]', 'font-bold', 'text-slate-900', 'dark:text-white');
+            if (check) check.classList.remove('hidden');
+        } else {
+            item.classList.remove('bg-slate-100', 'dark:bg-[#1C2430]', 'font-bold', 'text-slate-900', 'dark:text-white');
+            if (check) check.classList.add('hidden');
+        }
+    });
 };
+
+// Close mobile palette on outside click or escape
+document.addEventListener('click', (e) => {
+    const popover = document.getElementById('mobileThemeColorPopover');
+    const trigger = document.getElementById('mobileThemePaletteTrigger');
+    if (popover && !popover.classList.contains('hidden')) {
+        if (!popover.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
+            window.closeMobileThemePalette();
+        }
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        window.closeMobileThemePalette();
+    }
+});
 
 // Execute theme checks immediately on script execution
 window.initTheme();

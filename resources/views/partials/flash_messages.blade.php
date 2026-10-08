@@ -81,32 +81,6 @@
 </div>
 @endif
 
-<style>
-@keyframes toastSlideIn {
-    0% {
-        opacity: 0;
-        transform: translateY(-16px) scale(0.96);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes toastTimer {
-    from {
-        width: 100%;
-    }
-    to {
-        width: 0%;
-    }
-}
-
-.toast-slide-in {
-    animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-</style>
-
 <script>
     function dismissToast(el) {
         if (!el) return;

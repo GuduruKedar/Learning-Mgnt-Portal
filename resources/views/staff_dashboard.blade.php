@@ -45,7 +45,7 @@
                             </div>
 
                             <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                                Welcome back, {{ $staff->profile->first_name ?? $staff->username }}!
+                                Welcome back, {{ $staff->profile->first_name ?? $staff->username }}
                             </h1>
                             <p class="text-sm text-white/80 max-w-2xl leading-relaxed">
                                 Here is your academic teaching overview. Track assigned curriculum courses, manage uploaded study materials, and monitor student assessments.
@@ -90,47 +90,47 @@
                     </div>
                 </div>
 
-                <!-- Executive Professional Stat Cards Grid: 3 Core Teaching Metrics (Display Only) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Executive Stat Cards: Single Horizontal Row (3 Core Teaching Metrics) -->
+                <div class="grid grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
                     
                     <!-- Card 1: Courses to Teach -->
-                    <div class="bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-slate-200/80 dark:border-[#273244] p-6 flex items-center gap-4 cursor-default select-none theme-card-hover">
-                        <div class="w-14 h-14 rounded-2xl theme-icon-box flex items-center justify-center shrink-0 shadow-xs">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    <div class="bg-white dark:bg-[#151B23] rounded-xl sm:rounded-2xl shadow-xs border border-slate-200/80 dark:border-[#273244] p-3 sm:p-5 lg:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-4 cursor-default select-none theme-card-hover transition-all">
+                        <div class="w-9 h-9 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl theme-icon-box flex items-center justify-center shrink-0 shadow-2xs">
+                            <svg class="w-4 h-4 sm:w-6 sm:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-theme-primary mb-0.5">Courses to Teach</p>
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-3xl font-black text-slate-900 dark:text-[#F8FAFC] leading-tight">{{ $coursesToTeachCount ?? $assignedCourses->count() }}</span>
-                                <span class="text-xs font-semibold text-slate-500 dark:text-[#94A3B8]">{{ Str::plural('Subject', $coursesToTeachCount ?? $assignedCourses->count()) }}</span>
+                            <p class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider text-theme-primary mb-0.5 truncate">Courses to Teach</p>
+                            <div class="flex items-baseline gap-1 sm:gap-2">
+                                <span class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-[#F8FAFC] leading-tight">{{ $coursesToTeachCount ?? $assignedCourses->count() }}</span>
+                                <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-[#94A3B8] hidden xs:inline">{{ Str::plural('Subject', $coursesToTeachCount ?? $assignedCourses->count()) }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Card 2: Assessments Given -->
-                    <div class="bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-slate-200/80 dark:border-[#273244] p-6 flex items-center gap-4 cursor-default select-none theme-card-hover">
-                        <div class="w-14 h-14 rounded-2xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center shrink-0 shadow-xs">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    <div class="bg-white dark:bg-[#151B23] rounded-xl sm:rounded-2xl shadow-xs border border-slate-200/80 dark:border-[#273244] p-3 sm:p-5 lg:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-4 cursor-default select-none theme-card-hover transition-all">
+                        <div class="w-9 h-9 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center shrink-0 shadow-2xs">
+                            <svg class="w-4 h-4 sm:w-6 sm:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-0.5">Assessments Given</p>
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-3xl font-black text-slate-900 dark:text-[#F8FAFC] leading-tight">{{ $totalAssignmentsCount }}</span>
-                                <span class="text-xs font-semibold text-slate-500 dark:text-[#94A3B8]">{{ Str::plural('Assessment', $totalAssignmentsCount) }}</span>
+                            <p class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-0.5 truncate">Assessments Given</p>
+                            <div class="flex items-baseline gap-1 sm:gap-2">
+                                <span class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-[#F8FAFC] leading-tight">{{ $totalAssignmentsCount }}</span>
+                                <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-[#94A3B8] hidden xs:inline">{{ Str::plural('Assessment', $totalAssignmentsCount) }}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Card 3: Materials Uploaded -->
-                    <div class="bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-slate-200/80 dark:border-[#273244] p-6 flex items-center gap-4 cursor-default select-none theme-card-hover">
-                        <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center shrink-0 shadow-xs">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <div class="bg-white dark:bg-[#151B23] rounded-xl sm:rounded-2xl shadow-xs border border-slate-200/80 dark:border-[#273244] p-3 sm:p-5 lg:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-4 cursor-default select-none theme-card-hover transition-all">
+                        <div class="w-9 h-9 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center shrink-0 shadow-2xs">
+                            <svg class="w-4 h-4 sm:w-6 sm:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">Materials Uploaded</p>
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-3xl font-black text-slate-900 dark:text-[#F8FAFC] leading-tight">{{ $totalMaterialsCount }}</span>
-                                <span class="text-xs font-semibold text-slate-500 dark:text-[#94A3B8]">{{ Str::plural('Resource', $totalMaterialsCount) }}</span>
+                            <p class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5 truncate">Materials Uploaded</p>
+                            <div class="flex items-baseline gap-1 sm:gap-2">
+                                <span class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 dark:text-[#F8FAFC] leading-tight">{{ $totalMaterialsCount }}</span>
+                                <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-[#94A3B8] hidden xs:inline">{{ Str::plural('Resource', $totalMaterialsCount) }}</span>
                             </div>
                         </div>
                     </div>
@@ -140,64 +140,37 @@
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-xl font-extrabold text-slate-900 dark:text-[#F8FAFC] tracking-tight flex items-center gap-2">
+                            <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                                 <span>Courses You Need to Teach</span>
-                                <span class="text-xs font-bold badge-theme px-2.5 py-0.5 rounded-full">{{ $coursesToTeachCount ?? $assignedCourses->count() }}</span>
+                                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">{{ $coursesToTeachCount ?? $assignedCourses->count() }}</span>
                             </h2>
-                            <p class="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">Assigned subjects with material uploads, assessments given, and enrolled students</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Assigned subjects with material uploads, assessments given, and enrolled students</p>
                         </div>
                     </div>
 
-                    <!-- Card 3: Materials Uploaded -->
-                    <div class="bg-white rounded-2xl shadow-2xs border border-gray-200/80 p-6 flex items-center gap-4 cursor-default select-none">
-                        <div class="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0 shadow-2xs">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600 mb-0.5">Materials Uploaded</p>
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-3xl font-black text-gray-900 leading-tight">{{ $totalMaterialsCount }}</span>
-                                <span class="text-xs font-semibold text-gray-500">{{ Str::plural('Resource', $totalMaterialsCount) }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Courses You Teach Section -->
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
-                                <span>Courses You Need to Teach</span>
-                                <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full">{{ $coursesToTeachCount ?? $assignedCourses->count() }}</span>
-                            </h2>
-                            <p class="text-xs text-gray-500 mt-0.5">Assigned subjects with material uploads, assessments given, and enrolled students</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                         @forelse($assignedCourses as $course)
-                        <div class="group bg-white rounded-2xl border border-gray-200/90 shadow-2xs hover:shadow-lg hover:border-indigo-300 transition-all duration-200 flex flex-col justify-between overflow-hidden">
-                            <!-- Top Gradient Accent Line -->
-                            <div class="h-1.5 bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600"></div>
+                        <div class="group bg-white dark:bg-[#151B23] rounded-xl border border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden">
+                            <!-- Subtle Monochrome/Indigo Top Accent Line -->
+                            <div class="h-0.5 bg-slate-200 dark:bg-slate-700 group-hover:bg-indigo-500 transition-colors duration-200"></div>
 
-                            <div class="p-6 flex-1 flex flex-col justify-between">
+                            <div class="p-5 flex-1 flex flex-col justify-between">
                                 <div>
                                     <!-- Badges Header (Code, Regulation on Left | Year/Sem on Right) -->
                                     <div class="flex items-center justify-between gap-2 mb-3">
                                         <div class="flex items-center gap-1.5 flex-wrap min-w-0">
-                                            <a href="{{ route('staff.courses.materials', $course->id) }}" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold font-mono tracking-wider bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200/80 shadow-2xs transition-colors">
+                                            <a href="{{ route('staff.courses.materials', $course->id) }}" class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold font-mono tracking-wide bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors">
                                                 {{ $course->code }}
                                             </a>
                                             @if($course->regulation)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60">
                                                     {{ $course->regulation->code ?: $course->regulation->name }}
                                                 </span>
                                             @endif
                                         </div>
 
                                         @if($course->year || $course->semester)
-                                            <span class="inline-flex items-center text-[11px] font-semibold text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-0.5 rounded-md shrink-0">
+                                            <span class="inline-flex items-center text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded-md shrink-0">
                                                 @if($course->year)Year {{ $course->year }}@endif
                                                 @if($course->year && $course->semester), @endif
                                                 @if($course->semester)Sem {{ $course->semester }}@endif
@@ -206,67 +179,67 @@
                                     </div>
 
                                     <!-- Course Name (Clickable link to course) -->
-                                    <h3 class="text-lg font-bold text-gray-900 leading-snug mb-2">
-                                        <a href="{{ route('staff.courses.materials', $course->id) }}" class="hover:text-indigo-600 transition-colors flex items-center justify-between group-hover:text-indigo-600">
+                                    <h3 class="text-base font-bold text-slate-900 dark:text-white leading-snug tracking-tight mb-2">
+                                        <a href="{{ route('staff.courses.materials', $course->id) }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center justify-between group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                                             <span>{{ $course->name }}</span>
-                                            <svg class="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-transform transform group-hover:translate-x-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                            <svg class="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                         </a>
                                     </h3>
 
                                     <!-- Course Metadata (Department & Curriculum) -->
-                                    <div class="flex items-center gap-2 text-xs text-gray-500 font-medium flex-wrap mb-4">
+                                    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-normal flex-wrap mb-4">
                                         @if($course->department)
                                         <span class="flex items-center gap-1">
-                                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                            <svg class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                             {{ $course->department->name }}
                                         </span>
                                         @endif
 
                                         @if($course->regulation && !empty($course->regulation->curriculum))
-                                        <span class="text-gray-300">&bull;</span>
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                        <span class="text-slate-300 dark:text-slate-700">&bull;</span>
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                             Curriculum: {{ $course->regulation->curriculum }}
                                         </span>
                                         @endif
                                     </div>
 
-                                    <!-- Key Metrics in Course: Clickable into Course Subsections -->
-                                    <div class="grid grid-cols-3 gap-2 bg-gray-50 rounded-xl p-2.5 border border-gray-100 text-center mb-4">
-                                        <a href="{{ route('staff.courses.materials', $course->id) }}#materials" class="p-1 rounded-lg hover:bg-emerald-50/80 transition-colors block group/metric" title="View materials uploaded">
-                                            <span class="block text-base font-black text-emerald-600 group-hover/metric:scale-105 transition-transform">{{ $course->materials_count ?? 0 }}</span>
-                                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tight group-hover/metric:text-emerald-700">Materials</span>
+                                    <!-- Clean Minimalist Key Metrics Grid -->
+                                    <div class="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800 bg-slate-50/70 dark:bg-slate-800/40 rounded-lg p-2 border border-slate-100 dark:border-slate-800 text-center mb-4">
+                                        <a href="{{ route('staff.courses.materials', $course->id) }}#materials" class="p-1 rounded hover:bg-white dark:hover:bg-slate-800/80 transition-colors block group/metric" title="View materials uploaded">
+                                            <span class="block text-base font-extrabold text-slate-800 dark:text-slate-200 group-hover/metric:text-emerald-600 dark:group-hover/metric:text-emerald-400 transition-colors">{{ $course->materials_count ?? 0 }}</span>
+                                            <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mt-0.5">Materials</span>
                                         </a>
-                                        <a href="{{ route('staff.courses.materials', $course->id) }}#assignments" class="p-1 rounded-lg hover:bg-purple-50/80 transition-colors border-x border-gray-200 block group/metric" title="View assessments given">
-                                            <span class="block text-base font-black text-purple-600 group-hover/metric:scale-105 transition-transform">{{ $course->assignments_count ?? 0 }}</span>
-                                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tight group-hover/metric:text-purple-700">Assessments</span>
+                                        <a href="{{ route('staff.courses.materials', $course->id) }}#assignments" class="p-1 rounded hover:bg-white dark:hover:bg-slate-800/80 transition-colors block group/metric" title="View assessments given">
+                                            <span class="block text-base font-extrabold text-slate-800 dark:text-slate-200 group-hover/metric:text-indigo-600 dark:group-hover/metric:text-indigo-400 transition-colors">{{ $course->assignments_count ?? 0 }}</span>
+                                            <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mt-0.5">Assessments</span>
                                         </a>
-                                        <a href="{{ route('staff.courses.materials', $course->id) }}#overview" class="p-1 rounded-lg hover:bg-indigo-50/80 transition-colors block group/metric" title="View students enrolled">
-                                            <span class="block text-base font-black text-indigo-600 group-hover/metric:scale-105 transition-transform">{{ $course->enrollments_count ?? 0 }}</span>
-                                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tight group-hover/metric:text-indigo-700">Students</span>
+                                        <a href="{{ route('staff.courses.materials', $course->id) }}#overview" class="p-1 rounded hover:bg-white dark:hover:bg-slate-800/80 transition-colors block group/metric" title="View students enrolled">
+                                            <span class="block text-base font-extrabold text-slate-800 dark:text-slate-200 group-hover/metric:text-slate-900 dark:group-hover/metric:text-white transition-colors">{{ $course->enrollments_count ?? 0 }}</span>
+                                            <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mt-0.5">Students</span>
                                         </a>
                                     </div>
                                 </div>
 
-                                <!-- Action Buttons -->
-                                <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
-                                    <a href="{{ route('staff.courses.materials', $course->id) }}#materials" class="flex-1 text-center py-2 px-3 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors flex items-center justify-center gap-1">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                <!-- Action Buttons: Subtle Monochrome Style -->
+                                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                                    <a href="{{ route('staff.courses.materials', $course->id) }}#materials" class="flex-1 text-center py-2 px-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                                         Materials
                                     </a>
-                                    <a href="{{ route('staff.courses.materials', $course->id) }}#assignments" class="flex-1 text-center py-2 px-3 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-colors flex items-center justify-center gap-1">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                    <a href="{{ route('staff.courses.materials', $course->id) }}#assignments" class="flex-1 text-center py-2 px-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                                         Assessments
                                     </a>
                                 </div>
                             </div>
                         </div>
                         @empty
-                        <div class="col-span-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-                            <div class="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mx-auto text-gray-400 mb-2">
+                        <div class="col-span-full bg-white dark:bg-[#151B23] rounded-xl shadow-2xs border border-slate-200 dark:border-slate-800 p-8 text-center">
+                            <div class="w-12 h-12 bg-slate-50 dark:bg-slate-800/60 rounded-xl flex items-center justify-center mx-auto text-slate-400 mb-2 border border-slate-200/60 dark:border-slate-700">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                             </div>
-                            <h3 class="text-sm font-bold text-gray-900">No Assigned Courses</h3>
-                            <p class="text-xs text-gray-500 mt-1">You have not been assigned to any courses yet. Contact your coordinator to allocate courses.</p>
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">No Assigned Courses</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">You have not been assigned to any courses yet. Contact your coordinator to allocate courses.</p>
                         </div>
                         @endforelse
                     </div>

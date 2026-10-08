@@ -221,14 +221,16 @@ class CacheService
             $currentYearShort = date('y');
             $prevYearShort = str_pad((int)$currentYearShort - 1, 2, '0', STR_PAD_LEFT);
 
-            $totalFirstYears = User::role('stu')->where(function ($q) use ($currentYearShort, $prevYearShort, $shDeptCodes) {
+            $firstYearsQuery = User::role('stu')->where(function ($q) use ($currentYearShort, $prevYearShort, $shDeptCodes) {
                 $q->where('username', 'like', $currentYearShort . '%')
                   ->orWhere('username', 'like', $prevYearShort . '%')
                   ->orWhereHas('profile', function ($pq) use ($shDeptCodes) {
                       $pq->whereIn('departments_id', $shDeptCodes)
                          ->orWhere('level', 'UG');
                   });
-            })->count();
+            });
+
+            $totalFirstYears = (clone $firstYearsQuery)->count();
 
             $branchBreakdown = DB::table('users')
                 ->join('profiles', 'users.profile_id', '=', 'profiles.id')
@@ -247,6 +249,8 @@ class CacheService
                 ->with(['regulation', 'department', 'staff.profile'])
                 ->get();
 
+            $recentFreshers = (clone $firstYearsQuery)->with(['profile.school', 'profile.department', 'profile.program'])->latest('id')->take(6)->get();
+
             return [
                 'totalFirstYears' => $totalFirstYears,
                 'branchBreakdown' => $branchBreakdown,
@@ -255,6 +259,7 @@ class CacheService
                 'firstYearCourses' => $firstYearCourses,
                 'totalFirstYearCourses' => $firstYearCourses->count(),
                 'allocatedCoursesCount' => $firstYearCourses->filter(fn($c) => $c->staff->count() > 0)->count(),
+                'recentFreshers' => $recentFreshers,
             ];
         });
     }

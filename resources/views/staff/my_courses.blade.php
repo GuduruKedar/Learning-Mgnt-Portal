@@ -176,31 +176,31 @@
                                         </span>
                                     </div>
                                     
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                                         @foreach($coursesList as $course)
-                                            <div class="course-card group bg-white rounded-2xl border border-gray-200/90 shadow-2xs hover:shadow-lg hover:border-indigo-300 transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer transform hover:-translate-y-0.5"
+                                            <div class="course-card group bg-white dark:bg-[#151B23] rounded-xl border border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer"
                                                  onclick="window.location.href='{{ route('staff.courses.materials', $course->id) }}'"
                                                  data-search="{{ strtolower($course->name . ' ' . $course->code . ' ' . ($course->department->name ?? '')) }}">
-                                                <!-- Top Gradient Accent Line -->
-                                                <div class="h-1.5 bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600"></div>
+                                                <!-- Subtle Accent Line -->
+                                                <div class="h-0.5 bg-slate-200 dark:bg-slate-700 group-hover:bg-indigo-500 transition-colors duration-200"></div>
 
-                                                <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+                                                <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
                                                     <div>
                                                         <!-- Badges Header (Code, Regulation on Left | Year/Sem on Right) -->
                                                         <div class="flex items-center justify-between gap-2 mb-3">
                                                             <div class="flex items-center gap-1.5 flex-wrap min-w-0">
-                                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold font-mono tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/80 shadow-2xs">
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold font-mono tracking-wide bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                                                     {{ $course->code }}
                                                                 </span>
                                                                 @if($course->regulation)
-                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60">
                                                                         {{ $course->regulation->code ?: $course->regulation->name }}
                                                                     </span>
                                                                 @endif
                                                             </div>
 
                                                             @if($course->year || $course->semester)
-                                                                <span class="inline-flex items-center text-[11px] font-semibold text-gray-600 bg-gray-50 border border-gray-200 px-2.5 py-0.5 rounded-md shrink-0">
+                                                                <span class="inline-flex items-center text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded-md shrink-0">
                                                                     @if($course->year)Year {{ $course->year }}@endif
                                                                     @if($course->year && $course->semester), @endif
                                                                     @if($course->semester)Sem {{ $course->semester }}@endif
@@ -209,24 +209,25 @@
                                                         </div>
 
                                                         <!-- Course Name -->
-                                                        <h3 class="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-1.5">
-                                                            <a href="{{ route('staff.courses.materials', $course->id) }}" class="hover:underline focus:outline-none">
+                                                        <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug mb-1.5 flex items-center justify-between">
+                                                            <a href="{{ route('staff.courses.materials', $course->id) }}" class="focus:outline-none">
                                                                 {{ $course->name }}
                                                             </a>
+                                                            <svg class="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                                         </h3>
 
                                                         <!-- Course Metadata (Department & Curriculum) -->
-                                                        <div class="flex items-center gap-2 text-xs text-gray-500 font-medium flex-wrap">
+                                                        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-normal flex-wrap">
                                                             @if($course->department)
                                                             <span class="flex items-center gap-1">
-                                                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                                                <svg class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                                                 {{ $course->department->name }}
                                                             </span>
                                                             @endif
 
                                                             @if($course->regulation && !empty($course->regulation->curriculum))
-                                                            <span class="text-gray-300">&bull;</span>
-                                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                                            <span class="text-slate-300 dark:text-slate-700">&bull;</span>
+                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                                                 Curriculum: {{ $course->regulation->curriculum }}
                                                             </span>
                                                             @endif
@@ -291,71 +292,71 @@
                             </div>
                         </div>
                     @else
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="assignmentsGrid">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="assignmentsGrid">
                             @foreach($assignments as $assignment)
-                                <div class="assignment-card bg-white rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-md hover:border-purple-300 transition-all flex flex-col justify-between overflow-hidden"
+                                <div class="assignment-card bg-white dark:bg-[#151B23] rounded-xl border border-slate-200/90 dark:border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col justify-between overflow-hidden"
                                      data-course-id="{{ $assignment->course_id }}"
                                      data-search="{{ strtolower($assignment->title . ' ' . ($assignment->course->name ?? '') . ' ' . ($assignment->course->code ?? '')) }}">
-                                    <!-- Top Accent Line -->
-                                    <div class="h-1.5 bg-gradient-to-r from-purple-500 to-indigo-600"></div>
+                                    <!-- Subtle Top Accent Line -->
+                                    <div class="h-0.5 bg-slate-200 dark:bg-slate-700 group-hover:bg-purple-500 transition-colors duration-200"></div>
 
-                                    <div class="p-6 flex-1 flex flex-col justify-between">
+                                    <div class="p-5 flex-1 flex flex-col justify-between">
                                         <div>
                                             <!-- Course Code & Due Date Badge -->
                                             <div class="flex items-center justify-between gap-2 mb-3">
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                                     {{ $assignment->course->code ?? 'Course' }}
                                                 </span>
                                                 @if($assignment->due_date)
-                                                    <span class="inline-flex items-center text-xs font-medium {{ $assignment->isPastDue() ? 'text-red-700 bg-red-50 border border-red-200' : 'text-emerald-700 bg-emerald-50 border border-emerald-200' }} px-2.5 py-0.5 rounded-full">
-                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                    <span class="inline-flex items-center text-[11px] font-medium {{ $assignment->isPastDue() ? 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60' : 'text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700' }} px-2.5 py-0.5 rounded-md">
+                                                        <svg class="w-3 h-3 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                                         Due: {{ $assignment->due_date->format('M d, Y') }}
                                                     </span>
                                                 @endif
                                             </div>
 
                                             <!-- Assignment Title -->
-                                            <h3 class="text-base font-bold text-gray-900 group-hover:text-purple-600 transition-colors leading-snug mb-1">
+                                            <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-snug mb-1">
                                                 {{ $assignment->title }}
                                             </h3>
 
                                             <!-- Course Name -->
-                                            <p class="text-xs text-gray-500 font-semibold mb-3">
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-3">
                                                 {{ $assignment->course->name ?? 'Course' }}
                                             </p>
 
                                             @if($assignment->description)
-                                                <p class="text-xs text-gray-600 line-clamp-2 mb-4 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                                                <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mb-4 bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
                                                     {{ $assignment->description }}
                                                 </p>
                                             @endif
                                         </div>
 
                                         <!-- Metrics Row -->
-                                        <div class="grid grid-cols-3 gap-2 pt-3 border-t border-gray-100 text-center">
-                                            <div class="p-2 rounded-xl bg-gray-50">
-                                                <p class="text-sm font-black text-gray-900">{{ $assignment->max_marks }}</p>
-                                                <p class="text-[10px] uppercase font-bold text-gray-400">Max Marks</p>
+                                        <div class="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800 bg-slate-50/70 dark:bg-slate-800/40 rounded-lg p-2 border border-slate-100 dark:border-slate-800 text-center">
+                                            <div class="p-1">
+                                                <p class="text-sm font-extrabold text-slate-800 dark:text-slate-200">{{ $assignment->max_marks }}</p>
+                                                <p class="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 mt-0.5">Max Marks</p>
                                             </div>
-                                            <div class="p-2 rounded-xl bg-gray-50">
-                                                <p class="text-sm font-black text-gray-900">{{ $assignment->questions->count() }}</p>
-                                                <p class="text-[10px] uppercase font-bold text-gray-400">Questions</p>
+                                            <div class="p-1">
+                                                <p class="text-sm font-extrabold text-slate-800 dark:text-slate-200">{{ $assignment->questions->count() }}</p>
+                                                <p class="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 mt-0.5">Questions</p>
                                             </div>
-                                            <div class="p-2 rounded-xl bg-purple-50 border border-purple-100">
-                                                <p class="text-sm font-black text-purple-700">{{ $assignment->submissions_count }}</p>
-                                                <p class="text-[10px] uppercase font-bold text-purple-500">Submitted</p>
+                                            <div class="p-1">
+                                                <p class="text-sm font-extrabold text-purple-600 dark:text-purple-400">{{ $assignment->submissions_count }}</p>
+                                                <p class="text-[10px] uppercase font-semibold text-slate-400 dark:text-slate-500 mt-0.5">Submitted</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Card Actions -->
-                                    <div class="bg-gray-50/80 px-5 py-3 border-t border-gray-100 flex items-center justify-between gap-2">
-                                        <a href="{{ route('staff.assignments.show', $assignment->id) }}" class="flex-1 inline-flex justify-center items-center px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-xs text-xs font-bold transition-colors">
+                                    <div class="bg-slate-50/50 dark:bg-slate-850/40 px-5 py-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                                        <a href="{{ route('staff.assignments.show', $assignment->id) }}" class="flex-1 inline-flex justify-center items-center px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white rounded-lg shadow-2xs text-xs font-semibold transition-colors">
                                             <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             View / Grade
                                         </a>
-                                        <a href="{{ route('staff.assignments.edit', $assignment->id) }}" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-semibold transition-colors" title="Edit Assignment">
-                                            <svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        <a href="{{ route('staff.assignments.edit', $assignment->id) }}" class="inline-flex justify-center items-center p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold transition-colors" title="Edit Assignment">
+                                            <svg class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                         </a>
                                     </div>
                                 </div>

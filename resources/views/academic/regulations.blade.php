@@ -42,10 +42,10 @@
                         </div>
                         <div class="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div>
-                                <div class="flex items-center gap-2.5">
+                                <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
                                     <span class="text-2xl sm:text-3xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{{ $totalRegulations }}</span>
-                                    <span class="inline-flex items-center gap-1 text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                                        Click to View All Regulations Breakdown
+                                    <span class="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 px-2.5 py-0.5 rounded-full group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all whitespace-nowrap shrink-0 shadow-xs">
+                                        <span class="hidden sm:inline">Click to View All </span><span>Regulations Breakdown</span>
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                     </span>
                                 </div>

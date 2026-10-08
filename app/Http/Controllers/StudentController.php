@@ -58,9 +58,9 @@ class StudentController extends Controller
         }
 
         $students = $query->withCount(['enrolledCourses', 'civilServiceEnrollment'])->paginate(10)->withQueryString();
-        $schools = School::all();
-        $departments = Department::with('school')->get();
-        $programs = \App\Models\Program::with('department')->get();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartmentsWithSchool();
+        $programs = \App\Services\CacheService::getPrograms();
 
         $totalStudents = ($role === 'admin') 
             ? User::role('stu')->whereHas('profile', function ($q) use ($user) {
@@ -89,8 +89,8 @@ class StudentController extends Controller
 
     public function create()
     {
-        $schools = School::all();
-        $departments = Department::all();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartments();
         return view('students.create', compact('schools', 'departments'));
     }
 
@@ -217,8 +217,8 @@ class StudentController extends Controller
             abort(403, 'Unauthorized to edit this student.');
         }
 
-        $schools = School::all();
-        $departments = Department::all();
+        $schools = \App\Services\CacheService::getSchools();
+        $departments = \App\Services\CacheService::getDepartments();
         return view('students.edit', compact('student', 'schools', 'departments'));
     }
 

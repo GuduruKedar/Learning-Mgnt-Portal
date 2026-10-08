@@ -48,11 +48,28 @@ class Handler extends ExceptionHandler
         });
 
         $this->renderable(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'file' => 'The uploaded file is too large to process. Please select a file smaller than 25MB (or increase post_max_size in your server PHP configuration).'
-                ]);
+            $message = 'The uploaded file exceeds the 25MB maximum size limit. Please select a file smaller than 25MB.';
+
+            if ($request->expectsJson() || $request->isXmlHttpRequest()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                    'errors' => [
+                        'file' => [$message]
+                    ]
+                ], 422);
+            }
+
+            if ($request->hasSession()) {
+                $request->session()->flash('error', $message);
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors([
+                        'file' => $message
+                    ]);
+            }
+
+            return redirect()->back()->with('error', $message);
         });
     }
 }

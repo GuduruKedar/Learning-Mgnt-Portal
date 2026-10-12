@@ -220,3 +220,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/storage/{path}', [\App\Http\Controllers\CourseMaterialController::class, 'serveStorage'])->where('path', '.*')->name('storage.serve');
 });
 
+// Maintenance Mode Preview Route
+Route::get('/maintenance-preview', function () {
+    return response()->view('errors.503', [], 503);
+})->name('maintenance.preview');
+

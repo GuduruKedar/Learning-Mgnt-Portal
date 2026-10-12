@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-<script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/main.js') }}"></script>
 </head>
 <body class="h-screen overflow-hidden flex bg-gray-50 text-gray-800">
 
@@ -18,7 +18,6 @@
     <!-- Main Content wrapper -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
-        <!-- Top Header -->
         <!-- Top Header -->
         @include('partials.top_header')
 
@@ -40,34 +39,34 @@
                 @php
                     $subfolderCategories = [
                         'Course objective and outcomes' => [
-                            'name' => 'Course Objective & Outcomes (CO/PO)',
-                            'badge' => 'Course Objectives & Outcomes',
-                            'short_name' => 'Objective & Outcomes',
-                            'description' => 'Course learning objectives, expected student outcomes, and mapping matrix',
-                            'color' => 'blue',
-                            'border_accent' => 'border-blue-200/90',
-                            'header_gradient' => 'from-blue-50/90 via-blue-50/40 to-white',
-                            'icon_bg' => 'bg-blue-100 text-blue-700 border border-blue-200',
-                            'badge_class' => 'bg-blue-100 text-blue-800 border-blue-200',
-                            'icon' => '🎯',
-                        ],
-                        'Syllabus document' => [
-                            'name' => 'Syllabus Document & Curriculum Guide',
-                            'badge' => 'Syllabus Document',
-                            'short_name' => 'Syllabus Document',
-                            'description' => 'Official curriculum syllabus document, unit distribution, textbooks, and grading policy',
+                            'name' => 'Course Objectives & Outcomes (CO / PO)',
+                            'badge' => 'Course Objectives',
+                            'short_name' => 'Course Objectives & Outcomes',
+                            'description' => 'Course educational goals, course outcomes (COs), program outcomes (POs), and learning taxonomies',
                             'color' => 'purple',
                             'border_accent' => 'border-purple-200/90',
                             'header_gradient' => 'from-purple-50/90 via-purple-50/40 to-white',
                             'icon_bg' => 'bg-purple-100 text-purple-700 border border-purple-200',
                             'badge_class' => 'bg-purple-100 text-purple-800 border-purple-200',
+                            'icon' => '🎯',
+                        ],
+                        'Syllabus document' => [
+                            'name' => 'Syllabus Document',
+                            'badge' => 'Syllabus',
+                            'short_name' => 'Syllabus Document',
+                            'description' => 'Official curriculum breakdown, lecture schedule, evaluation schemes, and textbook references',
+                            'color' => 'blue',
+                            'border_accent' => 'border-blue-200/90',
+                            'header_gradient' => 'from-blue-50/90 via-blue-50/40 to-white',
+                            'icon_bg' => 'bg-blue-100 text-blue-700 border border-blue-200',
+                            'badge_class' => 'bg-blue-100 text-blue-800 border-blue-200',
                             'icon' => '📜',
                         ],
                         'PPTs' => [
-                            'name' => 'PowerPoint Presentations (PPTs / Slides)',
+                            'name' => 'PowerPoint Presentations (PPTs)',
                             'badge' => 'PPTs / Slides',
                             'short_name' => 'PPTs',
-                            'description' => 'Classroom lecture presentation decks, slides, and animated visual aids',
+                            'description' => 'Lecture slide decks, interactive visual presentations, and module slides',
                             'color' => 'amber',
                             'border_accent' => 'border-amber-200/90',
                             'header_gradient' => 'from-amber-50/90 via-amber-50/40 to-white',
@@ -78,7 +77,7 @@
                         'Lecture notes' => [
                             'name' => 'Lecture Notes & Study Material',
                             'badge' => 'Lecture Notes',
-                            'short_name' => 'Lecture Notes',
+                            'short_name' => 'Lecture notes',
                             'description' => 'Comprehensive class reading notes, module summaries, and study handouts',
                             'color' => 'emerald',
                             'border_accent' => 'border-emerald-200/90',
@@ -90,8 +89,8 @@
                         'Lab manual' => [
                             'name' => 'Lab Manual & Practical Guides',
                             'badge' => 'Lab Manual',
-                            'short_name' => 'Lab Manual',
-                            'description' => 'Laboratory instructions, experiment procedures, code guides, and viva reference sheets',
+                            'short_name' => 'Lab manual',
+                            'description' => 'Laboratory instructions, experiment code, and viva reference sheets',
                             'color' => 'teal',
                             'border_accent' => 'border-teal-200/90',
                             'header_gradient' => 'from-teal-50/90 via-teal-50/40 to-white',
@@ -103,7 +102,7 @@
                             'name' => 'Assignment Questions',
                             'badge' => 'Assignment Questions',
                             'short_name' => 'Assigment Questions',
-                            'description' => 'Homework tasks, practice assignments, problem sets, and case study briefs',
+                            'description' => 'Unit homework tasks, practice problems, and continuous evaluation assignments',
                             'color' => 'indigo',
                             'border_accent' => 'border-indigo-200/90',
                             'header_gradient' => 'from-indigo-50/90 via-indigo-50/40 to-white',
@@ -127,7 +126,7 @@
                             'name' => 'GATE Questions & Competitive Prep',
                             'badge' => 'GATE Questions',
                             'short_name' => 'Gate Questions',
-                            'description' => 'GATE examination previous year questions, solutions, and competitive mock drills',
+                            'description' => 'GATE previous year questions, solutions, and competitive mock drills',
                             'color' => 'orange',
                             'border_accent' => 'border-orange-200/90',
                             'header_gradient' => 'from-orange-50/90 via-orange-50/40 to-white',
@@ -162,8 +161,8 @@
                         'Additional material' => [
                             'name' => 'Additional Material & References',
                             'badge' => 'Additional Material',
-                            'short_name' => 'Additional Material',
-                            'description' => 'Web links, cloud drives, reference documents, journal articles, and extra notes',
+                            'short_name' => 'Additional material',
+                            'description' => 'Supplementary reference documents, spreadsheets, external web links, and extra materials',
                             'color' => 'slate',
                             'border_accent' => 'border-slate-200/90',
                             'header_gradient' => 'from-slate-50/90 via-slate-50/40 to-white',
@@ -188,43 +187,55 @@
                     $totalMaterialsCount = $materials->count();
                 @endphp
 
-                <!-- Materials List -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-                    <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50/90 to-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div class="flex items-center gap-2.5">
-                            <h3 class="text-lg font-bold text-gray-900 tracking-tight">Study Materials Directory</h3>
-                            <span id="studentMaterialsCountBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                {{ $totalMaterialsCount }} Total
-                            </span>
+                <!-- Materials Directory (Full Width & Professional - Exactly Matching Faculty UI) -->
+                <div class="bg-white rounded-2xl shadow-2xs border border-gray-200/90 overflow-hidden flex flex-col">
+                    <div class="px-5 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50/80 to-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-extrabold text-gray-900 tracking-tight">Study Materials Directory</h3>
+                                <span id="materialsCountBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-100 transition-all">
+                                    {{ $totalMaterialsCount }} Total
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-0.5">Direct learning access for enrolled students</p>
                         </div>
                         
-                        <!-- Action Bar: Live Search & View Mode Separation -->
-                        <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-                            <!-- Search Input -->
+                        <!-- Live Search, Filter & View Controls -->
+                        <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                            <!-- Live Search Input -->
                             <div class="relative w-full sm:w-56">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
                                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 </div>
-                                <input type="text" id="studentMaterialsSearch" oninput="filterStudentMaterialsLive()" placeholder="Search title or division..." value="{{ request('search') }}" class="block w-full pl-8 pr-7 py-2 border border-gray-300 rounded-xl text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                                <button type="button" id="studentSearchClearBtn" onclick="clearStudentSearch()" class="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 hover:text-gray-600 hidden cursor-pointer" title="Clear">
+                                <input type="text" id="materialsSearchInput" oninput="filterMaterialsLive()" placeholder="Search title or format..." class="block w-full pl-8 pr-7 py-2 border border-gray-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                                <button type="button" id="materialsSearchClearBtn" onclick="clearMaterialsSearch()" class="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 hover:text-gray-600 hidden cursor-pointer" title="Clear Search">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                             </div>
 
+                            <!-- Live Type Filter Dropdown -->
+                            <select id="materialsTypeSelect" onchange="filterMaterialsLive()" class="py-2 px-2.5 border border-gray-300 bg-white rounded-xl text-xs font-semibold text-gray-700 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                                <option value="">All Types</option>
+                                <option value="link">🔗 Links</option>
+                                <option value="file">📄 Files</option>
+                            </select>
 
-
-
+                            <!-- Reset Filters Button -->
+                            <button type="button" id="materialsResetFilterBtn" onclick="resetAllMaterialFilters()" class="hidden inline-flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer" title="Reset Filters">
+                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <span>Reset</span>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Sub-Folder Navigation Bar (Pill Tabs) -->
+                    <!-- Sub-Folder Navigation Bar (Segregation Tabs) -->
                     <div class="px-5 sm:px-6 py-3 bg-slate-50/80 border-b border-gray-200/80 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
-                        <div class="flex items-center gap-2 shrink-0" id="studentSubfolderTabsContainer">
+                        <div class="flex items-center gap-2 shrink-0" id="subfolderTabsContainer">
                             <button type="button" 
-                                onclick="selectStudentSubfolder('all')" 
-                                id="student-tab-all"
-                                data-folder-target="all"
-                                class="student-folder-tab inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-2xs cursor-pointer">
+                                onclick="selectSubfolder('all')" 
+                                id="subfolder-tab-all"
+                                data-subfolder-target="all"
+                                class="subfolder-tab-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-2xs cursor-pointer">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
                                 <span>All Divisions</span>
                                 <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white">{{ $totalMaterialsCount }}</span>
@@ -237,11 +248,11 @@
                                 @endphp
                                 @if($catCount > 0)
                                 <button type="button" 
-                                    onclick="selectStudentSubfolder('{{ $catSlug }}')" 
-                                    id="student-tab-{{ $catSlug }}"
-                                    data-folder-target="{{ $catSlug }}"
-                                    class="student-folder-tab inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer">
-                                    <span>{{ $catMeta['icon'] }}</span>
+                                    onclick="selectSubfolder('{{ $catSlug }}')" 
+                                    id="subfolder-tab-{{ $catSlug }}"
+                                    data-subfolder-target="{{ $catSlug }}"
+                                    class="subfolder-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer">
+                                    <span class="text-xs">{{ $catMeta['icon'] }}</span>
                                     <span>{{ $catMeta['short_name'] }}</span>
                                     <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700">{{ $catCount }}</span>
                                 </button>
@@ -252,48 +263,49 @@
                         <div class="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
                             <!-- Cards vs Table Layout Switcher -->
                             <div class="inline-flex p-1 bg-white rounded-xl border border-gray-200 shadow-2xs">
-                                <button type="button" onclick="setStudentMaterialsLayout('cards')" id="student-mat-btn-cards" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-200 cursor-pointer flex items-center gap-1.5" title="Cards View">
+                                <button type="button" onclick="setCourseMaterialsLayout('cards')" id="course-mat-btn-cards" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-200 cursor-pointer flex items-center gap-1.5" title="Cards View">
                                     <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                     <span>Cards</span>
                                 </button>
-                                <button type="button" onclick="setStudentMaterialsLayout('table')" id="student-mat-btn-table" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5" title="Table View">
+                                <button type="button" onclick="setCourseMaterialsLayout('table')" id="course-mat-btn-table" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5" title="Table View">
                                     <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                     <span>Table</span>
                                 </button>
                             </div>
 
-                            <button type="button" onclick="toggleAllStudentSubfolders()" id="studentToggleAllBtn" class="text-xs font-bold text-gray-500 hover:text-indigo-600 px-3 py-1.5 rounded-xl hover:bg-white border border-transparent hover:border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
-                                <span id="studentToggleAllText">Collapse All</span>
-                                <svg class="w-3.5 h-3.5 transition-transform duration-200" id="studentToggleAllIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <button type="button" onclick="toggleAllSubfolders()" id="toggleAllSubfoldersBtn" class="text-xs font-bold text-gray-500 hover:text-indigo-600 px-3 py-1.5 rounded-xl hover:bg-white border border-transparent hover:border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                                <span id="toggleAllSubfoldersText">Collapse All</span>
+                                <svg class="w-3.5 h-3.5 transition-transform duration-200" id="toggleAllSubfoldersIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </button>
                         </div>
                     </div>
 
-                    <div class="p-5 sm:p-6 bg-gray-50/50 space-y-6">
+                    <div class="p-5 sm:p-6 bg-gray-50/50 flex-1 space-y-6" id="materialsCardsContainer">
                         @if($totalMaterialsCount === 0)
-                            <div class="py-16 px-6 text-center bg-white border border-gray-100 rounded-2xl shadow-sm">
-                                <div class="mx-auto w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                    <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <div class="py-16 px-6 text-center bg-white border border-gray-100 rounded-2xl shadow-2xs">
+                                <div class="mx-auto w-16 h-16 bg-gradient-to-tr from-indigo-100 to-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 ring-8 ring-indigo-50/60 shadow-xs">
+                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                 </div>
-                                <h3 class="text-lg font-semibold text-gray-900 mb-1">No Materials Found</h3>
-                                <p class="text-sm text-gray-500">There are currently no learning materials added to this course.</p>
+                                <h3 class="text-base font-extrabold text-gray-900 mb-1">No Materials Found</h3>
+                                <p class="text-xs sm:text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+                                    There are currently no learning materials uploaded for this course yet.
+                                </p>
                             </div>
                         @else
-                            <!-- Layout 1: Segregated Sub-Folder Sections (Cards View) -->
-                            <div id="studentMaterialsCardsWrap" class="space-y-6">
-                                {{-- Segregated Sub-Folder Sections --}}
+                            <!-- Layout 1: Segregated Academic Division Sections (Cards View) -->
+                            <div id="courseMaterialsCardsWrap" class="space-y-6">
                                 @foreach($subfolderCategories as $catKey => $catMeta)
                                 @php 
                                     $catItems = $groupedMaterials[$catKey]; 
                                     $catSlug = Str::slug($catKey);
                                 @endphp
                                 @if($catItems->count() > 0)
-                                <div class="student-subfolder-section bg-white rounded-2xl border {{ $catMeta['border_accent'] }} shadow-2xs overflow-hidden transition-all duration-200"
-                                     id="student-section-{{ $catSlug }}"
+                                <div class="subfolder-section bg-white rounded-2xl border {{ $catMeta['border_accent'] }} shadow-2xs overflow-hidden transition-all duration-200" 
+                                     id="subfolder-section-{{ $catSlug }}"
                                      data-folder-key="{{ $catSlug }}">
                                     
                                     <!-- Subfolder Header Banner -->
-                                    <div onclick="toggleStudentSubfolder('{{ $catSlug }}')" 
+                                    <div onclick="toggleSubfolder('{{ $catSlug }}')" 
                                          class="px-5 py-4 bg-gradient-to-r {{ $catMeta['header_gradient'] }} border-b border-gray-100 flex items-center justify-between cursor-pointer select-none group">
                                         <div class="flex items-center gap-3.5 min-w-0">
                                             <div class="w-10 h-10 rounded-xl {{ $catMeta['icon_bg'] }} flex items-center justify-center shadow-2xs shrink-0 group-hover:scale-105 transition-transform text-lg">
@@ -303,7 +315,7 @@
                                             <div class="min-w-0">
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     <h4 class="text-sm sm:text-base font-extrabold text-gray-900 tracking-tight truncate">{{ $catMeta['name'] }}</h4>
-                                                    <span class="student-folder-count-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold {{ $catMeta['badge_class'] }} transition-all">
+                                                    <span class="subfolder-count-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold {{ $catMeta['badge_class'] }} transition-all">
                                                         {{ $catItems->count() }} {{ $catItems->count() === 1 ? 'Material' : 'Materials' }}
                                                     </span>
                                                 </div>
@@ -312,40 +324,44 @@
                                         </div>
 
                                         <div class="flex items-center gap-2.5 shrink-0 ml-3">
-                                            <span class="student-folder-toggle-text text-xs font-semibold text-gray-400 hidden md:inline">Collapse</span>
-                                            <div class="student-folder-chevron w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 group-hover:border-indigo-300 group-hover:text-indigo-600 transition-all duration-200 shadow-2xs">
+                                            <span class="subfolder-toggle-text text-xs font-semibold text-gray-400 hidden md:inline">Collapse</span>
+                                            <div class="subfolder-chevron w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 group-hover:border-indigo-300 group-hover:text-indigo-600 transition-all duration-200 shadow-2xs">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Subfolder Content Grid -->
-                                    <div class="student-subfolder-body p-5 sm:p-6 bg-slate-50/30">
+                                    <div class="subfolder-body p-5 sm:p-6 bg-slate-50/30">
                                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                             @foreach($catItems as $material)
-                                            <div class="student-material-card bg-white rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md hover:border-indigo-200 transition-all flex flex-col group h-full justify-between overflow-hidden"
-                                                 data-title="{{ strtolower($material->title) }}"
-                                                 data-platform="{{ strtolower($material->platform) }}"
-                                                 data-division="{{ strtolower($material->effective_division) }}"
-                                                 data-folder="{{ $catSlug }}">
+                                            @php
+                                                $matOpenUrl = $material->type === 'link' ? $material->url_or_path : route('materials.view', $material->id);
+                                                $rawExt = strtolower(pathinfo($material->url_or_path, PATHINFO_EXTENSION));
+                                            @endphp
+                                            <div class="material-card bg-white rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md hover:border-indigo-200 transition-all duration-200 flex flex-col group h-full justify-between overflow-hidden"
+                                                 data-material-title="{{ strtolower($material->title) }}"
+                                                 data-material-type="{{ strtolower($material->type) }}"
+                                                 data-material-platform="{{ strtolower($material->platform) }}"
+                                                 data-material-division="{{ strtolower($material->effective_division) }}"
+                                                 data-material-staff="{{ strtolower($material->staff->profile->first_name ?? '') }}"
+                                                 data-subfolder="{{ $catSlug }}">
+                                                
                                                 <div class="p-5 flex-1 relative flex flex-col justify-between">
                                                     <div>
-                                                        @php
-                                                            $matOpenUrl = $material->type === 'link' ? $material->url_or_path : route('materials.view', $material->id);
-                                                        @endphp
                                                         <div class="flex items-center justify-between gap-3 mb-3.5">
                                                             <div class="flex items-center gap-2.5 min-w-0">
                                                                 <a href="{{ $matOpenUrl }}" target="_blank" class="shrink-0 group/icon block" title="Open {{ $material->title }}">
                                                                     @if($material->platform === 'youtube')
-                                                                        <div class="h-10 w-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                        <div class="h-10 w-10 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                                         </div>
                                                                     @elseif($material->platform === 'drive' || $material->platform === 'onedrive')
-                                                                        <div class="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                        <div class="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
                                                                         </div>
                                                                     @elseif($material->platform === 'pdf')
-                                                                        <div class="h-10 w-10 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-500 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                        <div class="h-10 w-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                                                         </div>
                                                                     @elseif($material->platform === 'word')
@@ -353,11 +369,11 @@
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                                                         </div>
                                                                     @elseif($material->platform === 'excel')
-                                                                        <div class="h-10 w-10 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center text-green-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                        <div class="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                                                         </div>
                                                                     @elseif($material->platform === 'ppt')
-                                                                        <div class="h-10 w-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                        <div class="h-10 w-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
                                                                         </div>
                                                                     @elseif($material->platform === 'txt')
@@ -365,55 +381,64 @@
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                                                         </div>
                                                                     @else
-                                                                        <div class="h-10 w-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 shadow-2xs border border-gray-200 group-hover/icon:scale-105 transition-transform">
+                                                                        <div class="h-10 w-10 rounded-xl bg-slate-100 border border-slate-200/70 flex items-center justify-center text-slate-500 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                                                         </div>
                                                                     @endif
                                                                 </a>
-                                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 capitalize">
-                                                                    {{ $material->platform ?: $material->type }}
-                                                                </span>
+                                                                
+                                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase font-mono tracking-wider {{ in_array($rawExt, ['ppt','pptx','pps']) ? 'bg-amber-100 text-amber-800 border border-amber-200' : (in_array($rawExt, ['xls','xlsx','csv']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($rawExt === 'pdf' ? 'bg-rose-100 text-rose-800 border border-rose-200' : (in_array($rawExt, ['doc','docx']) ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-200'))) }}">
+                                                                        {{ $rawExt ? '.' . $rawExt : ($material->platform ?: $material->type) }}
+                                                                    </span>
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 capitalize">
+                                                                        {{ $material->platform ?: $material->type }}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
 
-                                                        <a href="{{ $matOpenUrl }}" target="_blank" class="text-[15px] font-bold text-gray-900 leading-snug break-words tracking-tight hover:text-indigo-600 hover:underline transition-colors block" title="Open {{ $material->title }}">
+                                                        {{-- Full-width Title: Directly clickable to open material --}}
+                                                        <a href="{{ $matOpenUrl }}" target="_blank" class="text-[15px] font-bold text-gray-900 leading-snug break-words tracking-tight group-hover:text-indigo-600 transition-colors hover:underline block" title="Open {{ $material->title }}">
                                                             {{ $material->title }}
                                                         </a>
-                                                        
-                                                        <div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-700">
-                                                            <span>{{ $catMeta['icon'] }}</span>
-                                                            <span>{{ $material->effective_division }}</span>
+
+                                                        {{-- Division Tag Badge --}}
+                                                        <div class="mt-2.5">
+                                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold {{ $catMeta['badge_class'] }} border shadow-2xs">
+                                                                <span>{{ $catMeta['icon'] }}</span>
+                                                                <span>{{ $material->effective_division }}</span>
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="bg-gray-50/80 px-4 py-2.5 border-t border-gray-100 mt-auto">
+                                                <div class="bg-gray-50/80 px-4 py-2.5 border-t border-gray-100 flex items-center justify-between gap-2">
                                                     @if($material->type === 'link')
-                                                        <a href="{{ $material->url_or_path }}" target="_blank" class="flex items-center justify-center w-full text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                        <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1.5">
                                                             Open Link <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                                         </a>
                                                     @else
-                                                        <div class="flex items-center justify-between w-full gap-2">
-                                                            <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
-                                                                View <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                            </a>
-                                                            <div class="w-px h-3.5 bg-gray-200"></div>
-                                                            <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
-                                                                Download <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                                            </a>
-                                                        </div>
+                                                        <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
+                                                            View <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                                        </a>
+                                                        <div class="w-px h-3.5 bg-gray-200"></div>
+                                                        <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
+                                                            Download <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                        </a>
                                                     @endif
                                                 </div>
                                             </div>
                                             @endforeach
                                         </div>
                                     </div>
-                                    @endif
+                                </div>
+                                @endif
                                 @endforeach
                             </div>
 
                             <!-- Layout 2: Structured Tabular Directory (Table View) -->
-                            <div id="studentMaterialsTableWrap" class="hidden overflow-hidden bg-white rounded-2xl border border-gray-200 shadow-2xs">
+                            <div id="courseMaterialsTableWrap" class="hidden overflow-hidden bg-white rounded-2xl border border-gray-200 shadow-2xs">
                                 <div class="overflow-x-auto">
                                     <table class="w-full divide-y divide-gray-200 text-left">
                                         <thead class="bg-gray-50/90 text-[11px] font-bold text-gray-600 uppercase tracking-wider">
@@ -434,11 +459,13 @@
                                                     $matMeta = $subfolderCategories[$matCatKey] ?? $subfolderCategories['Additional material'];
                                                     $matSlug = Str::slug($matCatKey);
                                                 @endphp
-                                                <tr class="hover:bg-indigo-50/40 transition-colors student-material-table-row"
-                                                    data-title="{{ strtolower($material->title) }}"
-                                                    data-platform="{{ strtolower($material->platform) }}"
-                                                    data-division="{{ strtolower($material->effective_division) }}"
-                                                    data-folder="{{ $matSlug }}">
+                                                <tr class="hover:bg-indigo-50/40 transition-colors material-table-row"
+                                                    data-material-title="{{ strtolower($material->title) }}"
+                                                    data-material-type="{{ strtolower($material->type) }}"
+                                                    data-material-platform="{{ strtolower($material->platform) }}"
+                                                    data-material-division="{{ strtolower($material->effective_division) }}"
+                                                    data-material-staff="{{ strtolower($material->staff->profile->first_name ?? '') }}"
+                                                    data-subfolder="{{ $matSlug }}">
                                                     <td class="px-5 py-3.5">
                                                         <div class="flex items-center gap-3">
                                                             <div class="shrink-0">
@@ -486,7 +513,7 @@
                                                             </span>
                                                         @else
                                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                                📄 File
+                                                                📄 File Resource
                                                             </span>
                                                         @endif
                                                     </td>
@@ -499,8 +526,8 @@
                                                     <td class="px-5 py-3.5 text-center whitespace-nowrap">
                                                         <div class="flex items-center justify-center gap-1.5">
                                                             @if($material->type === 'link')
-                                                                <a href="{{ $material->url_or_path }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs">
-                                                                    <span>Open Link</span>
+                                                                <a href="{{ $material->url_or_path }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs">
+                                                                    <span>Open</span>
                                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                                                 </a>
                                                             @else
@@ -524,14 +551,14 @@
                         @endif
 
                         <!-- No Match State for Search / Folder Filter -->
-                        <div id="studentNoMatchBox" class="py-14 px-6 text-center bg-white border border-dashed border-gray-200 rounded-2xl hidden">
+                        <div id="materialsNoMatchState" class="py-14 px-6 text-center bg-white border border-dashed border-gray-200 rounded-2xl hidden">
                             <div class="mx-auto w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-3">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
                             <h3 class="text-sm font-bold text-gray-900">No Matching Learning Materials</h3>
-                            <p class="text-xs text-gray-500 mt-1">No learning materials match your current search query or selected sub-folder.</p>
-                            <button type="button" onclick="clearStudentSearch()" class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-colors cursor-pointer">
-                                <span>Reset Search</span>
+                            <p class="text-xs text-gray-500 mt-1">No learning materials match your current search query or filter selection.</p>
+                            <button type="button" onclick="resetAllMaterialFilters()" class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-colors cursor-pointer">
+                                <span>Reset Filters</span>
                             </button>
                         </div>
                     </div>
@@ -544,7 +571,7 @@
         </main>
     </div>
 
-<!-- Change Password Modal -->
+    <!-- Change Password Modal -->
     <div id="passwordModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform transition-all">
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-indigo-50">
@@ -579,6 +606,7 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script>
         if (typeof window.initLMSUI === 'function') {
             window.initLMSUI();
@@ -587,64 +615,68 @@
             if (window.openPwdModal) window.openPwdModal();
         @endif
 
-        let activeStudentSubfolder = 'all';
+        // Active Subfolder Filter State
+        let activeSubfolderFilter = 'all';
 
-        window.selectStudentSubfolder = function(folderKey) {
-            activeStudentSubfolder = folderKey;
+        // Select Subfolder Handler
+        window.selectSubfolder = function(folderKey) {
+            activeSubfolderFilter = folderKey;
 
-            document.querySelectorAll('.student-folder-tab').forEach(btn => {
-                const target = btn.getAttribute('data-folder-target');
+            // Highlight subfolder tab
+            document.querySelectorAll('.subfolder-tab-btn').forEach(btn => {
+                const target = btn.getAttribute('data-subfolder-target');
                 const badge = btn.querySelector('.tab-badge');
                 if (target === folderKey) {
-                    btn.className = 'student-folder-tab inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-xs cursor-pointer';
+                    btn.className = 'subfolder-tab-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-xs cursor-pointer';
                     if (badge) badge.className = 'tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white';
                 } else {
-                    btn.className = 'student-folder-tab inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer';
+                    btn.className = 'subfolder-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer';
                     if (badge) badge.className = 'tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700';
                 }
             });
 
-            // Automatically open / expand the selected section directly!
+            // If subfolder selected, auto expand and scroll
             if (folderKey !== 'all') {
-                const section = document.getElementById('student-section-' + folderKey);
+                const section = document.getElementById('subfolder-section-' + folderKey);
                 if (section) {
-                    const body = section.querySelector('.student-subfolder-body');
-                    const chevron = section.querySelector('.student-folder-chevron');
-                    const toggleText = section.querySelector('.student-folder-toggle-text');
+                    const body = section.querySelector('.subfolder-body');
+                    const chevron = section.querySelector('.subfolder-chevron');
+                    const toggleText = section.querySelector('.subfolder-toggle-text');
                     if (body) body.classList.remove('hidden');
                     if (chevron) chevron.classList.remove('rotate-180');
                     if (toggleText) toggleText.textContent = 'Collapse';
                 }
-                studentAllExpanded = true;
-                const btnText = document.getElementById('studentToggleAllText');
-                const btnIcon = document.getElementById('studentToggleAllIcon');
+                allSubfoldersExpanded = true;
+                const btnText = document.getElementById('toggleAllSubfoldersText');
+                const btnIcon = document.getElementById('toggleAllSubfoldersIcon');
                 if (btnText) btnText.textContent = 'Collapse All';
                 if (btnIcon) btnIcon.classList.remove('rotate-180');
             } else {
-                studentAllExpanded = true;
-                const btnText = document.getElementById('studentToggleAllText');
-                const btnIcon = document.getElementById('studentToggleAllIcon');
+                allSubfoldersExpanded = true;
+                const btnText = document.getElementById('toggleAllSubfoldersText');
+                const btnIcon = document.getElementById('toggleAllSubfoldersIcon');
                 if (btnText) btnText.textContent = 'Collapse All';
                 if (btnIcon) btnIcon.classList.remove('rotate-180');
-                document.querySelectorAll('.student-subfolder-section').forEach(sec => {
-                    const body = sec.querySelector('.student-subfolder-body');
-                    const chevron = sec.querySelector('.student-folder-chevron');
-                    const toggleText = sec.querySelector('.student-folder-toggle-text');
+                document.querySelectorAll('.subfolder-section').forEach(sec => {
+                    const body = sec.querySelector('.subfolder-body');
+                    const chevron = sec.querySelector('.subfolder-chevron');
+                    const toggleText = sec.querySelector('.subfolder-toggle-text');
                     if (body) body.classList.remove('hidden');
                     if (chevron) chevron.classList.remove('rotate-180');
                     if (toggleText) toggleText.textContent = 'Collapse';
                 });
             }
 
-            window.filterStudentMaterialsLive();
+            window.filterMaterialsLive();
         };
 
-        window.toggleStudentSubfolder = function(folderKey) {
-            const section = document.getElementById('student-section-' + folderKey);
+        // Individual Subfolder Toggle (Expand / Collapse)
+        window.toggleSubfolder = function(folderKey) {
+            const section = document.getElementById('subfolder-section-' + folderKey);
             if (!section) return;
-            const body = section.querySelector('.student-subfolder-body');
-            const chevron = section.querySelector('.student-folder-chevron');
-            const toggleText = section.querySelector('.student-folder-toggle-text');
+            const body = section.querySelector('.subfolder-body');
+            const chevron = section.querySelector('.subfolder-chevron');
+            const toggleText = section.querySelector('.subfolder-toggle-text');
 
             if (body.classList.contains('hidden')) {
                 body.classList.remove('hidden');
@@ -657,23 +689,24 @@
             }
         };
 
-        let studentAllExpanded = true;
-        window.toggleAllStudentSubfolders = function() {
-            studentAllExpanded = !studentAllExpanded;
-            const btnText = document.getElementById('studentToggleAllText');
-            const btnIcon = document.getElementById('studentToggleAllIcon');
-            if (btnText) btnText.textContent = studentAllExpanded ? 'Collapse All' : 'Expand All';
+        // Global Collapse / Expand All Subfolders
+        let allSubfoldersExpanded = true;
+        window.toggleAllSubfolders = function() {
+            allSubfoldersExpanded = !allSubfoldersExpanded;
+            const btnText = document.getElementById('toggleAllSubfoldersText');
+            const btnIcon = document.getElementById('toggleAllSubfoldersIcon');
+            if (btnText) btnText.textContent = allSubfoldersExpanded ? 'Collapse All' : 'Expand All';
             if (btnIcon) {
-                if (studentAllExpanded) btnIcon.classList.remove('rotate-180');
+                if (allSubfoldersExpanded) btnIcon.classList.remove('rotate-180');
                 else btnIcon.classList.add('rotate-180');
             }
 
-            document.querySelectorAll('.student-subfolder-section').forEach(sec => {
-                const body = sec.querySelector('.student-subfolder-body');
-                const chevron = sec.querySelector('.student-folder-chevron');
-                const toggleText = sec.querySelector('.student-folder-toggle-text');
+            document.querySelectorAll('.subfolder-section').forEach(section => {
+                const body = section.querySelector('.subfolder-body');
+                const chevron = section.querySelector('.subfolder-chevron');
+                const toggleText = section.querySelector('.subfolder-toggle-text');
                 if (body && chevron && toggleText) {
-                    if (studentAllExpanded) {
+                    if (allSubfoldersExpanded) {
                         body.classList.remove('hidden');
                         chevron.classList.remove('rotate-180');
                         toggleText.textContent = 'Collapse';
@@ -686,15 +719,16 @@
             });
         };
 
-        let currentStudentMaterialsLayout = 'cards';
+        // Course Materials Layout State (Cards vs Table)
+        let currentCourseMaterialsLayout = 'cards';
 
-        window.setStudentMaterialsLayout = function(layout) {
-            currentStudentMaterialsLayout = layout;
-            const btnCards = document.getElementById('student-mat-btn-cards');
-            const btnTable = document.getElementById('student-mat-btn-table');
-            const cardsWrap = document.getElementById('studentMaterialsCardsWrap');
-            const tableWrap = document.getElementById('studentMaterialsTableWrap');
-            const collapseBtn = document.getElementById('studentToggleAllBtn');
+        window.setCourseMaterialsLayout = function(layout) {
+            currentCourseMaterialsLayout = layout;
+            const btnCards = document.getElementById('course-mat-btn-cards');
+            const btnTable = document.getElementById('course-mat-btn-table');
+            const cardsWrap = document.getElementById('courseMaterialsCardsWrap');
+            const tableWrap = document.getElementById('courseMaterialsTableWrap');
+            const collapseBtn = document.getElementById('toggleAllSubfoldersBtn');
             const iconCards = btnCards?.querySelector('svg');
             const iconTable = btnTable?.querySelector('svg');
 
@@ -718,91 +752,124 @@
                 if (collapseBtn) collapseBtn.classList.add('hidden');
             }
 
-            window.filterStudentMaterialsLive();
+            window.filterMaterialsLive();
         };
 
-        window.filterStudentMaterialsLive = function() {
-            const searchInput = document.getElementById('studentMaterialsSearch');
-            const clearBtn = document.getElementById('studentSearchClearBtn');
-            const noMatchBox = document.getElementById('studentNoMatchBox');
-            const countBadge = document.getElementById('studentMaterialsCountBadge');
+        // Live Real-Time Course Materials Filter
+        window.filterMaterialsLive = function() {
+            const searchInput = document.getElementById('materialsSearchInput');
+            const typeSelect = document.getElementById('materialsTypeSelect');
+            const clearBtn = document.getElementById('materialsSearchClearBtn');
+            const resetBtn = document.getElementById('materialsResetFilterBtn');
+            const noMatchBox = document.getElementById('materialsNoMatchState');
+            const countBadge = document.getElementById('materialsCountBadge');
 
-            const query = (searchInput?.value || '').toLowerCase().trim();
+            const searchQuery = (searchInput?.value || '').toLowerCase().trim();
+            const selectedType = (typeSelect?.value || '').toLowerCase().trim();
 
             if (clearBtn) {
-                if (query.length > 0) clearBtn.classList.remove('hidden');
-                else clearBtn.classList.add('hidden');
+                if (searchQuery.length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
             }
 
-            const cards = document.querySelectorAll('.student-material-card');
-            let overallCount = 0;
+            if (resetBtn) {
+                if (searchQuery.length > 0 || selectedType !== '' || activeSubfolderFilter !== 'all') {
+                    resetBtn.classList.remove('hidden');
+                } else {
+                    resetBtn.classList.add('hidden');
+                }
+            }
+
+            const cards = document.querySelectorAll('.material-card');
+            let overallVisibleCount = 0;
             const totalCount = cards.length;
 
+            // 1. Filter each individual card
             cards.forEach(card => {
-                const title = card.getAttribute('data-title') || '';
-                const platform = card.getAttribute('data-platform') || '';
-                const folder = card.getAttribute('data-folder') || '';
+                const title = card.getAttribute('data-material-title') || '';
+                const type = card.getAttribute('data-material-type') || '';
+                const platform = card.getAttribute('data-material-platform') || '';
+                const staff = card.getAttribute('data-material-staff') || '';
+                const cardFolder = card.getAttribute('data-subfolder') || '';
+                const division = card.getAttribute('data-material-division') || '';
 
-                const division = card.getAttribute('data-division') || '';
+                const matchesSearch = searchQuery === '' || 
+                                      title.includes(searchQuery) || 
+                                      platform.includes(searchQuery) || 
+                                      division.includes(searchQuery) || 
+                                      staff.includes(searchQuery);
 
-                const matchesQuery = query === '' || title.includes(query) || platform.includes(query) || division.includes(query);
-                const matchesFolder = activeStudentSubfolder === 'all' || folder === activeStudentSubfolder;
+                const matchesType = selectedType === '' || type === selectedType;
+                const matchesFolder = (activeSubfolderFilter === 'all') || (cardFolder === activeSubfolderFilter);
 
-                if (matchesQuery && matchesFolder) {
+                if (matchesSearch && matchesType && matchesFolder) {
                     card.style.display = '';
-                    overallCount++;
+                    overallVisibleCount++;
                 } else {
                     card.style.display = 'none';
                 }
             });
 
-            document.querySelectorAll('.student-material-table-row').forEach(row => {
-                const title = row.getAttribute('data-title') || '';
-                const platform = row.getAttribute('data-platform') || '';
-                const folder = row.getAttribute('data-folder') || '';
-                const division = row.getAttribute('data-division') || '';
+            // Filter each table row
+            document.querySelectorAll('.material-table-row').forEach(row => {
+                const title = row.getAttribute('data-material-title') || '';
+                const type = row.getAttribute('data-material-type') || '';
+                const platform = row.getAttribute('data-material-platform') || '';
+                const staff = row.getAttribute('data-material-staff') || '';
+                const cardFolder = row.getAttribute('data-subfolder') || '';
+                const division = row.getAttribute('data-material-division') || '';
 
-                const matchesQuery = query === '' || title.includes(query) || platform.includes(query) || division.includes(query);
-                const matchesFolder = activeStudentSubfolder === 'all' || folder === activeStudentSubfolder;
+                const matchesSearch = searchQuery === '' || 
+                                      title.includes(searchQuery) || 
+                                      platform.includes(searchQuery) || 
+                                      division.includes(searchQuery) || 
+                                      staff.includes(searchQuery);
 
-                if (matchesQuery && matchesFolder) {
+                const matchesType = selectedType === '' || type === selectedType;
+                const matchesFolder = (activeSubfolderFilter === 'all') || (cardFolder === activeSubfolderFilter);
+
+                if (matchesSearch && matchesType && matchesFolder) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
                 }
             });
 
-            document.querySelectorAll('.student-subfolder-section').forEach(sec => {
-                const secKey = sec.getAttribute('data-folder-key');
-                if (activeStudentSubfolder !== 'all' && activeStudentSubfolder !== secKey) {
-                    sec.style.display = 'none';
+            // 2. Update each subfolder section visibility and badge
+            document.querySelectorAll('.subfolder-section').forEach(section => {
+                const sectionFolderKey = section.getAttribute('data-folder-key');
+                if (activeSubfolderFilter !== 'all' && activeSubfolderFilter !== sectionFolderKey) {
+                    section.style.display = 'none';
                     return;
                 }
 
-                const secCards = sec.querySelectorAll('.student-material-card');
-                let secVisible = 0;
-                secCards.forEach(c => {
-                    if (c.style.display !== 'none') secVisible++;
+                const sectionCards = section.querySelectorAll('.material-card');
+                let sectionVisibleCount = 0;
+                sectionCards.forEach(c => {
+                    if (c.style.display !== 'none') sectionVisibleCount++;
                 });
 
-                const badge = sec.querySelector('.student-folder-count-badge');
-                if (badge) {
-                    if (query !== '') {
-                        badge.textContent = `${secVisible} of ${secCards.length} Shown`;
+                const badgeEl = section.querySelector('.subfolder-count-badge');
+                if (badgeEl) {
+                    if (searchQuery !== '' || selectedType !== '') {
+                        badgeEl.textContent = `${sectionVisibleCount} of ${sectionCards.length} Shown`;
                     } else {
-                        badge.textContent = `${secCards.length} ${secCards.length === 1 ? 'Material' : 'Materials'}`;
+                        badgeEl.textContent = `${sectionCards.length} ${sectionCards.length === 1 ? 'Material' : 'Materials'}`;
                     }
                 }
 
-                if (secVisible > 0) {
-                    sec.style.display = '';
+                if (sectionVisibleCount > 0) {
+                    section.style.display = '';
                 } else {
-                    sec.style.display = 'none';
+                    section.style.display = 'none';
                 }
             });
 
             if (noMatchBox) {
-                if (overallCount === 0 && totalCount > 0) {
+                if (overallVisibleCount === 0 && totalCount > 0) {
                     noMatchBox.classList.remove('hidden');
                 } else {
                     noMatchBox.classList.add('hidden');
@@ -810,24 +877,38 @@
             }
 
             if (countBadge) {
-                if (query !== '' || activeStudentSubfolder !== 'all') {
-                    countBadge.textContent = `${overallCount} of ${totalCount} Shown`;
+                if (searchQuery !== '' || selectedType !== '' || activeSubfolderFilter !== 'all') {
+                    countBadge.textContent = `${overallVisibleCount} of ${totalCount} Shown`;
                 } else {
                     countBadge.textContent = `${totalCount} Total`;
                 }
             }
         };
 
-        window.clearStudentSearch = function() {
-            const searchInput = document.getElementById('studentMaterialsSearch');
+        window.clearMaterialsSearch = function() {
+            const searchInput = document.getElementById('materialsSearchInput');
             if (searchInput) {
                 searchInput.value = '';
                 searchInput.focus();
             }
-            window.selectStudentSubfolder('all');
+            window.filterMaterialsLive();
         };
+
+        window.resetAllMaterialFilters = function() {
+            const searchInput = document.getElementById('materialsSearchInput');
+            const typeSelect = document.getElementById('materialsTypeSelect');
+            if (searchInput) searchInput.value = '';
+            if (typeSelect) typeSelect.value = '';
+            window.selectSubfolder('all');
+        };
+
+        // Initialize state on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.filterMaterialsLive === 'function') {
+                window.filterMaterialsLive();
+            }
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 </body>
 </html>
-

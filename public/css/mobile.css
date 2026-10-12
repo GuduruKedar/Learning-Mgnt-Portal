@@ -41,6 +41,7 @@ button {
 
 /* Ensure long text in select dropdowns does not overflow horizontally */
 select {
+    max-width: 100% !important;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -52,6 +53,29 @@ select option {
     text-overflow: ellipsis;
     white-space: normal;
     word-wrap: break-word;
+}
+
+/* Custom Dropdown Overflow Protection */
+.custom-dropdown {
+    position: relative;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.custom-dropdown button {
+    max-width: 100%;
+    min-width: 0;
+}
+
+.custom-dropdown div[id$="DropdownMenu"] {
+    max-width: calc(100vw - 2rem) !important;
+    word-break: break-word;
+}
+
+/* Form grid items overflow safety */
+form.grid > div {
+    min-width: 0;
+    max-width: 100%;
 }
 
 /* Responsive tables */
@@ -306,61 +330,231 @@ input, select, textarea {
     }
 }
 
-/* TomSelect Global Overrides for Tailwind Aesthetic */
+/* TomSelect Base Aesthetics */
 .ts-wrapper {
     padding: 0 !important;
     border: none !important;
     background: transparent !important;
+    width: 100% !important;
 }
 .ts-wrapper .ts-control {
-    border: 1px solid #e5e7eb !important; /* border-gray-200 */
-    border-radius: 0.5rem !important; /* rounded-lg */
-    padding: 0.625rem 0.75rem !important; /* py-2.5 */
-    box-shadow: none !important;
-    background-color: #f9fafb !important; /* bg-gray-50 */
+    border: 1px solid var(--border-subtle, #e2e8f0) !important;
+    border-radius: 0.75rem !important;
+    padding: 0.625rem 0.875rem !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+    background-color: var(--bg-secondary, #ffffff) !important;
+    color: var(--text-primary, #1e293b) !important;
     min-height: 42px !important;
     transition: all 0.2s ease;
 }
-/* Tailwind SVG Chevron for Single Selects */
 .ts-wrapper.single .ts-control {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
     background-position: right 0.5rem center !important;
     background-repeat: no-repeat !important;
     background-size: 1.5em 1.5em !important;
     padding-right: 2.5rem !important;
 }
-/* Hide default TomSelect border caret */
 .ts-wrapper.single .ts-control::after {
     display: none !important;
 }
 .ts-wrapper.focus .ts-control,
 .ts-wrapper .ts-control.focus {
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 1px #6366f1 !important;
+    border-color: var(--theme-primary, #4f46e5) !important;
+    box-shadow: 0 0 0 3px var(--theme-focus-ring, rgba(79, 70, 229, 0.2)) !important;
+    background-color: var(--bg-card, #ffffff) !important;
 }
-.ts-wrapper .ts-dropdown {
-    border: 1px solid #e5e7eb !important;
-    border-radius: 0.5rem !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+.ts-wrapper .ts-dropdown,
+.ts-dropdown {
+    border: 1px solid var(--border-subtle, #e2e8f0) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
     margin-top: 6px !important;
     width: 100% !important;
     box-sizing: border-box !important;
     left: 0 !important;
-    overflow: hidden !important; /* Fixes sharp corners bleeding */
-    background-color: #ffffff !important;
+    overflow: hidden !important;
+    background-color: var(--bg-card, #ffffff) !important;
+    color: var(--text-primary, #1e293b) !important;
+    z-index: 9999 !important;
 }
-.ts-wrapper .ts-dropdown .option {
-    padding: 0.6rem 0.75rem !important;
+.ts-wrapper .ts-dropdown .optgroup-header,
+.ts-dropdown .optgroup-header {
+    padding: 0.5rem 0.75rem 0.25rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: #64748b !important;
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+.ts-wrapper .ts-dropdown .option,
+.ts-dropdown .option {
+    padding: 0.6rem 0.85rem !important;
     font-size: 0.875rem !important;
-    color: #374151 !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
     cursor: pointer !important;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 .ts-wrapper .ts-dropdown .option:hover,
-.ts-wrapper .ts-dropdown .option.active {
-    background-color: #e0e7ff !important;
+.ts-wrapper .ts-dropdown .option.active,
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active {
+    background-color: #eef2ff !important;
     color: #4338ca !important;
+    font-weight: 600 !important;
 }
+.ts-wrapper .ts-dropdown .option.selected,
+.ts-dropdown .option.selected {
+    background-color: #4f46e5 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* TomSelect Dark Mode Aesthetics */
+html.dark .ts-wrapper .ts-control {
+    border: 1px solid var(--border-subtle, #273244) !important;
+    background-color: var(--bg-secondary, #111827) !important;
+    color: var(--text-primary, #F8FAFC) !important;
+}
+html.dark .ts-wrapper.focus .ts-control,
+html.dark .ts-wrapper .ts-control.focus {
+    background-color: var(--bg-card, #151B23) !important;
+}
+html.dark .ts-wrapper .ts-dropdown,
+html.dark .ts-dropdown {
+    border: 1px solid var(--border-subtle, #273244) !important;
+    background-color: var(--bg-card, #151B23) !important;
+    color: var(--text-primary, #F8FAFC) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6) !important;
+}
+html.dark .ts-wrapper .ts-dropdown .optgroup-header,
+html.dark .ts-dropdown .optgroup-header {
+    color: #94A3B8 !important;
+    background-color: #111827 !important;
+    border-bottom: 1px solid #1E293B !important;
+}
+html.dark .ts-wrapper .ts-dropdown .option,
+html.dark .ts-dropdown .option {
+    color: #F8FAFC !important;
+}
+html.dark .ts-wrapper .ts-dropdown .option:hover,
+html.dark .ts-wrapper .ts-dropdown .option.active,
+html.dark .ts-dropdown .option:hover,
+html.dark .ts-dropdown .option.active {
+    background-color: #312E81 !important;
+    color: #EEF2FF !important;
+    font-weight: 600 !important;
+}
+html.dark .ts-wrapper .ts-dropdown .option.selected,
+html.dark .ts-dropdown .option.selected {
+    background-color: #4F46E5 !important;
+    color: #FFFFFF !important;
+}
+
+
+/* ==========================================================================
+   Universal High-End Custom Dropdown Styling (TomSelect & Custom Selects)
+   ========================================================================== */
 .ts-wrapper {
     width: 100% !important;
+}
+.ts-wrapper .ts-control {
+    border: 1px solid #e2e8f0 !important;
+    background-color: #f8fafc !important;
+    border-radius: 0.75rem !important;
+    padding: 0.55rem 0.85rem !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    min-height: 40px !important;
+}
+.ts-wrapper.focus .ts-control,
+.ts-wrapper .ts-control.focus {
+    border-color: #6366f1 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+.ts-wrapper .ts-control::after {
+    border-color: #94a3b8 transparent transparent transparent !important;
+    border-width: 5px 4px 0 4px !important;
+    margin-top: -2px !important;
+    right: 14px !important;
+    transition: transform 0.2s ease !important;
+}
+.ts-wrapper.dropdown-active .ts-control::after {
+    transform: rotate(180deg) !important;
+    margin-top: -3px !important;
+}
+.ts-dropdown {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.875rem !important;
+    box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.08) !important;
+    margin-top: 6px !important;
+    padding: 0.375rem !important;
+    background-color: #ffffff !important;
+    z-index: 9999 !important;
+    overflow: hidden !important;
+    animation: tsDropdownFade 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+@keyframes tsDropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.ts-dropdown .option {
+    padding: 0.55rem 0.75rem !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    color: #334155 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+.ts-dropdown .option.selected {
+    background-color: #eef2ff !important;
+    color: #4f46e5 !important;
+    font-weight: 700 !important;
+}
+html.dark .ts-wrapper .ts-control {
+    border-color: #273244 !important;
+    background-color: #151b23 !important;
+    color: #f8fafc !important;
+}
+html.dark .ts-wrapper.focus .ts-control {
+    border-color: #818cf8 !important;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2) !important;
+}
+html.dark .ts-dropdown {
+    border-color: #273244 !important;
+    background-color: #151b23 !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6) !important;
+}
+html.dark .ts-dropdown .option {
+    color: #94a3b8 !important;
+}
+html.dark .ts-dropdown .option:hover,
+html.dark .ts-dropdown .option.active {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+}
+html.dark .ts-dropdown .option.selected {
+    background-color: rgba(99, 102, 241, 0.25) !important;
+    color: #a5b4fc !important;
 }

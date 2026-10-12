@@ -142,7 +142,9 @@ class ValidationAuditTest extends TestCase
             'school_id' => $this->school->id,
             'department_id' => $this->dept->id,
         ]);
-        $respInvalidStaff->assertSessionHasErrors(['username']);
+        $respInvalidStaff->assertSessionHasErrors([
+            'username' => 'The Employee ID / Username must be exactly 5 digits (e.g. 10001). Only 5 digits are accepted.'
+        ]);
 
         // 2. Create valid staff member (5 digits: 99881)
         $resp = $this->actingAs($this->superadmin)->post('/staff', [
@@ -183,5 +185,43 @@ class ValidationAuditTest extends TestCase
         // Clean up
         $staff->profile()->delete();
         $staff->delete();
+    }
+
+    /**
+     * Test that dummy email domains (@example.com) are rejected and valid emails are accepted
+     */
+    public function test_example_com_email_is_rejected_and_valid_email_is_accepted()
+    {
+        // 1. Attempt creating coordinator with example.com email -> must fail validation
+        $coordResp = $this->actingAs($this->superadmin)->post('/coordinators', [
+            'first_name' => 'Test',
+            'last_name' => 'Coord',
+            'email' => 'bad_test@example.com',
+            'school_id' => $this->school->id,
+            'department_id' => $this->dept->id,
+        ]);
+        $coordResp->assertSessionHasErrors(['email']);
+
+        // 2. Attempt creating student with example.com email -> must fail validation
+        $stuResp = $this->actingAs($this->superadmin)->post('/students', [
+            'first_name' => 'Test',
+            'last_name' => 'Student',
+            'username' => '241FA04888',
+            'email' => 'student_bad@example.com',
+            'school_id' => $this->school->id,
+            'department_id' => $this->dept->id,
+        ]);
+        $stuResp->assertSessionHasErrors(['email']);
+
+        // 3. Attempt creating staff with example.com email -> must fail validation
+        $staffResp = $this->actingAs($this->superadmin)->post('/staff', [
+            'first_name' => 'Test',
+            'last_name' => 'Staff',
+            'username' => '88888',
+            'email' => 'staff_bad@example.com',
+            'school_id' => $this->school->id,
+            'department_id' => $this->dept->id,
+        ]);
+        $staffResp->assertSessionHasErrors(['email']);
     }
 }

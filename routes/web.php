@@ -134,7 +134,7 @@ Route::middleware('auth')->group(function () {
     // 2. Admin Routes (Role: admin, sa, ssh_admin for shared utilities)
     // Includes inherited permissions from Super Admin
     // ==========================================
-    Route::middleware('role:sa,admin,ssh_admin')->group(function () {
+    Route::middleware('role:sa,admin,ssh_admin,civil_admin')->group(function () {
         Route::get('/schools/{school}/departments', [\App\Http\Controllers\CoordinatorController::class, 'getDepartments'])->name('schools.departments');
         Route::get('/departments/{department}/programs', [\App\Http\Controllers\CoordinatorController::class, 'getPrograms'])->name('departments.programs');
         Route::get('/departments/{department}/suggested-username', [\App\Http\Controllers\CoordinatorController::class, 'getSuggestedUsername'])->name('departments.suggested_username');
@@ -150,6 +150,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/upload-history', [\App\Http\Controllers\BulkUploadController::class, 'history'])->name('bulk-upload.history');
         Route::get('/bulk-upload/progress', [\App\Http\Controllers\BulkUploadController::class, 'progress'])->name('bulk-upload.progress');
         Route::get('/bulk-upload/template', [\App\Http\Controllers\BulkUploadController::class, 'downloadTemplate'])->name('bulk-upload.template');
+        Route::get('/bulk-upload/{id}/errors-excel', [\App\Http\Controllers\BulkUploadController::class, 'downloadErrorsExcel'])->name('bulk-upload.errors.excel');
+        Route::get('/bulk-upload/{id}/errors-word', [\App\Http\Controllers\BulkUploadController::class, 'downloadErrorsWord'])->name('bulk-upload.errors.word');
         
         // Academic Management
         Route::get('/regulations', [\App\Http\Controllers\AcademicController::class, 'regulations'])->name('academic.regulations');
@@ -198,6 +200,7 @@ Route::middleware('auth')->group(function () {
             // Student Assignments
             Route::get('/student/assignments', [\App\Http\Controllers\StudentAssignmentController::class, 'index'])->name('student.assignments.index');
             Route::get('/student/assignments/{assignment}', [\App\Http\Controllers\StudentAssignmentController::class, 'show'])->name('student.assignments.show');
+            Route::get('/student/assignments/{assignment}/download', [\App\Http\Controllers\StudentAssignmentController::class, 'downloadReport'])->name('student.assignments.download');
             Route::post('/student/assignments/{assignment}/submit', [\App\Http\Controllers\StudentAssignmentController::class, 'submit'])->name('student.assignments.submit');
         });
     });

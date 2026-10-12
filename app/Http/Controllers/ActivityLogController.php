@@ -68,6 +68,27 @@ class ActivityLogController extends Controller
         // Paginate individual logs (10 per page by default)
         $logs = $query->paginate($perPage)->withQueryString();
 
+        // If AJAX / Live Filter Request, return JSON with rendered rows and pagination
+        if ($request->ajax() || $request->query('live') == '1' || $request->header('X-Live-Filter') == '1') {
+            $tableHtml = view('activity_logs.partials.table_rows', compact('logs'))->render();
+            $paginationHtml = $logs->links()->toHtml();
+            return response()->json([
+                'status'          => 'success',
+                'table_html'      => $tableHtml,
+                'pagination_html' => $paginationHtml,
+                'first_item'      => $logs->firstItem() ?? 0,
+                'last_item'       => $logs->lastItem() ?? 0,
+                'total'           => $logs->total(),
+                'per_page'        => $logs->perPage(),
+                'current_page'    => $logs->currentPage(),
+                'last_page'       => $logs->lastPage(),
+                'search'          => $searchTerm,
+                'department'      => $selectedDepartment,
+                'module'          => $selectedModule,
+                'severity'        => $selectedSeverity,
+            ]);
+        }
+
         // All departments for dropdown & cards
         $departments = Department::with('school')->get();
         $deptMap = $departments->keyBy('code');

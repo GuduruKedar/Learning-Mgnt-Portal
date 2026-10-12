@@ -19,33 +19,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-end px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0" aria-label="Open user profile menu">
-                    @if(Auth::user()->photo)
-                        <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-indigo-200" src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Profile Photo">
-                    @else
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shadow-sm">
-                            {{ substr(Auth::user()->first_name ?? 'S', 0, 1) }}
-                        </div>
-                    @endif
-                    <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->first_name ?? 'Staff' }}</span>
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Edit Profile</a>
-                        <button type="button" id="openPasswordModalBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Change Password</button>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</a>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 bg-gray-50">
@@ -251,14 +226,31 @@
                                                  || $material->staff_id === Auth::id();
                                         @endphp
                                         @if($canDeleteMaterial)
+                                        @php
+                                            $matDelUrl = route('staff.courses.materials.destroy', $material->id);
+                                        @endphp
                                         <div class="absolute top-4 right-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                                            <form action="{{ route('staff.courses.materials.destroy', $material->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this material?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="w-8.5 h-8.5 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer" title="Delete Material">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                </button>
-                                            </form>
+                                            <button type="button" 
+                                                onclick="openUniversalDeleteModal({
+                                                    title: 'Delete Course Material',
+                                                    subtitle: 'Confirm learning material removal',
+                                                    itemName: '{{ addslashes($material->title) }}',
+                                                    itemCode: '{{ strtoupper($material->type) }}',
+                                                    itemBadge: '{{ ucfirst($material->platform ?: 'Material') }}',
+                                                    itemMeta: 'Course: {{ addslashes($course->code) }} - {{ addslashes($course->name) }}',
+                                                    cascadeItems: [
+                                                        { title: 'Material Type', count: '{{ ucfirst($material->type) }} Resource', icon: 'file' },
+                                                        { title: 'Storage Status', count: '{{ $material->type === 'file' ? 'Local File Deleted' : 'URL Removed' }}', icon: 'material' }
+                                                    ],
+                                                    warningTitle: 'Delete {{ addslashes($material->title) }}?',
+                                                    warningBody: 'Are you sure you want to permanently delete this learning resource from {{ addslashes($course->code) }}? If it is a file, it will be deleted from the server storage.',
+                                                    deleteUrl: '{{ $matDelUrl }}',
+                                                    submitBtnText: 'Yes, Delete Material'
+                                                })"
+                                                class="w-8.5 h-8.5 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer" 
+                                                title="Delete Material">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
                                         </div>
                                         @endif
                                         
@@ -649,7 +641,7 @@
             </div>
             
             <footer class="mt-8 border-t border-gray-200 pt-4 pb-2">
-                <p class="text-center text-sm text-gray-500">&copy; {{ date('Y') }} Learning Management System. All rights reserved.</p>
+                <p class="text-center text-xs text-gray-500 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700">Technology Development (TD)</span>.</p>
             </footer>
         </main>
     </div>
@@ -780,23 +772,43 @@
                                     <span class="text-[11px] font-semibold text-gray-400">Max 25MB</span>
                                 </div>
                                 
-                                <div class="border-2 border-dashed border-gray-300 hover:border-indigo-400 rounded-2xl p-4 text-center bg-gray-50/50 hover:bg-indigo-50/30 transition-all cursor-pointer relative group">
+                                <div id="file-dropzone-container" class="border-2 border-dashed border-gray-300 hover:border-indigo-400 rounded-2xl p-4 text-center bg-gray-50/50 hover:bg-indigo-50/30 transition-all cursor-pointer relative group">
                                     <div class="flex flex-col items-center justify-center">
-                                        <div id="file-icon-preview" class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2 shadow-2xs border border-indigo-100">
+                                        <div id="file-icon-preview" class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2 shadow-2xs border border-indigo-100 transition-transform">
                                             <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                                         </div>
-                                        <p class="text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors">Click to select document</p>
-                                        <p class="text-[10px] text-gray-400 mt-0.5">Supports PDF, DOCX, PPTX, XLSX, ZIP</p>
+                                        <p id="file-select-title" class="text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors">Click to select document</p>
+                                        <p id="file-select-subtitle" class="text-[10px] text-gray-400 mt-0.5">Supports PDF, DOCX, PPTX, XLSX, ZIP (Max 25MB)</p>
                                     </div>
                                     <input type="file" name="file" id="file-upload-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.pps,.ppsx,.xls,.xlsx,.csv,.txt,.zip,.rar,.png,.jpg,.jpeg,.webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
                                 </div>
+
+                                <!-- Dynamic In-Modal File Size Error Alert Banner -->
+                                <div id="file-size-error-banner" class="hidden mt-3 p-3.5 bg-red-50 border-2 border-red-200 rounded-xl flex items-start gap-3 text-red-800 transition-all shadow-2xs">
+                                    <div class="w-7 h-7 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-bold text-red-900" id="file-size-error-title">File Size Exceeds 25MB Limit</p>
+                                        <p class="text-[11px] font-medium text-red-700 mt-0.5 leading-relaxed" id="file-size-error-msg">The selected file exceeds the maximum allowed limit of 25MB. Please choose a smaller file.</p>
+                                    </div>
+                                    <button type="button" onclick="dismissFileSizeError()" class="text-red-400 hover:text-red-700 p-1 rounded-md transition-colors" title="Dismiss">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+
                                 @if(old('type') === 'file')
-                                    @error('file') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                    @error('file')
+                                        <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-xs text-red-700 font-semibold">
+                                            <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span>{{ $message }}</span>
+                                        </div>
+                                    @enderror
                                 @endif
                             </div>
                             <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
                                 <button type="button" onclick="closeManageMaterialsModal()" class="px-4 py-2 text-xs sm:text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none">Cancel</button>
-                                <button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-bold py-2.5 px-5 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
+                                <button type="submit" id="submit-upload-btn" class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-bold py-2.5 px-5 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                                     <span>Upload Document</span>
                                 </button>
@@ -875,9 +887,13 @@
             }
         });
 
-        @if($errors->has('title') || $errors->has('platform') || $errors->has('url') || $errors->has('file') || old('type'))
+        @if($errors->has('title') || $errors->has('platform') || $errors->has('url') || $errors->has('file') || old('type') || session('error'))
             window.addEventListener('DOMContentLoaded', function() {
                 window.openManageMaterialsModal();
+                @if($errors->has('file') || old('type') === 'file' || (session('error') && (str_contains(session('error'), 'file') || str_contains(session('error'), '25MB'))))
+                    const fileBtn = document.getElementById('tab-file-btn');
+                    if (fileBtn) fileBtn.click();
+                @endif
             });
         @endif
 
@@ -1081,36 +1097,92 @@
             @endif
         }
 
-        // File type detection, base64 encoding and icon preview
+        // File type detection, size validation, and icon preview
         const fileInput = document.getElementById('file-upload-input');
         const fileTypeSelect = document.getElementById('file-type-select');
         const fileIconPreview = document.getElementById('file-icon-preview');
         const fileBase64Input = document.getElementById('file_base64');
         const fileNameInput = document.getElementById('file_name');
+        const fileDropzone = document.getElementById('file-dropzone-container');
+        const fileSelectTitle = document.getElementById('file-select-title');
+        const fileSelectSubtitle = document.getElementById('file-select-subtitle');
+        const fileSizeErrorBanner = document.getElementById('file-size-error-banner');
+        const fileSizeErrorTitle = document.getElementById('file-size-error-title');
+        const fileSizeErrorMsg = document.getElementById('file-size-error-msg');
+        const uploadForm = document.getElementById('course-material-upload-form');
+
+        window.dismissFileSizeError = function() {
+            if (fileSizeErrorBanner) fileSizeErrorBanner.classList.add('hidden');
+            if (fileDropzone) {
+                fileDropzone.classList.remove('border-red-400', 'bg-red-50/40', 'ring-2', 'ring-red-300');
+                fileDropzone.classList.add('border-gray-300', 'bg-gray-50/50');
+            }
+        };
+
+        function resetFileSelectionState() {
+            if (fileInput) fileInput.value = '';
+            if (fileBase64Input) fileBase64Input.value = '';
+            if (fileNameInput) fileNameInput.value = '';
+            if (fileSelectTitle) {
+                fileSelectTitle.textContent = 'Click to select document';
+                fileSelectTitle.className = 'text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors';
+            }
+            if (fileSelectSubtitle) {
+                fileSelectSubtitle.textContent = 'Supports PDF, DOCX, PPTX, XLSX, ZIP (Max 25MB)';
+                fileSelectSubtitle.className = 'text-[10px] text-gray-400 mt-0.5';
+            }
+            if (fileIconPreview) {
+                fileIconPreview.innerHTML = '<svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>';
+                fileIconPreview.className = 'w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2 shadow-2xs border border-indigo-100 transition-transform';
+            }
+        }
 
         if (fileInput) {
             fileInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) {
-                    if (fileIconPreview) {
-                        fileIconPreview.innerHTML = '';
-                        fileIconPreview.classList.add('hidden');
-                        fileIconPreview.classList.remove('flex');
-                    }
-                    if (fileBase64Input) fileBase64Input.value = '';
-                    if (fileNameInput) fileNameInput.value = '';
+                    resetFileSelectionState();
+                    window.dismissFileSizeError();
                     return;
                 }
 
+                // Strict 25MB Check (26,214,400 bytes)
+                const maxBytes = 25 * 1024 * 1024;
+                if (file.size > maxBytes) {
+                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    resetFileSelectionState();
+
+                    // Show prominent in-modal error alert banner
+                    if (fileSizeErrorTitle) {
+                        fileSizeErrorTitle.textContent = `File Size (${fileSizeMB} MB) Exceeds 25MB Limit`;
+                    }
+                    if (fileSizeErrorMsg) {
+                        fileSizeErrorMsg.innerHTML = `The selected file <span class="font-bold text-red-900 break-all">"${file.name}"</span> is <span class="font-bold text-red-900">${fileSizeMB} MB</span>. Maximum allowed file size is <span class="font-bold text-red-900">25 MB</span>. Please choose a smaller file.`;
+                    }
+                    if (fileSizeErrorBanner) {
+                        fileSizeErrorBanner.classList.remove('hidden');
+                    }
+
+                    if (fileDropzone) {
+                        fileDropzone.classList.remove('border-gray-300', 'bg-gray-50/50', 'hover:border-indigo-400');
+                        fileDropzone.classList.add('border-red-400', 'bg-red-50/40', 'ring-2', 'ring-red-300');
+                    }
+                    return;
+                }
+
+                // File size valid (<= 25MB)
+                window.dismissFileSizeError();
                 if (fileNameInput) fileNameInput.value = file.name;
 
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    if (fileBase64Input) {
-                        fileBase64Input.value = evt.target.result;
-                    }
-                };
-                reader.readAsDataURL(file);
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                if (fileSelectTitle) {
+                    fileSelectTitle.textContent = file.name;
+                    fileSelectTitle.className = 'text-xs font-bold text-indigo-700 truncate max-w-[280px] sm:max-w-md';
+                }
+                if (fileSelectSubtitle) {
+                    fileSelectSubtitle.textContent = `File Size: ${fileSizeMB} MB • Ready to upload`;
+                    fileSelectSubtitle.className = 'text-[11px] font-semibold text-emerald-600 mt-0.5';
+                }
 
                 const filename = file.name.toLowerCase();
                 let type = '';
@@ -1142,6 +1214,34 @@
                     }
                     fileIconPreview.classList.remove('hidden');
                     fileIconPreview.classList.add('flex');
+                }
+            });
+        }
+
+        // Intercept form submit to block submission if file exceeds 25MB
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', function(e) {
+                const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+                const maxBytes = 25 * 1024 * 1024;
+
+                if (file && file.size > maxBytes) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    if (fileSizeErrorTitle) {
+                        fileSizeErrorTitle.textContent = `File Size (${fileSizeMB} MB) Exceeds 25MB Limit`;
+                    }
+                    if (fileSizeErrorMsg) {
+                        fileSizeErrorMsg.innerHTML = `The selected file <span class="font-bold text-red-900 break-all">"${file.name}"</span> is <span class="font-bold text-red-900">${fileSizeMB} MB</span>. Maximum allowed file size is <span class="font-bold text-red-900">25 MB</span>. Please select a smaller file.`;
+                    }
+                    if (fileSizeErrorBanner) {
+                        fileSizeErrorBanner.classList.remove('hidden');
+                    }
+                    if (fileDropzone) {
+                        fileDropzone.classList.remove('border-gray-300', 'bg-gray-50/50');
+                        fileDropzone.classList.add('border-red-400', 'bg-red-50/40', 'ring-2', 'ring-red-300');
+                    }
+                    return false;
                 }
             });
         }

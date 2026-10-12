@@ -421,8 +421,32 @@ class StaffAssignmentController extends Controller
         $assignment = $question->assignment;
         $this->authorizeStaffAccess($assignment);
 
+        $qText = \Illuminate\Support\Str::limit(strip_tags($question->question), 60);
+        $assignmentTitle = $assignment->title;
+        $courseCode = $assignment->course->code ?? 'General';
+        $deptId = $assignment->course->department_id ?? null;
+
         $question->delete();
         $assignment->recalculateMaxMarks();
+
+        \App\Services\ActivityLogger::log(
+            'cascade_question_deleted',
+            'Assignment Question Deleted',
+            'Assignments',
+            "Deleted question \"{$qText}\" from assignment \"{$assignmentTitle}\" ({$courseCode}).",
+            'warning',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'AssignmentQuestion',
+                'entity_id'     => $question->id,
+                'entity_name'   => $qText,
+                'payload'       => [
+                    'assignment_id'    => $assignment->id,
+                    'assignment_title' => $assignmentTitle,
+                    'course_code'      => $courseCode
+                ]
+            ]
+        );
 
         return redirect()->back()->with('success', 'Question deleted.');
     }
@@ -474,9 +498,61 @@ class StaffAssignmentController extends Controller
     {
         $this->authorizeStaffAccess($assignment);
 
-        $assignment->delete();
+        $assignmentTitle = $assignment->title;
+        $courseCode = $assignment->course->code ?? 'General';
+        $deptId = $assignment->course->department_id ?? null;
+        $assignmentId = $assignment->id;
+        $submissionsCount = $assignment->submissions->count();
+        $questionsCount = $assignment->questions->count();
+        $answersCount = 0;
+        foreach ($assignment->submissions as $sub) {
+            $answersCount += $sub->answers->count();
+        }
 
-        return redirect()->route('staff.assignments.index')->with('success', 'Assignment deleted successfully.');
+        \Illuminate\Support\Facades\DB::transaction(function () use ($assignment) {
+            // 1. Delete assignment attachment
+            if ($assignment->attachment_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($assignment->attachment_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($assignment->attachment_path);
+            }
+
+            // 2. Delete student submissions and their files/answers
+            foreach ($assignment->submissions as $sub) {
+                if ($sub->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($sub->file_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($sub->file_path);
+                }
+                \Illuminate\Support\Facades\DB::table('assignment_answers')->where('submission_id', $sub->id)->delete();
+                $sub->delete();
+            }
+
+            // 3. Delete MCQ questions
+            $assignment->questions()->delete();
+
+            // 4. Delete assignment
+            $assignment->delete();
+        });
+
+        \App\Services\ActivityLogger::log(
+            'cascade_assignment_deleted',
+            'Assignment & Submissions Deleted',
+            'Assignments',
+            "Permanently deleted assignment \"{$assignmentTitle}\" ({$courseCode}). Cascaded removals: {$submissionsCount} student submission(s), {$answersCount} answer response(s), and {$questionsCount} question(s).",
+            'danger',
+            [
+                'department_id' => $deptId,
+                'entity_type'   => 'Assignment',
+                'entity_id'     => $assignmentId,
+                'entity_name'   => $assignmentTitle,
+                'payload'       => [
+                    'assignment_title'    => $assignmentTitle,
+                    'course_code'         => $courseCode,
+                    'submissions_deleted' => $submissionsCount,
+                    'answers_deleted'     => $answersCount,
+                    'questions_deleted'   => $questionsCount,
+                ]
+            ]
+        );
+
+        return redirect()->route('staff.assignments.index')->with('success', 'Assignment and all associated questions/submissions deleted successfully.');
     }
 
     protected function authorizeStaffAccess(Assignment $assignment)

@@ -37,7 +37,7 @@ class ActivityLogTest extends TestCase
             'first_name' => 'Super',
             'last_name' => 'Admin',
             'username' => 'sa_' . $saUid,
-            'email' => 'satest_' . $saUid . '@example.com',
+            'email' => 'satest_' . $saUid . '@vignan.ac.in',
             'roles_id' => 'sa',
         ]);
         $this->superadmin = User::create([
@@ -52,7 +52,7 @@ class ActivityLogTest extends TestCase
             'first_name' => 'Student',
             'last_name' => 'User',
             'username' => $stuReg,
-            'email' => 'stutest_' . $stuReg . '@example.com',
+            'email' => 'stutest_' . $stuReg . '@vignan.ac.in',
             'roles_id' => 'stu',
             'departments_id' => $this->dept->code,
         ]);

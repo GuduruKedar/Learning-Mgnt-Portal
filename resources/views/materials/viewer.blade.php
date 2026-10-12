@@ -14,36 +14,7 @@
     <!-- SheetJS for Excel spreadsheets rendering -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
-
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .docx-wrapper {
-            background-color: transparent !important;
-            padding: 0 !important;
-        }
-        .docx-wrapper > section.docx {
-            background: white !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-            margin: 24px auto !important;
-            padding: 48px !important;
-            border-radius: 12px !important;
-            border: 1px solid #e5e7eb !important;
-            max-width: 860px !important;
-            min-height: 1000px !important;
-            box-sizing: border-box !important;
-        }
-        @media (max-width: 768px) {
-            .docx-wrapper > section.docx {
-                padding: 24px !important;
-                margin: 12px auto !important;
-            }
-        }
-        /* Custom scrollbars */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/viewer.css') }}">
 </head>
 <body class="h-full bg-slate-100 flex flex-col overflow-hidden text-slate-800">
 

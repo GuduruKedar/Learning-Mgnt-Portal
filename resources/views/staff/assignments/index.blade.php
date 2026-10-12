@@ -18,38 +18,8 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 z-50 relative shrink-0 w-full">
-            <div class="flex items-center space-x-2">
-                <span class="text-sm font-medium text-gray-500">Staff Portal</span>
-                <span class="text-gray-300">/</span>
-                <span class="text-sm font-semibold text-indigo-700">Course Assignments</span>
-            </div>
-            <div class="flex items-center">
-                <div class="relative">
-                    <button id="profileDropdownBtn" class="flex items-center gap-3 hover:opacity-80 transition-opacity focus:outline-none shrink-0">
-                        @if(Auth::user()->photo)
-                            <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-indigo-200" src="{{ asset('storage/' . Auth::user()->photo) }}" alt="">
-                        @else
-                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shadow-sm">
-                                {{ substr(Auth::user()->first_name ?? 'S', 0, 1) }}
-                            </div>
-                        @endif
-                        <span class="text-sm font-semibold text-gray-700 hidden sm:block">Hello, {{ Auth::user()->first_name ?? 'Staff' }}</span>
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    
-                    <div id="profileDropdownMenu" class="absolute -right-2 sm:right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 hidden max-w-[calc(100vw-2rem)] origin-top-right">
-                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Edit Profile</a>
-                        <button type="button" id="openPasswordModalBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Change Password</button>
-                        <div class="border-t border-gray-100 my-1"></div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</a>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <!-- Top Header -->
+        @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
         <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
@@ -112,7 +82,7 @@
                 @php
                     $currentStatus = request('status');
                 @endphp
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
                     <!-- Total Assignments -->
                     <a href="{{ route('staff.assignments.index', array_filter(array_merge(request()->except(['page', 'status']), ['status' => null]))) }}" 
                        class="group rounded-2xl shadow-sm border p-5 flex items-center justify-between transition-all duration-200 {{ empty($currentStatus) ? 'bg-indigo-50/50 border-indigo-300 ring-2 ring-indigo-500/20 shadow-md' : 'bg-white border-gray-100 hover:border-indigo-200 hover:shadow-md hover:-translate-y-0.5' }}">
@@ -286,13 +256,23 @@
                                     <a href="{{ route('staff.assignments.edit', $assignment->id) }}" class="w-8.5 h-8.5 flex items-center justify-center rounded-xl bg-indigo-50/80 text-indigo-600 border border-indigo-200/80 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Edit Assignment">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                     </a>
-                                    <form method="POST" action="{{ route('staff.assignments.destroy', $assignment->id) }}" onsubmit="return confirm('Are you sure you want to delete this assignment? All student submissions will also be deleted.')" class="inline m-0 p-0">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="w-8.5 h-8.5 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5" title="Delete Assignment">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                        onclick="window.openUniversalDeleteModal({
+                                            title: 'Delete Assignment',
+                                            itemName: '{{ addslashes($assignment->title) }}',
+                                            itemType: 'Assignment ({{ addslashes($assignment->course->course_name ?? 'Course') }})',
+                                            deleteUrl: '{{ route('staff.assignments.destroy', $assignment->id) }}',
+                                            warningMessage: 'Deleting this assignment will permanently remove all student submissions, scores, answers, and any uploaded assessment materials.',
+                                            cascadeItems: [
+                                                { label: 'Student Submissions & Answers', count: '{{ $assignment->submissions->count() }}' },
+                                                { label: 'MCQ / Assessment Questions', count: '{{ $assignment->questions->count() }}' },
+                                                { label: 'Uploaded Assessment Files', count: '{{ $assignment->attachment_path ? '1 File' : 'None' }}' }
+                                            ]
+                                        })"
+                                        class="w-8.5 h-8.5 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5"
+                                        title="Delete Assignment">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -306,6 +286,10 @@
                 @endif
 
             </div>
+        
+            <footer class="mt-8 border-t border-gray-200 dark:border-slate-800 pt-4 pb-2">
+                <p class="text-center text-xs text-gray-500 dark:text-slate-400 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700 dark:text-gray-300">Technology Development (TD)</span>.</p>
+            </footer>
         </main>
     </div>
 

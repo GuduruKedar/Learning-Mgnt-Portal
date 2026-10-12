@@ -74,8 +74,8 @@ class CivilAdminController extends Controller
         }
 
         $students = $query->latest('id')->paginate(10)->withQueryString();
-        $schools = School::where('code', '!=', 'sc_cs')->get();
-        $departments = Department::where('code', '!=', 'dep_cs')->get();
+        $schools = \App\Services\CacheService::getSchools()->where('code', '!=', 'sc_cs');
+        $departments = \App\Services\CacheService::getDepartments()->where('code', '!=', 'dep_cs');
 
         return view('civil_services.students.index', compact('students', 'schools', 'departments'));
     }
@@ -85,9 +85,9 @@ class CivilAdminController extends Controller
      */
     public function create()
     {
-        $schools = School::where('code', '!=', 'sc_cs')->get();
-        $departments = Department::where('code', '!=', 'dep_cs')->get();
-        $programs = Program::all();
+        $schools = \App\Services\CacheService::getSchools()->where('code', '!=', 'sc_cs');
+        $departments = \App\Services\CacheService::getDepartments()->where('code', '!=', 'dep_cs');
+        $programs = \App\Services\CacheService::getPrograms();
 
         return view('civil_services.students.create', compact('schools', 'departments', 'programs'));
     }

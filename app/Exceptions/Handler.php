@@ -44,7 +44,32 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+            \App\Services\DiscordWebhookService::sendException($e);
+        });
+
+        $this->renderable(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            $message = 'The uploaded file exceeds the 25MB maximum size limit. Please select a file smaller than 25MB.';
+
+            if ($request->expectsJson() || $request->isXmlHttpRequest()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                    'errors' => [
+                        'file' => [$message]
+                    ]
+                ], 422);
+            }
+
+            if ($request->hasSession()) {
+                $request->session()->flash('error', $message);
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors([
+                        'file' => $message
+                    ]);
+            }
+
+            return redirect()->back()->with('error', $message);
         });
     }
 }

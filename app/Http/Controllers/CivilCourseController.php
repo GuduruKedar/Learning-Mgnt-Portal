@@ -32,8 +32,9 @@ class CivilCourseController extends Controller
         }
 
         $courses = $query->latest('id')->paginate(10)->withQueryString();
+        $existingCourseCodes = Course::pluck('code')->map(fn($c) => strtoupper(trim($c)))->unique()->values();
 
-        return view('civil_services.courses.index', compact('courses'));
+        return view('civil_services.courses.index', compact('courses', 'existingCourseCodes'));
     }
 
     /**
@@ -42,20 +43,26 @@ class CivilCourseController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => ['required', 'string', 'max:50', 'unique:courses,code'],
+            'code' => ['required', 'string', 'max:50'],
             'name' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:100'],
             'year' => ['nullable', 'string', 'max:10'],
         ], [
             'code.required' => 'Course code is required (e.g., UPSC-GS1, CSAT-01).',
-            'code.unique' => 'A course with this code already exists.',
             'name.required' => 'Course name is required.',
         ]);
+
+        $courseCode = strtoupper(trim($validated['code']));
+        if (Course::whereRaw('UPPER(TRIM(code)) = ?', [$courseCode])->exists()) {
+            return back()->withInput()->withErrors([
+                'code' => "A course with code '{$courseCode}' already exists.",
+            ]);
+        }
 
         Course::create([
             'department_id' => 'dep_cs',
             'regulation_id' => null, // Regulation NOT required for Civil Services
-            'code' => strtoupper(trim($validated['code'])),
+            'code' => $courseCode,
             'name' => trim($validated['name']),
             'year' => $validated['year'] ?? date('Y'),
             'semester' => $validated['category'] ?? 'General Studies',
@@ -73,14 +80,21 @@ class CivilCourseController extends Controller
         $course = Course::where('department_id', 'dep_cs')->findOrFail($id);
 
         $validated = $request->validate([
-            'code' => ['required', 'string', 'max:50', Rule::unique('courses', 'code')->ignore($course->id)],
+            'code' => ['required', 'string', 'max:50'],
             'name' => ['required', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:100'],
             'year' => ['nullable', 'string', 'max:10'],
         ]);
 
+        $courseCode = strtoupper(trim($validated['code']));
+        if (Course::where('id', '!=', $course->id)->whereRaw('UPPER(TRIM(code)) = ?', [$courseCode])->exists()) {
+            return back()->withInput()->withErrors([
+                'code' => "A course with code '{$courseCode}' already exists.",
+            ]);
+        }
+
         $course->update([
-            'code' => strtoupper(trim($validated['code'])),
+            'code' => $courseCode,
             'name' => trim($validated['name']),
             'year' => $validated['year'] ?? $course->year,
             'semester' => $validated['category'] ?? $course->semester,
@@ -95,20 +109,53 @@ class CivilCourseController extends Controller
      */
     public function destroy($id)
     {
-        $course = Course::where('department_id', 'dep_cs')->findOrFail($id);
-
-        // Delete associated files from storage
-        foreach ($course->materials as $mat) {
-            if ($mat->type === 'file' && $mat->url_or_path) {
-                Storage::disk('public')->delete($mat->url_or_path);
-            }
-        }
+        $course = Course::with(['materials', 'staff'])->where('department_id', 'dep_cs')->findOrFail($id);
 
         $courseName = $course->name;
-        $course->delete();
+        $courseCode = $course->code;
+        $materialsCount = $course->materials()->count();
+        $enrollmentCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
+        $staffCount = $course->staff()->count();
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($course) {
+            // Delete associated files from storage & records
+            foreach ($course->materials as $mat) {
+                if ($mat->type === 'file' && $mat->url_or_path) {
+                    if (Storage::disk('public')->exists($mat->url_or_path)) {
+                        Storage::disk('public')->delete($mat->url_or_path);
+                    }
+                }
+                $mat->delete();
+            }
+
+            \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+            $course->staff()->detach();
+            $course->delete();
+        });
+
+        \App\Services\ActivityLogger::log(
+            'cascade_civil_course_deleted',
+            'Civil Services Course & Modules Deleted',
+            'Civil Services',
+            "Permanently deleted Civil Services course {$courseName} ({$courseCode}). Cascaded removals: {$materialsCount} module(s), {$enrollmentCount} enrollment(s), and {$staffCount} instructor(s) detached.",
+            'danger',
+            [
+                'department_id' => 'dep_cs',
+                'entity_type'   => 'Course',
+                'entity_id'     => $id,
+                'entity_name'   => "{$courseCode} - {$courseName}",
+                'payload'       => [
+                    'course_code'         => $courseCode,
+                    'course_name'         => $courseName,
+                    'materials_deleted'   => $materialsCount,
+                    'enrollments_removed' => $enrollmentCount,
+                    'staff_detached'      => $staffCount,
+                ]
+            ]
+        );
 
         return redirect()->route('civil.courses.index')
-            ->with('success', "Course '{$courseName}' and its modules were deleted.");
+            ->with('success', "Course '{$courseCode} - {$courseName}' and all associated modules were deleted successfully.");
     }
 
     /**
@@ -169,6 +216,21 @@ class CivilCourseController extends Controller
 
         $material->save();
 
+        \App\Services\ActivityLogger::log(
+            'civil_module_uploaded',
+            'Civil Services Module Uploaded',
+            'Civil Services',
+            "Uploaded study module \"{$material->title}\" for Civil Services course {$course->name} ({$course->code}).",
+            'success',
+            [
+                'department_id' => 'dep_cs',
+                'entity_type'   => 'CourseMaterial',
+                'entity_id'     => $material->id,
+                'entity_name'   => $material->title,
+                'payload'       => ['course_code' => $course->code, 'title' => $material->title]
+            ]
+        );
+
         return redirect()->route('civil.courses.modules', $course->id)
             ->with('success', "Module '{$material->title}' uploaded successfully!");
     }
@@ -187,6 +249,21 @@ class CivilCourseController extends Controller
 
         $title = $material->title;
         $material->delete();
+
+        \App\Services\ActivityLogger::log(
+            'civil_module_deleted',
+            'Civil Services Module Deleted',
+            'Civil Services',
+            "Deleted module \"{$title}\" from Civil Services course {$course->name} ({$course->code}).",
+            'warning',
+            [
+                'department_id' => 'dep_cs',
+                'entity_type'   => 'CourseMaterial',
+                'entity_id'     => $material_id,
+                'entity_name'   => $title,
+                'payload'       => ['course_code' => $course->code, 'title' => $title]
+            ]
+        );
 
         return redirect()->route('civil.courses.modules', $course->id)
             ->with('success', "Module '{$title}' removed successfully.");

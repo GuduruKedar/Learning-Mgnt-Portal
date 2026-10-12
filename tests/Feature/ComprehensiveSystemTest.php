@@ -99,7 +99,9 @@ class ComprehensiveSystemTest extends TestCase
      */
     public function test_admin_coordinator_flow()
     {
-        $admin = User::whereIn('username', ['10001', '100001'])->first() ?? User::role('admin')->first();
+        $admin = User::whereHas('profile', function ($q) {
+            $q->where('roles_id', 'admin');
+        })->first();
         $this->assertNotNull($admin, 'Admin user must exist');
 
         // 1. Dashboard

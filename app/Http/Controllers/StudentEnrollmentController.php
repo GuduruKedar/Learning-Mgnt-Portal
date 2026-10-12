@@ -58,17 +58,18 @@ class StudentEnrollmentController extends Controller
             elseif ($level === 'DIPLOMA') $programType = 'Diploma';
         }
 
+        $shDeptCodes = ['dep_ssh', 'dep_phy', 'dep_chem', 'dep_maths', 'dep_eng'];
+        $shDeptCodesFromDb = \App\Models\Department::where('school_id', 'sc_ash')->pluck('code')->toArray();
+        $allowedDepts = array_unique(array_filter(array_merge([$student->profile?->departments_id], $shDeptCodes, $shDeptCodesFromDb)));
+
         $regQuery = Regulation::where('status', 'Active');
         if ($programType) {
             $regQuery->where('program_type', $programType);
         } else {
-            // Find regulations that have courses in student's department
-            $deptCode = $student->profile?->departments_id;
-            if ($deptCode) {
-                $deptCourseRegIds = Course::where('department_id', $deptCode)->pluck('regulation_id')->unique();
-                if ($deptCourseRegIds->isNotEmpty()) {
-                    $regQuery->whereIn('id', $deptCourseRegIds);
-                }
+            // Find regulations that have courses in student's department or centralized 1st year SSH
+            $deptCourseRegIds = Course::whereIn('department_id', $allowedDepts)->pluck('regulation_id')->unique();
+            if ($deptCourseRegIds->isNotEmpty()) {
+                $regQuery->whereIn('id', $deptCourseRegIds);
             }
         }
         $regulationsData = $regQuery->select('id', 'code', 'name', 'curriculum', 'program_type')->get();

@@ -16,21 +16,19 @@ class DashboardController extends Controller
         $role = $user->role ?? null;
         
         if ($role === 'sa') {
-            // Super Admin Dashboard Logic
+            // Super Admin Dashboard Logic (Cached - 10 Minutes TTL)
             $admin = $user;
-            $totalUsers = User::count();
-            $coordinators = User::role('admin')->with('profile.school', 'profile.department')->latest()->take(6)->get();
-            $totalCoordinators = User::role('admin')->count();
-            
-            $totalStaff = User::role('sta')->count();
-            $recentStaff = User::role('sta')->with('profile.school', 'profile.department')->latest()->take(5)->get();
-            
-            $totalStudents = User::role('stu')->count();
-            $recentStudents = User::role('stu')->with('profile.school', 'profile.department')->latest()->take(5)->get();
-
-            $totalCivil = \App\Models\CivilServiceEnrollment::count();
-            $totalCourses = \App\Models\Course::count();
-            $totalDepartments = \App\Models\Department::count();
+            $stats = \App\Services\CacheService::getSuperAdminDashboardStats();
+            $totalUsers = $stats['totalUsers'];
+            $coordinators = $stats['coordinators'];
+            $totalCoordinators = $stats['totalCoordinators'];
+            $totalStaff = $stats['totalStaff'];
+            $recentStaff = $stats['recentStaff'];
+            $totalStudents = $stats['totalStudents'];
+            $recentStudents = $stats['recentStudents'];
+            $totalCivil = $stats['totalCivil'];
+            $totalCourses = $stats['totalCourses'];
+            $totalDepartments = $stats['totalDepartments'];
             
             return view('dashboard', compact('admin', 'totalUsers', 'coordinators', 'totalCoordinators', 'totalStaff', 'recentStaff', 'totalStudents', 'recentStudents', 'totalCivil', 'totalCourses', 'totalDepartments'));
             
@@ -39,45 +37,37 @@ class DashboardController extends Controller
             return app(\App\Http\Controllers\SshAdminController::class)->index();
 
         } elseif ($role === 'civil_admin') {
-            // Civil Services Admin Dashboard
-            $totalEnrolled = \App\Models\CivilServiceEnrollment::count();
-            $activeEnrolled = \App\Models\CivilServiceEnrollment::where('status', 'active')->count();
-            $recentEnrollments = User::role('stu')
-                ->whereHas('civilServiceEnrollment')
-                ->with(['profile.school', 'profile.department', 'civilServiceEnrollment'])
-                ->latest()
-                ->take(8)
-                ->get();
-
-            $departmentBreakdown = \App\Models\Profile::whereHas('user.civilServiceEnrollment')
-                ->select('departments_id', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
-                ->groupBy('departments_id')
-                ->with('department')
-                ->get();
+            // Civil Services Admin Dashboard (Cached - 15 Minutes TTL)
+            $stats = \App\Services\CacheService::getCivilServicesDashboardStats();
+            $totalEnrolled = $stats['totalEnrolled'];
+            $activeEnrolled = $stats['activeEnrolled'];
+            $recentEnrollments = $stats['recentEnrollments'];
+            $departmentBreakdown = $stats['departmentBreakdown'];
 
             return view('civil_admin_dashboard', compact('user', 'totalEnrolled', 'activeEnrolled', 'recentEnrollments', 'departmentBreakdown'));
 
         } elseif ($role === 'admin') {
-            // Admin / Coordinator Dashboard Logic
+            // Admin / Coordinator Dashboard Logic (Cached - 10 Minutes / 24 Hours TTL)
             $admin = $user;
             $profile = $user->profile;
             $school = $profile->school ?? null;
             $department = $profile->department ?? null;
 
-            // Department Programs
-            $programsQuery = \App\Models\Program::query();
+            // Department Programs (Cached 24 Hours)
             if ($department) {
-                $programsQuery->where('department_id', $department->id);
+                $departmentPrograms = \App\Services\CacheService::getProgramsByDepartment($department->id);
             } elseif ($school) {
-                $departmentIds = \App\Models\Department::where('school_id', $school->code)->pluck('id');
-                $programsQuery->whereIn('department_id', $departmentIds);
+                $departmentIds = \App\Services\CacheService::getDepartmentsWithSchool()
+                    ->where('school_id', $school->code)
+                    ->pluck('id');
+                $departmentPrograms = \App\Services\CacheService::getPrograms()
+                    ->whereIn('department_id', $departmentIds);
             } else {
-                $programsQuery->whereRaw('1 = 0');
+                $departmentPrograms = collect();
             }
-            $departmentPrograms = $programsQuery->get();
 
-            // Filter Regulations by Department Programs
-            $allSystemRegulations = \App\Models\Regulation::orderBy('created_at', 'desc')->get();
+            // Filter Regulations by Department Programs (Cached 24 Hours)
+            $allSystemRegulations = \App\Services\CacheService::getRegulations();
             $allRegulations = $allSystemRegulations->filter(function($reg) use ($departmentPrograms) {
                 foreach($departmentPrograms as $prog) {
                     if (str_contains($prog->name, $reg->program_type)) {
@@ -102,31 +92,10 @@ class DashboardController extends Controller
 
             $totalRegulations = $allRegulations->count();
 
-            // Department Staff
-            $departmentStaffQuery = User::role('sta')->with(['profile.school', 'profile.department']);
-            if ($department) {
-                $departmentStaffQuery->whereHas('profile', function($q) use ($department) {
-                    $q->where('departments_id', $department->code);
-                });
-            } elseif ($school) {
-                $departmentStaffQuery->whereHas('profile', function($q) use ($school) {
-                    $q->where('schools_id', $school->code);
-                });
-            }
-            $totalStaff = $departmentStaffQuery->count();
-
-            // Department Students
-            $departmentStudentsQuery = User::role('stu')->with(['profile.school', 'profile.department']);
-            if ($department) {
-                $departmentStudentsQuery->whereHas('profile', function($q) use ($department) {
-                    $q->where('departments_id', $department->code);
-                });
-            } elseif ($school) {
-                $departmentStudentsQuery->whereHas('profile', function($q) use ($school) {
-                    $q->where('schools_id', $school->code);
-                });
-            }
-            $totalStudents = $departmentStudentsQuery->count();
+            // Department Stats (Cached 10 Minutes)
+            $stats = \App\Services\CacheService::getCoordinatorDashboardStats($department?->code, $school?->code);
+            $totalStaff = $stats['facultyCount'];
+            $totalStudents = $stats['studentCount'];
 
             return view('coordinator_dashboard', compact('admin', 'totalRegulations', 'allRegulations', 'totalStaff', 'totalStudents', 'departmentPrograms'));
             
@@ -232,11 +201,18 @@ class DashboardController extends Controller
             $school = $profile->school ?? null;
             $department = $profile->department ?? null;
 
-            // Department Courses
-            $departmentCoursesQuery = \App\Models\Course::with(['department', 'regulation']);
-            if ($department) {
-                $departmentCoursesQuery->where('department_id', $department->code);
-            }
+            // Department Courses (including 1st year SSH centralized courses)
+            $shDeptCodes = ['dep_ssh', 'dep_phy', 'dep_chem', 'dep_maths', 'dep_eng'];
+            $shDeptCodesFromDb = \App\Models\Department::where('school_id', 'sc_ash')->pluck('code')->toArray();
+            $deptCodes = array_unique(array_filter(array_merge([$department?->code], $shDeptCodes, $shDeptCodesFromDb)));
+
+            $departmentCoursesQuery = \App\Models\Course::with(['department', 'regulation'])
+                ->where(function($q) use ($department, $deptCodes) {
+                    if ($department) {
+                        $q->where('department_id', $department->code);
+                    }
+                    $q->orWhereIn('department_id', $deptCodes);
+                });
             $departmentCoursesCount = $departmentCoursesQuery->count();
             $departmentCourses = (clone $departmentCoursesQuery)->latest()->take(5)->get();
 
@@ -250,20 +226,28 @@ class DashboardController extends Controller
             $enrolledCoursesCount = $allEnrolledCourses->count();
             $enrolledCourses = $allEnrolledCourses->take(5); 
 
-            // Recently Uploaded Materials (Last watching/updated)
-            $recentMaterialsQuery = \App\Models\CourseMaterial::with(['course.department', 'staff']);
-            if ($department) {
-                $recentMaterialsQuery->whereHas('course', function($q) use ($department) {
-                    $q->where('department_id', $department->code);
+            $enrolledCourseIds = $allEnrolledCourses->pluck('id');
+
+            // Recently Uploaded Materials (for enrolled courses or department)
+            $recentMaterialsQuery = \App\Models\CourseMaterial::with(['course.department', 'staff'])
+                ->where(function($q) use ($enrolledCourseIds, $department) {
+                    if ($enrolledCourseIds->isNotEmpty()) {
+                        $q->whereIn('course_id', $enrolledCourseIds);
+                    }
+                    if ($department) {
+                        $q->orWhereHas('course', function($sq) use ($department) {
+                            $sq->where('department_id', $department->code);
+                        });
+                    }
                 });
-            }
             $recentMaterials = $recentMaterialsQuery->latest()->take(5)->get();
+            $totalMaterialsCount = (clone $recentMaterialsQuery)->count();
 
             return view('student_dashboard', compact(
                 'student', 'profile', 'school', 'department', 
                 'departmentCoursesCount', 'departmentCourses', 
                 'enrolledCoursesCount', 'enrolledCourses',
-                'recentMaterials'
+                'recentMaterials', 'totalMaterialsCount'
             ));
             
         } else {
@@ -287,11 +271,24 @@ class DashboardController extends Controller
             'first_name' => ['required', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'middle_name' => ['nullable', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
             'last_name' => ['required', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
-            'email' => ['nullable', 'string', 'email', 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/', 'unique:profiles,email,'.$user->profile_id],
+            'email' => [
+                'nullable',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'not_regex:/@example\.(com|org|net)$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
+                'unique:profiles,email,'.$user->profile_id
+            ],
             'phone_number' => 'nullable|numeric|digits:10',
-            'photo' => 'nullable|image|mimes:webp|max:2048',
+            'photo' => 'nullable|file|mimes:webp|max:2048',
         ], [
-
+            'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
+            'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
+            'photo.mimes' => 'Invalid file format. Only .webp format is allowed for profile photo.',
+            'photo.max' => 'The photo size is too large. Maximum allowed file size is 2MB.',
+            'photo.uploaded' => 'The photo failed to upload. Please ensure you select a valid .webp image under 2MB.',
+            'photo.file' => 'The selected file is invalid. Please select a valid .webp image file.',
         ]);
 
         $profileData = [

@@ -68,7 +68,7 @@
                             </div>
 
                             <div>
-                                <h3 class="font-bold text-slate-900 text-sm leading-snug line-clamp-2">{{ $material->title }}</h3>
+                                <h3 class="font-bold text-slate-900 text-sm leading-snug break-words tracking-tight" title="{{ $material->title }}">{{ $material->title }}</h3>
                                 <p class="text-xs text-slate-500 mt-1">{{ $material->course->name ?? 'Foundational Subject' }}</p>
                             </div>
                         </div>
@@ -144,8 +144,10 @@
                 <button type="button" onclick="document.getElementById('upload-material-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
             </div>
 
-            <form method="POST" action="{{ route('ssh.materials.store') }}" enctype="multipart/form-data" class="space-y-4">
+            <form id="ssh-material-upload-form" method="POST" action="{{ route('ssh.materials.store') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
+                <input type="hidden" name="file_base64" id="ssh_file_base64">
+                <input type="hidden" name="file_name" id="ssh_file_name">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Target 1st Year Course *</label>
                     <select name="course_id" required class="w-full text-sm rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3">
@@ -171,7 +173,8 @@
 
                 <div id="file-input-wrapper">
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Upload File (Max 25MB)</label>
-                    <input type="file" name="file" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    <input type="file" name="file" id="ssh-file-input" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                    <p id="ssh-file-status" class="text-[11px] text-slate-400 mt-1">Supports PDF, DOCX, PPTX, XLSX, CSV, ZIP (Max 25MB)</p>
                 </div>
 
                 <div id="url-input-wrapper" class="hidden">
@@ -203,6 +206,46 @@
                 fileWrapper.classList.remove('hidden');
                 urlWrapper.classList.add('hidden');
             }
+        }
+
+        const sshFileInput = document.getElementById('ssh-file-input');
+        const sshFileBase64 = document.getElementById('ssh_file_base64');
+        const sshFileName = document.getElementById('ssh_file_name');
+        const sshFileStatus = document.getElementById('ssh-file-status');
+        const sshForm = document.getElementById('ssh-material-upload-form');
+
+        if (sshFileInput) {
+            sshFileInput.addEventListener('change', function(e) {
+                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                if (!file) {
+                    if (sshFileBase64) sshFileBase64.value = '';
+                    if (sshFileName) sshFileName.value = '';
+                    if (sshFileStatus) sshFileStatus.textContent = 'Supports PDF, DOCX, PPTX, XLSX, CSV, ZIP (Max 25MB)';
+                    return;
+                }
+
+                if (sshFileName) sshFileName.value = file.name;
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                if (sshFileStatus) {
+                    sshFileStatus.textContent = `${file.name} (${sizeMB} MB) • Ready to upload`;
+                    sshFileStatus.className = 'text-[11px] font-semibold text-emerald-600 mt-1';
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    if (sshFileBase64) sshFileBase64.value = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        if (sshForm) {
+            sshForm.addEventListener('submit', function(e) {
+                const type = document.getElementById('material-type-select').value;
+                if (type === 'file' && sshFileBase64 && sshFileBase64.value && sshFileInput) {
+                    sshFileInput.removeAttribute('name');
+                }
+            });
         }
     </script>
 

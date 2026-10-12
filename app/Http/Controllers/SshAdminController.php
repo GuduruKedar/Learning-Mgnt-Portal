@@ -1120,13 +1120,48 @@ class SshAdminController extends Controller
      */
     public function storeMaterial(Request $request)
     {
-        $request->validate([
+        $allowedExts = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'pps', 'ppsx', 'xls', 'xlsx', 'csv', 'txt', 'zip', 'rar', 'png', 'jpg', 'jpeg', 'webp'];
+
+        $rules = [
             'course_id' => 'required|exists:courses,id',
             'title' => 'required|string|max:255',
             'type' => 'required|in:link,file',
             'url' => 'nullable|required_if:type,link|url',
-            'file' => 'nullable|required_if:type,file|file|mimes:pdf,doc,docx,ppt,pptx,pps,ppsx,xls,xlsx,csv,txt,zip,rar,png,jpg,jpeg,webp|max:25600',
-        ]);
+        ];
+
+        if ($request->type === 'file') {
+            if ($request->filled('file_base64')) {
+                $rules['file_name'] = 'nullable|string';
+            } else {
+                $rules['file'] = 'required|file|max:25600';
+            }
+        }
+
+        $messages = [
+            'title.required' => 'Please provide a title for the study material.',
+            'url.required_if' => 'Please provide a valid URL for the resource link.',
+            'url.url' => 'The link must be a valid web URL (e.g. https://...).',
+            'file.required' => 'Please select a document file to upload.',
+            'file.file' => 'The uploaded file is invalid or corrupted.',
+            'file.uploaded' => 'The file could not be uploaded. Please verify the file size is under 25MB and try again.',
+            'file.max' => 'The file size must not exceed 25MB.',
+        ];
+
+        if ($request->type === 'file' && !$request->filled('file_base64') && $request->hasFile('file')) {
+            $uploaded = $request->file('file');
+            if (!$uploaded->isValid()) {
+                $errCode = $uploaded->getError();
+                $errMsg = match ($errCode) {
+                    UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the 25MB maximum file size limit.',
+                    UPLOAD_ERR_PARTIAL => 'The file was only partially uploaded. Please check your network and try again.',
+                    UPLOAD_ERR_NO_FILE => 'No file was selected. Please choose a file to upload.',
+                    default => 'The file failed to upload properly. Please try selecting the file again.'
+                };
+                return back()->withInput()->withErrors(['file' => $errMsg]);
+            }
+        }
+
+        $request->validate($rules, $messages);
 
         $course = Course::findOrFail($request->course_id);
         $user = Auth::user();
@@ -1137,18 +1172,49 @@ class SshAdminController extends Controller
         $material->title = $request->title;
         $material->type = $request->type;
         $material->platform = $request->type === 'link' ? 'web' : 'file';
+        $material->division = $request->filled('division') ? trim($request->division) : null;
 
         if ($request->type === 'link') {
             $material->url_or_path = $request->url;
         } else {
-            $file = $request->file('file');
-            $cleanName = \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-            $filename = 'ssh_' . $course->code . '_' . time() . '_' . $cleanName . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('materials/' . $course->code, $filename, 'public');
-            $material->url_or_path = $path;
+            if ($request->filled('file_base64')) {
+                $base64Data = $request->input('file_base64');
+                if (preg_match('/^data:.*?;base64,/', $base64Data, $match)) {
+                    $base64Data = substr($base64Data, strlen($match[0]));
+                }
+                $fileContent = base64_decode($base64Data);
+                if ($fileContent === false || empty($fileContent)) {
+                    return back()->withInput()->withErrors(['file' => 'Failed to read uploaded file data. Please try again.']);
+                }
+
+                $origName = $request->input('file_name', 'document.pdf');
+                $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION)) ?: 'pdf';
+                if (!in_array($ext, $allowedExts)) {
+                    return back()->withInput()->withErrors(['file' => 'Invalid file format (.'.$ext.'). Supported formats: PDF, Word, PowerPoint, Excel, Zip, Images.']);
+                }
+
+                $storageFolder = storage_path('app/public/materials/' . $course->code);
+                if (!file_exists($storageFolder)) {
+                    mkdir($storageFolder, 0777, true);
+                }
+
+                $cleanName = \Illuminate\Support\Str::slug(pathinfo($origName, PATHINFO_FILENAME));
+                $filename = 'ssh_' . $course->code . '_' . time() . '_' . substr($cleanName, 0, 30) . '.' . $ext;
+                file_put_contents($storageFolder . '/' . $filename, $fileContent);
+                $material->url_or_path = 'materials/' . $course->code . '/' . $filename;
+            } elseif ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $cleanName = \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+                $filename = 'ssh_' . $course->code . '_' . time() . '_' . $cleanName . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('materials/' . $course->code, $filename, 'public');
+                $material->url_or_path = $path;
+            } else {
+                return back()->withInput()->withErrors(['file' => 'Please select a file to upload.']);
+            }
         }
 
         $material->save();
+        \App\Services\CacheService::invalidateCourseMaterials($course->id);
 
         \App\Services\ActivityLogger::log(
             'ssh_material_uploaded',
@@ -1177,6 +1243,7 @@ class SshAdminController extends Controller
         }
 
         $material->delete();
+        \App\Services\CacheService::invalidateCourseMaterials($material->course_id);
 
         \App\Services\ActivityLogger::log(
             'ssh_material_deleted',

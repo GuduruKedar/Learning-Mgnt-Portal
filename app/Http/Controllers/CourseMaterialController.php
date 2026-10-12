@@ -19,9 +19,9 @@ class CourseMaterialController extends Controller
             abort(403);
         }
 
-        // Fetch assigned courses grouped by regulation & curriculum
+        // Fetch assigned courses grouped by regulation & curriculum with materials
         $courses = $user->courses()
-            ->with(['regulation', 'department'])
+            ->with(['regulation', 'department', 'materials.staff.profile'])
             ->withCount(['materials', 'assignments', 'enrollments'])
             ->get();
             
@@ -30,6 +30,12 @@ class CourseMaterialController extends Controller
         });
 
         $courseIds = $courses->pluck('id');
+
+        // All materials across all assigned courses for combined section-wise view
+        $allMaterials = CourseMaterial::whereIn('course_id', $courseIds)
+            ->with(['course', 'staff.profile'])
+            ->latest()
+            ->get();
 
         // Fetch all assignments for assigned courses
         $assignments = \App\Models\Assignment::whereIn('course_id', $courseIds)
@@ -58,6 +64,7 @@ class CourseMaterialController extends Controller
             'groupedCourses', 
             'recentUploads', 
             'courses',
+            'allMaterials',
             'assignments',
             'totalMaterialsCount',
             'totalAssignmentsCount'
@@ -89,6 +96,12 @@ class CourseMaterialController extends Controller
 
         $materials = \App\Services\CacheService::getCourseMaterials($course_id);
 
+        // Fetch all assigned courses for the quick course switcher & section view navigation
+        $assignedCourses = $user->courses()
+            ->withCount('materials')
+            ->orderBy('code')
+            ->get();
+
         // Exact counts and breakdown for stats cards
         $totalMaterialsCount = $materials->count();
         $filesCount = $materials->where('type', 'file')->count();
@@ -110,6 +123,7 @@ class CourseMaterialController extends Controller
         return view('staff.course_materials', compact(
             'course', 
             'materials', 
+            'assignedCourses',
             'assignments',
             'totalMaterialsCount',
             'filesCount',
@@ -137,6 +151,8 @@ class CourseMaterialController extends Controller
             abort(403, 'You do not have permission to modify this course.');
         }
 
+        $allowedExts = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'pps', 'ppsx', 'xls', 'xlsx', 'csv', 'txt', 'zip', 'rar', 'png', 'jpg', 'jpeg', 'webp'];
+
         $rules = [
             'title' => 'required|string|max:255',
             'type' => 'required|in:link,file',
@@ -144,16 +160,51 @@ class CourseMaterialController extends Controller
             'url' => 'nullable|required_if:type,link|url',
         ];
 
-        // If not base64 provided, validate standard file input if present
-        if ($request->type === 'file' && !$request->filled('file_base64')) {
-            $rules['file'] = 'required|file|mimes:pdf,doc,docx,ppt,pptx,pps,ppsx,xls,xlsx,csv,txt,zip,rar,png,jpg,jpeg,webp|max:25600';
+        // 1. If base64 file data is provided from FileReader
+        if ($request->type === 'file' && $request->filled('file_base64')) {
+            $rules['file_name'] = 'nullable|string';
+        }
+        // 2. If standard multipart file upload is used
+        elseif ($request->type === 'file') {
+            $rules['file'] = 'required|file|max:25600';
         }
 
-        $request->validate($rules, [
-            'file.required' => 'Please select a file to upload.',
-            'file.mimes' => 'The uploaded file must be a valid document (PDF, PowerPoint, Word, Excel, Text, Zip, or Image).',
+        $messages = [
+            'title.required' => 'Please provide a title for the course material.',
+            'url.required_if' => 'Please provide a valid URL for the resource.',
+            'url.url' => 'The resource link must be a valid web URL (e.g., https://...).',
+            'file.required' => 'Please select a document file to upload.',
+            'file.file' => 'The uploaded file is invalid or corrupted. Please try again.',
+            'file.uploaded' => 'The file could not be uploaded. Please ensure the file is under 25MB and try again.',
             'file.max' => 'The file size must not exceed 25MB.',
-        ]);
+        ];
+
+        // Pre-validate PHP native file upload status if standard multipart was used
+        if ($request->type === 'file' && !$request->filled('file_base64') && $request->hasFile('file')) {
+            $uploaded = $request->file('file');
+            if (!$uploaded->isValid()) {
+                $errCode = $uploaded->getError();
+                $errMsg = match ($errCode) {
+                    UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the 25MB file size limit.',
+                    UPLOAD_ERR_PARTIAL => 'The file was only partially uploaded. Please check your network and try again.',
+                    UPLOAD_ERR_NO_FILE => 'No file was selected. Please choose a file to upload.',
+                    UPLOAD_ERR_NO_TMP_DIR, UPLOAD_ERR_CANT_WRITE => 'Server temporary disk storage error. Please try uploading again.',
+                    default => 'The file failed to upload. Please try selecting the file again.'
+                };
+                return back()->withInput()->withErrors(['file' => $errMsg]);
+            }
+
+            $rawExt = strtolower($uploaded->getClientOriginalExtension());
+            if (!in_array($rawExt, $allowedExts)) {
+                return back()->withInput()->withErrors([
+                    'file' => 'Invalid file format (.'.$rawExt.'). Allowed formats: PDF, Word (.doc, .docx), Excel (.xls, .xlsx, .csv), PowerPoint (.ppt, .pptx), Zip, Images.'
+                ]);
+            }
+        }
+
+        $rules['division'] = 'nullable|string|max:100';
+
+        $request->validate($rules, $messages);
 
         $material = new CourseMaterial();
         $material->course_id = $course_id;
@@ -161,13 +212,14 @@ class CourseMaterialController extends Controller
         $material->title = $request->title;
         $material->type = $request->type;
         $material->platform = $request->platform ?: 'file';
+        $material->division = $request->filled('division') ? trim($request->division) : null;
 
         if ($request->type === 'link') {
             $material->url_or_path = $request->url;
         } else {
             $filePath = null;
 
-            // 1. Process Base64 upload if provided from client FileReader
+            // 1. Process Base64 upload if provided from client FileReader (Zero-loss, bypasses multipart/temp locks)
             if ($request->filled('file_base64')) {
                 $base64Data = $request->input('file_base64');
                 if (preg_match('/^data:.*?;base64,/', $base64Data, $match)) {
@@ -181,9 +233,8 @@ class CourseMaterialController extends Controller
                 $origName = $request->input('file_name', 'document.pdf');
                 $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION)) ?: 'pdf';
                 
-                $allowedExts = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'pps', 'ppsx', 'xls', 'xlsx', 'csv', 'txt', 'zip', 'rar', 'png', 'jpg', 'jpeg', 'webp'];
                 if (!in_array($ext, $allowedExts)) {
-                    return back()->withInput()->withErrors(['file' => 'Invalid file extension (.'.$ext.'). Allowed formats: PDF, PowerPoint, Word, Excel, Zip, Images.']);
+                    return back()->withInput()->withErrors(['file' => 'Invalid file extension (.'.$ext.'). Allowed formats: PDF, Word, PowerPoint, Excel, Zip, Images.']);
                 }
 
                 if (strlen($fileContent) > 26214400) { // 25MB
@@ -195,7 +246,9 @@ class CourseMaterialController extends Controller
                     mkdir($storageFolder, 0777, true);
                 }
 
-                $uniqueName = Str::random(40) . '.' . $ext;
+                $cleanBase = Str::slug(pathinfo($origName, PATHINFO_FILENAME));
+                $cleanBase = substr($cleanBase, 0, 40);
+                $uniqueName = ($cleanBase ? $cleanBase . '_' : '') . Str::random(16) . '.' . $ext;
                 file_put_contents($storageFolder . '/' . $uniqueName, $fileContent);
                 $filePath = 'course_materials/' . $uniqueName;
 
@@ -205,6 +258,7 @@ class CourseMaterialController extends Controller
                     elseif (in_array($ext, ['doc', 'docx'])) $material->platform = 'word';
                     elseif (in_array($ext, ['xls', 'xlsx', 'csv'])) $material->platform = 'excel';
                     elseif ($ext === 'pdf') $material->platform = 'pdf';
+                    elseif ($ext === 'txt') $material->platform = 'txt';
                 }
             } 
             // 2. Standard Multipart File Upload
@@ -214,13 +268,22 @@ class CourseMaterialController extends Controller
                     return back()->withInput()->withErrors(['file' => 'The file upload failed. Please try selecting the file again.']);
                 }
                 $ext = strtolower($file->getClientOriginalExtension());
-                $filePath = $file->store('course_materials', 'public');
+                if (!in_array($ext, $allowedExts)) {
+                    return back()->withInput()->withErrors(['file' => 'Invalid file extension (.'.$ext.'). Allowed formats: PDF, PowerPoint, Word, Excel, Plain Text, Zip, Images.']);
+                }
+
+                $cleanBase = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+                $cleanBase = substr($cleanBase, 0, 40);
+                $uniqueName = ($cleanBase ? $cleanBase . '_' : '') . Str::random(16) . '.' . $ext;
+
+                $filePath = $file->storeAs('course_materials', $uniqueName, 'public');
 
                 if (!$request->filled('platform') || $request->platform === 'file') {
                     if (in_array($ext, ['ppt', 'pptx', 'pps', 'ppsx'])) $material->platform = 'ppt';
                     elseif (in_array($ext, ['doc', 'docx'])) $material->platform = 'word';
                     elseif (in_array($ext, ['xls', 'xlsx', 'csv'])) $material->platform = 'excel';
                     elseif ($ext === 'pdf') $material->platform = 'pdf';
+                    elseif ($ext === 'txt') $material->platform = 'txt';
                 }
             } else {
                 return back()->withInput()->withErrors(['file' => 'Please select a file to upload.']);
@@ -230,8 +293,9 @@ class CourseMaterialController extends Controller
         }
 
         $material->save();
+        \App\Services\CacheService::invalidateCourseMaterials($course_id);
 
-        return back()->with('success', 'Material added successfully.');
+        return back()->with('success', 'Course material "' . $material->title . '" uploaded successfully!');
     }
 
     public function destroy($id)
@@ -292,6 +356,8 @@ class CourseMaterialController extends Controller
                 ]
             ]
         );
+
+        \App\Services\CacheService::invalidateCourseMaterials($course->id);
 
         return back()->with('success', 'Material deleted successfully.');
     }

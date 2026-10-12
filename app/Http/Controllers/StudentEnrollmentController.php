@@ -225,9 +225,17 @@ class StudentEnrollmentController extends Controller
             abort(403, 'You are not enrolled in this course.');
         }
 
-        // Fetch materials
-        $materials = $course->materials()->latest()->get();
+        // Fetch materials with cache
+        $materials = \App\Services\CacheService::getCourseMaterials($course->id);
 
-        return view('student.courses.materials', compact('course', 'materials'));
+        // Fetch enrolled courses for switcher & navigation
+        $regularCourses = $student->enrolledCourses()->withCount('materials')->get();
+        $civilCourses = collect();
+        if ($student->isCivilServicesEnrolled()) {
+            $civilCourses = Course::where('department_id', 'dep_cs')->withCount('materials')->get();
+        }
+        $enrolledCourses = $regularCourses->concat($civilCourses);
+
+        return view('student.courses.materials', compact('course', 'materials', 'enrolledCourses'));
     }
 }

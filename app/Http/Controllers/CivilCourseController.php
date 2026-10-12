@@ -215,6 +215,7 @@ class CivilCourseController extends Controller
         }
 
         $material->save();
+        \App\Services\CacheService::invalidateCourseMaterials($course->id);
 
         \App\Services\ActivityLogger::log(
             'civil_module_uploaded',
@@ -249,6 +250,7 @@ class CivilCourseController extends Controller
 
         $title = $material->title;
         $material->delete();
+        \App\Services\CacheService::invalidateCourseMaterials($course->id);
 
         \App\Services\ActivityLogger::log(
             'civil_module_deleted',

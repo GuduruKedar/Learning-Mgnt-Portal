@@ -84,163 +84,640 @@
                     </nav>
                 </div>
 
-                <!-- SECTION 1: COURSE LEARNING MATERIALS -->
+                <!-- SECTION 1: COURSE LEARNING MATERIALS (ENHANCED SECTION-WISE DIRECTORY) -->
                 <div id="section-materials" role="tabpanel" aria-labelledby="tab-btn-materials" class="space-y-6">
                     
-                    <!-- Search & Filter bar for Courses -->
-                    <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                        <div class="relative w-full sm:max-w-md">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            </div>
-                            <input type="text" id="courseMaterialSearch" oninput="filterCourseCards(this.value)" placeholder="Search courses by name or code..." class="w-full pl-10 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
-                        </div>
+                    @php
+                        $subfolderCategories = [
+                            'Course objective and outcomes' => [
+                                'name' => 'Course Objectives & Outcomes (CO / PO)',
+                                'badge' => 'Course Objectives',
+                                'short_name' => 'Course Objectives & Outcomes',
+                                'description' => 'Course educational goals, course outcomes (COs), program outcomes (POs), and learning taxonomies',
+                                'color' => 'purple',
+                                'border_accent' => 'border-purple-200/90',
+                                'header_gradient' => 'from-purple-50/90 via-purple-50/40 to-white',
+                                'icon_bg' => 'bg-purple-100 text-purple-700 border border-purple-200',
+                                'badge_class' => 'bg-purple-100 text-purple-800 border-purple-200',
+                                'icon' => '🎯',
+                            ],
+                            'Syllabus document' => [
+                                'name' => 'Syllabus Document',
+                                'badge' => 'Syllabus',
+                                'short_name' => 'Syllabus Document',
+                                'description' => 'Official curriculum breakdown, lecture schedule, evaluation schemes, and textbook references',
+                                'color' => 'blue',
+                                'border_accent' => 'border-blue-200/90',
+                                'header_gradient' => 'from-blue-50/90 via-blue-50/40 to-white',
+                                'icon_bg' => 'bg-blue-100 text-blue-700 border border-blue-200',
+                                'badge_class' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                'icon' => '📜',
+                            ],
+                            'PPTs' => [
+                                'name' => 'PowerPoint Presentations (PPTs)',
+                                'badge' => 'PPTs / Slides',
+                                'short_name' => 'PPTs',
+                                'description' => 'Lecture slide decks, interactive visual presentations, and module slides',
+                                'color' => 'amber',
+                                'border_accent' => 'border-amber-200/90',
+                                'header_gradient' => 'from-amber-50/90 via-amber-50/40 to-white',
+                                'icon_bg' => 'bg-amber-100 text-amber-700 border border-amber-200',
+                                'badge_class' => 'bg-amber-100 text-amber-800 border-amber-200',
+                                'icon' => '📊',
+                            ],
+                            'Lecture notes' => [
+                                'name' => 'Lecture Notes & Study Material',
+                                'badge' => 'Lecture Notes',
+                                'short_name' => 'Lecture Notes',
+                                'description' => 'Comprehensive class reading notes, module summaries, and study handouts',
+                                'color' => 'emerald',
+                                'border_accent' => 'border-emerald-200/90',
+                                'header_gradient' => 'from-emerald-50/90 via-emerald-50/40 to-white',
+                                'icon_bg' => 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+                                'badge_class' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                                'icon' => '📝',
+                            ],
+                            'Lab manual' => [
+                                'name' => 'Lab Manual & Practical Guides',
+                                'badge' => 'Lab Manual',
+                                'short_name' => 'Lab Manual',
+                                'description' => 'Laboratory instructions, experiment procedures, code guides, and viva reference sheets',
+                                'color' => 'teal',
+                                'border_accent' => 'border-teal-200/90',
+                                'header_gradient' => 'from-teal-50/90 via-teal-50/40 to-white',
+                                'icon_bg' => 'bg-teal-100 text-teal-700 border border-teal-200',
+                                'badge_class' => 'bg-teal-100 text-teal-800 border-teal-200',
+                                'icon' => '🧪',
+                            ],
+                            'Assigment Questions' => [
+                                'name' => 'Assignment Questions',
+                                'badge' => 'Assignment Questions',
+                                'short_name' => 'Assigment Questions',
+                                'description' => 'Homework tasks, practice assignments, problem sets, and case study briefs',
+                                'color' => 'indigo',
+                                'border_accent' => 'border-indigo-200/90',
+                                'header_gradient' => 'from-indigo-50/90 via-indigo-50/40 to-white',
+                                'icon_bg' => 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+                                'badge_class' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                                'icon' => '📋',
+                            ],
+                            'Question Bank' => [
+                                'name' => 'Question Bank & Solved Problems',
+                                'badge' => 'Question Bank',
+                                'short_name' => 'Question Bank',
+                                'description' => 'Unit-wise question pools, model answers, 2-mark & 16-mark compilations',
+                                'color' => 'violet',
+                                'border_accent' => 'border-violet-200/90',
+                                'header_gradient' => 'from-violet-50/90 via-violet-50/40 to-white',
+                                'icon_bg' => 'bg-violet-100 text-violet-700 border border-violet-200',
+                                'badge_class' => 'bg-violet-100 text-violet-800 border-violet-200',
+                                'icon' => '🗂️',
+                            ],
+                            'Gate Questions' => [
+                                'name' => 'GATE Questions & Competitive Prep',
+                                'badge' => 'GATE Questions',
+                                'short_name' => 'Gate Questions',
+                                'description' => 'GATE examination previous year questions, solutions, and competitive mock drills',
+                                'color' => 'orange',
+                                'border_accent' => 'border-orange-200/90',
+                                'header_gradient' => 'from-orange-50/90 via-orange-50/40 to-white',
+                                'icon_bg' => 'bg-orange-100 text-orange-700 border border-orange-200',
+                                'badge_class' => 'bg-orange-100 text-orange-800 border-orange-200',
+                                'icon' => '🎓',
+                            ],
+                            'Previous Question Papers' => [
+                                'name' => 'Previous Question Papers (QP)',
+                                'badge' => 'Previous Question Papers',
+                                'short_name' => 'Previous Question Papers',
+                                'description' => 'University semester end examination papers, mid-term tests, and archival papers',
+                                'color' => 'cyan',
+                                'border_accent' => 'border-cyan-200/90',
+                                'header_gradient' => 'from-cyan-50/90 via-cyan-50/40 to-white',
+                                'icon_bg' => 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+                                'badge_class' => 'bg-cyan-100 text-cyan-800 border-cyan-200',
+                                'icon' => '📑',
+                            ],
+                            'Videos' => [
+                                'name' => 'Recorded Lectures & Videos',
+                                'badge' => 'Videos',
+                                'short_name' => 'Videos',
+                                'description' => 'Video recordings, YouTube playlist links, webinar clips, and visual demonstrations',
+                                'color' => 'red',
+                                'border_accent' => 'border-red-200/90',
+                                'header_gradient' => 'from-red-50/90 via-red-50/40 to-white',
+                                'icon_bg' => 'bg-red-100 text-red-700 border border-red-200',
+                                'badge_class' => 'bg-red-100 text-red-800 border-red-200',
+                                'icon' => '🎥',
+                            ],
+                            'Additional material' => [
+                                'name' => 'Additional Material & References',
+                                'badge' => 'Additional Material',
+                                'short_name' => 'Additional material',
+                                'description' => 'Supplementary reference documents, spreadsheets, external web links, and extra materials',
+                                'color' => 'slate',
+                                'border_accent' => 'border-slate-200/90',
+                                'header_gradient' => 'from-slate-50/90 via-slate-50/40 to-white',
+                                'icon_bg' => 'bg-slate-100 text-slate-700 border border-slate-200',
+                                'badge_class' => 'bg-slate-100 text-slate-800 border-slate-200',
+                                'icon' => '📁',
+                            ],
+                        ];
 
-                        <div class="text-xs text-gray-500 font-medium">
-                            Showing <span id="visibleCoursesCount" class="font-bold text-gray-800">{{ $courses->count() }}</span> of {{ $courses->count() }} Courses
-                        </div>
-                    </div>
+                        $groupedAllMats = [];
+                        foreach ($subfolderCategories as $k => $c) {
+                            $groupedAllMats[$k] = collect();
+                        }
+                        if (isset($allMaterials)) {
+                            foreach ($allMaterials as $mat) {
+                                $cat = $mat->effective_division;
+                                if (!isset($groupedAllMats[$cat])) {
+                                    $groupedAllMats['Additional material']->push($mat);
+                                } else {
+                                    $groupedAllMats[$cat]->push($mat);
+                                }
+                            }
+                        }
+                    @endphp
 
-                    <!-- Recent Uploads Section -->
-                    @if($recentUploads->isNotEmpty())
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
-                        <h2 class="text-base font-bold text-gray-900 mb-3.5 flex items-center">
-                            <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Your Recent Material Uploads
-                        </h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            @foreach($recentUploads as $upload)
-                            <div class="flex items-center justify-between p-3.5 bg-gray-50/80 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-white transition-all shadow-2xs">
-                                <div class="min-w-0 pr-3">
-                                    <h4 class="font-bold text-gray-800 text-sm truncate">{{ $upload->title }}</h4>
-                                    <p class="text-xs text-gray-500 mt-0.5 truncate">
-                                        <span class="font-semibold text-indigo-600">{{ $upload->course->name ?? 'Course' }}</span> &bull; {{ $upload->created_at->format('M d, Y') }}
-                                    </p>
+                    <!-- Materials Hub Master Card (Section-Wise) -->
+                    <div class="bg-white rounded-2xl shadow-2xs border border-gray-200/90 overflow-hidden flex flex-col">
+                        <!-- Top Header & Filter Controls -->
+                        <div class="px-5 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50/80 to-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <div class="flex items-center gap-2.5">
+                                    <h3 class="text-base sm:text-lg font-extrabold text-gray-900 tracking-tight">All Courses & Section Directory</h3>
+                                    <span id="coursesCountBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                        {{ $courses->count() }} {{ Str::plural('Course', $courses->count()) }} &bull; {{ $totalMaterialsCount }} Materials
+                                    </span>
                                 </div>
-                                <div class="shrink-0">
-                                    <a href="{{ route('staff.courses.materials', $upload->course_id) }}" class="inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-2xs hover:bg-indigo-50 transition-colors">
-                                        Manage
-                                    </a>
+                                <p class="text-xs text-gray-500 mt-0.5">Section-wise organization across regulations, courses, and study materials</p>
+                            </div>
+
+                            <!-- Live Search & View Mode Switcher -->
+                            <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                                <!-- Search Input -->
+                                <div class="relative w-full sm:w-60">
+                                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-gray-400">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                    </div>
+                                    <input type="text" id="courseMaterialSearch" oninput="filterCourseCards(this.value)" placeholder="Search course, code, or format..." class="block w-full pl-8 pr-7 py-2 border border-gray-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                                    <button type="button" id="courseSearchClearBtn" onclick="clearCourseSearch()" class="absolute inset-y-0 right-0 pr-2 flex items-center text-gray-400 hover:text-gray-600 hidden cursor-pointer" title="Clear Search">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+
+                                <!-- View Mode Selector: View All Courses vs View as Sections -->
+                                <div class="inline-flex p-1 bg-gray-100 rounded-xl border border-gray-200 shadow-2xs">
+                                    <button type="button" onclick="switchAllCoursesMode('courses')" id="mode-btn-courses" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5" title="View all courses organized by regulation">
+                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                        <span>View All Courses</span>
+                                    </button>
+                                    <button type="button" onclick="switchAllCoursesMode('materials')" id="mode-btn-materials" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-2xs cursor-pointer flex items-center gap-1.5" title="View materials partitioned section-wise across divisions">
+                                        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                                        <span>View as Sections</span>
+                                    </button>
                                 </div>
                             </div>
-                            @endforeach
                         </div>
-                    </div>
-                    @endif
 
-                    @if($groupedCourses->isEmpty())
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-                            <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto text-gray-400 mb-4">
-                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <!-- Sub-Folder Navigation Bar (Pill Tabs) -->
+                        <div class="px-5 sm:px-6 py-3 bg-slate-50/80 border-b border-gray-200/80 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+                            <!-- Course Regulation Tabs (shown in Courses Mode) -->
+                            <div class="hidden items-center gap-2 shrink-0" id="courseRegulationTabs">
+                                <button type="button" 
+                                    onclick="selectRegulationTab('all')" 
+                                    id="reg-tab-all"
+                                    data-reg-target="all"
+                                    class="reg-tab-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-2xs cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                                    <span>All Regulations</span>
+                                    <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white">{{ $courses->count() }}</span>
+                                </button>
+
+                                @foreach($groupedCourses as $regId => $coursesList)
+                                    @php
+                                        $fCourse = $coursesList->first();
+                                        $rObj = $fCourse ? $fCourse->regulation : null;
+                                        $rCode = $rObj ? ($rObj->code ?: $rObj->name) : 'Standard';
+                                    @endphp
+                                    <button type="button" 
+                                        onclick="selectRegulationTab('{{ $regId }}')" 
+                                        id="reg-tab-{{ $regId }}"
+                                        data-reg-target="{{ $regId }}"
+                                        class="reg-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer">
+                                        <span>Regulation {{ $rCode }}</span>
+                                        <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700">{{ $coursesList->count() }}</span>
+                                    </button>
+                                @endforeach
                             </div>
-                            <h3 class="text-lg font-bold text-gray-900">No Assigned Courses</h3>
-                            <p class="mt-1 text-sm text-gray-500 max-w-sm mx-auto">You do not have any courses assigned to your staff profile yet. Contact your coordinator to allocate courses.</p>
+
+                            <!-- Combined Materials Category Tabs (shown in Materials Mode by default) -->
+                            <div class="flex items-center gap-2 shrink-0" id="combinedMaterialTabs">
+                                <button type="button" 
+                                    onclick="selectCombinedFolderTab('all')" 
+                                    id="comb-tab-all"
+                                    data-folder-target="all"
+                                    class="comb-tab-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-2xs cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                                    <span>All Divisions</span>
+                                    <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white">{{ $totalMaterialsCount }}</span>
+                                </button>
+
+                                @foreach($subfolderCategories as $catKey => $catMeta)
+                                    @php 
+                                        $catCount = $groupedAllMats[$catKey]->count(); 
+                                        $catSlug = Str::slug($catKey);
+                                    @endphp
+                                    @if($catCount > 0)
+                                    <button type="button" 
+                                        onclick="selectCombinedFolderTab('{{ $catSlug }}')" 
+                                        id="comb-tab-{{ $catSlug }}"
+                                        data-folder-target="{{ $catSlug }}"
+                                        class="comb-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer">
+                                        <span class="text-xs">{{ $catMeta['icon'] }}</span>
+                                        <span>{{ $catMeta['short_name'] }}</span>
+                                        <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700">{{ $catCount }}</span>
+                                    </button>
+                                    @endif
+                                @endforeach
+                            </div>
+
+                            <!-- Controls on the right (Collapse all and Table/Cards layout switcher) -->
+                            <div class="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+                                <!-- Cards vs Table Toggle (shown when in View All Courses mode) -->
+                                <div class="hidden items-center gap-1.5 shrink-0" id="courseLayoutSwitcherWrap">
+                                    <div class="inline-flex p-1 bg-white rounded-xl border border-gray-200 shadow-2xs">
+                                        <button type="button" onclick="setCourseLayout('cards')" id="layout-btn-cards" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-200 cursor-pointer flex items-center gap-1.5" title="Grid / Cards View">
+                                            <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                            <span>Cards</span>
+                                        </button>
+                                        <button type="button" onclick="setCourseLayout('table')" id="layout-btn-table" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5" title="Data Table View">
+                                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                            <span>Table</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Expand / Collapse All Toggle -->
+                                <button type="button" onclick="toggleAllMasterSections()" id="toggleAllMasterBtn" class="text-xs font-bold text-gray-500 hover:text-indigo-600 px-3 py-1.5 rounded-xl hover:bg-white border border-transparent hover:border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                                    <span id="toggleAllMasterText">Collapse All</span>
+                                    <svg class="w-3.5 h-3.5 transition-transform duration-200" id="toggleAllMasterIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                            </div>
                         </div>
-                    @else
-                        <div class="space-y-10" id="coursesGridContainer">
-                            @foreach($groupedCourses as $regId => $coursesList)
-                                @php
-                                    $firstCourse = $coursesList->first();
-                                    $regulation = $firstCourse ? $firstCourse->regulation : null;
-                                    $regCode = $regulation ? ($regulation->code ?: $regulation->name) : 'Standard';
-                                    $curriculum = $regulation ? $regulation->curriculum : null;
-                                    $programType = $regulation ? $regulation->program_type : null;
-                                @endphp
-                                <div class="regulation-group" data-reg="{{ strtolower($regCode . ' ' . $curriculum . ' ' . $programType) }}">
-                                    <div class="flex items-center justify-between pb-3.5 mb-5 border-b border-gray-200">
-                                        <div class="flex items-center gap-3.5">
-                                            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-2xs">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                                            </div>
-                                            <div>
-                                                <div class="flex items-center gap-2 flex-wrap">
-                                                    <h2 class="text-lg font-bold text-gray-900">Regulation {{ $regCode }}</h2>
-                                                    @if(!empty($curriculum))
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                                                            Curriculum: {{ $curriculum }}
-                                                        </span>
-                                                    @endif
-                                                    @if(!empty($programType))
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100 text-gray-600">
-                                                            {{ $programType }}
-                                                        </span>
-                                                    @endif
+
+                        <!-- Content Area -->
+                        <div class="p-5 sm:p-6 bg-gray-50/50 space-y-6">
+                            
+                            <!-- ============================================== -->
+                            <!-- VIEW MODE A: COURSES GROUPED SECTION-WISE     -->
+                            <!-- ============================================== -->
+                            <div id="viewModeCoursesContainer" class="hidden space-y-6">
+                                @if($groupedCourses->isEmpty())
+                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                                        <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto text-gray-400 mb-4">
+                                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900">No Assigned Courses</h3>
+                                        <p class="mt-1 text-sm text-gray-500 max-w-sm mx-auto">You do not have any courses assigned to your staff profile yet.</p>
+                                    </div>
+                                @else
+                                    @foreach($groupedCourses as $regId => $coursesList)
+                                        @php
+                                            $firstCourse = $coursesList->first();
+                                            $regulation = $firstCourse ? $firstCourse->regulation : null;
+                                            $regCode = $regulation ? ($regulation->code ?: $regulation->name) : 'Standard';
+                                            $curriculum = $regulation ? $regulation->curriculum : null;
+                                            $programType = $regulation ? $regulation->program_type : null;
+                                        @endphp
+                                        <div class="master-regulation-section bg-white rounded-2xl border border-indigo-100/90 shadow-2xs overflow-hidden transition-all duration-200"
+                                             id="master-section-reg-{{ $regId }}"
+                                             data-reg-id="{{ $regId }}">
+                                            
+                                            <!-- Section Header Banner -->
+                                            <div onclick="toggleRegulationSection('{{ $regId }}')"
+                                                 class="px-5 py-4 bg-gradient-to-r from-indigo-50/80 via-slate-50/40 to-white border-b border-gray-100 flex items-center justify-between cursor-pointer select-none group">
+                                                <div class="flex items-center gap-3.5 min-w-0">
+                                                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex items-center gap-2 flex-wrap">
+                                                            <h3 class="text-base font-extrabold text-gray-900 tracking-tight">Regulation {{ $regCode }}</h3>
+                                                            @if(!empty($curriculum))
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200">
+                                                                    Curriculum: {{ $curriculum }}
+                                                                </span>
+                                                            @endif
+                                                            @if(!empty($programType))
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600">
+                                                                    {{ $programType }}
+                                                                </span>
+                                                            @endif
+                                                            <span class="reg-folder-count-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                                {{ $coursesList->count() }} {{ Str::plural('Course', $coursesList->count()) }}
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-xs text-gray-500 mt-0.5">Faculty course curriculum and learning materials section</p>
+                                                    </div>
                                                 </div>
-                                                <p class="text-xs text-gray-500 mt-0.5">
-                                                    {{ $coursesList->count() }} {{ Str::plural('Course', $coursesList->count()) }} assigned
-                                                </p>
+
+                                                <div class="flex items-center gap-2.5 shrink-0 ml-3">
+                                                    <span class="master-reg-toggle-text text-xs font-semibold text-gray-400 hidden md:inline">Collapse</span>
+                                                    <div class="master-reg-chevron w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 group-hover:border-indigo-300 group-hover:text-indigo-600 transition-all duration-200 shadow-2xs">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                    </div>
+                                                </div>
+                                                               <!-- Section Body: Course Cards Grid -->
+                                            <div class="master-reg-cards master-reg-body p-5 sm:p-6 bg-slate-50/30">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                                    @foreach($coursesList as $course)
+                                                        @php
+                                                            $cMaterials = $course->materials ?? collect();
+                                                            $cByDiv = $cMaterials->groupBy(fn($m) => $m->effective_division);
+                                                        @endphp
+                                                        <div class="course-card bg-white rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all duration-200 flex flex-col justify-between overflow-hidden group"
+                                                             data-search="{{ strtolower($course->name . ' ' . $course->code . ' ' . ($course->department->name ?? '')) }}"
+                                                             data-reg="{{ $regId }}">
+                                                            
+                                                            <!-- Subtle Accent Bar -->
+                                                            <div class="h-1 bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500"></div>
+
+                                                            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                                                                <div>
+                                                                    <!-- Badges Header -->
+                                                                    <div class="flex items-center justify-between gap-2 mb-2.5">
+                                                                        <div class="flex items-center gap-1.5 flex-wrap min-w-0">
+                                                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold font-mono tracking-wide bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                                                {{ $course->code }}
+                                                                            </span>
+                                                                            @if($course->regulation)
+                                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200">
+                                                                                    {{ $course->regulation->code ?: $course->regulation->name }}
+                                                                                </span>
+                                                                            @endif
+                                                                        </div>
+
+                                                                        @if($course->year || $course->semester)
+                                                                            <span class="inline-flex items-center text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md shrink-0">
+                                                                                @if($course->year)Year {{ $course->year }}@endif
+                                                                                @if($course->year && $course->semester), @endif
+                                                                                @if($course->semester)Sem {{ $course->semester }}@endif
+                                                                            </span>
+                                                                        @endif
+                                                                    </div>
+
+                                                                    <!-- Course Name & Department -->
+                                                                    <h4 class="text-base font-extrabold text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-1">
+                                                                        <a href="{{ route('staff.courses.materials', $course->id) }}" class="focus:outline-none">
+                                                                            {{ $course->name }}
+                                                                        </a>
+                                                                    </h4>
+                                                                    <p class="text-xs text-gray-500">
+                                                                        {{ $course->department->name ?? 'Academic Department' }}
+                                                                    </p>
+
+                                                                    <!-- Material Division Breakdown Pills -->
+                                                                    <div class="mt-3.5 pt-3 border-t border-gray-100 flex flex-wrap gap-1.5 items-center">
+                                                                        @php $shownPills = 0; @endphp
+                                                                        @foreach($subfolderCategories as $dKey => $dMeta)
+                                                                            @if(isset($cByDiv[$dKey]) && $cByDiv[$dKey]->count() > 0)
+                                                                                @php $shownPills++; @endphp
+                                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-extrabold {{ $dMeta['badge_class'] }} border" title="{{ $dKey }}">
+                                                                                    <span>{{ $dMeta['icon'] }}</span> {{ $cByDiv[$dKey]->count() }} {{ $dMeta['short_name'] }}
+                                                                                </span>
+                                                                            @endif
+                                                                        @endforeach
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-700">
+                                                                            {{ $course->materials_count }} Total
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Card Actions -->
+                                                                <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                                                                    <a href="{{ route('staff.courses.materials', $course->id) }}" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                                                        <span>Open Section View</span>
+                                                                    </a>
+                                                                    <a href="{{ route('staff.assignments.index', ['course_id' => $course->id]) }}" class="inline-flex items-center justify-center px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-bold transition-colors border border-purple-200" title="Course Assessments">
+                                                                        <span>Assessments ({{ $course->assignments_count }})</span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+
+                                            <!-- Section Body: Course Table View -->
+                                            <div class="master-reg-table master-reg-body hidden overflow-x-auto bg-white border-t border-gray-100">
+                                                <table class="w-full divide-y divide-gray-200 text-left">
+                                                    <thead class="bg-gray-50/90 text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                                                        <tr>
+                                                            <th class="px-5 py-3.5">Course Code & Title</th>
+                                                            <th class="px-5 py-3.5">Year / Sem</th>
+                                                            <th class="px-5 py-3.5">Department</th>
+                                                            <th class="px-5 py-3.5">Materials Breakdown</th>
+                                                            <th class="px-5 py-3.5 text-center">Assessments</th>
+                                                            <th class="px-5 py-3.5 text-center">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-100 bg-white text-xs">
+                                                        @foreach($coursesList as $course)
+                                                            @php
+                                                                $cMaterials = $course->materials ?? collect();
+                                                                $cByDiv = $cMaterials->groupBy(fn($m) => $m->effective_division);
+                                                            @endphp
+                                                            <tr class="hover:bg-indigo-50/40 transition-colors course-table-row" 
+                                                                data-search="{{ strtolower($course->name . ' ' . $course->code . ' ' . ($course->department->name ?? '')) }}"
+                                                                data-reg="{{ $regId }}">
+                                                                <td class="px-5 py-3.5">
+                                                                    <div class="flex items-center gap-2">
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold font-mono bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                                            {{ $course->code }}
+                                                                        </span>
+                                                                        <a href="{{ route('staff.courses.materials', $course->id) }}" class="font-bold text-gray-900 hover:text-indigo-600 transition-colors">
+                                                                            {{ $course->name }}
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="px-5 py-3.5 whitespace-nowrap">
+                                                                    @if($course->year || $course->semester)
+                                                                        <span class="inline-flex items-center text-[11px] font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-md">
+                                                                            @if($course->year)Yr {{ $course->year }}@endif
+                                                                            @if($course->year && $course->semester), @endif
+                                                                            @if($course->semester)Sem {{ $course->semester }}@endif
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="text-gray-400">&mdash;</span>
+                                                                    @endif
+                                                                </td>
+                                                                <td class="px-5 py-3.5 text-gray-600">
+                                                                    {{ $course->department->name ?? 'Academic Dept' }}
+                                                                </td>
+                                                                <td class="px-5 py-3.5">
+                                                                    <div class="flex flex-wrap items-center gap-1.5 max-w-md">
+                                                                        @foreach($subfolderCategories as $dKey => $dMeta)
+                                                                            @if(isset($cByDiv[$dKey]) && $cByDiv[$dKey]->count() > 0)
+                                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold {{ $dMeta['badge_class'] }} border" title="{{ $dKey }}">
+                                                                                    <span>{{ $dMeta['icon'] }}</span> {{ $cByDiv[$dKey]->count() }}
+                                                                                </span>
+                                                                            @endif
+                                                                        @endforeach
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-slate-100 text-slate-700">
+                                                                            {{ $course->materials_count }} Total
+                                                                        </span>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="px-5 py-3.5 text-center">
+                                                                    <a href="{{ route('staff.assignments.index', ['course_id' => $course->id]) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition-colors">
+                                                                        {{ $course->assignments_count }}
+                                                                    </a>
+                                                                </td>
+                                                                <td class="px-5 py-3.5 text-center">
+                                                                    <div class="flex items-center justify-center gap-2">
+                                                                        <a href="{{ route('staff.courses.materials', $course->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs">
+                                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                                                            <span>Section View</span>
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
-                                        <span class="text-xs font-semibold px-2.5 py-1 bg-gray-100 text-gray-700 rounded-full">
-                                            {{ $coursesList->count() }} {{ Str::plural('Subject', $coursesList->count()) }}
-                                        </span>
+                                    @endforeach
+                                @endif
+                            </div>
+
+                            <!-- ============================================== -->
+                            <!-- VIEW MODE B: COMBINED ALL MATERIALS FOLDERS    -->
+                            <!-- ============================================== -->
+                            <div id="viewModeMaterialsContainer" class="space-y-6">
+                                @if(!isset($allMaterials) || $allMaterials->isEmpty())
+                                    <div class="py-14 px-6 text-center bg-white border border-gray-100 rounded-2xl shadow-sm">
+                                        <div class="mx-auto w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-3">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                        </div>
+                                        <h3 class="text-base font-bold text-gray-900">No Learning Materials Across Courses</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Upload study materials in individual courses to view them in this combined directory.</p>
                                     </div>
-                                    
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                                        @foreach($coursesList as $course)
-                                            <div class="course-card group bg-white dark:bg-[#151B23] rounded-xl border border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer"
-                                                 onclick="window.location.href='{{ route('staff.courses.materials', $course->id) }}'"
-                                                 data-search="{{ strtolower($course->name . ' ' . $course->code . ' ' . ($course->department->name ?? '')) }}">
-                                                <!-- Subtle Accent Line -->
-                                                <div class="h-0.5 bg-slate-200 dark:bg-slate-700 group-hover:bg-indigo-500 transition-colors duration-200"></div>
-
-                                                <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                                @else
+                                    @foreach($subfolderCategories as $catKey => $catMeta)
+                                        @php 
+                                            $catItems = $groupedAllMats[$catKey]; 
+                                            $catSlug = Str::slug($catKey);
+                                        @endphp
+                                        @if($catItems->count() > 0)
+                                        <div class="comb-subfolder-section bg-white rounded-2xl border {{ $catMeta['border_accent'] }} shadow-2xs overflow-hidden transition-all duration-200"
+                                             id="comb-section-{{ $catSlug }}"
+                                             data-folder-key="{{ $catSlug }}">
+                                            
+                                            <!-- Subfolder Header Banner -->
+                                            <div onclick="toggleCombinedSubfolder('{{ $catSlug }}')"
+                                                 class="px-5 py-4 bg-gradient-to-r {{ $catMeta['header_gradient'] }} border-b border-gray-100 flex items-center justify-between cursor-pointer select-none group">
+                                                <div class="flex items-center gap-3.5 min-w-0">
+                                                    <div class="w-10 h-10 rounded-xl {{ $catMeta['icon_bg'] }} flex items-center justify-center shadow-2xs shrink-0 group-hover:scale-105 transition-transform text-lg">
+                                                        <span>{{ $catMeta['icon'] }}</span>
+                                                    </div>
                                                     <div>
-                                                        <!-- Badges Header (Code, Regulation on Left | Year/Sem on Right) -->
-                                                        <div class="flex items-center justify-between gap-2 mb-3">
-                                                            <div class="flex items-center gap-1.5 flex-wrap min-w-0">
-                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold font-mono tracking-wide bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                                                    {{ $course->code }}
-                                                                </span>
-                                                                @if($course->regulation)
-                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60">
-                                                                        {{ $course->regulation->code ?: $course->regulation->name }}
-                                                                    </span>
-                                                                @endif
-                                                            </div>
-
-                                                            @if($course->year || $course->semester)
-                                                                <span class="inline-flex items-center text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-750 px-2 py-0.5 rounded-md shrink-0">
-                                                                    @if($course->year)Year {{ $course->year }}@endif
-                                                                    @if($course->year && $course->semester), @endif
-                                                                    @if($course->semester)Sem {{ $course->semester }}@endif
-                                                                </span>
-                                                            @endif
-                                                        </div>
-
-                                                        <!-- Course Name -->
-                                                        <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug mb-1.5 flex items-center justify-between">
-                                                            <a href="{{ route('staff.courses.materials', $course->id) }}" class="focus:outline-none">
-                                                                {{ $course->name }}
-                                                            </a>
-                                                            <svg class="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                                                        </h3>
-
-                                                        <!-- Course Metadata (Department & Curriculum) -->
-                                                        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-normal flex-wrap">
-                                                            @if($course->department)
-                                                            <span class="flex items-center gap-1">
-                                                                <svg class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                                                {{ $course->department->name }}
+                                                        <div class="flex items-center gap-2 flex-wrap">
+                                                            <h3 class="text-sm sm:text-base font-extrabold text-gray-900 tracking-tight">{{ $catMeta['name'] }}</h3>
+                                                            <span class="comb-folder-count-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold {{ $catMeta['badge_class'] }}">
+                                                                {{ $catItems->count() }} {{ $catItems->count() === 1 ? 'Material' : 'Materials' }}
                                                             </span>
-                                                            @endif
-
-                                                            @if($course->regulation && !empty($course->regulation->curriculum))
-                                                            <span class="text-slate-300 dark:text-slate-700">&bull;</span>
-                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                                                Curriculum: {{ $course->regulation->curriculum }}
-                                                            </span>
-                                                            @endif
                                                         </div>
+                                                        <p class="text-xs text-gray-500 mt-0.5">{{ $catMeta['description'] }}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex items-center gap-2.5 shrink-0 ml-3">
+                                                    <span class="comb-folder-toggle-text text-xs font-semibold text-gray-400 hidden md:inline">Collapse</span>
+                                                    <div class="comb-folder-chevron w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 group-hover:border-indigo-300 group-hover:text-indigo-600 transition-all duration-200 shadow-2xs">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    </div>
+
+                                            <!-- Subfolder Content: Materials Grid -->
+                                            <div class="comb-subfolder-body p-5 sm:p-6 bg-slate-50/30">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                                    @foreach($catItems as $material)
+                                                        @php
+                                                            $rawExt = strtolower(pathinfo($material->url_or_path, PATHINFO_EXTENSION));
+                                                        @endphp
+                                                        <div class="comb-material-card bg-white rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md hover:border-indigo-200 transition-all duration-200 flex flex-col justify-between overflow-hidden group"
+                                                             data-search="{{ strtolower($material->title . ' ' . ($material->course->code ?? '') . ' ' . ($material->course->name ?? '') . ' ' . $material->platform . ' ' . $material->effective_division) }}"
+                                                             data-folder="{{ $catSlug }}"
+                                                             data-division="{{ strtolower($material->effective_division) }}">
+                                                            
+                                                            <div class="p-5 flex-1 relative flex flex-col justify-between">
+                                                                <div>
+                                                                    <!-- Course Tag Badge & Format Pill -->
+                                                                    <div class="flex items-center justify-between gap-2 mb-3">
+                                                                        <a href="{{ route('staff.courses.materials', $material->course_id) }}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 transition-colors truncate max-w-[170px]" title="{{ $material->course->name ?? 'Course' }}">
+                                                                            <span>🎯 {{ $material->course->code ?? 'CRS' }}</span>
+                                                                        </a>
+
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase font-mono tracking-wider {{ in_array($rawExt, ['ppt','pptx','pps']) ? 'bg-amber-100 text-amber-800 border border-amber-200' : (in_array($rawExt, ['xls','xlsx','csv']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($rawExt === 'pdf' ? 'bg-rose-100 text-rose-800 border border-rose-200' : (in_array($rawExt, ['doc','docx']) ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-200'))) }}">
+                                                                            {{ $rawExt ? '.' . $rawExt : ($material->platform ?: $material->type) }}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <!-- Title -->
+                                                                    <a href="{{ $material->type === 'link' ? $material->url_or_path : route('materials.view', $material->id) }}" target="_blank" class="text-[14px] font-bold text-gray-900 leading-snug break-words tracking-tight group-hover:text-indigo-600 hover:underline transition-colors block" title="Open {{ $material->title }}">
+                                                                        {{ $material->title }}
+                                                                    </a>
+                                                                    <p class="text-[11px] text-gray-500 mt-1 truncate">{{ $material->course->name ?? '' }}</p>
+                                                                    <div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-700">
+                                                                        <span>{{ $catMeta['icon'] }}</span>
+                                                                        <span>{{ $material->effective_division }}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="bg-gray-50/80 px-4 py-2.5 border-t border-gray-100 flex items-center justify-between gap-2">
+                                                                @if($material->type === 'link')
+                                                                    <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                                        Open Link <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                                    </a>
+                                                                @else
+                                                                    <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
+                                                                        View <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                                    </a>
+                                                                    <div class="w-px h-3.5 bg-gray-200"></div>
+                                                                    <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
+                                                                        Download <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                                    </a>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </div>
+
+                            <!-- No Matches State -->
+                            <div id="masterNoMatchBox" class="py-14 px-6 text-center bg-white border border-dashed border-gray-200 rounded-2xl hidden">
+                                <div class="mx-auto w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 </div>
-                            @endforeach
+                                <h3 class="text-sm font-bold text-gray-900">No Matching Courses or Learning Materials</h3>
+                                <p class="text-xs text-gray-500 mt-1">Try adjusting your search terms or filter selection.</p>
+                                <button type="button" onclick="clearCourseSearch()" class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-colors cursor-pointer">
+                                    <span>Reset Search</span>
+                                </button>
+                            </div>
+
                         </div>
-                    @endif
+                    </div>
                 </div>
 
                 <!-- SECTION 2: COURSE ASSIGNMENTS -->
@@ -415,7 +892,7 @@
             if (window.openPwdModal) window.openPwdModal();
         @endif
 
-        // Accessible Tab Switcher
+        // Accessible Tab Switcher (Materials vs Assignments)
         window.switchSectionTab = function(tabKey) {
             const materialsSection = document.getElementById('section-materials');
             const assignmentsSection = document.getElementById('section-assignments');
@@ -447,30 +924,411 @@
             }
         };
 
-        // Live Search for Course Learning Materials
-        window.filterCourseCards = function(query) {
-            const cleanQuery = (query || '').toLowerCase().trim();
-            const cards = document.querySelectorAll('.course-card');
-            let visibleCount = 0;
+        // Current state for section views (default to section-wise view)
+        let currentViewMode = 'materials';
+        let currentCourseLayout = 'cards'; // 'cards' | 'table'
+        let activeRegFilter = 'all';
+        let activeFolderFilter = 'all';
 
-            cards.forEach(card => {
-                const searchData = card.getAttribute('data-search') || '';
-                if (cleanQuery === '' || searchData.includes(cleanQuery)) {
-                    card.style.display = '';
-                    visibleCount++;
+        // Switch between View All Courses vs View as Sections
+        window.switchAllCoursesMode = function(mode) {
+            currentViewMode = mode;
+            const coursesContainer = document.getElementById('viewModeCoursesContainer');
+            const materialsContainer = document.getElementById('viewModeMaterialsContainer');
+            const btnCourses = document.getElementById('mode-btn-courses');
+            const btnMaterials = document.getElementById('mode-btn-materials');
+            const regTabs = document.getElementById('courseRegulationTabs');
+            const folderTabs = document.getElementById('combinedMaterialTabs');
+            const layoutSwitcherWrap = document.getElementById('courseLayoutSwitcherWrap');
+            const iconCourses = btnCourses?.querySelector('svg');
+            const iconMaterials = btnMaterials?.querySelector('svg');
+
+            if (mode === 'courses') {
+                coursesContainer?.classList.remove('hidden');
+                materialsContainer?.classList.add('hidden');
+
+                if (btnCourses) btnCourses.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-2xs cursor-pointer flex items-center gap-1.5';
+                if (btnMaterials) btnMaterials.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5';
+                if (iconCourses) iconCourses.setAttribute('class', 'w-3.5 h-3.5 text-indigo-600');
+                if (iconMaterials) iconMaterials.setAttribute('class', 'w-3.5 h-3.5 text-gray-400');
+
+                regTabs?.classList.remove('hidden');
+                regTabs?.classList.add('flex');
+                folderTabs?.classList.add('hidden');
+                folderTabs?.classList.remove('flex');
+
+                layoutSwitcherWrap?.classList.remove('hidden');
+                layoutSwitcherWrap?.classList.add('flex');
+
+                window.history.replaceState(null, null, '#courses');
+            } else {
+                coursesContainer?.classList.add('hidden');
+                materialsContainer?.classList.remove('hidden');
+
+                if (btnCourses) btnCourses.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5';
+                if (btnMaterials) btnMaterials.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-2xs cursor-pointer flex items-center gap-1.5';
+                if (iconCourses) iconCourses.setAttribute('class', 'w-3.5 h-3.5 text-gray-400');
+                if (iconMaterials) iconMaterials.setAttribute('class', 'w-3.5 h-3.5 text-indigo-600');
+
+                regTabs?.classList.add('hidden');
+                regTabs?.classList.remove('flex');
+                folderTabs?.classList.remove('hidden');
+                folderTabs?.classList.add('flex');
+
+                layoutSwitcherWrap?.classList.add('hidden');
+                layoutSwitcherWrap?.classList.remove('flex');
+
+                window.history.replaceState(null, null, '#sections');
+            }
+
+            // Re-apply filter and search in the active mode
+            const searchInput = document.getElementById('courseMaterialSearch');
+            window.filterCourseCards(searchInput ? searchInput.value : '');
+        };
+
+        // Switch layout inside View All Courses (Cards vs Table)
+        window.setCourseLayout = function(layout) {
+            currentCourseLayout = layout;
+            const btnCards = document.getElementById('layout-btn-cards');
+            const btnTable = document.getElementById('layout-btn-table');
+            const iconCards = btnCards?.querySelector('svg');
+            const iconTable = btnTable?.querySelector('svg');
+
+            if (layout === 'cards') {
+                if (btnCards) btnCards.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-200 cursor-pointer flex items-center gap-1.5';
+                if (btnTable) btnTable.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5';
+                if (iconCards) iconCards.setAttribute('class', 'w-3.5 h-3.5 text-indigo-600');
+                if (iconTable) iconTable.setAttribute('class', 'w-3.5 h-3.5 text-gray-400');
+
+                document.querySelectorAll('.master-regulation-section').forEach(sec => {
+                    const cardsView = sec.querySelector('.master-reg-cards');
+                    const tableView = sec.querySelector('.master-reg-table');
+                    if (cardsView) cardsView.classList.remove('hidden');
+                    if (tableView) tableView.classList.add('hidden');
+                });
+            } else {
+                if (btnCards) btnCards.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5';
+                if (btnTable) btnTable.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-200 cursor-pointer flex items-center gap-1.5';
+                if (iconCards) iconCards.setAttribute('class', 'w-3.5 h-3.5 text-gray-400');
+                if (iconTable) iconTable.setAttribute('class', 'w-3.5 h-3.5 text-indigo-600');
+
+                document.querySelectorAll('.master-regulation-section').forEach(sec => {
+                    const cardsView = sec.querySelector('.master-reg-cards');
+                    const tableView = sec.querySelector('.master-reg-table');
+                    if (cardsView) cardsView.classList.add('hidden');
+                    if (tableView) tableView.classList.remove('hidden');
+                });
+            }
+
+            const searchInput = document.getElementById('courseMaterialSearch');
+            window.filterCourseCards(searchInput ? searchInput.value : '');
+        };
+
+        // Filter courses by Regulation tab
+        window.selectRegulationTab = function(regId) {
+            activeRegFilter = regId;
+            document.querySelectorAll('.reg-tab-btn').forEach(btn => {
+                const target = btn.getAttribute('data-reg-target');
+                const badge = btn.querySelector('.tab-badge');
+                if (target === regId) {
+                    btn.className = 'reg-tab-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-2xs cursor-pointer';
+                    if (badge) badge.className = 'tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white';
                 } else {
-                    card.style.display = 'none';
+                    btn.className = 'reg-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer';
+                    if (badge) badge.className = 'tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700';
                 }
             });
 
-            // Handle regulation group headers visibility
-            document.querySelectorAll('.regulation-group').forEach(group => {
-                const visibleInGroup = group.querySelectorAll('.course-card:not([style*="display: none"])').length;
-                group.style.display = visibleInGroup > 0 ? '' : 'none';
+            // Automatically open / expand the selected regulation section directly!
+            if (regId !== 'all') {
+                const sec = document.getElementById('master-section-reg-' + regId);
+                if (sec) {
+                    const activeBody = currentCourseLayout === 'table' ? sec.querySelector('.master-reg-table') : sec.querySelector('.master-reg-cards');
+                    const otherBody = currentCourseLayout === 'table' ? sec.querySelector('.master-reg-cards') : sec.querySelector('.master-reg-table');
+                    const chevron = sec.querySelector('.master-reg-chevron svg');
+                    const toggleText = sec.querySelector('.master-reg-toggle-text');
+                    if (otherBody) otherBody.classList.add('hidden');
+                    if (activeBody) activeBody.classList.remove('hidden');
+                    if (chevron) chevron.style.transform = 'rotate(0deg)';
+                    if (toggleText) toggleText.textContent = 'Collapse';
+                }
+                allSectionsExpanded = true;
+                const toggleBtnText = document.getElementById('toggleAllMasterText');
+                const toggleBtnIcon = document.getElementById('toggleAllMasterIcon');
+                if (toggleBtnText) toggleBtnText.textContent = 'Collapse All';
+                if (toggleBtnIcon) toggleBtnIcon.style.transform = 'rotate(0deg)';
+            } else {
+                allSectionsExpanded = true;
+                const toggleBtnText = document.getElementById('toggleAllMasterText');
+                const toggleBtnIcon = document.getElementById('toggleAllMasterIcon');
+                if (toggleBtnText) toggleBtnText.textContent = 'Collapse All';
+                if (toggleBtnIcon) toggleBtnIcon.style.transform = 'rotate(0deg)';
+                document.querySelectorAll('.master-regulation-section').forEach(sec => {
+                    const activeBody = currentCourseLayout === 'table' ? sec.querySelector('.master-reg-table') : sec.querySelector('.master-reg-cards');
+                    const otherBody = currentCourseLayout === 'table' ? sec.querySelector('.master-reg-cards') : sec.querySelector('.master-reg-table');
+                    const chevron = sec.querySelector('.master-reg-chevron svg');
+                    const toggleText = sec.querySelector('.master-reg-toggle-text');
+                    if (otherBody) otherBody.classList.add('hidden');
+                    if (activeBody) activeBody.classList.remove('hidden');
+                    if (chevron) chevron.style.transform = 'rotate(0deg)';
+                    if (toggleText) toggleText.textContent = 'Collapse';
+                });
+            }
+
+            const searchInput = document.getElementById('courseMaterialSearch');
+            window.filterCourseCards(searchInput ? searchInput.value : '');
+        };
+
+        // Filter materials by Subfolder Category tab
+        window.selectCombinedFolderTab = function(folderKey) {
+            activeFolderFilter = folderKey;
+            document.querySelectorAll('.comb-tab-btn').forEach(btn => {
+                const target = btn.getAttribute('data-folder-target');
+                const badge = btn.querySelector('.tab-badge');
+                if (target === folderKey) {
+                    btn.className = 'comb-tab-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-2xs cursor-pointer';
+                    if (badge) badge.className = 'tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white';
+                } else {
+                    btn.className = 'comb-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer';
+                    if (badge) badge.className = 'tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700';
+                }
             });
 
-            const countEl = document.getElementById('visibleCoursesCount');
-            if (countEl) countEl.textContent = visibleCount;
+            // Automatically open / expand the selected combined folder directly!
+            if (folderKey !== 'all') {
+                const sec = document.getElementById('comb-section-' + folderKey);
+                if (sec) {
+                    const body = sec.querySelector('.comb-subfolder-body');
+                    const chevron = sec.querySelector('.comb-folder-chevron svg');
+                    const toggleText = sec.querySelector('.comb-folder-toggle-text');
+                    if (body) body.classList.remove('hidden');
+                    if (chevron) chevron.style.transform = 'rotate(0deg)';
+                    if (toggleText) toggleText.textContent = 'Collapse';
+                }
+                allSectionsExpanded = true;
+                const toggleBtnText = document.getElementById('toggleAllMasterText');
+                const toggleBtnIcon = document.getElementById('toggleAllMasterIcon');
+                if (toggleBtnText) toggleBtnText.textContent = 'Collapse All';
+                if (toggleBtnIcon) toggleBtnIcon.style.transform = 'rotate(0deg)';
+            } else {
+                allSectionsExpanded = true;
+                const toggleBtnText = document.getElementById('toggleAllMasterText');
+                const toggleBtnIcon = document.getElementById('toggleAllMasterIcon');
+                if (toggleBtnText) toggleBtnText.textContent = 'Collapse All';
+                if (toggleBtnIcon) toggleBtnIcon.style.transform = 'rotate(0deg)';
+                document.querySelectorAll('.comb-subfolder-section').forEach(sec => {
+                    const body = sec.querySelector('.comb-subfolder-body');
+                    const chevron = sec.querySelector('.comb-folder-chevron svg');
+                    const toggleText = sec.querySelector('.comb-folder-toggle-text');
+                    if (body) body.classList.remove('hidden');
+                    if (chevron) chevron.style.transform = 'rotate(0deg)';
+                    if (toggleText) toggleText.textContent = 'Collapse';
+                });
+            }
+
+            const searchInput = document.getElementById('courseMaterialSearch');
+            window.filterCourseCards(searchInput ? searchInput.value : '');
+        };
+
+        // Toggle individual Regulation Section Accordion
+        window.toggleRegulationSection = function(regId) {
+            const section = document.getElementById('master-section-reg-' + regId);
+            if (!section) return;
+            const activeBody = currentCourseLayout === 'table'
+                ? section.querySelector('.master-reg-table')
+                : section.querySelector('.master-reg-cards');
+            const otherBody = currentCourseLayout === 'table'
+                ? section.querySelector('.master-reg-cards')
+                : section.querySelector('.master-reg-table');
+            const chevron = section.querySelector('.master-reg-chevron svg');
+            const toggleText = section.querySelector('.master-reg-toggle-text');
+
+            if (!activeBody) return;
+            if (otherBody) otherBody.classList.add('hidden');
+
+            const isHidden = activeBody.classList.contains('hidden');
+            if (isHidden) {
+                activeBody.classList.remove('hidden');
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+                if (toggleText) toggleText.textContent = 'Collapse';
+            } else {
+                activeBody.classList.add('hidden');
+                if (chevron) chevron.style.transform = 'rotate(-90deg)';
+                if (toggleText) toggleText.textContent = 'Expand';
+            }
+        };
+
+        // Toggle individual Combined Subfolder Accordion
+        window.toggleCombinedSubfolder = function(folderKey) {
+            const section = document.getElementById('comb-section-' + folderKey);
+            if (!section) return;
+            const body = section.querySelector('.comb-subfolder-body');
+            const chevron = section.querySelector('.comb-folder-chevron svg');
+            const toggleText = section.querySelector('.comb-folder-toggle-text');
+
+            if (!body) return;
+            const isHidden = body.classList.contains('hidden');
+            if (isHidden) {
+                body.classList.remove('hidden');
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+                if (toggleText) toggleText.textContent = 'Collapse';
+            } else {
+                body.classList.add('hidden');
+                if (chevron) chevron.style.transform = 'rotate(-90deg)';
+                if (toggleText) toggleText.textContent = 'Expand';
+            }
+        };
+
+        // Expand/Collapse All Master Sections
+        let allSectionsExpanded = true;
+        window.toggleAllMasterSections = function() {
+            allSectionsExpanded = !allSectionsExpanded;
+            const toggleBtnText = document.getElementById('toggleAllMasterText');
+            const toggleBtnIcon = document.getElementById('toggleAllMasterIcon');
+
+            if (toggleBtnText) toggleBtnText.textContent = allSectionsExpanded ? 'Collapse All' : 'Expand All';
+            if (toggleBtnIcon) toggleBtnIcon.style.transform = allSectionsExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
+
+            if (currentViewMode === 'courses') {
+                document.querySelectorAll('.master-regulation-section').forEach(sec => {
+                    const activeBody = currentCourseLayout === 'table'
+                        ? sec.querySelector('.master-reg-table')
+                        : sec.querySelector('.master-reg-cards');
+                    const otherBody = currentCourseLayout === 'table'
+                        ? sec.querySelector('.master-reg-cards')
+                        : sec.querySelector('.master-reg-table');
+                    const chevron = sec.querySelector('.master-reg-chevron svg');
+                    const toggleText = sec.querySelector('.master-reg-toggle-text');
+
+                    if (otherBody) otherBody.classList.add('hidden');
+
+                    if (activeBody) {
+                        if (allSectionsExpanded) {
+                            activeBody.classList.remove('hidden');
+                            if (chevron) chevron.style.transform = 'rotate(0deg)';
+                            if (toggleText) toggleText.textContent = 'Collapse';
+                        } else {
+                            activeBody.classList.add('hidden');
+                            if (chevron) chevron.style.transform = 'rotate(-90deg)';
+                            if (toggleText) toggleText.textContent = 'Expand';
+                        }
+                    }
+                });
+            } else {
+                document.querySelectorAll('.comb-subfolder-section').forEach(sec => {
+                    const body = sec.querySelector('.comb-subfolder-body');
+                    const chevron = sec.querySelector('.comb-folder-chevron svg');
+                    const toggleText = sec.querySelector('.comb-folder-toggle-text');
+                    if (body) {
+                        if (allSectionsExpanded) {
+                            body.classList.remove('hidden');
+                            if (chevron) chevron.style.transform = 'rotate(0deg)';
+                            if (toggleText) toggleText.textContent = 'Collapse';
+                        } else {
+                            body.classList.add('hidden');
+                            if (chevron) chevron.style.transform = 'rotate(-90deg)';
+                            if (toggleText) toggleText.textContent = 'Expand';
+                        }
+                    }
+                });
+            }
+        };
+
+        // Live Search across courses or materials based on current view mode
+        window.filterCourseCards = function(query) {
+            const cleanQuery = (query || '').toLowerCase().trim();
+            const clearBtn = document.getElementById('courseSearchClearBtn');
+            const noMatchBox = document.getElementById('masterNoMatchBox');
+
+            if (clearBtn) {
+                if (cleanQuery.length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+            }
+
+            let totalMatches = 0;
+
+            if (currentViewMode === 'courses') {
+                const regSections = document.querySelectorAll('.master-regulation-section');
+                regSections.forEach(section => {
+                    const sectionRegId = section.getAttribute('data-reg-id');
+                    const isRegMatch = (activeRegFilter === 'all' || activeRegFilter === sectionRegId);
+
+                    if (!isRegMatch) {
+                        section.style.display = 'none';
+                        return;
+                    }
+
+                    const cards = section.querySelectorAll('.course-card');
+                    const tableRows = section.querySelectorAll('.course-table-row');
+                    let visibleCardsInSection = 0;
+
+                    cards.forEach(card => {
+                        const searchData = (card.getAttribute('data-search') || '').toLowerCase();
+                        if (cleanQuery === '' || searchData.includes(cleanQuery)) {
+                            card.style.display = '';
+                            visibleCardsInSection++;
+                            totalMatches++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    tableRows.forEach(row => {
+                        const searchData = (row.getAttribute('data-search') || '').toLowerCase();
+                        if (cleanQuery === '' || searchData.includes(cleanQuery)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    section.style.display = visibleCardsInSection > 0 ? '' : 'none';
+                });
+            } else {
+                const folderSections = document.querySelectorAll('.comb-subfolder-section');
+                folderSections.forEach(section => {
+                    const folderKey = section.getAttribute('data-folder-key');
+                    const isFolderMatch = (activeFolderFilter === 'all' || activeFolderFilter === folderKey);
+
+                    if (!isFolderMatch) {
+                        section.style.display = 'none';
+                        return;
+                    }
+
+                    const cards = section.querySelectorAll('.comb-material-card');
+                    let visibleCardsInFolder = 0;
+
+                    cards.forEach(card => {
+                        const searchData = (card.getAttribute('data-search') || '').toLowerCase();
+                        if (cleanQuery === '' || searchData.includes(cleanQuery)) {
+                            card.style.display = '';
+                            visibleCardsInFolder++;
+                            totalMatches++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    section.style.display = visibleCardsInFolder > 0 ? '' : 'none';
+                });
+            }
+
+            if (noMatchBox) {
+                noMatchBox.classList.toggle('hidden', totalMatches > 0);
+            }
+        };
+
+        // Reset course/material search
+        window.clearCourseSearch = function() {
+            const searchInput = document.getElementById('courseMaterialSearch');
+            if (searchInput) {
+                searchInput.value = '';
+                window.filterCourseCards('');
+                searchInput.focus();
+            }
         };
 
         // Live Search for Assignments
@@ -500,10 +1358,12 @@
             window.filterAssignmentCards(searchQuery);
         };
 
-        // Check URL hash on load
+        // Check URL hash or query on load
         document.addEventListener('DOMContentLoaded', function() {
             if (window.location.hash === '#assignments') {
                 window.switchSectionTab('assignments');
+            } else if (window.location.hash === '#courses' || window.location.search.includes('view=courses')) {
+                window.switchAllCoursesMode('courses');
             }
         });
     </script>

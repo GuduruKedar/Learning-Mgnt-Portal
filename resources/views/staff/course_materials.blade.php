@@ -201,6 +201,10 @@
                                     <span>Reset</span>
                                 </button>
 
+
+
+
+
                                 <!-- Manage Materials Trigger Button -->
                                 <button type="button" onclick="openManageMaterialsModal()" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -209,131 +213,217 @@
                             </div>
                         </div>
 
-                        <div class="p-6 bg-gray-50/40 flex-1">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="materialsCardsContainer">
-                                @forelse($materials as $material)
-                                <div class="material-card bg-white rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md hover:border-indigo-200 transition-all duration-200 flex flex-col group h-full justify-between overflow-hidden"
-                                     data-material-title="{{ strtolower($material->title) }}"
-                                     data-material-type="{{ strtolower($material->type) }}"
-                                     data-material-platform="{{ strtolower($material->platform) }}"
-                                     data-material-staff="{{ strtolower($material->staff->profile->first_name ?? '') }}">
-                                    <div class="p-5 flex-1 relative">
-                                        {{-- Department-wide faculty deletion permission --}}
-                                        @php
-                                            $canDeleteMaterial = Auth::user()->role === 'sa'
-                                                 || (Auth::user()->profile && Auth::user()->profile->departments_id === $course->department_id)
-                                                 || ($course->staff && $course->staff->contains(Auth::id()))
-                                                 || $material->staff_id === Auth::id();
-                                        @endphp
-                                        @if($canDeleteMaterial)
-                                        @php
-                                            $matDelUrl = route('staff.courses.materials.destroy', $material->id);
-                                        @endphp
-                                        <div class="absolute top-4 right-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                                            <button type="button" 
-                                                onclick="openUniversalDeleteModal({
-                                                    title: 'Delete Course Material',
-                                                    subtitle: 'Confirm learning material removal',
-                                                    itemName: '{{ addslashes($material->title) }}',
-                                                    itemCode: '{{ strtoupper($material->type) }}',
-                                                    itemBadge: '{{ ucfirst($material->platform ?: 'Material') }}',
-                                                    itemMeta: 'Course: {{ addslashes($course->code) }} - {{ addslashes($course->name) }}',
-                                                    cascadeItems: [
-                                                        { title: 'Material Type', count: '{{ ucfirst($material->type) }} Resource', icon: 'file' },
-                                                        { title: 'Storage Status', count: '{{ $material->type === 'file' ? 'Local File Deleted' : 'URL Removed' }}', icon: 'material' }
-                                                    ],
-                                                    warningTitle: 'Delete {{ addslashes($material->title) }}?',
-                                                    warningBody: 'Are you sure you want to permanently delete this learning resource from {{ addslashes($course->code) }}? If it is a file, it will be deleted from the server storage.',
-                                                    deleteUrl: '{{ $matDelUrl }}',
-                                                    submitBtnText: 'Yes, Delete Material'
-                                                })"
-                                                class="w-8.5 h-8.5 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer" 
-                                                title="Delete Material">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                            </button>
-                                        </div>
-                                        @endif
-                                        
-                                        <div class="flex items-start space-x-3.5">
-                                            <div class="flex-shrink-0">
-                                                @if($material->platform === 'youtube')
-                                                    <div class="h-11 w-11 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shadow-2xs">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                    </div>
-                                                @elseif($material->platform === 'drive' || $material->platform === 'onedrive')
-                                                    <div class="h-11 w-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
-                                                    </div>
-                                                @elseif($material->platform === 'pdf')
-                                                    <div class="h-11 w-11 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shadow-2xs">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                                    </div>
-                                                @elseif($material->platform === 'word')
-                                                    <div class="h-11 w-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                                    </div>
-                                                @elseif($material->platform === 'excel')
-                                                    <div class="h-11 w-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-2xs">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                                    </div>
-                                                @elseif($material->platform === 'ppt')
-                                                    <div class="h-11 w-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-2xs">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                                                    </div>
-                                                @else
-                                                    <div class="h-11 w-11 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 shadow-2xs">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <div class="flex-1 min-w-0 pr-6">
-                                                <h4 class="text-sm font-bold text-gray-900 truncate" title="{{ $material->title }}">{{ $material->title }}</h4>
-                                                <div class="flex items-center text-[11px] text-gray-500 mt-1 capitalize gap-1.5 flex-wrap">
-                                                    <span class="bg-gray-100 px-2 py-0.5 rounded-md font-semibold text-gray-700">{{ $material->platform }}</span>
-                                                    <span>&bull;</span>
-                                                    <span>{{ $material->created_at->format('M d, Y') }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="mt-3 pt-3 border-t border-gray-100 flex items-center space-x-2">
-                                            @if($material->staff && $material->staff->profile && $material->staff->profile->photo)
-                                                <img src="{{ asset('storage/' . $material->staff->profile->photo) }}" class="w-5 h-5 rounded-full object-cover">
-                                            @else
-                                                <div class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold">
-                                                    {{ substr($material->staff->profile->first_name ?? 'S', 0, 1) }}
-                                                </div>
-                                            @endif
-                                            <span class="text-xs text-gray-500">Added by <span class="font-semibold text-gray-700">{{ $material->staff->profile->first_name ?? 'Staff' }}</span></span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="bg-gray-50/80 px-4 py-2.5 border-t border-gray-100">
-                                        @if($material->type === 'link')
-                                            <a href="{{ $material->url_or_path }}" target="_blank" class="flex items-center justify-center w-full text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors">
-                                                Open Link <svg class="ml-1.5 w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                            </a>
-                                        @else
-                                            <div class="flex items-center justify-between w-full gap-2">
-                                                <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors">
-                                                    View <svg class="ml-1 w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                </a>
-                                                <div class="w-px h-3 bg-gray-200"></div>
-                                                <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors">
-                                                    Download <svg class="ml-1 w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                                </a>
-                                            </div>
-                                        @endif
-                                    </div>
+                        @php
+                            $subfolderCategories = [
+                                'Course objective and outcomes' => [
+                                    'name' => 'Course Objectives & Outcomes (CO / PO)',
+                                    'badge' => 'Course Objectives',
+                                    'short_name' => 'Course Objectives & Outcomes',
+                                    'description' => 'Course educational goals, course outcomes (COs), program outcomes (POs), and learning taxonomies',
+                                    'color' => 'purple',
+                                    'border_accent' => 'border-purple-200/90',
+                                    'header_gradient' => 'from-purple-50/90 via-purple-50/40 to-white',
+                                    'icon_bg' => 'bg-purple-100 text-purple-700 border border-purple-200',
+                                    'badge_class' => 'bg-purple-100 text-purple-800 border-purple-200',
+                                    'icon' => '🎯',
+                                ],
+                                'Syllabus document' => [
+                                    'name' => 'Syllabus Document',
+                                    'badge' => 'Syllabus',
+                                    'short_name' => 'Syllabus Document',
+                                    'description' => 'Official curriculum breakdown, lecture schedule, evaluation schemes, and textbook references',
+                                    'color' => 'blue',
+                                    'border_accent' => 'border-blue-200/90',
+                                    'header_gradient' => 'from-blue-50/90 via-blue-50/40 to-white',
+                                    'icon_bg' => 'bg-blue-100 text-blue-700 border border-blue-200',
+                                    'badge_class' => 'bg-blue-100 text-blue-800 border-blue-200',
+                                    'icon' => '📜',
+                                ],
+                                'PPTs' => [
+                                    'name' => 'PowerPoint Presentations (PPTs)',
+                                    'badge' => 'PPTs / Slides',
+                                    'short_name' => 'PPTs',
+                                    'description' => 'Lecture slide decks, interactive visual presentations, and module slides',
+                                    'color' => 'amber',
+                                    'border_accent' => 'border-amber-200/90',
+                                    'header_gradient' => 'from-amber-50/90 via-amber-50/40 to-white',
+                                    'icon_bg' => 'bg-amber-100 text-amber-700 border border-amber-200',
+                                    'badge_class' => 'bg-amber-100 text-amber-800 border-amber-200',
+                                    'icon' => '📊',
+                                ],
+                                'Lecture notes' => [
+                                    'name' => 'Lecture Notes & Study Material',
+                                    'badge' => 'Lecture Notes',
+                                    'short_name' => 'Lecture Notes',
+                                    'description' => 'Comprehensive class reading notes, module summaries, and study handouts',
+                                    'color' => 'emerald',
+                                    'border_accent' => 'border-emerald-200/90',
+                                    'header_gradient' => 'from-emerald-50/90 via-emerald-50/40 to-white',
+                                    'icon_bg' => 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+                                    'badge_class' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                                    'icon' => '📝',
+                                ],
+                                'Lab manual' => [
+                                    'name' => 'Lab Manual & Practical Guides',
+                                    'badge' => 'Lab Manual',
+                                    'short_name' => 'Lab Manual',
+                                    'description' => 'Laboratory instructions, experiment procedures, code guides, and viva reference sheets',
+                                    'color' => 'teal',
+                                    'border_accent' => 'border-teal-200/90',
+                                    'header_gradient' => 'from-teal-50/90 via-teal-50/40 to-white',
+                                    'icon_bg' => 'bg-teal-100 text-teal-700 border border-teal-200',
+                                    'badge_class' => 'bg-teal-100 text-teal-800 border-teal-200',
+                                    'icon' => '🧪',
+                                ],
+                                'Assigment Questions' => [
+                                    'name' => 'Assignment Questions',
+                                    'badge' => 'Assignment Questions',
+                                    'short_name' => 'Assigment Questions',
+                                    'description' => 'Homework tasks, practice assignments, problem sets, and case study briefs',
+                                    'color' => 'indigo',
+                                    'border_accent' => 'border-indigo-200/90',
+                                    'header_gradient' => 'from-indigo-50/90 via-indigo-50/40 to-white',
+                                    'icon_bg' => 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+                                    'badge_class' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
+                                    'icon' => '📋',
+                                ],
+                                'Question Bank' => [
+                                    'name' => 'Question Bank & Solved Problems',
+                                    'badge' => 'Question Bank',
+                                    'short_name' => 'Question Bank',
+                                    'description' => 'Unit-wise question pools, model answers, 2-mark & 16-mark compilations',
+                                    'color' => 'violet',
+                                    'border_accent' => 'border-violet-200/90',
+                                    'header_gradient' => 'from-violet-50/90 via-violet-50/40 to-white',
+                                    'icon_bg' => 'bg-violet-100 text-violet-700 border border-violet-200',
+                                    'badge_class' => 'bg-violet-100 text-violet-800 border-violet-200',
+                                    'icon' => '🗂️',
+                                ],
+                                'Gate Questions' => [
+                                    'name' => 'GATE Questions & Competitive Prep',
+                                    'badge' => 'GATE Questions',
+                                    'short_name' => 'Gate Questions',
+                                    'description' => 'GATE examination previous year questions, solutions, and competitive mock drills',
+                                    'color' => 'orange',
+                                    'border_accent' => 'border-orange-200/90',
+                                    'header_gradient' => 'from-orange-50/90 via-orange-50/40 to-white',
+                                    'icon_bg' => 'bg-orange-100 text-orange-700 border border-orange-200',
+                                    'badge_class' => 'bg-orange-100 text-orange-800 border-orange-200',
+                                    'icon' => '🎓',
+                                ],
+                                'Previous Question Papers' => [
+                                    'name' => 'Previous Question Papers (QP)',
+                                    'badge' => 'Previous Question Papers',
+                                    'short_name' => 'Previous Question Papers',
+                                    'description' => 'University semester end examination papers, mid-term tests, and archival papers',
+                                    'color' => 'cyan',
+                                    'border_accent' => 'border-cyan-200/90',
+                                    'header_gradient' => 'from-cyan-50/90 via-cyan-50/40 to-white',
+                                    'icon_bg' => 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+                                    'badge_class' => 'bg-cyan-100 text-cyan-800 border-cyan-200',
+                                    'icon' => '📑',
+                                ],
+                                'Videos' => [
+                                    'name' => 'Recorded Lectures & Videos',
+                                    'badge' => 'Videos',
+                                    'short_name' => 'Videos',
+                                    'description' => 'Video recordings, YouTube playlist links, webinar clips, and visual demonstrations',
+                                    'color' => 'red',
+                                    'border_accent' => 'border-red-200/90',
+                                    'header_gradient' => 'from-red-50/90 via-red-50/40 to-white',
+                                    'icon_bg' => 'bg-red-100 text-red-700 border border-red-200',
+                                    'badge_class' => 'bg-red-100 text-red-800 border-red-200',
+                                    'icon' => '🎥',
+                                ],
+                                'Additional material' => [
+                                    'name' => 'Additional Material & References',
+                                    'badge' => 'Additional Material',
+                                    'short_name' => 'Additional material',
+                                    'description' => 'Supplementary reference documents, spreadsheets, external web links, and extra materials',
+                                    'color' => 'slate',
+                                    'border_accent' => 'border-slate-200/90',
+                                    'header_gradient' => 'from-slate-50/90 via-slate-50/40 to-white',
+                                    'icon_bg' => 'bg-slate-100 text-slate-700 border border-slate-200',
+                                    'badge_class' => 'bg-slate-100 text-slate-800 border-slate-200',
+                                    'icon' => '📁',
+                                ],
+                            ];
+
+                            $groupedMaterials = [];
+                            foreach ($subfolderCategories as $k => $c) {
+                                $groupedMaterials[$k] = collect();
+                            }
+                            foreach ($materials as $mat) {
+                                $cat = $mat->effective_division;
+                                if (!isset($groupedMaterials[$cat])) {
+                                    $groupedMaterials['Additional material']->push($mat);
+                                } else {
+                                    $groupedMaterials[$cat]->push($mat);
+                                }
+                            }
+                        @endphp
+
+                        <!-- Sub-Folder Navigation Bar (Segregation Tabs) -->
+                        <div class="px-5 sm:px-6 py-3 bg-slate-50/80 border-b border-gray-200/80 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+                            <div class="flex items-center gap-2 shrink-0" id="subfolderTabsContainer">
+                                <button type="button" 
+                                    onclick="selectSubfolder('all')" 
+                                    id="subfolder-tab-all"
+                                    data-subfolder-target="all"
+                                    class="subfolder-tab-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-2xs cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                                    <span>All Divisions</span>
+                                    <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white">{{ $totalMaterialsCount }}</span>
+                                </button>
+
+                                @foreach($subfolderCategories as $catKey => $catMeta)
+                                    @php 
+                                        $catCount = $groupedMaterials[$catKey]->count(); 
+                                        $catSlug = Str::slug($catKey);
+                                    @endphp
+                                    @if($catCount > 0)
+                                    <button type="button" 
+                                        onclick="selectSubfolder('{{ $catSlug }}')" 
+                                        id="subfolder-tab-{{ $catSlug }}"
+                                        data-subfolder-target="{{ $catSlug }}"
+                                        class="subfolder-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer">
+                                        <span class="text-xs">{{ $catMeta['icon'] }}</span>
+                                        <span>{{ $catMeta['short_name'] }}</span>
+                                        <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700">{{ $catCount }}</span>
+                                    </button>
+                                    @endif
+                                @endforeach
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
+                                <!-- Cards vs Table Layout Switcher -->
+                                <div class="inline-flex p-1 bg-white rounded-xl border border-gray-200 shadow-2xs">
+                                    <button type="button" onclick="setCourseMaterialsLayout('cards')" id="course-mat-btn-cards" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-200 cursor-pointer flex items-center gap-1.5" title="Cards View">
+                                        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                        <span>Cards</span>
+                                    </button>
+                                    <button type="button" onclick="setCourseMaterialsLayout('table')" id="course-mat-btn-table" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5" title="Table View">
+                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                        <span>Table</span>
+                                    </button>
                                 </div>
-                                @empty
-                                <div class="col-span-full py-16 px-6 text-center bg-white border border-gray-100 rounded-2xl shadow-2xs">
+
+                                <button type="button" onclick="toggleAllSubfolders()" id="toggleAllSubfoldersBtn" class="text-xs font-bold text-gray-500 hover:text-indigo-600 px-3 py-1.5 rounded-xl hover:bg-white border border-transparent hover:border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                                    <span id="toggleAllSubfoldersText">Collapse All</span>
+                                    <svg class="w-3.5 h-3.5 transition-transform duration-200" id="toggleAllSubfoldersIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-5 sm:p-6 bg-gray-50/50 flex-1 space-y-6" id="materialsCardsContainer">
+                            @if($totalMaterialsCount === 0)
+                                <div class="py-16 px-6 text-center bg-white border border-gray-100 rounded-2xl shadow-2xs">
                                     <div class="mx-auto w-16 h-16 bg-gradient-to-tr from-indigo-100 to-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 ring-8 ring-indigo-50/60 shadow-xs">
                                         <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                     </div>
                                     <h3 class="text-base font-extrabold text-gray-900 mb-1">No Materials Uploaded Yet</h3>
                                     <p class="text-xs sm:text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
-                                        Publish lecture notes, PDF documents, Google Drive folders, or video links for your students.
+                                        Publish course objectives, syllabus documents, PPTs, lecture notes, lab manuals, question banks, or study videos for your students.
                                     </p>
                                     <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
                                         <button type="button" onclick="openManageMaterialsModal()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer">
@@ -342,20 +432,332 @@
                                         </button>
                                     </div>
                                 </div>
-                                @endforelse
+                            @else
+                                <!-- Layout 1: Segregated Academic Division Sections (Cards View) -->
+                                <div id="courseMaterialsCardsWrap" class="space-y-6">
+                                    {{-- Segregated Academic Division Sections --}}
+                                    @foreach($subfolderCategories as $catKey => $catMeta)
+                                    @php 
+                                        $catItems = $groupedMaterials[$catKey]; 
+                                        $catSlug = Str::slug($catKey);
+                                    @endphp
+                                    @if($catItems->count() > 0)
+                                    <div class="subfolder-section bg-white rounded-2xl border {{ $catMeta['border_accent'] }} shadow-2xs overflow-hidden transition-all duration-200" 
+                                         id="subfolder-section-{{ $catSlug }}"
+                                         data-folder-key="{{ $catSlug }}">
+                                        
+                                        <!-- Subfolder Header Banner -->
+                                        <div onclick="toggleSubfolder('{{ $catSlug }}')" 
+                                             class="px-5 py-4 bg-gradient-to-r {{ $catMeta['header_gradient'] }} border-b border-gray-100 flex items-center justify-between cursor-pointer select-none group">
+                                            <div class="flex items-center gap-3.5 min-w-0">
+                                                <div class="w-10 h-10 rounded-xl {{ $catMeta['icon_bg'] }} flex items-center justify-center text-lg shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
+                                                    <span>{{ $catMeta['icon'] }}</span>
+                                                </div>
 
-                                <!-- Dynamic No Matches Empty State for Live Search/Filter -->
-                                <div id="materialsNoMatchState" class="col-span-full py-14 px-6 text-center bg-white border border-dashed border-gray-200 rounded-2xl hidden">
-                                    <div class="mx-auto w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-3">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                                <div class="min-w-0">
+                                                    <div class="flex flex-wrap items-center gap-2">
+                                                        <h4 class="text-sm sm:text-base font-extrabold text-gray-900 tracking-tight truncate">{{ $catMeta['name'] }}</h4>
+                                                        <span class="subfolder-count-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold {{ $catMeta['badge_class'] }} transition-all">
+                                                            {{ $catItems->count() }} {{ $catItems->count() === 1 ? 'Material' : 'Materials' }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="text-xs text-gray-500 mt-0.5 truncate">{{ $catMeta['description'] }}</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex items-center gap-2.5 shrink-0 ml-3">
+                                                <span class="subfolder-toggle-text text-xs font-semibold text-gray-400 hidden md:inline">Collapse</span>
+                                                <div class="subfolder-chevron w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 group-hover:border-indigo-300 group-hover:text-indigo-600 transition-all duration-200 shadow-2xs">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Subfolder Grid Content -->
+                                        <div class="subfolder-content-body p-5 sm:p-6 bg-slate-50/30">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                                @foreach($catItems as $material)
+                                                <div class="material-card bg-white rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md hover:border-indigo-200 transition-all duration-200 flex flex-col group h-full justify-between overflow-hidden"
+                                                     data-material-title="{{ strtolower($material->title) }}"
+                                                     data-material-type="{{ strtolower($material->type) }}"
+                                                     data-material-platform="{{ strtolower($material->platform) }}"
+                                                     data-material-division="{{ strtolower($material->effective_division) }}"
+                                                     data-material-staff="{{ strtolower($material->staff->profile->first_name ?? '') }}"
+                                                     data-subfolder="{{ $catSlug }}">
+                                                    <div class="p-5 flex-1 relative flex flex-col justify-between">
+                                                        <div>
+                                                            {{-- Top Row: Format Icon + Platform Badge + Action/Delete --}}
+                                                            @php
+                                                                $canDeleteMaterial = Auth::user()->role === 'sa'
+                                                                     || (Auth::user()->profile && Auth::user()->profile->departments_id === $course->department_id)
+                                                                     || ($course->staff && $course->staff->contains(Auth::id()))
+                                                                     || $material->staff_id === Auth::id();
+                                                                $matDelUrl = route('staff.courses.materials.destroy', $material->id);
+                                                                $matOpenUrl = $material->type === 'link' ? $material->url_or_path : route('materials.view', $material->id);
+                                                            @endphp
+
+                                                            <div class="flex items-center justify-between gap-3 mb-3.5">
+                                                                <div class="flex items-center gap-2.5 min-w-0">
+                                                                    <a href="{{ $matOpenUrl }}" target="_blank" class="shrink-0 group/icon block" title="Open {{ $material->title }}">
+                                                                        @if($material->platform === 'youtube')
+                                                                            <div class="h-10 w-10 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                                            </div>
+                                                                        @elseif($material->platform === 'drive' || $material->platform === 'onedrive')
+                                                                            <div class="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                                                                            </div>
+                                                                        @elseif($material->platform === 'pdf')
+                                                                            <div class="h-10 w-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                                            </div>
+                                                                        @elseif($material->platform === 'word')
+                                                                            <div class="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                                            </div>
+                                                                        @elseif($material->platform === 'excel')
+                                                                            <div class="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                                                            </div>
+                                                                        @elseif($material->platform === 'ppt')
+                                                                            <div class="h-10 w-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                                                                            </div>
+                                                                        @elseif($material->platform === 'txt')
+                                                                            <div class="h-10 w-10 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-cyan-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                                            </div>
+                                                                        @else
+                                                                            <div class="h-10 w-10 rounded-xl bg-slate-100 border border-slate-200/70 flex items-center justify-center text-slate-500 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                                            </div>
+                                                                        @endif
+                                                                    </a>
+                                                                    
+                                                                    @php
+                                                                        $rawExt = strtolower(pathinfo($material->url_or_path, PATHINFO_EXTENSION));
+                                                                    @endphp
+                                                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase font-mono tracking-wider {{ in_array($rawExt, ['ppt','pptx','pps']) ? 'bg-amber-100 text-amber-800 border border-amber-200' : (in_array($rawExt, ['xls','xlsx','csv']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($rawExt === 'pdf' ? 'bg-rose-100 text-rose-800 border border-rose-200' : (in_array($rawExt, ['doc','docx']) ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-200'))) }}">
+                                                                            {{ $rawExt ? '.' . $rawExt : ($material->platform ?: $material->type) }}
+                                                                        </span>
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 capitalize">
+                                                                            {{ $material->platform ?: $material->type }}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                @if($canDeleteMaterial)
+                                                                <div class="shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                                                    <button type="button" 
+                                                                        onclick="openUniversalDeleteModal({
+                                                                            title: 'Delete Course Material',
+                                                                            subtitle: 'Confirm learning material removal',
+                                                                            itemName: '{{ addslashes($material->title) }}',
+                                                                            itemCode: '{{ strtoupper($material->type) }}',
+                                                                            itemBadge: '{{ ucfirst($material->platform ?: 'Material') }}',
+                                                                            itemMeta: 'Course: {{ addslashes($course->code) }} - {{ addslashes($course->name) }}',
+                                                                            cascadeItems: [
+                                                                                { title: 'Material Type', count: '{{ ucfirst($material->type) }} Resource', icon: 'file' },
+                                                                                { title: 'Storage Status', count: '{{ $material->type === 'file' ? 'Local File Deleted' : 'URL Removed' }}', icon: 'material' }
+                                                                            ],
+                                                                            warningTitle: 'Delete {{ addslashes($material->title) }}?',
+                                                                            warningBody: 'Are you sure you want to permanently delete this learning resource from {{ addslashes($course->code) }}? If it is a file, it will be deleted from the server storage.',
+                                                                            deleteUrl: '{{ $matDelUrl }}',
+                                                                            submitBtnText: 'Yes, Delete Material'
+                                                                        })"
+                                                                        class="w-8 h-8 flex items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-xs cursor-pointer" 
+                                                                        title="Delete Material">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                                    </button>
+                                                                </div>
+                                                                @endif
+                                                            </div>
+
+                                                            {{-- Full-width Title: Directly clickable to open material --}}
+                                                            <a href="{{ $matOpenUrl }}" target="_blank" class="text-[15px] font-bold text-gray-900 leading-snug break-words tracking-tight group-hover:text-indigo-600 transition-colors hover:underline block" title="Open {{ $material->title }}">
+                                                                {{ $material->title }}
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="bg-gray-50/80 px-4 py-2.5 border-t border-gray-100 flex items-center justify-between gap-2">
+                                                        @if($material->type === 'link')
+                                                            <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                                Open Link <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
+                                                                View <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                            </a>
+                                                            <div class="w-px h-3.5 bg-gray-200"></div>
+                                                            <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
+                                                                Download <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                     </div>
-                                    <h3 class="text-sm font-bold text-gray-900">No Matching Learning Materials</h3>
-                                    <p class="text-xs text-gray-500 mt-1">No learning materials match your current search or type filter.</p>
-                                    <button type="button" onclick="resetAllMaterialFilters()" class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-colors cursor-pointer">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                        <span>Reset Filters</span>
-                                    </button>
+                                    @endif
+                                @endforeach
+                            </div>
+
+                                <!-- Layout 2: Structured Tabular Directory (Table View) -->
+                                <div id="courseMaterialsTableWrap" class="hidden overflow-hidden bg-white rounded-2xl border border-gray-200 shadow-2xs">
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full divide-y divide-gray-200 text-left">
+                                            <thead class="bg-gray-50/90 text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                                                <tr>
+                                                    <th class="px-5 py-3.5">Material Title & Format</th>
+                                                    <th class="px-5 py-3.5">Division / Section</th>
+                                                    <th class="px-5 py-3.5">Type</th>
+                                                    <th class="px-5 py-3.5">Uploaded By</th>
+                                                    <th class="px-5 py-3.5">Date</th>
+                                                    <th class="px-5 py-3.5 text-center">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100 bg-white text-xs">
+                                                @foreach($materials as $material)
+                                                    @php
+                                                        $rawExt = strtolower(pathinfo($material->url_or_path, PATHINFO_EXTENSION));
+                                                        $matCatKey = $material->effective_division;
+                                                        $matMeta = $subfolderCategories[$matCatKey] ?? $subfolderCategories['Additional material'];
+                                                        $matSlug = Str::slug($matCatKey);
+                                                        $canDeleteMaterial = Auth::user()->role === 'sa'
+                                                             || (Auth::user()->profile && Auth::user()->profile->departments_id === $course->department_id)
+                                                             || ($course->staff && $course->staff->contains(Auth::id()))
+                                                             || $material->staff_id === Auth::id();
+                                                        $matDelUrl = route('staff.courses.materials.destroy', $material->id);
+                                                    @endphp
+                                                    <tr class="hover:bg-indigo-50/40 transition-colors material-table-row"
+                                                        data-material-title="{{ strtolower($material->title) }}"
+                                                        data-material-type="{{ strtolower($material->type) }}"
+                                                        data-material-platform="{{ strtolower($material->platform) }}"
+                                                        data-material-division="{{ strtolower($material->effective_division) }}"
+                                                        data-material-staff="{{ strtolower($material->staff->profile->first_name ?? '') }}"
+                                                        data-subfolder="{{ $matSlug }}">
+                                                        <td class="px-5 py-3.5">
+                                                            <div class="flex items-center gap-3">
+                                                                <div class="shrink-0">
+                                                                    @if($material->platform === 'youtube')
+                                                                        <div class="h-8 w-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-red-600">
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                                        </div>
+                                                                    @elseif($material->platform === 'pdf')
+                                                                        <div class="h-8 w-8 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                                        </div>
+                                                                    @elseif(in_array($rawExt, ['ppt','pptx']))
+                                                                        <div class="h-8 w-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="h-8 w-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                                <div class="min-w-0">
+                                                                    <a href="{{ $material->type === 'link' ? $material->url_or_path : route('materials.view', $material->id) }}" target="_blank" class="font-bold text-gray-900 hover:text-indigo-600 hover:underline transition-colors break-words block" title="Open {{ $material->title }}">
+                                                                        {{ $material->title }}
+                                                                    </a>
+                                                                    <div class="flex items-center gap-1.5 mt-0.5">
+                                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-slate-100 text-slate-700">
+                                                                            {{ $rawExt ? '.' . $rawExt : ($material->platform ?: $material->type) }}
+                                                                        </span>
+                                                                        <span class="text-[10px] text-gray-400 capitalize">{{ $material->platform ?: $material->type }}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-5 py-3.5 whitespace-nowrap">
+                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-extrabold {{ $matMeta['badge_class'] }} border">
+                                                                <span>{{ $matMeta['icon'] }}</span>
+                                                                <span>{{ $matMeta['short_name'] }}</span>
+                                                            </span>
+                                                        </td>
+                                                        <td class="px-5 py-3.5 whitespace-nowrap">
+                                                            @if($material->type === 'link')
+                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                                    🔗 Web Link
+                                                                </span>
+                                                            @else
+                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                                    📄 File Resource
+                                                                </span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="px-5 py-3.5 whitespace-nowrap text-gray-600">
+                                                            <span class="font-medium text-gray-800">{{ $material->staff->profile->first_name ?? 'Faculty' }}</span>
+                                                        </td>
+                                                        <td class="px-5 py-3.5 whitespace-nowrap text-gray-500 font-medium">
+                                                            {{ $material->created_at ? $material->created_at->format('M d, Y') : '&mdash;' }}
+                                                        </td>
+                                                        <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                                                            <div class="flex items-center justify-center gap-1.5">
+                                                                @if($material->type === 'link')
+                                                                    <a href="{{ $material->url_or_path }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs">
+                                                                        <span>Open</span>
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                                    </a>
+                                                                @else
+                                                                    <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors shadow-2xs">
+                                                                        <span>View</span>
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                                                    </a>
+                                                                    <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-bold transition-colors">
+                                                                        <span>Download</span>
+                                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                                    </a>
+                                                                @endif
+
+                                                                @if($canDeleteMaterial)
+                                                                    <button type="button"
+                                                                        onclick="openUniversalDeleteModal({
+                                                                            title: 'Delete Course Material',
+                                                                            subtitle: 'Confirm learning material removal',
+                                                                            itemName: '{{ addslashes($material->title) }}',
+                                                                            itemCode: '{{ strtoupper($material->type) }}',
+                                                                            itemBadge: '{{ ucfirst($material->platform ?: 'Material') }}',
+                                                                            itemMeta: 'Course: {{ addslashes($course->code) }} - {{ addslashes($course->name) }}',
+                                                                            cascadeItems: [
+                                                                                { title: 'Material Type', count: '{{ ucfirst($material->type) }} Resource', icon: 'file' },
+                                                                                { title: 'Storage Status', count: '{{ $material->type === 'file' ? 'Local File Deleted' : 'URL Removed' }}', icon: 'material' }
+                                                                            ],
+                                                                            warningTitle: 'Delete {{ addslashes($material->title) }}?',
+                                                                            warningBody: 'Are you sure you want to permanently delete this learning resource from {{ addslashes($course->code) }}? If it is a file, it will be deleted from the server storage.',
+                                                                            deleteUrl: '{{ $matDelUrl }}',
+                                                                            submitBtnText: 'Yes, Delete Material'
+                                                                        })"
+                                                                        class="w-7 h-7 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
+                                                                        title="Delete">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                                    </button>
+                                                                @endif
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
+                            @endif
+
+                            <!-- Dynamic No Matches Empty State for Live Search/Filter -->
+                            <div id="materialsNoMatchState" class="py-14 px-6 text-center bg-white border border-dashed border-gray-200 rounded-2xl hidden">
+                                <div class="mx-auto w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                                <h3 class="text-sm font-bold text-gray-900">No Matching Learning Materials</h3>
+                                <p class="text-xs text-gray-500 mt-1">No learning materials match your current search, type filter, or selected sub-folder.</p>
+                                <button type="button" onclick="resetAllMaterialFilters()" class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-colors cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                    <span>Reset Filters</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -698,13 +1100,16 @@
                                     @error('title') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                                 @endif
                             </div>
+
                             <div>
                                 <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Platform / Source <span class="text-red-500">*</span></label>
                                 <select name="platform" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('platform') border-red-500 @enderror transition-all" required>
                                     <option value="">Select Platform</option>
-                                    <option value="youtube" {{ old('type') === 'link' && old('platform') == 'youtube' ? 'selected' : '' }}>🎥 YouTube Video</option>
+                                    <option value="Reference Portal" {{ old('type') === 'link' && old('platform') == 'Reference Portal' ? 'selected' : '' }}>🌐 Reference Portal / Academic Roadmap</option>
+                                    <option value="youtube" {{ old('type') === 'link' && old('platform') == 'youtube' ? 'selected' : '' }}>▶️ YouTube Video</option>
                                     <option value="drive" {{ old('type') === 'link' && old('platform') == 'drive' ? 'selected' : '' }}>📁 Google Drive Folder / File</option>
                                     <option value="onedrive" {{ old('type') === 'link' && old('platform') == 'onedrive' ? 'selected' : '' }}>☁️ Microsoft OneDrive</option>
+                                    <option value="website" {{ old('type') === 'link' && old('platform') == 'website' ? 'selected' : '' }}>🔗 External Website / Documentation</option>
                                 </select>
                                 @if(old('type') === 'link')
                                     @error('platform') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -754,13 +1159,34 @@
                                 @endif
                             </div>
                             <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Material Division / Section <span class="text-red-500">*</span></label>
+                                <select name="division" id="file-division-select" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('division') border-red-500 @enderror transition-all" required>
+                                    <option value="">Select Division</option>
+                                    <option value="Course objective and outcomes" {{ old('type') === 'file' && old('division') == 'Course objective and outcomes' ? 'selected' : '' }}>🎯 Course objective and outcomes</option>
+                                    <option value="Syllabus document" {{ old('type') === 'file' && old('division') == 'Syllabus document' ? 'selected' : '' }}>📜 Syllabus document</option>
+                                    <option value="PPTs" {{ old('type') === 'file' && old('division') == 'PPTs' ? 'selected' : '' }}>📊 PPTs</option>
+                                    <option value="Lecture notes" {{ old('type') === 'file' && old('division') == 'Lecture notes' ? 'selected' : '' }}>📝 Lecture notes</option>
+                                    <option value="Lab manual" {{ old('type') === 'file' && old('division') == 'Lab manual' ? 'selected' : '' }}>🧪 Lab manual</option>
+                                    <option value="Assigment Questions" {{ old('type') === 'file' && old('division') == 'Assigment Questions' ? 'selected' : '' }}>📋 Assigment Questions</option>
+                                    <option value="Question Bank" {{ old('type') === 'file' && old('division') == 'Question Bank' ? 'selected' : '' }}>🗂️ Question Bank</option>
+                                    <option value="Gate Questions" {{ old('type') === 'file' && old('division') == 'Gate Questions' ? 'selected' : '' }}>🎓 Gate Questions</option>
+                                    <option value="Previous Question Papers" {{ old('type') === 'file' && old('division') == 'Previous Question Papers' ? 'selected' : '' }}>📑 Previous Question Papers</option>
+                                    <option value="Videos" {{ old('type') === 'file' && old('division') == 'Videos' ? 'selected' : '' }}>🎥 Videos</option>
+                                    <option value="Additional material" {{ old('type') === 'file' && (old('division') == 'Additional material' || !old('division')) ? 'selected' : '' }}>📁 Additional material</option>
+                                </select>
+                                @if(old('type') === 'file')
+                                    @error('division') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                @endif
+                            </div>
+                            <div>
                                 <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Document Format <span class="text-red-500">*</span></label>
                                 <select name="platform" id="file-type-select" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('platform') border-red-500 @enderror transition-all" required>
                                     <option value="">Select Document Format</option>
-                                    <option value="pdf" {{ old('type') === 'file' && old('platform') == 'pdf' ? 'selected' : '' }}>📄 PDF Document (.pdf)</option>
-                                    <option value="word" {{ old('type') === 'file' && old('platform') == 'word' ? 'selected' : '' }}>📝 Word Document (.doc, .docx)</option>
+                                    <option value="pdf" {{ old('type') === 'file' && old('platform') == 'pdf' ? 'selected' : '' }}>📕 PDF Document (.pdf)</option>
+                                    <option value="word" {{ old('type') === 'file' && old('platform') == 'word' ? 'selected' : '' }}>📘 Word Document (.doc, .docx)</option>
                                     <option value="excel" {{ old('type') === 'file' && old('platform') == 'excel' ? 'selected' : '' }}>📊 Excel Spreadsheet (.xls, .xlsx, .csv)</option>
-                                    <option value="ppt" {{ old('type') === 'file' && old('platform') == 'ppt' ? 'selected' : '' }}>📽️ PowerPoint Presentation (.ppt, .pptx)</option>
+                                    <option value="ppt" {{ old('type') === 'file' && old('platform') == 'ppt' ? 'selected' : '' }}>📙 PowerPoint Presentation (.ppt, .pptx)</option>
+                                    <option value="txt" {{ old('type') === 'file' && old('platform') == 'txt' ? 'selected' : '' }}>📄 Text Document (.txt)</option>
                                 </select>
                                 @if(old('type') === 'file')
                                     @error('platform') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -778,9 +1204,9 @@
                                             <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                                         </div>
                                         <p id="file-select-title" class="text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors">Click to select document</p>
-                                        <p id="file-select-subtitle" class="text-[10px] text-gray-400 mt-0.5">Supports PDF, DOCX, PPTX, XLSX, ZIP (Max 25MB)</p>
+                                        <p id="file-select-subtitle" class="text-[10px] text-gray-400 mt-0.5">Supports PDF, DOCX, PPTX, XLSX, TXT, CSV, ZIP (Max 25MB)</p>
                                     </div>
-                                    <input type="file" name="file" id="file-upload-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.pps,.ppsx,.xls,.xlsx,.csv,.txt,.zip,.rar,.png,.jpg,.jpeg,.webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+                                    <input type="file" name="file" id="file-upload-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.pps,.ppsx,.xls,.xlsx,.csv,.txt,.zip,.rar,.png,.jpg,.jpeg,.webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 </div>
 
                                 <!-- Dynamic In-Modal File Size Error Alert Banner -->
@@ -944,6 +1370,143 @@
             });
         };
 
+        // Sub-Folder State & Quick Selection
+        let activeSubfolderFilter = 'all';
+
+        window.selectSubfolder = function(catKey) {
+            activeSubfolderFilter = catKey;
+            
+            // Update Tab Active Styles
+            document.querySelectorAll('.subfolder-tab-btn').forEach(btn => {
+                const targetCat = btn.getAttribute('data-subfolder-target');
+                const badge = btn.querySelector('.tab-badge');
+                if (targetCat === catKey) {
+                    btn.className = 'subfolder-tab-btn inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-xs cursor-pointer';
+                    if (badge) badge.className = 'tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white';
+                } else {
+                    btn.className = 'subfolder-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer';
+                    if (badge) badge.className = 'tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700';
+                }
+            });
+
+            // Automatically open / expand the selected section directly!
+            if (catKey !== 'all') {
+                const section = document.getElementById('subfolder-section-' + catKey);
+                if (section) {
+                    const body = section.querySelector('.subfolder-content-body');
+                    const chevron = section.querySelector('.subfolder-chevron');
+                    const toggleText = section.querySelector('.subfolder-toggle-text');
+                    if (body) body.classList.remove('hidden');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                    if (toggleText) toggleText.textContent = 'Collapse';
+                }
+                allFoldersExpanded = true;
+                const btnText = document.getElementById('toggleAllSubfoldersText');
+                const btnIcon = document.getElementById('toggleAllSubfoldersIcon');
+                if (btnText) btnText.textContent = 'Collapse All';
+                if (btnIcon) btnIcon.classList.remove('rotate-180');
+            } else {
+                allFoldersExpanded = true;
+                const btnText = document.getElementById('toggleAllSubfoldersText');
+                const btnIcon = document.getElementById('toggleAllSubfoldersIcon');
+                if (btnText) btnText.textContent = 'Collapse All';
+                if (btnIcon) btnIcon.classList.remove('rotate-180');
+                document.querySelectorAll('.subfolder-section').forEach(section => {
+                    const body = section.querySelector('.subfolder-content-body');
+                    const chevron = section.querySelector('.subfolder-chevron');
+                    const toggleText = section.querySelector('.subfolder-toggle-text');
+                    if (body) body.classList.remove('hidden');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                    if (toggleText) toggleText.textContent = 'Collapse';
+                });
+            }
+
+            window.filterMaterialsLive();
+        };
+
+        window.toggleSubfolder = function(catKey) {
+            const section = document.getElementById('subfolder-section-' + catKey);
+            if (!section) return;
+            const body = section.querySelector('.subfolder-content-body');
+            const chevron = section.querySelector('.subfolder-chevron');
+            const toggleText = section.querySelector('.subfolder-toggle-text');
+            
+            if (body.classList.contains('hidden')) {
+                body.classList.remove('hidden');
+                if (chevron) chevron.classList.remove('rotate-180');
+                if (toggleText) toggleText.textContent = 'Collapse';
+            } else {
+                body.classList.add('hidden');
+                if (chevron) chevron.classList.add('rotate-180');
+                if (toggleText) toggleText.textContent = 'Expand';
+            }
+        };
+
+        let allFoldersExpanded = true;
+        window.toggleAllSubfolders = function() {
+            allFoldersExpanded = !allFoldersExpanded;
+            const btnText = document.getElementById('toggleAllSubfoldersText');
+            const btnIcon = document.getElementById('toggleAllSubfoldersIcon');
+            if (btnText) btnText.textContent = allFoldersExpanded ? 'Collapse All' : 'Expand All';
+            if (btnIcon) {
+                if (allFoldersExpanded) btnIcon.classList.remove('rotate-180');
+                else btnIcon.classList.add('rotate-180');
+            }
+
+            document.querySelectorAll('.subfolder-section').forEach(section => {
+                const body = section.querySelector('.subfolder-content-body');
+                const chevron = section.querySelector('.subfolder-chevron');
+                const toggleText = section.querySelector('.subfolder-toggle-text');
+                if (body && chevron && toggleText) {
+                    if (allFoldersExpanded) {
+                        body.classList.remove('hidden');
+                        chevron.classList.remove('rotate-180');
+                        toggleText.textContent = 'Collapse';
+                    } else {
+                        body.classList.add('hidden');
+                        chevron.classList.add('rotate-180');
+                        toggleText.textContent = 'Expand';
+                    }
+                }
+            });
+        };
+
+        // Course Materials Layout State (Cards vs Table)
+        let currentCourseMaterialsLayout = 'cards';
+
+        window.setCourseMaterialsLayout = function(layout) {
+            currentCourseMaterialsLayout = layout;
+            const btnCards = document.getElementById('course-mat-btn-cards');
+            const btnTable = document.getElementById('course-mat-btn-table');
+            const cardsWrap = document.getElementById('courseMaterialsCardsWrap');
+            const tableWrap = document.getElementById('courseMaterialsTableWrap');
+            const collapseBtn = document.getElementById('toggleAllSubfoldersBtn');
+            const iconCards = btnCards?.querySelector('svg');
+            const iconTable = btnTable?.querySelector('svg');
+
+            if (layout === 'cards') {
+                if (btnCards) btnCards.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-200 cursor-pointer flex items-center gap-1.5';
+                if (btnTable) btnTable.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5';
+                if (iconCards) iconCards.setAttribute('class', 'w-3.5 h-3.5 text-indigo-600');
+                if (iconTable) iconTable.setAttribute('class', 'w-3.5 h-3.5 text-gray-400');
+
+                if (cardsWrap) cardsWrap.classList.remove('hidden');
+                if (tableWrap) tableWrap.classList.add('hidden');
+                if (collapseBtn) collapseBtn.classList.remove('hidden');
+            } else {
+                if (btnCards) btnCards.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5';
+                if (btnTable) btnTable.className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-200 cursor-pointer flex items-center gap-1.5';
+                if (iconCards) iconCards.setAttribute('class', 'w-3.5 h-3.5 text-gray-400');
+                if (iconTable) iconTable.setAttribute('class', 'w-3.5 h-3.5 text-indigo-600');
+
+                if (cardsWrap) cardsWrap.classList.add('hidden');
+                if (tableWrap) tableWrap.classList.remove('hidden');
+                if (collapseBtn) collapseBtn.classList.add('hidden');
+            }
+
+            window.filterMaterialsLive();
+        };
+
         // Live Real-Time Course Materials Filter
         window.filterMaterialsLive = function() {
             const searchInput = document.getElementById('materialsSearchInput');
@@ -965,7 +1528,7 @@
             }
 
             if (resetBtn) {
-                if (searchQuery.length > 0 || selectedType !== '') {
+                if (searchQuery.length > 0 || selectedType !== '' || activeSubfolderFilter !== 'all') {
                     resetBtn.classList.remove('hidden');
                 } else {
                     resetBtn.classList.add('hidden');
@@ -973,32 +1536,92 @@
             }
 
             const cards = document.querySelectorAll('.material-card');
-            let visibleCount = 0;
+            let overallVisibleCount = 0;
             const totalCount = cards.length;
 
+            // 1. Filter each individual card
             cards.forEach(card => {
                 const title = card.getAttribute('data-material-title') || '';
                 const type = card.getAttribute('data-material-type') || '';
                 const platform = card.getAttribute('data-material-platform') || '';
                 const staff = card.getAttribute('data-material-staff') || '';
+                const cardFolder = card.getAttribute('data-subfolder') || '';
+                const division = card.getAttribute('data-material-division') || '';
 
                 const matchesSearch = searchQuery === '' || 
                                       title.includes(searchQuery) || 
                                       platform.includes(searchQuery) || 
+                                      division.includes(searchQuery) || 
                                       staff.includes(searchQuery);
 
                 const matchesType = selectedType === '' || type === selectedType;
+                const matchesFolder = (activeSubfolderFilter === 'all') || (cardFolder === activeSubfolderFilter);
 
-                if (matchesSearch && matchesType) {
+                if (matchesSearch && matchesType && matchesFolder) {
                     card.style.display = '';
-                    visibleCount++;
+                    overallVisibleCount++;
                 } else {
                     card.style.display = 'none';
                 }
             });
 
+            // Filter each table row
+            document.querySelectorAll('.material-table-row').forEach(row => {
+                const title = row.getAttribute('data-material-title') || '';
+                const type = row.getAttribute('data-material-type') || '';
+                const platform = row.getAttribute('data-material-platform') || '';
+                const staff = row.getAttribute('data-material-staff') || '';
+                const cardFolder = row.getAttribute('data-subfolder') || '';
+                const division = row.getAttribute('data-material-division') || '';
+
+                const matchesSearch = searchQuery === '' || 
+                                      title.includes(searchQuery) || 
+                                      platform.includes(searchQuery) || 
+                                      division.includes(searchQuery) || 
+                                      staff.includes(searchQuery);
+
+                const matchesType = selectedType === '' || type === selectedType;
+                const matchesFolder = (activeSubfolderFilter === 'all') || (cardFolder === activeSubfolderFilter);
+
+                if (matchesSearch && matchesType && matchesFolder) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // 2. Update each subfolder section visibility and badge
+            document.querySelectorAll('.subfolder-section').forEach(section => {
+                const sectionFolderKey = section.getAttribute('data-folder-key');
+                if (activeSubfolderFilter !== 'all' && activeSubfolderFilter !== sectionFolderKey) {
+                    section.style.display = 'none';
+                    return;
+                }
+
+                const sectionCards = section.querySelectorAll('.material-card');
+                let sectionVisibleCount = 0;
+                sectionCards.forEach(c => {
+                    if (c.style.display !== 'none') sectionVisibleCount++;
+                });
+
+                const badgeEl = section.querySelector('.subfolder-count-badge');
+                if (badgeEl) {
+                    if (searchQuery !== '' || selectedType !== '') {
+                        badgeEl.textContent = `${sectionVisibleCount} of ${sectionCards.length} Shown`;
+                    } else {
+                        badgeEl.textContent = `${sectionCards.length} ${sectionCards.length === 1 ? 'Material' : 'Materials'}`;
+                    }
+                }
+
+                if (sectionVisibleCount > 0) {
+                    section.style.display = '';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
             if (noMatchBox) {
-                if (visibleCount === 0 && totalCount > 0) {
+                if (overallVisibleCount === 0 && totalCount > 0) {
                     noMatchBox.classList.remove('hidden');
                 } else {
                     noMatchBox.classList.add('hidden');
@@ -1006,8 +1629,8 @@
             }
 
             if (countBadge) {
-                if (searchQuery !== '' || selectedType !== '') {
-                    countBadge.textContent = `${visibleCount} of ${totalCount} Shown`;
+                if (searchQuery !== '' || selectedType !== '' || activeSubfolderFilter !== 'all') {
+                    countBadge.textContent = `${overallVisibleCount} of ${totalCount} Shown`;
                 } else {
                     countBadge.textContent = `${totalCount} Total`;
                 }
@@ -1028,7 +1651,7 @@
             const typeSelect = document.getElementById('materialsTypeSelect');
             if (searchInput) searchInput.value = '';
             if (typeSelect) typeSelect.value = '';
-            window.filterMaterialsLive();
+            window.selectSubfolder('all');
         };
 
         // Enrolled Students Filter
@@ -1128,7 +1751,7 @@
                 fileSelectTitle.className = 'text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors';
             }
             if (fileSelectSubtitle) {
-                fileSelectSubtitle.textContent = 'Supports PDF, DOCX, PPTX, XLSX, ZIP (Max 25MB)';
+                fileSelectSubtitle.textContent = 'Supports PDF, DOCX, PPTX, XLSX, CSV, ZIP (Max 25MB)';
                 fileSelectSubtitle.className = 'text-[10px] text-gray-400 mt-0.5';
             }
             if (fileIconPreview) {
@@ -1137,96 +1760,171 @@
             }
         }
 
-        if (fileInput) {
-            fileInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) {
-                    resetFileSelectionState();
-                    window.dismissFileSizeError();
-                    return;
-                }
+        let isFileReaderBusy = false;
 
-                // Strict 25MB Check (26,214,400 bytes)
-                const maxBytes = 25 * 1024 * 1024;
-                if (file.size > maxBytes) {
-                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                    resetFileSelectionState();
-
-                    // Show prominent in-modal error alert banner
-                    if (fileSizeErrorTitle) {
-                        fileSizeErrorTitle.textContent = `File Size (${fileSizeMB} MB) Exceeds 25MB Limit`;
-                    }
-                    if (fileSizeErrorMsg) {
-                        fileSizeErrorMsg.innerHTML = `The selected file <span class="font-bold text-red-900 break-all">"${file.name}"</span> is <span class="font-bold text-red-900">${fileSizeMB} MB</span>. Maximum allowed file size is <span class="font-bold text-red-900">25 MB</span>. Please choose a smaller file.`;
-                    }
-                    if (fileSizeErrorBanner) {
-                        fileSizeErrorBanner.classList.remove('hidden');
-                    }
-
-                    if (fileDropzone) {
-                        fileDropzone.classList.remove('border-gray-300', 'bg-gray-50/50', 'hover:border-indigo-400');
-                        fileDropzone.classList.add('border-red-400', 'bg-red-50/40', 'ring-2', 'ring-red-300');
-                    }
-                    return;
-                }
-
-                // File size valid (<= 25MB)
+        function processSelectedFile(file) {
+            if (!file) {
+                resetFileSelectionState();
                 window.dismissFileSizeError();
-                if (fileNameInput) fileNameInput.value = file.name;
+                return;
+            }
 
+            // Strict 25MB Check (26,214,400 bytes)
+            const maxBytes = 25 * 1024 * 1024;
+            if (file.size > maxBytes) {
                 const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                if (fileSelectTitle) {
-                    fileSelectTitle.textContent = file.name;
-                    fileSelectTitle.className = 'text-xs font-bold text-indigo-700 truncate max-w-[280px] sm:max-w-md';
+                resetFileSelectionState();
+
+                if (fileSizeErrorTitle) {
+                    fileSizeErrorTitle.textContent = `File Size (${fileSizeMB} MB) Exceeds 25MB Limit`;
+                }
+                if (fileSizeErrorMsg) {
+                    fileSizeErrorMsg.innerHTML = `The selected file <span class="font-bold text-red-900 break-all">"${file.name}"</span> is <span class="font-bold text-red-900">${fileSizeMB} MB</span>. Maximum allowed file size is <span class="font-bold text-red-900">25 MB</span>. Please choose a smaller file.`;
+                }
+                if (fileSizeErrorBanner) {
+                    fileSizeErrorBanner.classList.remove('hidden');
+                }
+                if (fileDropzone) {
+                    fileDropzone.classList.remove('border-gray-300', 'bg-gray-50/50', 'hover:border-indigo-400');
+                    fileDropzone.classList.add('border-red-400', 'bg-red-50/40', 'ring-2', 'ring-red-300');
+                }
+                return;
+            }
+
+            // File size valid (<= 25MB)
+            window.dismissFileSizeError();
+            if (fileNameInput) fileNameInput.value = file.name;
+
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            if (fileSelectTitle) {
+                fileSelectTitle.textContent = file.name;
+                fileSelectTitle.className = 'text-xs font-bold text-indigo-700 truncate max-w-[280px] sm:max-w-md';
+            }
+            if (fileSelectSubtitle) {
+                fileSelectSubtitle.textContent = `File Size: ${fileSizeMB} MB • Reading file into buffer...`;
+                fileSelectSubtitle.className = 'text-[11px] font-semibold text-amber-600 mt-0.5 animate-pulse';
+            }
+
+            const filename = file.name.toLowerCase();
+            let type = '';
+            let iconSvg = '';
+
+            if (filename.endsWith('.pdf')) {
+                type = 'pdf';
+                iconSvg = '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>';
+            } else if (filename.endsWith('.doc') || filename.endsWith('.docx')) {
+                type = 'word';
+                iconSvg = '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>';
+            } else if (filename.endsWith('.xls') || filename.endsWith('.xlsx') || filename.endsWith('.csv')) {
+                type = 'excel';
+                iconSvg = '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>';
+            } else if (filename.endsWith('.ppt') || filename.endsWith('.pptx') || filename.endsWith('.pps') || filename.endsWith('.ppsx')) {
+                type = 'ppt';
+                iconSvg = '<svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>';
+            } else if (filename.endsWith('.txt')) {
+                type = 'txt';
+                iconSvg = '<svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>';
+            }
+
+            if (type && fileTypeSelect) {
+                fileTypeSelect.value = type;
+            }
+            
+            if (fileIconPreview) {
+                if (iconSvg) {
+                    fileIconPreview.innerHTML = iconSvg;
+                } else {
+                    fileIconPreview.innerHTML = '<svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>';
+                }
+                fileIconPreview.classList.remove('hidden');
+                fileIconPreview.classList.add('flex');
+            }
+
+            // Immediately convert selected file to Base64 to bypass server temp folder locks
+            isFileReaderBusy = true;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                isFileReaderBusy = false;
+                if (fileBase64Input) {
+                    fileBase64Input.value = evt.target.result;
                 }
                 if (fileSelectSubtitle) {
-                    fileSelectSubtitle.textContent = `File Size: ${fileSizeMB} MB • Ready to upload`;
+                    fileSelectSubtitle.textContent = `File Size: ${fileSizeMB} MB • Ready to upload ✓`;
                     fileSelectSubtitle.className = 'text-[11px] font-semibold text-emerald-600 mt-0.5';
                 }
-
-                const filename = file.name.toLowerCase();
-                let type = '';
-                let iconSvg = '';
-
-                if (filename.endsWith('.pdf')) {
-                    type = 'pdf';
-                    iconSvg = '<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>';
-                } else if (filename.endsWith('.doc') || filename.endsWith('.docx')) {
-                    type = 'word';
-                    iconSvg = '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>';
-                } else if (filename.endsWith('.xls') || filename.endsWith('.xlsx') || filename.endsWith('.csv')) {
-                    type = 'excel';
-                    iconSvg = '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>';
-                } else if (filename.endsWith('.ppt') || filename.endsWith('.pptx') || filename.endsWith('.pps') || filename.endsWith('.ppsx')) {
-                    type = 'ppt';
-                    iconSvg = '<svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>';
+            };
+            reader.onerror = function() {
+                isFileReaderBusy = false;
+                if (fileBase64Input) fileBase64Input.value = '';
+                if (fileSelectSubtitle) {
+                    fileSelectSubtitle.textContent = `File Size: ${fileSizeMB} MB • Ready (multipart mode)`;
+                    fileSelectSubtitle.className = 'text-[11px] font-semibold text-indigo-600 mt-0.5';
                 }
+            };
+            reader.readAsDataURL(file);
+        }
 
-                if (type && fileTypeSelect) {
-                    fileTypeSelect.value = type;
-                }
-                
-                if (fileIconPreview) {
-                    if (iconSvg) {
-                        fileIconPreview.innerHTML = iconSvg;
-                    } else {
-                        fileIconPreview.innerHTML = '<svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>';
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                processSelectedFile(file);
+            });
+        }
+
+        // Drag & Drop handlers on dropzone
+        if (fileDropzone) {
+            ['dragenter', 'dragover'].forEach(eventName => {
+                fileDropzone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fileDropzone.classList.remove('border-gray-300', 'bg-gray-50/50');
+                    fileDropzone.classList.add('border-indigo-500', 'bg-indigo-50/70', 'ring-2', 'ring-indigo-300');
+                });
+            });
+
+            ['dragleave', 'dragend'].forEach(eventName => {
+                fileDropzone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fileDropzone.classList.remove('border-indigo-500', 'bg-indigo-50/70', 'ring-2', 'ring-indigo-300');
+                    fileDropzone.classList.add('border-gray-300', 'bg-gray-50/50');
+                });
+            });
+
+            fileDropzone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileDropzone.classList.remove('border-indigo-500', 'bg-indigo-50/70', 'ring-2', 'ring-indigo-300');
+                fileDropzone.classList.add('border-gray-300', 'bg-gray-50/50');
+
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    const droppedFile = e.dataTransfer.files[0];
+                    if (fileInput) {
+                        fileInput.files = e.dataTransfer.files;
                     }
-                    fileIconPreview.classList.remove('hidden');
-                    fileIconPreview.classList.add('flex');
+                    processSelectedFile(droppedFile);
                 }
             });
         }
 
-        // Intercept form submit to block submission if file exceeds 25MB
+        // Intercept form submit: handle base64 encoding, size limits, and loading state
         if (uploadForm) {
             uploadForm.addEventListener('submit', function(e) {
                 const file = fileInput && fileInput.files ? fileInput.files[0] : null;
-                const maxBytes = 25 * 1024 * 1024;
+                const hasBase64 = fileBase64Input && fileBase64Input.value && fileBase64Input.value.length > 50;
 
+                // Validate that a file is picked
+                if (!file && !hasBase64) {
+                    e.preventDefault();
+                    if (fileSizeErrorTitle) fileSizeErrorTitle.textContent = 'Please Select a File';
+                    if (fileSizeErrorMsg) fileSizeErrorMsg.textContent = 'Choose or drag & drop a learning material document before uploading.';
+                    if (fileSizeErrorBanner) fileSizeErrorBanner.classList.remove('hidden');
+                    return false;
+                }
+
+                const maxBytes = 25 * 1024 * 1024;
                 if (file && file.size > maxBytes) {
                     e.preventDefault();
-                    e.stopPropagation();
                     const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
                     if (fileSizeErrorTitle) {
                         fileSizeErrorTitle.textContent = `File Size (${fileSizeMB} MB) Exceeds 25MB Limit`;
@@ -1237,12 +1935,47 @@
                     if (fileSizeErrorBanner) {
                         fileSizeErrorBanner.classList.remove('hidden');
                     }
-                    if (fileDropzone) {
-                        fileDropzone.classList.remove('border-gray-300', 'bg-gray-50/50');
-                        fileDropzone.classList.add('border-red-400', 'bg-red-50/40', 'ring-2', 'ring-red-300');
-                    }
                     return false;
                 }
+
+                const submitBtn = document.getElementById('submit-upload-btn');
+
+                // If FileReader is still reading the file in the background
+                if (isFileReaderBusy && file) {
+                    e.preventDefault();
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                        submitBtn.innerHTML = '<svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Preparing Document...</span>';
+                    }
+
+                    const fallbackReader = new FileReader();
+                    fallbackReader.onload = function(evt) {
+                        if (fileBase64Input) fileBase64Input.value = evt.target.result;
+                        if (fileNameInput) fileNameInput.value = file.name;
+                        if (fileInput) fileInput.removeAttribute('name'); // Prevent duplicate binary upload
+                        uploadForm.submit();
+                    };
+                    fallbackReader.onerror = function() {
+                        uploadForm.submit(); // Submit as standard multipart fallback
+                    };
+                    fallbackReader.readAsDataURL(file);
+                    return false;
+                }
+
+                // If Base64 data is ready, remove multipart name to prevent server temp folder bottlenecks
+                if (hasBase64 && fileInput) {
+                    fileInput.removeAttribute('name');
+                }
+
+                // Show active animated loading spinner on button
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+                    submitBtn.innerHTML = '<svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Uploading Document...</span>';
+                }
+
+                return true;
             });
         }
 

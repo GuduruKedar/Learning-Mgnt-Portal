@@ -28,16 +28,10 @@ class TestDiscordWebhook extends Command
      */
     public function handle()
     {
-        $this->info('Testing Discord Webhook Connection...');
+        $this->info('Notice: Error alerts have been transitioned from Discord to Email Alerting (web@vignan.ac.in).');
+        $this->line('Testing Error Alert Email Dispatch...');
 
-        $webhookUrl = config('discord_webhook.webhook_url');
-        if (empty($webhookUrl)) {
-            $this->error('DISCORD_ERROR_WEBHOOK_URL is not configured in your .env file.');
-            $this->line('Add DISCORD_ERROR_WEBHOOK_URL="https://discord.com/api/webhooks/..." to your .env file.');
-            return Command::FAILURE;
-        }
-
-        $result = DiscordWebhookService::sendTestPing();
+        $result = \App\Services\ErrorMailAlertService::sendTestPing();
 
         if ($result['success']) {
             $this->info('✔ ' . $result['message']);

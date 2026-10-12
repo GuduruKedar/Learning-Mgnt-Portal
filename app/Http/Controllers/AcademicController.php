@@ -7,7 +7,12 @@ use App\Models\Regulation;
 use App\Models\Course;
 use App\Models\User;
 use App\Models\Department;
+use App\Models\CourseMaterial;
+use App\Models\Assignment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use App\Services\ActivityLogger;
 
 class AcademicController extends Controller
 {
@@ -162,91 +167,40 @@ class AcademicController extends Controller
 
     public function destroyRegulation($id)
     {
-        $regulation = Regulation::with(['courses.materials', 'courses.assignments.submissions', 'courses.assignments.questions'])->findOrFail($id);
-        
-        $regCode = $regulation->code;
-        $regName = $regulation->name;
-        $coursesCount = $regulation->courses->count();
-
-        $totalMaterialsCount = 0;
-        $totalAssignmentsCount = 0;
-        $totalSubmissionsCount = 0;
-        $totalEnrollmentsCount = 0;
-        $totalStaffAllocationsCount = 0;
-
-        foreach ($regulation->courses as $course) {
-            $totalMaterialsCount += $course->materials->count();
-            $totalAssignmentsCount += $course->assignments->count();
-            foreach ($course->assignments as $a) {
-                $totalSubmissionsCount += $a->submissions->count();
-            }
-            $totalEnrollmentsCount += \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
-            $totalStaffAllocationsCount += $course->staff()->count();
+        $user = Auth::user();
+        if (!in_array($user->role, ['sa', 'admin'])) {
+            abort(403, 'Unauthorized.');
         }
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($regulation) {
-            foreach ($regulation->courses as $course) {
-                // Delete materials and local files
-                foreach ($course->materials as $material) {
-                    if ($material->type === 'file' && !empty($material->url_or_path)) {
-                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($material->url_or_path)) {
-                            \Illuminate\Support\Facades\Storage::disk('public')->delete($material->url_or_path);
-                        }
-                    }
-                    $material->delete();
-                }
+        $regulation = Regulation::withCount('courses')->findOrFail($id);
 
-                // Delete assignments, questions, submissions, answers and files
-                foreach ($course->assignments as $assignment) {
-                    if (!empty($assignment->attachment_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($assignment->attachment_path)) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($assignment->attachment_path);
-                    }
+        // RESTRICTION: Regulation cannot be deleted if child courses exist
+        if ($regulation->courses_count > 0) {
+            return back()->with('error', "Cannot delete regulation: You have not deleted its {$regulation->courses_count} course(s) yet. Please un-enroll students and delete all associated courses first before removing this regulation.");
+        }
 
-                    foreach ($assignment->submissions as $submission) {
-                        if (!empty($submission->file_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($submission->file_path)) {
-                            \Illuminate\Support\Facades\Storage::disk('public')->delete($submission->file_path);
-                        }
-                        \App\Models\AssignmentAnswer::where('submission_id', $submission->id)->delete();
-                        $submission->delete();
-                    }
+        $regCode = $regulation->code;
+        $regProgram = $regulation->program_type ?? 'General';
 
-                    $assignment->questions()->delete();
-                    $assignment->delete();
-                }
+        $regulation->delete();
 
-                // Delete enrollments and faculty allocations
-                \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
-                $course->staff()->detach();
-                $course->delete();
-            }
-
-            $regulation->delete();
-        });
-
-        \App\Services\ActivityLogger::log(
-            'cascade_regulation_deleted',
-            'Regulation & Associated Academics Deleted',
-            'Academics',
-            "Permanently deleted regulation {$regCode} ({$regName}). Cascaded removals: {$coursesCount} course(s), {$totalMaterialsCount} learning material(s), {$totalAssignmentsCount} assignment(s) with {$totalSubmissionsCount} submission(s), {$totalEnrollmentsCount} student enrollment(s), and {$totalStaffAllocationsCount} faculty allocation(s).",
-            'danger',
-            [
-                'entity_type' => 'Regulation',
-                'entity_id'   => $id,
-                'entity_name' => "{$regCode} - {$regName}",
-                'payload'     => [
-                    'regulation_code'      => $regCode,
-                    'regulation_name'      => $regName,
-                    'courses_deleted'      => $coursesCount,
-                    'materials_deleted'    => $totalMaterialsCount,
-                    'assignments_deleted'  => $totalAssignmentsCount,
-                    'submissions_deleted'  => $totalSubmissionsCount,
-                    'enrollments_removed'  => $totalEnrollmentsCount,
-                    'allocations_detached' => $totalStaffAllocationsCount,
+        // Log the activity
+        if (class_exists(\App\Services\ActivityLogger::class)) {
+            \App\Services\ActivityLogger::log(
+                'regulation_deleted',
+                'Regulation Deleted',
+                'Academics',
+                "Deleted regulation {$regCode} ({$regProgram}).",
+                'info',
+                [
+                    'entity_type' => 'Regulation',
+                    'entity_id' => $id,
+                    'entity_name' => $regCode,
                 ]
-            ]
-        );
+            );
+        }
 
-        return back()->with('success', "Regulation '{$regCode}' and all its {$coursesCount} associated course(s) deleted successfully.");
+        return back()->with('success', 'Regulation deleted successfully.');
     }
 
     // --- Courses ---
@@ -936,8 +890,8 @@ class AcademicController extends Controller
             abort(403, 'Unauthorized. SSH Admin can only manage 1st Year courses.');
         }
 
-        $courseName = $course->name;
         $courseCode = $course->code;
+        $courseName = $course->name;
         $deptId = $course->department_id;
 
         $staffCount = $course->staff()->count();
@@ -945,70 +899,85 @@ class AcademicController extends Controller
         $materialsCount = $course->materials()->count();
         $assignmentsCount = $course->assignments()->count();
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($course) {
-            // 1. Delete associated materials and storage files
-            foreach ($course->materials as $material) {
-                if ($material->type === 'file' && !empty($material->url_or_path)) {
-                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($material->url_or_path)) {
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($course, $id) {
+                // 1. Un-enroll all students
+                \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+
+                // Safety check: ensure ZERO enrollments remain
+                $remainingEnrollments = \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
+                if ($remainingEnrollments > 0) {
+                    throw new \RuntimeException("Safety Check Failed: Unable to un-enroll all students ({$remainingEnrollments} enrollment(s) remain). Aborting course deletion.");
+                }
+
+                // 2. Detach allocated faculty / staff
+                \Illuminate\Support\Facades\DB::table('course_staff')->where('course_id', $course->id)->delete();
+                $course->staff()->detach();
+
+                // 3. Delete course materials and storage files
+                foreach ($course->materials as $material) {
+                    if ($material->type === 'file' && $material->url_or_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($material->url_or_path)) {
                         \Illuminate\Support\Facades\Storage::disk('public')->delete($material->url_or_path);
                     }
-                }
-                $material->delete();
-            }
-
-            // 2. Delete associated assignments, questions, submissions, answers, and files
-            foreach ($course->assignments as $assignment) {
-                if (!empty($assignment->attachment_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($assignment->attachment_path)) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($assignment->attachment_path);
+                    $material->delete();
                 }
 
-                foreach ($assignment->submissions as $submission) {
-                    if (!empty($submission->file_path) && \Illuminate\Support\Facades\Storage::disk('public')->exists($submission->file_path)) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($submission->file_path);
+                // 4. Delete assignments & submissions/attachments
+                foreach ($course->assignments as $assignment) {
+                    if ($assignment->attachment_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($assignment->attachment_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($assignment->attachment_path);
                     }
-                    \App\Models\AssignmentAnswer::where('submission_id', $submission->id)->delete();
-                    $submission->delete();
+                    foreach ($assignment->submissions as $submission) {
+                        if ($submission->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($submission->file_path)) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($submission->file_path);
+                        }
+                        \App\Models\AssignmentAnswer::where('submission_id', $submission->id)->delete();
+                        $submission->delete();
+                    }
+                    $assignment->questions()->delete();
+                    $assignment->delete();
                 }
 
-                $assignment->questions()->delete();
-                $assignment->delete();
-            }
+                // 5. Delete the course
+                $course->delete();
 
-            // 3. Remove student enrollments
-            \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+                // Safety check: Ensure course is deleted
+                if (Course::where('id', $id)->exists()) {
+                    throw new \RuntimeException("Safety Check Failed: Course record could not be deleted.");
+                }
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to delete course: ' . $e->getMessage());
+        }
 
-            // 4. Detach allocated faculty
-            $course->staff()->detach();
-
-            // 5. Delete the course
-            $course->delete();
-        });
-
-        // 6. Log activity
-        \App\Services\ActivityLogger::log(
-            'cascade_course_deleted',
-            'Course & Linked Data Deleted',
-            'Academics',
-            "Permanently deleted course {$courseName} ({$courseCode}). Cascaded removals: {$materialsCount} material(s), {$assignmentsCount} assignment(s), {$enrollmentCount} student enrollment(s), and {$staffCount} faculty allocation(s) detached.",
-            'danger',
-            [
-                'department_id' => $deptId,
-                'entity_type'   => 'Course',
-                'entity_id'     => $id,
-                'entity_name'   => "{$courseCode} - {$courseName}",
-                'payload'       => [
-                    'course_code'          => $courseCode,
-                    'course_name'          => $courseName,
-                    'department'           => $deptId,
-                    'staff_detached'       => $staffCount,
-                    'enrollments_removed'  => $enrollmentCount,
-                    'materials_deleted'    => $materialsCount,
-                    'assignments_deleted'  => $assignmentsCount,
+        // Log the activity
+        if (class_exists(\App\Services\ActivityLogger::class)) {
+            \App\Services\ActivityLogger::log(
+                'course_deleted',
+                'Course Deleted (Cascade)',
+                'Academics',
+                "Permanently deleted course {$courseName} ({$courseCode}). Cascaded removals: {$materialsCount} material(s), {$assignmentsCount} assignment(s), {$enrollmentCount} student enrollment(s), and {$staffCount} faculty allocation(s) detached.",
+                'info',
+                [
+                    'department_id' => $deptId,
+                    'entity_type'   => 'Course',
+                    'entity_id'     => $id,
+                    'entity_name'   => "{$courseCode} - {$courseName}",
+                    'payload'       => [
+                        'course_code'          => $courseCode,
+                        'course_name'          => $courseName,
+                        'department'           => $deptId,
+                        'staff_detached'       => $staffCount,
+                        'enrollments_removed'  => $enrollmentCount,
+                        'materials_deleted'    => $materialsCount,
+                        'assignments_deleted'  => $assignmentsCount,
+                    ]
                 ]
-            ]
-        );
+            );
+        }
 
-        return back()->with('success', "Course '{$courseCode} - {$courseName}' and all linked data ({$staffCount} faculty allocation(s), {$enrollmentCount} student enrollment(s), {$materialsCount} material(s), {$assignmentsCount} assignment(s)) deleted successfully.");
+        $msg = "Course '{$courseCode} - {$courseName}' and all linked data ({$staffCount} faculty allocation(s), {$enrollmentCount} student enrollment(s), {$materialsCount} material(s), {$assignmentsCount} assignment(s)) deleted successfully.";
+        return back()->with('success', $msg);
     }
 
     // --- Staff Allocations ---

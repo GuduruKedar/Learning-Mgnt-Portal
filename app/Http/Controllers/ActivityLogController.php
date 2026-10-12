@@ -266,7 +266,7 @@ class ActivityLogController extends Controller
         // Sort departments by total logs descending
         usort($departmentSummaries, fn($a, $b) => $b['total_logs'] <=> $a['total_logs']);
 
-        $modulesList = ['Academics', 'Assignments', 'Materials', 'Students', 'Authentication', 'Civil Services', 'Security'];
+        $modulesList = ['Academics', 'Assignments', 'Materials', 'Students', 'Authentication', 'Civil Services', 'Security', 'System'];
 
         return view('activity_logs.index', compact(
             'logs',

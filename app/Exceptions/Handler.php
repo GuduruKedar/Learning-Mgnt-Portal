@@ -44,7 +44,7 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            \App\Services\DiscordWebhookService::sendException($e);
+            \App\Services\ErrorMailAlertService::sendException($e);
         });
 
         $this->renderable(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {

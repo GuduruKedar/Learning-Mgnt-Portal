@@ -298,6 +298,64 @@ class CourseMaterialController extends Controller
         return back()->with('success', 'Course material "' . $material->title . '" uploaded successfully!');
     }
 
+    public function update(Request $request, $id)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'sta' && $user->role !== 'sa') {
+            abort(403);
+        }
+
+        $material = CourseMaterial::findOrFail($id);
+        $course = $material->course;
+
+        $isSameDept = $course && $user->profile && ($user->profile->departments_id === $course->department_id);
+        $isAssigned = $course && $course->staff->contains($user->id);
+        $isOwner = $material->staff_id === $user->id;
+        $isPrivileged = in_array($user->role, ['sa', 'admin']);
+
+        if (!$isSameDept && !$isAssigned && !$isOwner && !$isPrivileged) {
+            abort(403, 'You do not have permission to modify this material.');
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'division' => 'required|string|max:100',
+            'platform' => 'nullable|string|max:100',
+        ], [
+            'title.required' => 'Please provide a title for the material.',
+            'division.required' => 'Please select a division/section to allocate this material to.',
+        ]);
+
+        $material->title = $request->title;
+        $material->division = trim($request->division);
+        if ($request->filled('platform')) {
+            $material->platform = trim($request->platform);
+        }
+        $material->save();
+
+        \App\Services\CacheService::invalidateCourseMaterials($material->course_id);
+
+        \App\Services\ActivityLogger::log(
+            'course_material_allocated',
+            'Course Material Allocated',
+            'Materials',
+            "Allocated course material \"{$material->title}\" to division \"{$material->division}\".",
+            'info',
+            [
+                'department_id' => $course->department_id ?? null,
+                'entity_type'   => 'CourseMaterial',
+                'entity_id'     => $material->id,
+                'entity_name'   => $material->title,
+                'payload'       => [
+                    'division'    => $material->division,
+                    'course_code' => $course->code ?? '',
+                ]
+            ]
+        );
+
+        return back()->with('success', "Material \"{$material->title}\" successfully allocated to {$material->division}.");
+    }
+
     public function destroy($id)
     {
         $user = Auth::user();

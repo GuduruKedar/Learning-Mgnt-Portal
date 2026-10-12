@@ -672,9 +672,22 @@
                                                                         {{ $material->title }}
                                                                     </a>
                                                                     <p class="text-[11px] text-gray-500 mt-1 truncate">{{ $material->course->name ?? '' }}</p>
-                                                                    <div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-700">
-                                                                        <span>{{ $catMeta['icon'] }}</span>
-                                                                        <span>{{ $material->effective_division }}</span>
+                                                                    <div class="mt-2">
+                                                                        <button type="button"
+                                                                            onclick="openAllocateDivisionModal({
+                                                                                id: {{ $material->id }},
+                                                                                title: '{{ addslashes($material->title) }}',
+                                                                                division: '{{ addslashes($material->effective_division) }}',
+                                                                                platform: '{{ addslashes($material->platform) }}',
+                                                                                type: '{{ addslashes($material->type) }}',
+                                                                                updateUrl: '{{ route('staff.courses.materials.update', $material->id) }}'
+                                                                            })"
+                                                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-transparent hover:border-indigo-200 transition-all cursor-pointer"
+                                                                            title="Click to allocate / change division">
+                                                                            <span>{{ $catMeta['icon'] }}</span>
+                                                                            <span>{{ $material->effective_division }}</span>
+                                                                            <svg class="w-2.5 h-2.5 opacity-60 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -693,6 +706,20 @@
                                                                         Download <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                                                     </a>
                                                                 @endif
+
+                                                                <button type="button"
+                                                                    onclick="openAllocateDivisionModal({
+                                                                        id: {{ $material->id }},
+                                                                        title: '{{ addslashes($material->title) }}',
+                                                                        division: '{{ addslashes($material->effective_division) }}',
+                                                                        platform: '{{ addslashes($material->platform) }}',
+                                                                        type: '{{ addslashes($material->type) }}',
+                                                                        updateUrl: '{{ route('staff.courses.materials.update', $material->id) }}'
+                                                                    })"
+                                                                    class="w-7 h-7 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-colors cursor-pointer shrink-0 shadow-2xs"
+                                                                    title="Allocate / Edit Division">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     @endforeach
@@ -1365,7 +1392,132 @@
             } else if (window.location.hash === '#courses' || window.location.search.includes('view=courses')) {
                 window.switchAllCoursesMode('courses');
             }
+        // Allocate Division Modal Open / Close Handlers
+        window.openAllocateDivisionModal = function(data) {
+            const modal = document.getElementById('allocateDivisionModal');
+            const form = document.getElementById('allocateDivisionForm');
+            const titleInput = document.getElementById('allocate-title-input');
+            const divisionSelect = document.getElementById('allocate-division-select');
+            const platformInput = document.getElementById('allocate-platform-select');
+            const idInput = document.getElementById('allocate-material-id');
+            const subtitleEl = document.getElementById('allocate-material-subtitle');
+
+            if (!modal || !form) return;
+
+            if (data.updateUrl) {
+                form.action = data.updateUrl;
+            }
+            if (idInput && data.id) idInput.value = data.id;
+            if (titleInput && data.title) titleInput.value = data.title;
+            if (divisionSelect && data.division) divisionSelect.value = data.division;
+            if (platformInput) platformInput.value = data.platform || '';
+            if (subtitleEl) {
+                subtitleEl.textContent = `Type: ${(data.type || 'Material').toUpperCase()} • Format: ${data.platform || 'Standard'}`;
+            }
+
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            setTimeout(() => {
+                if (divisionSelect) divisionSelect.focus();
+            }, 50);
+        };
+
+        window.closeAllocateDivisionModal = function() {
+            const modal = document.getElementById('allocateDivisionModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        };
+
+        // Close Allocate Modal on backdrop click
+        document.getElementById('allocateDivisionModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                window.closeAllocateDivisionModal();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.closeAllocateDivisionModal();
+            }
         });
     </script>
+
+    <!-- Allocate / Edit Division Modal -->
+    <div id="allocateDivisionModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 overflow-y-auto transition-opacity" role="dialog" aria-labelledby="allocateDivisionModalTitle" aria-modal="true">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 transform transition-all my-8">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50/90 via-white to-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <div>
+                        <h3 id="allocateDivisionModalTitle" class="text-base font-extrabold text-gray-900">Allocate / Reallocate Material</h3>
+                        <p id="allocate-material-subtitle" class="text-xs text-gray-500 font-medium">Assign or update the division section for this material</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAllocateDivisionModal()" class="w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 flex items-center justify-center transition-colors focus:outline-none" aria-label="Close modal">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Modal Body Form -->
+            <form id="allocateDivisionForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="allocate-material-id" name="id" value="">
+
+                <div class="p-6 space-y-4">
+                    <!-- Material Title Input -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Material Title <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </div>
+                            <input type="text" id="allocate-title-input" name="title" class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-800" required>
+                        </div>
+                    </div>
+
+                    <!-- Material Division Select -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Material Division / Section <span class="text-red-500">*</span></label>
+                        <select id="allocate-division-select" name="division" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-800 shadow-2xs" required>
+                            <option value="">-- Select Division --</option>
+                            <option value="Course objective and outcomes">🎯 Course objective and outcomes</option>
+                            <option value="Syllabus document">📜 Syllabus document</option>
+                            <option value="PPTs">📊 PPTs</option>
+                            <option value="Lecture notes">📝 Lecture notes</option>
+                            <option value="Lab manual">🧪 Lab manual</option>
+                            <option value="Assigment Questions">📋 Assigment Questions</option>
+                            <option value="Question Bank">🗂️ Question Bank</option>
+                            <option value="Gate Questions">🎓 Gate Questions</option>
+                            <option value="Previous Question Papers">📑 Previous Question Papers</option>
+                            <option value="Videos">🎥 Videos</option>
+                            <option value="Additional material">📁 Additional material</option>
+                        </select>
+                        <p class="text-[11px] text-gray-500 mt-1">Select which section this resource belongs to so students and faculty can find it organized properly.</p>
+                    </div>
+
+                    <!-- Platform / Source Selection (Optional) -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Platform / Format</label>
+                        <input type="text" id="allocate-platform-select" name="platform" placeholder="e.g. pdf, ppt, youtube, website" class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-700 bg-gray-50/50">
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-2.5">
+                        <button type="button" onclick="closeAllocateDivisionModal()" class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none transition-colors">Cancel</button>
+                        <button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-bold py-2.5 px-5 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span>Save Allocation</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

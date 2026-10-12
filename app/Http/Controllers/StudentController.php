@@ -342,15 +342,15 @@ class StudentController extends Controller
         $studentUsername = $student->username;
         $studentDept = $student->profile->departments_id ?? null;
 
-        $submissionsCount = \App\Models\AssignmentSubmission::where('student_id', $student->id)->count();
-        $submissionIds = \App\Models\AssignmentSubmission::where('student_id', $student->id)->pluck('id');
-        $answersCount = \App\Models\AssignmentAnswer::whereIn('submission_id', $submissionIds)->count();
-        $enrollmentsCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->count();
-        $civilEnrollmentCount = \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->count();
+        $hasCourseEnrollments = \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->exists();
+        $hasCivilEnrollment = \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->exists();
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($student) {
-            // 1. Delete all Assignment Submissions and answer attempts made by this student
-            $submissions = \App\Models\AssignmentSubmission::where('student_id', $student->id)->get();
+        if ($hasCourseEnrollments || $hasCivilEnrollment) {
+            return back()->with('error', "Cannot delete student '{$studentUsername}': Student has active course enrollments or civil services enrollment. Please un-enroll the student first.");
+        }
+
+        $submissions = \App\Models\AssignmentSubmission::where('student_id', $student->id)->get();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($student, $submissions) {
             foreach ($submissions as $sub) {
                 if ($sub->file_path && Storage::disk('public')->exists($sub->file_path)) {
                     Storage::disk('public')->delete($sub->file_path);
@@ -359,13 +359,6 @@ class StudentController extends Controller
                 $sub->delete();
             }
 
-            // 2. Remove Course Enrollments
-            \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->delete();
-
-            // 3. Remove Civil Services Enrollment
-            \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->delete();
-
-            // 4. Delete profile photo from storage & profile record
             $profile = $student->profile;
             if ($profile) {
                 if ($profile->photo && Storage::disk('public')->exists($profile->photo)) {
@@ -374,33 +367,23 @@ class StudentController extends Controller
                 $profile->delete();
             }
 
-            // 5. Delete student user account
             $student->delete();
         });
 
         \App\Services\ActivityLogger::log(
-            'cascade_student_deleted',
-            'Student & Cascading Records Deleted',
+            'student_deleted',
+            'Student Deleted',
             'Students',
-            "Permanently deleted student {$studentName} ({$studentUsername}). Cascaded removals: {$submissionsCount} assignment submission(s), {$answersCount} question response(s), {$enrollmentsCount} course enrollment(s), and {$civilEnrollmentCount} civil service enrollment(s).",
-            'danger',
+            'Deleted student ' . $studentName . ' (' . $studentUsername . ').',
+            'info',
             [
                 'department_id' => $studentDept,
-                'entity_type'   => 'User',
-                'entity_id'     => $id,
-                'entity_name'   => "{$studentName} ({$studentUsername})",
-                'payload'       => [
-                    'student_username'       => $studentUsername,
-                    'student_name'           => $studentName,
-                    'department'             => $studentDept,
-                    'submissions_deleted'    => $submissionsCount,
-                    'answers_deleted'        => $answersCount,
-                    'enrollments_removed'    => $enrollmentsCount,
-                    'civil_services_removed' => $civilEnrollmentCount,
-                ]
+                'entity_type' => 'User',
+                'entity_id' => $id,
+                'entity_name' => $studentName,
             ]
         );
 
-        return redirect()->route('students.index')->with('success', "Student {$studentUsername} ({$studentName}) and all associated records deleted successfully.");
+        return redirect()->route('students.index')->with('success', "Student {$studentUsername} ({$studentName}) deleted successfully.");
     }
 }

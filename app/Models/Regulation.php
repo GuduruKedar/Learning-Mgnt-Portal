@@ -28,6 +28,13 @@ class Regulation extends Model
             \App\Services\CacheService::invalidateRegulations();
         });
 
+        static::deleting(function ($regulation) {
+            $coursesCount = $regulation->courses()->count();
+            if ($coursesCount > 0) {
+                throw new \Exception("Cannot delete regulation: You have not deleted its {$coursesCount} course(s) yet. Please un-enroll students and delete all associated courses first before removing this regulation.");
+            }
+        });
+
         static::deleted(function () {
             \App\Services\CacheService::invalidateRegulations();
         });

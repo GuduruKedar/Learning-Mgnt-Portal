@@ -36,77 +36,17 @@
             The Learning Management Portal is temporarily offline for essential system maintenance and optimization. All courses, records, and student submissions remain completely safe.
         </p>
 
-        <!-- Live Server Back Online Notification (auto-shows when server is back) -->
-        <div id="liveAlert" class="hidden mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-medium flex items-center justify-center gap-2">
-            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-            <span>Server is back online! Redirecting now...</span>
-        </div>
-
         <!-- Action Controls -->
-        <div class="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button type="button" id="statusBtn" onclick="checkServer()" class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm cursor-pointer">
-                <svg id="btnIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                <span id="btnText">Check Server Status</span>
-            </button>
-            <a href="/" class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+        <div class="mt-8 flex items-center justify-center">
+            <button type="button" onclick="window.location.reload()" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm cursor-pointer">
                 Reload Page
-            </a>
+            </button>
         </div>
-
-        <!-- Auto Check Countdown -->
-        <p class="mt-4 text-xs text-gray-400">
-            Auto-checking every <span id="countdown" class="font-semibold text-gray-600">10s</span> • Resume with <code class="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded text-[11px] font-mono">php artisan up</code>
-        </p>
 
         <!-- Helpdesk Footer Note -->
         <div class="mt-6 pt-5 border-t border-gray-100 text-xs text-gray-400">
-            Need urgent academic help? <a href="mailto:support@vignan.ac.in" class="text-blue-600 hover:underline font-medium">support@vignan.ac.in</a>
+            Need urgent academic help? <a href="mailto:web@vignan.ac.in" class="text-blue-600 hover:underline font-medium">web@vignan.ac.in</a>
         </div>
     </div>
-
-    <!-- Lightweight Auto-Reload Script -->
-    <script>
-        let timer = 10;
-        const countdownEl = document.getElementById('countdown');
-        const statusBtn = document.getElementById('statusBtn');
-        const btnText = document.getElementById('btnText');
-        const btnIcon = document.getElementById('btnIcon');
-        const liveAlert = document.getElementById('liveAlert');
-
-        async function checkServer() {
-            if (btnText) btnText.textContent = 'Checking...';
-            if (btnIcon) btnIcon.classList.add('animate-spin');
-
-            try {
-                const res = await fetch('/?_ping=' + Date.now(), { method: 'GET', cache: 'no-store' });
-                if (res.status === 200) {
-                    if (liveAlert) liveAlert.classList.remove('hidden');
-                    if (statusBtn) statusBtn.classList.replace('bg-blue-600', 'bg-emerald-600');
-                    if (btnText) btnText.textContent = 'Server Online!';
-                    setTimeout(() => { window.location.href = '/'; }, 1200);
-                    return;
-                }
-            } catch (e) {
-                // Still in maintenance
-            }
-
-            setTimeout(() => {
-                if (btnText) btnText.textContent = 'Check Server Status';
-                if (btnIcon) btnIcon.classList.remove('animate-spin');
-            }, 500);
-            timer = 10;
-        }
-
-        setInterval(() => {
-            timer--;
-            if (timer <= 0) {
-                timer = 10;
-                checkServer();
-            }
-            if (countdownEl) countdownEl.textContent = timer + 's';
-        }, 1000);
-    </script>
 </body>
 </html>

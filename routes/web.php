@@ -225,3 +225,14 @@ Route::get('/maintenance-preview', function () {
     return response()->view('errors.503', [], 503);
 })->name('maintenance.preview');
 
+// Error Reporting Route
+Route::post('/report-error', [\App\Http\Controllers\ErrorReportController::class, 'report'])->name('error.report');
+
+// Webhook Error Trigger Route
+Route::post('/webhook/error-report', [\App\Http\Controllers\ErrorReportController::class, 'handleWebhook'])->name('webhook.error.report');
+
+// 500 Error Preview Route
+Route::get('/500-preview', function () {
+    abort(500, 'Simulated test 500 error for verification');
+})->name('errors.500.preview');
+

@@ -24,10 +24,9 @@ class MaintenanceModeTest extends TestCase
         $response->assertStatus(503);
         $response->assertSee('System Under Maintenance');
         $response->assertSee('Learning Management');
-        $response->assertSee('Check Server Status');
-        $response->assertSee('php artisan up');
+        $response->assertSee('Reload Page');
         $response->assertSee('Scheduled Routine Maintenance');
-        $response->assertSee('support@vignan.ac.in');
+        $response->assertSee('web@vignan.ac.in');
     }
 
     /**

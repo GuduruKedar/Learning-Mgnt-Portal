@@ -17,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Incoming webhook that triggers admin email alert & activity log
+Route::post('/webhook/error', [\App\Http\Controllers\ErrorReportController::class, 'handleWebhook'])->name('api.webhook.error');

@@ -64,6 +64,7 @@ class ActivityLog extends Model
     public function getModuleBadgeAttribute(): string
     {
         return match (strtolower($this->module)) {
+            'system' => 'bg-rose-100 text-rose-700 border-rose-200',
             'authentication', 'auth', 'security' => 'bg-purple-100 text-purple-700 border-purple-200',
             'academics', 'courses', 'regulations' => 'bg-blue-100 text-blue-700 border-blue-200',
             'assignments' => 'bg-amber-100 text-amber-700 border-amber-200',

@@ -115,4 +115,14 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Administrator Alert Notification Recipient
+    |--------------------------------------------------------------------------
+    |
+    | Destination address for 500 error reports and critical system notifications.
+    |
+    */
+    'admin_alert_email' => env('ADMIN_ALERT_EMAIL', 'web@vignan.ac.in'),
+
 ];

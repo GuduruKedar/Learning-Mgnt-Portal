@@ -494,6 +494,14 @@
                                                                      || $material->staff_id === Auth::id();
                                                                 $matDelUrl = route('staff.courses.materials.destroy', $material->id);
                                                                 $matOpenUrl = $material->type === 'link' ? $material->url_or_path : route('materials.view', $material->id);
+                                                                $allocData = [
+                                                                    'id' => $material->id,
+                                                                    'title' => $material->title,
+                                                                    'division' => $material->effective_division,
+                                                                    'platform' => $material->platform,
+                                                                    'type' => $material->type,
+                                                                    'updateUrl' => route('staff.courses.materials.update', $material->id)
+                                                                ];
                                                             @endphp
 
                                                             <div class="flex items-center justify-between gap-3 mb-3.5">
@@ -550,14 +558,8 @@
                                                                 @if($canDeleteMaterial)
                                                                 <div class="shrink-0 flex items-center gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                                                     <button type="button" 
-                                                                        onclick="openAllocateDivisionModal({
-                                                                            id: {{ $material->id }},
-                                                                            title: '{{ addslashes($material->title) }}',
-                                                                            division: '{{ addslashes($material->effective_division) }}',
-                                                                            platform: '{{ addslashes($material->platform) }}',
-                                                                            type: '{{ addslashes($material->type) }}',
-                                                                            updateUrl: '{{ route('staff.courses.materials.update', $material->id) }}'
-                                                                        })"
+                                                                        data-material='@json($allocData)'
+                                                                        onclick="openAllocateDivisionModal(JSON.parse(this.getAttribute('data-material')))"
                                                                         class="w-8 h-8 flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-200 shadow-2xs hover:shadow-xs cursor-pointer" 
                                                                         title="Allocate / Change Division">
                                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -595,21 +597,22 @@
 
                                                             {{-- Division Tag / Quick Allocate Badge --}}
                                                             <div class="mt-2.5">
-                                                                <button type="button"
-                                                                    onclick="openAllocateDivisionModal({
-                                                                        id: {{ $material->id }},
-                                                                        title: '{{ addslashes($material->title) }}',
-                                                                        division: '{{ addslashes($material->effective_division) }}',
-                                                                        platform: '{{ addslashes($material->platform) }}',
-                                                                        type: '{{ addslashes($material->type) }}',
-                                                                        updateUrl: '{{ route('staff.courses.materials.update', $material->id) }}'
-                                                                    })"
-                                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold {{ $catMeta['badge_class'] }} border hover:opacity-90 hover:scale-[1.02] transition-all cursor-pointer shadow-2xs"
-                                                                    title="Click to allocate / relocate division">
-                                                                    <span>{{ $catMeta['icon'] }}</span>
-                                                                    <span>{{ $material->effective_division }}</span>
-                                                                    <svg class="w-3 h-3 opacity-60 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                                                </button>
+                                                                @if($canDeleteMaterial)
+                                                                    <button type="button"
+                                                                        data-material='@json($allocData)'
+                                                                        onclick="openAllocateDivisionModal(JSON.parse(this.getAttribute('data-material')))"
+                                                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold {{ $catMeta['badge_class'] }} border hover:opacity-90 hover:scale-[1.02] transition-all cursor-pointer shadow-2xs"
+                                                                        title="Click to allocate / relocate division">
+                                                                        <span>{{ $catMeta['icon'] }}</span>
+                                                                        <span>{{ $material->effective_division }}</span>
+                                                                        <svg class="w-3 h-3 opacity-60 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                                    </button>
+                                                                @else
+                                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold {{ $catMeta['badge_class'] }} border shadow-2xs">
+                                                                        <span>{{ $catMeta['icon'] }}</span>
+                                                                        <span>{{ $material->effective_division }}</span>
+                                                                    </span>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>
@@ -664,6 +667,14 @@
                                                              || ($course->staff && $course->staff->contains(Auth::id()))
                                                              || $material->staff_id === Auth::id();
                                                         $matDelUrl = route('staff.courses.materials.destroy', $material->id);
+                                                        $allocData = [
+                                                            'id' => $material->id,
+                                                            'title' => $material->title,
+                                                            'division' => $material->effective_division,
+                                                            'platform' => $material->platform,
+                                                            'type' => $material->type,
+                                                            'updateUrl' => route('staff.courses.materials.update', $material->id)
+                                                        ];
                                                     @endphp
                                                     <tr class="hover:bg-indigo-50/40 transition-colors material-table-row"
                                                         data-material-title="{{ strtolower($material->title) }}"
@@ -707,21 +718,22 @@
                                                             </div>
                                                         </td>
                                                         <td class="px-5 py-3.5 whitespace-nowrap">
-                                                            <button type="button"
-                                                                onclick="openAllocateDivisionModal({
-                                                                    id: {{ $material->id }},
-                                                                    title: '{{ addslashes($material->title) }}',
-                                                                    division: '{{ addslashes($material->effective_division) }}',
-                                                                    platform: '{{ addslashes($material->platform) }}',
-                                                                    type: '{{ addslashes($material->type) }}',
-                                                                    updateUrl: '{{ route('staff.courses.materials.update', $material->id) }}'
-                                                                })"
-                                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-extrabold {{ $matMeta['badge_class'] }} border hover:opacity-85 hover:scale-[1.02] transition-all cursor-pointer shadow-2xs"
-                                                                title="Click to allocate / change division">
-                                                                <span>{{ $matMeta['icon'] }}</span>
-                                                                <span>{{ $matMeta['short_name'] }}</span>
-                                                                <svg class="w-3 h-3 opacity-50 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                                            </button>
+                                                            @if($canDeleteMaterial)
+                                                                <button type="button"
+                                                                    data-material='@json($allocData)'
+                                                                    onclick="openAllocateDivisionModal(JSON.parse(this.getAttribute('data-material')))"
+                                                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-extrabold {{ $matMeta['badge_class'] }} border hover:opacity-85 hover:scale-[1.02] transition-all cursor-pointer shadow-2xs"
+                                                                    title="Click to allocate / change division">
+                                                                    <span>{{ $matMeta['icon'] }}</span>
+                                                                    <span>{{ $matMeta['short_name'] }}</span>
+                                                                    <svg class="w-3 h-3 opacity-50 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                                </button>
+                                                            @else
+                                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-extrabold {{ $matMeta['badge_class'] }} border">
+                                                                    <span>{{ $matMeta['icon'] }}</span>
+                                                                    <span>{{ $matMeta['short_name'] }}</span>
+                                                                </span>
+                                                            @endif
                                                         </td>
                                                         <td class="px-5 py-3.5 whitespace-nowrap">
                                                             @if($material->type === 'link')
@@ -760,14 +772,8 @@
 
                                                                 @if($canDeleteMaterial)
                                                                     <button type="button"
-                                                                        onclick="openAllocateDivisionModal({
-                                                                            id: {{ $material->id }},
-                                                                            title: '{{ addslashes($material->title) }}',
-                                                                            division: '{{ addslashes($material->effective_division) }}',
-                                                                            platform: '{{ addslashes($material->platform) }}',
-                                                                            type: '{{ addslashes($material->type) }}',
-                                                                            updateUrl: '{{ route('staff.courses.materials.update', $material->id) }}'
-                                                                        })"
+                                                                        data-material='@json($allocData)'
+                                                                        onclick="openAllocateDivisionModal(JSON.parse(this.getAttribute('data-material')))"
                                                                         class="w-7 h-7 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-colors cursor-pointer shadow-2xs"
                                                                         title="Allocate / Edit Division">
                                                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>

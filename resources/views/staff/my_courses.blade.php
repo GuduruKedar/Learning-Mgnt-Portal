@@ -648,6 +648,14 @@
                                                     @foreach($catItems as $material)
                                                         @php
                                                             $rawExt = strtolower(pathinfo($material->url_or_path, PATHINFO_EXTENSION));
+                                                            $allocData = [
+                                                                'id' => $material->id,
+                                                                'title' => $material->title,
+                                                                'division' => $material->effective_division,
+                                                                'platform' => $material->platform,
+                                                                'type' => $material->type,
+                                                                'updateUrl' => route('staff.courses.materials.update', $material->id)
+                                                            ];
                                                         @endphp
                                                         <div class="comb-material-card bg-white rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md hover:border-indigo-200 transition-all duration-200 flex flex-col justify-between overflow-hidden group"
                                                              data-search="{{ strtolower($material->title . ' ' . ($material->course->code ?? '') . ' ' . ($material->course->name ?? '') . ' ' . $material->platform . ' ' . $material->effective_division) }}"
@@ -674,14 +682,8 @@
                                                                     <p class="text-[11px] text-gray-500 mt-1 truncate">{{ $material->course->name ?? '' }}</p>
                                                                     <div class="mt-2">
                                                                         <button type="button"
-                                                                            onclick="openAllocateDivisionModal({
-                                                                                id: {{ $material->id }},
-                                                                                title: '{{ addslashes($material->title) }}',
-                                                                                division: '{{ addslashes($material->effective_division) }}',
-                                                                                platform: '{{ addslashes($material->platform) }}',
-                                                                                type: '{{ addslashes($material->type) }}',
-                                                                                updateUrl: '{{ route('staff.courses.materials.update', $material->id) }}'
-                                                                            })"
+                                                                            data-material='@json($allocData)'
+                                                                            onclick="openAllocateDivisionModal(JSON.parse(this.getAttribute('data-material')))"
                                                                             class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-transparent hover:border-indigo-200 transition-all cursor-pointer"
                                                                             title="Click to allocate / change division">
                                                                             <span>{{ $catMeta['icon'] }}</span>
@@ -708,14 +710,8 @@
                                                                 @endif
 
                                                                 <button type="button"
-                                                                    onclick="openAllocateDivisionModal({
-                                                                        id: {{ $material->id }},
-                                                                        title: '{{ addslashes($material->title) }}',
-                                                                        division: '{{ addslashes($material->effective_division) }}',
-                                                                        platform: '{{ addslashes($material->platform) }}',
-                                                                        type: '{{ addslashes($material->type) }}',
-                                                                        updateUrl: '{{ route('staff.courses.materials.update', $material->id) }}'
-                                                                    })"
+                                                                    data-material='@json($allocData)'
+                                                                    onclick="openAllocateDivisionModal(JSON.parse(this.getAttribute('data-material')))"
                                                                     class="w-7 h-7 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-colors cursor-pointer shrink-0 shadow-2xs"
                                                                     title="Allocate / Edit Division">
                                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -1392,6 +1388,8 @@
             } else if (window.location.hash === '#courses' || window.location.search.includes('view=courses')) {
                 window.switchAllCoursesMode('courses');
             }
+        });
+
         // Allocate Division Modal Open / Close Handlers
         window.openAllocateDivisionModal = function(data) {
             const modal = document.getElementById('allocateDivisionModal');

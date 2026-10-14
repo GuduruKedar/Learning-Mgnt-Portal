@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity & Audit Log Monitoring - LMS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
@@ -68,24 +68,41 @@
 
                 <!-- Incident & Security Alert Banner (If Warning / Danger Logs Exist) -->
                 @if(isset($recentCriticalLogs) && $recentCriticalLogs->isNotEmpty())
-                    <div class="bg-amber-50/90 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
-                        <div class="flex items-start sm:items-center space-x-3">
-                            <span class="p-2.5 bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/25 rounded-xl shrink-0">
+                    <div class="bg-[#FFFDF5] dark:bg-[#151B23] border border-amber-300/70 dark:border-amber-500/30 border-l-4 border-l-amber-500 dark:border-l-amber-400 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs dark:shadow-[0_4px_24px_-4px_rgba(245,158,11,0.08)] relative">
+                        <div class="flex items-start sm:items-center space-x-3.5 min-w-0">
+                            <span class="p-2.5 bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 rounded-xl shrink-0 shadow-xs flex items-center justify-center">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                             </span>
-                            <div>
-                                <h2 class="text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wide">Security & Audit Notice: {{ $warningCount + $dangerCount }} Alerts Detected</h2>
-                                <p class="text-xs text-amber-800 dark:text-amber-300/90 mt-0.5">
-                                    Latest: <span class="font-semibold text-amber-900 dark:text-white">{{ $recentCriticalLogs->first()->action_title }}</span> — {{ $recentCriticalLogs->first()->description }} 
-                                    <span class="text-[11px] text-amber-600 dark:text-amber-400 font-mono">({{ $recentCriticalLogs->first()->created_at->diffForHumans() }})</span>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse"></span>
+                                        Security &amp; Audit Notice
+                                    </span>
+                                    <span class="text-xs sm:text-sm font-bold text-gray-900 dark:text-gray-100">
+                                        {{ $warningCount + $dangerCount }} Alerts Detected
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                                    <span class="text-gray-500 dark:text-gray-400 font-medium">Latest:</span>
+                                    <span class="font-semibold text-gray-900 dark:text-white">{{ $recentCriticalLogs->first()->action_title }}</span>
+                                    <span class="text-gray-400 dark:text-gray-500">—</span>
+                                    <span class="text-gray-700 dark:text-gray-300 truncate max-w-xl">{{ $recentCriticalLogs->first()->description }}</span>
+                                    <span class="inline-flex items-center text-[11px] font-mono text-amber-700 dark:text-amber-300 bg-amber-500/10 dark:bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-500/25">
+                                        {{ $recentCriticalLogs->first()->created_at->diffForHumans() }}
+                                    </span>
                                 </p>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2 shrink-0 self-end md:self-auto">
-                            <a href="{{ route('activity_logs.index', array_merge(request()->query(), ['severity' => 'warning'])) }}" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-xs hover:shadow-sm">
+                        <div class="flex items-center gap-2.5 shrink-0 self-end md:self-auto">
+                            <a href="{{ route('activity_logs.index', array_merge(request()->query(), ['severity' => 'warning'])) }}" 
+                               class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-xs hover:shadow-sm">
+                                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                 View Warnings ({{ $warningCount }})
                             </a>
-                            <a href="{{ route('activity_logs.index', array_merge(request()->query(), ['severity' => 'danger'])) }}" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shadow-xs hover:shadow-sm">
+                            <a href="{{ route('activity_logs.index', array_merge(request()->query(), ['severity' => 'danger'])) }}" 
+                               class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-xs hover:shadow-sm">
+                                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                 View Critical ({{ $dangerCount }})
                             </a>
                         </div>

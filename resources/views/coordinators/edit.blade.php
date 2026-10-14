@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Coordinator - LMS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
@@ -74,33 +74,47 @@
                                 @enderror
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Password (Leave blank to keep current)</label>
-                                <input type="password" name="password" placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Password <span class="text-xs text-slate-400 font-normal lowercase">(leave blank to keep current)</span></label>
+                                <div class="relative">
+                                    <input type="password" id="coordinator_password" name="password" autocomplete="new-password" class="w-full pl-3.5 password-input-with-actions py-2.5 bg-slate-50 dark:bg-[#1C2430] border border-slate-200 dark:border-[#273244] rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-[#151B23] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" placeholder="Enter new password">
+                                    <div class="password-actions-group">
+                                        <button type="button" onclick="setCoordinatorDefaultPassword()" class="password-default-btn text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 shadow-2xs" title="Auto-fill default password Admin!741">
+                                            Use Default
+                                        </button>
+                                        <button type="button" onclick="toggleCoordinatorPassword()" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors focus:outline-none cursor-pointer" aria-label="Toggle password visibility">
+                                            <svg id="coordPwdEyeOpen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                            <svg id="coordPwdEyeClosed" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                    <span>Default password is <code class="font-mono font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded border border-indigo-200 dark:border-indigo-800/60">Admin!741</code>. If changing, must be at least 8 characters with a symbol (e.g. @, #, !).</span>
+                                </p>
                                 @error('password')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                                 @enderror
                             </div>
 
-                            <!-- Academic Placement Card (Full-width, clearly visible, multi-line wrap) -->
-                            <div class="md:col-span-2 bg-slate-50/80 border border-slate-200/90 rounded-2xl p-4 sm:p-4.5 space-y-3">
+                            <!-- Academic Placement Card (Full-width, single grid layout) -->
+                            <div class="md:col-span-2 bg-slate-50/80 dark:bg-[#1C2430]/60 border border-slate-200/90 dark:border-[#273244] rounded-2xl p-4 sm:p-5 space-y-3.5">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                                    <div class="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-xs border border-indigo-200/60 dark:border-indigo-800/60">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                     </div>
-                                    <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Academic Affiliation & Placement</h3>
+                                    <h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Academic Affiliation & Placement</h3>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                                <div class="grid grid-cols-1 gap-3.5">
                                     <div>
-                                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">School / Faculty</label>
-                                        <div class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 leading-snug break-words shadow-2xs">
+                                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">School / Faculty</label>
+                                        <div class="w-full px-3.5 py-2.5 bg-white dark:bg-[#151B23] border border-slate-200 dark:border-[#273244] rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug break-words shadow-2xs">
                                             {{ optional($coordinator->profile->school)->name ?? 'N/A' }}
                                         </div>
                                         <input type="hidden" name="school_id" value="{{ optional($coordinator->profile->school)->id }}">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Department</label>
-                                        <div class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 leading-snug break-words shadow-2xs">
+                                        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Department</label>
+                                        <div class="w-full px-3.5 py-2.5 bg-white dark:bg-[#151B23] border border-slate-200 dark:border-[#273244] rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug break-words shadow-2xs">
                                             {{ optional($coordinator->profile->department)->name ?? 'N/A' }}
                                         </div>
                                         <input type="hidden" name="department_id" value="{{ optional($coordinator->profile->department)->id }}">
@@ -157,12 +171,41 @@
     </div>
 
 
-    <script>        if (typeof window.initLMSUI === 'function') {
+    <script>
+        if (typeof window.initLMSUI === 'function') {
             window.initLMSUI();
         }
         @if($errors->has('password'))
             if (window.openPwdModal) window.openPwdModal();
         @endif
+
+        function toggleCoordinatorPassword() {
+            const input = document.getElementById('coordinator_password');
+            const openIcon = document.getElementById('coordPwdEyeOpen');
+            const closedIcon = document.getElementById('coordPwdEyeClosed');
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (openIcon) openIcon.classList.add('hidden');
+                if (closedIcon) closedIcon.classList.remove('hidden');
+            } else {
+                input.type = 'password';
+                if (openIcon) openIcon.classList.remove('hidden');
+                if (closedIcon) closedIcon.classList.add('hidden');
+            }
+        }
+
+        function setCoordinatorDefaultPassword() {
+            const input = document.getElementById('coordinator_password');
+            if (!input) return;
+            input.value = 'Admin!741';
+            input.type = 'text';
+            const openIcon = document.getElementById('coordPwdEyeOpen');
+            const closedIcon = document.getElementById('coordPwdEyeClosed');
+            if (openIcon) openIcon.classList.add('hidden');
+            if (closedIcon) closedIcon.classList.remove('hidden');
+            input.focus();
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Learning Management Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     <script>
         // Ensure login page is always in clean normal light mode
@@ -270,9 +270,12 @@
                 </form>
 
                 <!-- Footer note in card -->
-                <div class="mt-4 sm:mt-5 pt-3 border-t border-slate-100 text-center">
+                <div class="mt-4 sm:mt-5 pt-3 border-t border-slate-100 text-center space-y-1">
                     <p class="text-[11px] sm:text-xs text-slate-500 font-medium">
                         &copy; {{ date('Y') }} Learning Management Portal
+                    </p>
+                    <p class="text-[11px] sm:text-xs text-slate-500">
+                        Powered by <span class="font-bold text-slate-800">Technology Development (TD)</span>
                     </p>
                 </div>
 

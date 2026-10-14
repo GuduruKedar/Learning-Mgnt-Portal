@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Courses & Assignments - LMS Faculty</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
@@ -390,46 +390,48 @@
                                             $curriculum = $regulation ? $regulation->curriculum : null;
                                             $programType = $regulation ? $regulation->program_type : null;
                                         @endphp
-                                        <div class="master-regulation-section bg-white rounded-2xl border border-indigo-100/90 shadow-2xs overflow-hidden transition-all duration-200"
+                                        <div class="master-regulation-section bg-white dark:bg-[#151B23] rounded-2xl border border-gray-200 dark:border-[#273244] shadow-2xs overflow-hidden transition-all duration-200"
                                              id="master-section-reg-{{ $regId }}"
                                              data-reg-id="{{ $regId }}">
                                             
                                             <!-- Section Header Banner -->
                                             <div onclick="toggleRegulationSection('{{ $regId }}')"
-                                                 class="px-5 py-4 bg-gradient-to-r from-indigo-50/80 via-slate-50/40 to-white border-b border-gray-100 flex items-center justify-between cursor-pointer select-none group">
+                                                 class="px-5 py-4 bg-gray-50/70 dark:bg-[#1C2128] border-b border-gray-100 dark:border-[#273244] flex items-center justify-between cursor-pointer select-none group transition-colors">
                                                 <div class="flex items-center gap-3.5 min-w-0">
                                                     <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                                                     </div>
                                                     <div>
                                                         <div class="flex items-center gap-2 flex-wrap">
-                                                            <h3 class="text-base font-extrabold text-gray-900 tracking-tight">Regulation {{ $regCode }}</h3>
+                                                            <h3 class="text-base font-extrabold text-gray-900 dark:text-white tracking-tight">Regulation {{ $regCode }}</h3>
                                                             @if(!empty($curriculum))
-                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200">
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
                                                                     Curriculum: {{ $curriculum }}
                                                                 </span>
                                                             @endif
                                                             @if(!empty($programType))
-                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600">
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
                                                                     {{ $programType }}
                                                                 </span>
                                                             @endif
-                                                            <span class="reg-folder-count-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                            <span class="reg-folder-count-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40">
                                                                 {{ $coursesList->count() }} {{ Str::plural('Course', $coursesList->count()) }}
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-0.5">Faculty course curriculum and learning materials section</p>
+                                                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Faculty course curriculum and learning materials section</p>
                                                     </div>
                                                 </div>
 
                                                 <div class="flex items-center gap-2.5 shrink-0 ml-3">
-                                                    <span class="master-reg-toggle-text text-xs font-semibold text-gray-400 hidden md:inline">Collapse</span>
-                                                    <div class="master-reg-chevron w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 group-hover:border-indigo-300 group-hover:text-indigo-600 transition-all duration-200 shadow-2xs">
+                                                    <span class="master-reg-toggle-text text-xs font-semibold text-gray-400 dark:text-slate-400 hidden md:inline">Collapse</span>
+                                                    <div class="master-reg-chevron w-7 h-7 rounded-lg bg-white dark:bg-[#273244] border border-gray-200 dark:border-[#384457] flex items-center justify-center text-gray-500 dark:text-slate-300 group-hover:border-indigo-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-all duration-200 shadow-2xs">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                     </div>
                                                 </div>
-                                                               <!-- Section Body: Course Cards Grid -->
-                                            <div class="master-reg-cards master-reg-body p-5 sm:p-6 bg-slate-50/30">
+                                            </div>
+
+                                            <!-- Section Body: Course Cards Grid -->
+                                            <div class="master-reg-cards master-reg-body p-5 sm:p-6 bg-slate-50/30 dark:bg-[#151B23]">
                                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                                                     @foreach($coursesList as $course)
                                                         @php
@@ -612,31 +614,31 @@
                                             $catSlug = Str::slug($catKey);
                                         @endphp
                                         @if($catItems->count() > 0)
-                                        <div class="comb-subfolder-section bg-white rounded-2xl border {{ $catMeta['border_accent'] }} shadow-2xs overflow-hidden transition-all duration-200"
+                                        <div class="comb-subfolder-section bg-white dark:bg-[#151B23] rounded-2xl border border-gray-200 dark:border-[#273244] shadow-2xs overflow-hidden transition-all duration-200"
                                              id="comb-section-{{ $catSlug }}"
                                              data-folder-key="{{ $catSlug }}">
                                             
                                             <!-- Subfolder Header Banner -->
                                             <div onclick="toggleCombinedSubfolder('{{ $catSlug }}')"
-                                                 class="px-5 py-4 bg-gradient-to-r {{ $catMeta['header_gradient'] }} border-b border-gray-100 flex items-center justify-between cursor-pointer select-none group">
+                                                 class="px-5 py-4 bg-gray-50/70 dark:bg-[#1C2128] border-b border-gray-100 dark:border-[#273244] flex items-center justify-between cursor-pointer select-none group transition-colors">
                                                 <div class="flex items-center gap-3.5 min-w-0">
-                                                    <div class="w-10 h-10 rounded-xl {{ $catMeta['icon_bg'] }} flex items-center justify-center shadow-2xs shrink-0 group-hover:scale-105 transition-transform text-lg">
+                                                    <div class="w-10 h-10 rounded-xl {{ $catMeta['icon_bg'] }} dark:bg-[#273244] dark:border-[#384457] flex items-center justify-center shadow-2xs shrink-0 group-hover:scale-105 transition-transform text-lg">
                                                         <span>{{ $catMeta['icon'] }}</span>
                                                     </div>
                                                     <div>
                                                         <div class="flex items-center gap-2 flex-wrap">
-                                                            <h3 class="text-sm sm:text-base font-extrabold text-gray-900 tracking-tight">{{ $catMeta['name'] }}</h3>
+                                                            <h3 class="text-sm sm:text-base font-extrabold text-gray-900 dark:text-white tracking-tight">{{ $catMeta['name'] }}</h3>
                                                             <span class="comb-folder-count-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold {{ $catMeta['badge_class'] }}">
                                                                 {{ $catItems->count() }} {{ $catItems->count() === 1 ? 'Material' : 'Materials' }}
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-0.5">{{ $catMeta['description'] }}</p>
+                                                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ $catMeta['description'] }}</p>
                                                     </div>
                                                 </div>
 
                                                 <div class="flex items-center gap-2.5 shrink-0 ml-3">
-                                                    <span class="comb-folder-toggle-text text-xs font-semibold text-gray-400 hidden md:inline">Collapse</span>
-                                                    <div class="comb-folder-chevron w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 group-hover:border-indigo-300 group-hover:text-indigo-600 transition-all duration-200 shadow-2xs">
+                                                    <span class="comb-folder-toggle-text text-xs font-semibold text-gray-400 dark:text-slate-400 hidden md:inline">Collapse</span>
+                                                    <div class="comb-folder-chevron w-7 h-7 rounded-lg bg-white dark:bg-[#273244] border border-gray-200 dark:border-[#384457] flex items-center justify-center text-gray-500 dark:text-slate-300 group-hover:border-indigo-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-all duration-200 shadow-2xs">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                     </div>
                                                 </div>
@@ -771,7 +773,7 @@
                         <div class="flex items-center gap-2">
                             <a href="{{ route('staff.assignments.create') }}" class="inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs text-sm font-bold transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
                                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                + Create New Assignment
+                                Create New Assignment
                             </a>
                         </div>
                     </div>

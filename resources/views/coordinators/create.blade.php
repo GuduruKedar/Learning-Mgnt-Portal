@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Coordinator - LMS</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const profileBtn = document.getElementById('profileDropdownBtn');
@@ -218,26 +218,26 @@
                                                     $numStr = sprintf('%02d', $idx + 1);
                                                     $schoolDisplayName = $numStr . ' ' . $school->name;
                                                 @endphp
-                                                <div class="school-option px-3 py-2 cursor-pointer hover:bg-indigo-50/80 rounded-xl text-xs sm:text-sm transition-all group flex items-center justify-between gap-3 border border-transparent hover:border-indigo-100" 
+                                                <div class="school-option px-3 py-2.5 cursor-pointer rounded-xl text-xs sm:text-sm transition-all group flex items-center justify-between gap-3" 
                                                      data-name="{{ strtolower($school->name) }}"
                                                      data-code="{{ strtolower($school->code) }}"
                                                      data-num="{{ $numStr }}"
                                                      data-id="{{ $school->id }}"
                                                      onclick="selectSchool('{{ $school->id }}', '{{ addslashes($schoolDisplayName) }}', '{{ $school->code }}')">
                                                     <div class="flex items-center gap-2.5 min-w-0">
-                                                        <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-bold text-[11px] border border-indigo-200">
+                                                        <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center shrink-0 font-bold text-[11px] border border-indigo-200/60 dark:border-indigo-800/60">
                                                             {{ $numStr }}
                                                         </div>
                                                         <div class="min-w-0">
-                                                            <p class="font-bold text-slate-900 group-hover:text-indigo-600 text-xs sm:text-sm leading-snug whitespace-normal">
+                                                            <p class="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 text-xs sm:text-sm leading-snug whitespace-normal">
                                                                 {{ $school->name }}
                                                             </p>
-                                                            <span class="inline-block px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 text-[10px] font-mono mt-0.5">
+                                                            <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 text-[10px] font-mono mt-0.5 border border-slate-200/50 dark:border-slate-700/60">
                                                                 {{ $school->code }}
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <svg class="school-check-icon hidden w-4 h-4 text-indigo-600 shrink-0 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                                    <svg class="school-check-icon hidden w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
                                                 </div>
                                             @endforeach
                                             <div id="school_no_results" class="hidden px-3.5 py-6 text-center text-xs text-slate-400 font-medium">
@@ -260,15 +260,15 @@
                                     <input type="hidden" name="department_id" id="department_id_input" value="{{ old('department_id', $preselectedDepartmentId ?? '') }}" required>
                                     
                                     <button type="button" id="department_custom_btn" 
-                                        class="w-full flex items-center justify-between px-3 py-2 bg-slate-100/80 border border-slate-200 rounded-xl text-sm text-left transition-all duration-150 cursor-not-allowed shadow-2xs" 
+                                        class="w-full flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-[#151B23] border border-slate-200 dark:border-[#273244] rounded-xl text-sm text-left transition-all duration-150 cursor-not-allowed shadow-2xs" 
                                         onclick="toggleDropdown('department_dropdown_list')" disabled aria-haspopup="listbox">
                                         <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                                            <div class="w-6.5 h-6.5 rounded-lg bg-slate-200/80 text-slate-400 flex items-center justify-center shrink-0" id="dept_icon_container">
+                                            <div class="w-6.5 h-6.5 rounded-lg bg-slate-200/80 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center shrink-0" id="dept_icon_container">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                             </div>
-                                            <span id="department_display_text" class="font-medium text-slate-400 text-xs sm:text-sm leading-snug break-words">Select School first</span>
+                                            <span id="department_display_text" class="font-medium text-slate-400 dark:text-slate-500 text-xs sm:text-sm leading-snug break-words">Select School first</span>
                                         </div>
-                                        <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-150" id="dept_chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        <svg class="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0 transition-transform duration-150" id="dept_chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                     
                                     <!-- Full-Width Department Dropdown Popover -->
@@ -587,10 +587,10 @@
             document.querySelectorAll('#school_options_container .school-option').forEach(opt => {
                 const check = opt.querySelector('.school-check-icon');
                 if (opt.getAttribute('data-id') === String(id)) {
-                    opt.classList.add('bg-indigo-50/90', 'text-indigo-900');
+                    opt.classList.add('selected-active', 'is-selected');
                     if (check) check.classList.remove('hidden');
                 } else {
-                    opt.classList.remove('bg-indigo-50/90', 'text-indigo-900');
+                    opt.classList.remove('selected-active', 'is-selected');
                     if (check) check.classList.add('hidden');
                 }
             });
@@ -606,7 +606,7 @@
             
             displayText.textContent = text || 'Select Department';
             if (id) {
-                displayText.classList.add('font-bold', 'text-slate-900');
+                displayText.classList.add('font-bold', 'text-slate-900', 'dark:text-white');
                 if (selectedBadge) selectedBadge.classList.remove('hidden');
 
                 // Auto-fetch suggested department username
@@ -622,7 +622,7 @@
                     })
                     .catch(err => console.error('Error fetching suggested username:', err));
             } else {
-                displayText.classList.remove('font-bold', 'text-slate-900');
+                displayText.classList.remove('font-bold', 'text-slate-900', 'dark:text-white');
                 if (selectedBadge) selectedBadge.classList.add('hidden');
                 const usernameInput = document.getElementById('coordinator_username');
                 if (usernameInput) {
@@ -634,10 +634,10 @@
             document.querySelectorAll('#department_dropdown_list_inner .dept-option').forEach(opt => {
                 const check = opt.querySelector('.dept-check-icon');
                 if (opt.getAttribute('data-id') === String(id)) {
-                    opt.classList.add('bg-emerald-50/90', 'text-emerald-900');
+                    opt.classList.add('selected-active', 'is-selected');
                     if (check) check.classList.remove('hidden');
                 } else {
-                    opt.classList.remove('bg-emerald-50/90', 'text-emerald-900');
+                    opt.classList.remove('selected-active', 'is-selected');
                     if (check) check.classList.add('hidden');
                 }
             });
@@ -688,32 +688,32 @@
                                 if (isCurrent) {
                                     departmentInput.value = dept.id;
                                     departmentDisplay.textContent = `${deptNum}. ${formattedDeptName}`;
-                                    departmentDisplay.classList.add('font-bold', 'text-slate-900');
+                                    departmentDisplay.classList.add('font-bold', 'text-slate-900', 'dark:text-white');
                                     if (selectedBadge) selectedBadge.classList.remove('hidden');
                                     matchedSelected = true;
                                 }
                                 
                                 html += `
-                                    <div class="dept-option px-3 py-2 cursor-pointer hover:bg-emerald-50/80 rounded-xl text-xs sm:text-sm transition-all group flex items-center justify-between gap-3 border ${isCurrent ? 'bg-emerald-50/90 border-emerald-200 text-emerald-900' : 'bg-white border-transparent hover:border-emerald-100'}" 
+                                    <div class="dept-option px-3 py-2.5 cursor-pointer rounded-xl text-xs sm:text-sm transition-all group flex items-center justify-between gap-3 ${isCurrent ? 'selected-active is-selected' : ''}" 
                                          data-name="${dept.name.toLowerCase()}" 
                                          data-code="${(dept.code || '').toLowerCase()}"
                                          data-num="${deptNum}"
                                          data-id="${dept.id}"
                                          onclick="selectDepartment('${dept.id}', '${deptNum}. ${formattedDeptName.replace(/'/g, "\\'")}', '${dept.code || ''}')">
                                         <div class="flex items-center gap-2.5 min-w-0">
-                                            <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 font-bold text-[11px] border border-emerald-200">
+                                            <div class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 font-bold text-[11px] border border-emerald-200/60 dark:border-emerald-800/60">
                                                 ${deptNum}
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="font-bold text-slate-900 group-hover:text-emerald-700 text-xs sm:text-sm leading-snug whitespace-normal">
+                                                <p class="font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 text-xs sm:text-sm leading-snug whitespace-normal">
                                                     ${deptNum}. ${formattedDeptName}
                                                 </p>
-                                                <span class="inline-block px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 text-[10px] font-mono mt-0.5">
+                                                <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 text-[10px] font-mono mt-0.5 border border-slate-200/50 dark:border-slate-700/60">
                                                     ${dept.code || ''}
                                                 </span>
                                             </div>
                                         </div>
-                                        <svg class="dept-check-icon ${isCurrent ? '' : 'hidden'} w-4 h-4 text-emerald-600 shrink-0 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                        <svg class="dept-check-icon ${isCurrent ? '' : 'hidden'} w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
                                     </div>
                                 `;
                             });
@@ -743,7 +743,7 @@
                 departmentInput.value = '';
                 if (selectedBadge) selectedBadge.classList.add('hidden');
                 departmentBtn.classList.remove('bg-white', 'hover:border-emerald-400', 'cursor-wait');
-                departmentBtn.classList.add('bg-slate-100/80', 'cursor-not-allowed');
+                departmentBtn.classList.add('bg-slate-50', 'dark:bg-[#151B23]', 'cursor-not-allowed');
                 departmentBtn.disabled = true;
                 if (deptIconContainer) {
                     deptIconContainer.className = 'w-7 h-7 rounded-lg bg-slate-200/80 text-slate-400 flex items-center justify-center shrink-0';

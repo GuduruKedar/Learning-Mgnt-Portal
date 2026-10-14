@@ -323,8 +323,16 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $request->validate([
+        $rules = [
             'password' => ['required', 'string', 'confirmed', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
+        ];
+
+        if ($request->has('current_password')) {
+            $rules['current_password'] = ['required', 'current_password'];
+        }
+
+        $request->validate($rules, [
+            'current_password.current_password' => 'The provided current password does not match your account password.',
         ]);
 
         $user->update([

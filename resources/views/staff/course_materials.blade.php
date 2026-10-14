@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $course->name }} ({{ $course->code }}) - LMS Faculty Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/main.css') }}?v={{ filemtime(public_path('css/main.css')) }}">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="{{ asset('js/main.js') }}"></script>
 </head>
@@ -48,9 +48,7 @@
                 </div>
 
                 <!-- Course Details Banner -->
-                <div class="bg-white rounded-2xl border border-gray-200/90 shadow-2xs p-6 sm:p-7 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 bg-gradient-to-br from-indigo-100/50 via-purple-50/30 to-transparent rounded-full blur-2xl pointer-events-none"></div>
-
+                <div class="bg-white dark:bg-[#151B23] rounded-2xl border border-gray-200/90 dark:border-[#273244] shadow-2xs p-6 sm:p-7 relative overflow-hidden">
                     <div class="relative space-y-3">
                         <!-- Course Metadata Badges -->
                         <div class="flex flex-wrap items-center gap-2">
@@ -59,13 +57,13 @@
                             </span>
 
                             @if($course->regulation)
-                                <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
                                     <svg class="w-3.5 h-3.5 mr-1.5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                     {{ $course->regulation->name }}
                                 </span>
                             @endif
 
-                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
                                 <svg class="w-3.5 h-3.5 mr-1.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                 Year {{ $course->year ?? 1 }} &bull; Semester {{ $course->semester ?? 1 }}
                             </span>
@@ -73,19 +71,19 @@
 
                         <!-- Course Title & Department -->
                         <div>
-                            <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+                            <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                                 {{ $course->name }}
                             </h1>
-                            <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm text-gray-600 font-medium">
+                            <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm text-gray-600 dark:text-slate-400 font-medium">
                                 @if($course->department)
-                                    <span class="inline-flex items-center gap-1.5 text-gray-700 font-semibold">
+                                    <span class="inline-flex items-center gap-1.5 text-gray-700 dark:text-slate-300 font-semibold">
                                         <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                         {{ $course->department->name }}
                                     </span>
                                 @endif
                                 @if($course->department && $course->department->school)
-                                    <span class="text-gray-300">&bull;</span>
-                                    <span class="inline-flex items-center gap-1.5 text-gray-500">
+                                    <span class="text-gray-300 dark:text-slate-600">&bull;</span>
+                                    <span class="inline-flex items-center gap-1.5 text-gray-500 dark:text-slate-400">
                                         <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
                                         {{ $course->department->school->name }}
                                     </span>
@@ -98,43 +96,43 @@
                 <!-- 3 Quick Interactive Metric Cards Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Course Materials Card -->
-                    <button type="button" onclick="switchCourseTab('materials')" id="metric-card-materials" class="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-white hover:bg-indigo-50/40 border border-gray-200 hover:border-indigo-300 transition-all duration-200 text-left cursor-pointer group shadow-2xs hover:shadow">
-                        <div class="w-12 h-12 rounded-xl bg-indigo-600 group-hover:bg-indigo-700 text-white flex items-center justify-center shrink-0 shadow-sm transition-colors">
+                    <button type="button" onclick="switchCourseTab('materials')" id="metric-card-materials" class="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#151B23] border border-gray-200 dark:border-[#273244] transition-all duration-200 text-left cursor-pointer group shadow-2xs hover:shadow course-metric-card">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-2xs transition-colors">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-xs font-extrabold uppercase tracking-wider text-indigo-700">Course Materials</p>
+                            <p class="text-xs font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Course Materials</p>
                             <div class="mt-1 flex items-baseline gap-1.5 flex-wrap">
-                                <span class="text-2xl sm:text-3xl font-black text-gray-900 leading-none">{{ $totalMaterialsCount }}</span>
-                                <span class="text-xs font-medium text-gray-500">({{ $filesCount }} files &bull; {{ $linksCount }} links)</span>
+                                <span class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white leading-none stat-number">{{ $totalMaterialsCount }}</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-slate-400 stat-subtext">({{ $filesCount }} files &bull; {{ $linksCount }} links)</span>
                             </div>
                         </div>
                     </button>
 
                     <!-- Assessments Metric Card -->
-                    <button type="button" onclick="switchCourseTab('assignments')" id="metric-card-assignments" class="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-white hover:bg-purple-50/40 border border-gray-200 hover:border-purple-300 transition-all duration-200 text-left cursor-pointer group shadow-2xs hover:shadow">
-                        <div class="w-12 h-12 rounded-xl bg-purple-600 group-hover:bg-purple-700 text-white flex items-center justify-center shrink-0 shadow-sm transition-colors">
+                    <button type="button" onclick="switchCourseTab('assignments')" id="metric-card-assignments" class="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#151B23] border border-gray-200 dark:border-[#273244] transition-all duration-200 text-left cursor-pointer group shadow-2xs hover:shadow course-metric-card">
+                        <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/50 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 shadow-2xs transition-colors">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-xs font-extrabold uppercase tracking-wider text-purple-700">Assessments</p>
+                            <p class="text-xs font-extrabold uppercase tracking-wider text-purple-600 dark:text-purple-400">Assessments</p>
                             <div class="mt-1 flex items-baseline gap-1.5 flex-wrap">
-                                <span class="text-2xl sm:text-3xl font-black text-gray-900 leading-none">{{ $totalAssignmentsCount }}</span>
-                                <span class="text-xs font-medium text-gray-500">({{ $activeAssignmentsCount }} active)</span>
+                                <span class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white leading-none stat-number">{{ $totalAssignmentsCount }}</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-slate-400 stat-subtext">({{ $activeAssignmentsCount }} active)</span>
                             </div>
                         </div>
                     </button>
 
                     <!-- Students Metric Card -->
-                    <button type="button" onclick="switchCourseTab('overview')" id="metric-card-overview" class="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-white hover:bg-emerald-50/40 border border-gray-200 hover:border-emerald-300 transition-all duration-200 text-left cursor-pointer group shadow-2xs hover:shadow">
-                        <div class="w-12 h-12 rounded-xl bg-emerald-600 group-hover:bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-sm transition-colors">
+                    <button type="button" onclick="switchCourseTab('overview')" id="metric-card-overview" class="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#151B23] border border-gray-200 dark:border-[#273244] transition-all duration-200 text-left cursor-pointer group shadow-2xs hover:shadow course-metric-card">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-2xs transition-colors">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-xs font-extrabold uppercase tracking-wider text-emerald-700">Enrolled Students</p>
+                            <p class="text-xs font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Enrolled Students</p>
                             <div class="mt-1 flex items-baseline gap-1.5 flex-wrap">
-                                <span class="text-2xl sm:text-3xl font-black text-gray-900 leading-none">{{ $enrolledStudentsCount }}</span>
-                                <span class="text-xs font-medium text-gray-500">Active learners</span>
+                                <span class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white leading-none stat-number">{{ $enrolledStudentsCount }}</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-slate-400 stat-subtext">Active learners</span>
                             </div>
                         </div>
                     </button>
@@ -163,34 +161,34 @@
                 <div id="course-panel-materials" role="tabpanel" aria-labelledby="course-tab-btn-materials" class="space-y-6">
                     
                     <!-- Materials Directory (Full Width & Professional) -->
-                    <div class="bg-white rounded-2xl shadow-2xs border border-gray-200/90 overflow-hidden flex flex-col">
-                        <div class="px-5 sm:px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50/80 to-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="course-materials-directory bg-white dark:bg-[#151B23] rounded-2xl shadow-2xs border border-gray-200/90 dark:border-[#273244] overflow-hidden flex flex-col">
+                        <div class="course-materials-header px-5 sm:px-6 py-4 border-b border-gray-100 dark:border-[#273244] bg-gray-50/80 dark:bg-[#151B23] flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-base font-extrabold text-gray-900 tracking-tight">Learning Materials Directory</h3>
-                                    <span id="materialsCountBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-100 transition-all">
+                                    <h3 class="text-base font-extrabold text-gray-900 dark:text-white tracking-tight">Learning Materials Directory</h3>
+                                    <span id="materialsCountBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800/60 transition-all">
                                         {{ $totalMaterialsCount }} Total
                                     </span>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-0.5">Direct learning access for faculty and enrolled students</p>
+                                <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Direct learning access for faculty and enrolled students</p>
                             </div>
                             
                             <!-- Live Search, Filter & Manage Materials Action Button -->
                             <div class="flex items-center flex-wrap sm:flex-nowrap gap-2 w-full lg:w-auto justify-start lg:justify-end">
                                 <!-- Live Search Input -->
                                 <div class="relative flex-1 sm:w-60 min-w-[160px]">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     </div>
                                     <input type="text" 
                                            id="materialsSearchInput" 
                                            oninput="filterMaterialsLive()" 
                                            placeholder="Search title, format, division..." 
-                                           class="h-9.5 block w-full pl-9 pr-8 border border-gray-200 hover:border-gray-300 rounded-xl text-xs bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-2xs">
+                                           class="h-10 block w-full pl-9 pr-8 border border-gray-200 dark:border-[#273244] hover:border-gray-300 dark:hover:border-slate-600 rounded-xl text-xs bg-white dark:bg-[#1C2430] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-2xs">
                                     <button type="button" 
                                             id="materialsSearchClearBtn" 
                                             onclick="clearMaterialsSearch()" 
-                                            class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 hover:text-gray-600 hidden cursor-pointer" 
+                                            class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 hidden cursor-pointer" 
                                             title="Clear Search">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
@@ -200,12 +198,13 @@
                                 <div class="relative shrink-0">
                                     <select id="materialsTypeSelect" 
                                             onchange="filterMaterialsLive()" 
-                                            class="h-9.5 appearance-none pl-3 pr-8 border border-gray-200 hover:border-gray-300 bg-white rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-2xs cursor-pointer">
+                                            style="-webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none;"
+                                            class="h-10 appearance-none pl-3 pr-8 border border-gray-200 dark:border-[#273244] hover:border-gray-300 dark:hover:border-slate-600 bg-white dark:bg-[#1C2430] rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-2xs cursor-pointer">
                                         <option value="">All Types</option>
                                         <option value="file">📄 Files</option>
                                         <option value="link">🔗 Links</option>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400">
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400 dark:text-slate-400">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
                                 </div>
@@ -214,16 +213,16 @@
                                 <button type="button" 
                                         id="materialsResetFilterBtn" 
                                         onclick="resetAllMaterialFilters()" 
-                                        class="hidden h-9.5 shrink-0 inline-flex items-center gap-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/80 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer" 
+                                        class="hidden h-10 shrink-0 inline-flex items-center gap-1.5 px-3 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/60 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer" 
                                         title="Reset Filters">
                                     <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                     <span>Reset</span>
                                 </button>
 
                                 <!-- Manage Materials Trigger Button -->
-                                <button type="button" onclick="openManageMaterialsModal()" class="h-9.5 shrink-0 inline-flex items-center justify-center gap-2 px-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs font-bold rounded-xl shadow-2xs hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                    <span>Manage Materials</span>
+                                <button type="button" onclick="openManageMaterialsModal()" class="manage-materials-btn h-10 shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                                    <span class="whitespace-nowrap font-bold">Manage Materials</span>
                                 </button>
                             </div>
                         </div>
@@ -379,7 +378,7 @@
                         @endphp
 
                         <!-- Sub-Folder Navigation Bar (Segregation Tabs) -->
-                        <div class="px-5 sm:px-6 py-3 bg-slate-50/80 border-b border-gray-200/80 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+                        <div class="px-5 sm:px-6 py-3 bg-slate-50/80 dark:bg-[#1C2430]/70 border-b border-gray-200/80 dark:border-[#273244] flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
                             <div class="flex items-center gap-2 shrink-0" id="subfolderTabsContainer">
                                 <button type="button" 
                                     onclick="selectSubfolder('all')" 
@@ -401,10 +400,10 @@
                                         onclick="selectSubfolder('{{ $catSlug }}')" 
                                         id="subfolder-tab-{{ $catSlug }}"
                                         data-subfolder-target="{{ $catSlug }}"
-                                        class="subfolder-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 transition-all shadow-2xs cursor-pointer">
+                                        class="subfolder-tab-btn inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-[#151B23] border border-gray-200 dark:border-[#273244] hover:border-gray-300 dark:hover:border-slate-600 transition-all shadow-2xs cursor-pointer">
                                         <span class="text-xs">{{ $catMeta['icon'] }}</span>
                                         <span>{{ $catMeta['short_name'] }}</span>
-                                        <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-700">{{ $catCount }}</span>
+                                        <span class="tab-badge px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 dark:bg-[#1C2430] text-gray-700 dark:text-slate-300 border border-transparent dark:border-[#273244]">{{ $catCount }}</span>
                                     </button>
                                     @endif
                                 @endforeach
@@ -412,32 +411,27 @@
 
                             <div class="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
                                 <!-- Cards vs Table Layout Switcher -->
-                                <div class="inline-flex p-1 bg-white rounded-xl border border-gray-200 shadow-2xs">
-                                    <button type="button" onclick="setCourseMaterialsLayout('cards')" id="course-mat-btn-cards" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 text-indigo-700 border border-indigo-200 cursor-pointer flex items-center gap-1.5" title="Cards View">
-                                        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                <div class="inline-flex p-1 bg-white dark:bg-[#151B23] rounded-xl border border-gray-200 dark:border-[#273244] shadow-2xs">
+                                    <button type="button" onclick="setCourseMaterialsLayout('cards')" id="course-mat-btn-cards" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 cursor-pointer flex items-center gap-1.5" title="Cards View">
+                                        <svg class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                         <span>Cards</span>
                                     </button>
-                                    <button type="button" onclick="setCourseMaterialsLayout('table')" id="course-mat-btn-table" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 transition-all cursor-pointer flex items-center gap-1.5" title="Table View">
-                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                    <button type="button" onclick="setCourseMaterialsLayout('table')" id="course-mat-btn-table" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-all cursor-pointer flex items-center gap-1.5" title="Table View">
+                                        <svg class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                         <span>Table</span>
                                     </button>
                                 </div>
-
-                                <button type="button" onclick="toggleAllSubfolders()" id="toggleAllSubfoldersBtn" class="text-xs font-bold text-gray-500 hover:text-indigo-600 px-3 py-1.5 rounded-xl hover:bg-white border border-transparent hover:border-gray-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs">
-                                    <span id="toggleAllSubfoldersText">Collapse All</span>
-                                    <svg class="w-3.5 h-3.5 transition-transform duration-200" id="toggleAllSubfoldersIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </button>
                             </div>
                         </div>
 
-                        <div class="p-5 sm:p-6 bg-gray-50/50 flex-1 space-y-6" id="materialsCardsContainer">
+                        <div class="p-5 sm:p-6 bg-gray-50/50 dark:bg-[#0D1117]/60 flex-1 space-y-6" id="materialsCardsContainer">
                             @if($totalMaterialsCount === 0)
-                                <div class="py-16 px-6 text-center bg-white border border-gray-100 rounded-2xl shadow-2xs">
-                                    <div class="mx-auto w-16 h-16 bg-gradient-to-tr from-indigo-100 to-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 ring-8 ring-indigo-50/60 shadow-xs">
+                                <div class="py-16 px-6 text-center bg-white dark:bg-[#151B23] border border-gray-100 dark:border-[#273244] rounded-2xl shadow-2xs">
+                                    <div class="mx-auto w-16 h-16 bg-gradient-to-tr from-indigo-100 to-indigo-50 dark:from-indigo-950/60 dark:to-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-4 ring-8 ring-indigo-50/60 dark:ring-indigo-950/40 shadow-xs">
                                         <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                     </div>
-                                    <h3 class="text-base font-extrabold text-gray-900 mb-1">No Materials Uploaded Yet</h3>
-                                    <p class="text-xs sm:text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+                                    <h3 class="text-base font-extrabold text-gray-900 dark:text-white mb-1">No Materials Uploaded Yet</h3>
+                                    <p class="text-xs sm:text-sm text-gray-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
                                         Publish course objectives, syllabus documents, PPTs, lecture notes, lab manuals, question banks, or study videos for your students.
                                     </p>
                                     <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -457,42 +451,42 @@
                                         $catSlug = Str::slug($catKey);
                                     @endphp
                                     @if($catItems->count() > 0)
-                                    <div class="subfolder-section bg-white rounded-2xl border {{ $catMeta['border_accent'] }} shadow-2xs overflow-hidden transition-all duration-200" 
+                                    <div class="subfolder-section bg-white dark:bg-[#151B23] rounded-2xl border border-gray-200 dark:border-[#273244] shadow-2xs overflow-hidden transition-all duration-200" 
                                          id="subfolder-section-{{ $catSlug }}"
                                          data-folder-key="{{ $catSlug }}">
                                         
                                         <!-- Subfolder Header Banner -->
                                         <div onclick="toggleSubfolder('{{ $catSlug }}')" 
-                                             class="px-5 py-4 bg-gradient-to-r {{ $catMeta['header_gradient'] }} border-b border-gray-100 flex items-center justify-between cursor-pointer select-none group">
+                                             class="px-5 py-4 bg-gray-50/70 dark:bg-[#1C2128] border-b border-gray-100 dark:border-[#273244] flex items-center justify-between cursor-pointer select-none group transition-colors">
                                             <div class="flex items-center gap-3.5 min-w-0">
-                                                <div class="w-10 h-10 rounded-xl {{ $catMeta['icon_bg'] }} flex items-center justify-center text-lg shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
+                                                <div class="w-10 h-10 rounded-xl {{ $catMeta['icon_bg'] }} dark:bg-[#273244] dark:border-[#384457] flex items-center justify-center text-lg shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
                                                     <span>{{ $catMeta['icon'] }}</span>
                                                 </div>
 
                                                 <div class="min-w-0">
                                                     <div class="flex flex-wrap items-center gap-2">
-                                                        <h4 class="text-sm sm:text-base font-extrabold text-gray-900 tracking-tight truncate">{{ $catMeta['name'] }}</h4>
+                                                        <h4 class="text-sm sm:text-base font-extrabold text-gray-900 dark:text-white tracking-tight truncate">{{ $catMeta['name'] }}</h4>
                                                         <span class="subfolder-count-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold {{ $catMeta['badge_class'] }} transition-all">
                                                             {{ $catItems->count() }} {{ $catItems->count() === 1 ? 'Material' : 'Materials' }}
                                                         </span>
                                                     </div>
-                                                    <p class="text-xs text-gray-500 mt-0.5 truncate">{{ $catMeta['description'] }}</p>
+                                                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5 truncate">{{ $catMeta['description'] }}</p>
                                                 </div>
                                             </div>
 
                                             <div class="flex items-center gap-2.5 shrink-0 ml-3">
-                                                <span class="subfolder-toggle-text text-xs font-semibold text-gray-400 hidden md:inline">Collapse</span>
-                                                <div class="subfolder-chevron w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 group-hover:border-indigo-300 group-hover:text-indigo-600 transition-all duration-200 shadow-2xs">
+                                                <span class="subfolder-toggle-text text-xs font-semibold text-gray-400 dark:text-slate-400 hidden md:inline">Collapse</span>
+                                                <div class="subfolder-chevron w-7 h-7 rounded-lg bg-white dark:bg-[#273244] border border-gray-200 dark:border-[#384457] flex items-center justify-center text-gray-500 dark:text-slate-300 group-hover:border-indigo-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-all duration-200 shadow-2xs">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <!-- Subfolder Grid Content -->
-                                        <div class="subfolder-content-body p-5 sm:p-6 bg-slate-50/30">
+                                        <div class="subfolder-content-body p-5 sm:p-6 bg-slate-50/30 dark:bg-[#151B23]">
                                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                                 @foreach($catItems as $material)
-                                                <div class="material-card bg-white rounded-2xl border border-gray-200 shadow-2xs hover:shadow-md hover:border-indigo-200 transition-all duration-200 flex flex-col group h-full justify-between overflow-hidden"
+                                                <div class="material-card bg-white dark:bg-[#1C2128] rounded-2xl border border-gray-200 dark:border-[#273244] shadow-2xs hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-500/50 transition-all duration-200 flex flex-col group h-full justify-between overflow-hidden"
                                                      data-material-title="{{ strtolower($material->title) }}"
                                                      data-material-type="{{ strtolower($material->type) }}"
                                                      data-material-platform="{{ strtolower($material->platform) }}"
@@ -608,7 +602,7 @@
                                                             </div>
 
                                                             {{-- Full-width Title: Directly clickable to open material --}}
-                                                            <a href="{{ $matOpenUrl }}" target="_blank" class="text-[15px] font-bold text-gray-900 leading-snug break-words tracking-tight group-hover:text-indigo-600 transition-colors hover:underline block" title="Open {{ $material->title }}">
+                                                            <a href="{{ $matOpenUrl }}" target="_blank" class="text-[15px] font-bold text-gray-900 dark:text-white leading-snug break-words tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors hover:underline block" title="Open {{ $material->title }}">
                                                                 {{ $material->title }}
                                                             </a>
 
@@ -634,17 +628,17 @@
                                                         </div>
                                                     </div>
                                                     
-                                                    <div class="bg-gray-50/80 px-4 py-2.5 border-t border-gray-100 flex items-center justify-between gap-2">
+                                                    <div class="bg-gray-50/80 dark:bg-[#161B22] px-4 py-2.5 border-t border-gray-100 dark:border-[#273244] flex items-center justify-between gap-2">
                                                         @if($material->type === 'link')
-                                                            <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                             <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 py-1.5 rounded-lg transition-colors gap-1.5">
                                                                 Open Link <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                                             </a>
                                                         @else
-                                                            <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
+                                                            <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 py-1.5 rounded-lg transition-colors gap-1">
                                                                 View <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                             </a>
-                                                            <div class="w-px h-3.5 bg-gray-200"></div>
-                                                            <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
+                                                            <div class="w-px h-3.5 bg-gray-200 dark:bg-[#273244]"></div>
+                                                            <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 py-1.5 rounded-lg transition-colors gap-1">
                                                                 Download <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                                             </a>
                                                         @endif
@@ -659,20 +653,19 @@
                             </div>
 
                                 <!-- Layout 2: Structured Tabular Directory (Table View) -->
-                                <div id="courseMaterialsTableWrap" class="hidden overflow-hidden bg-white rounded-2xl border border-gray-200 shadow-2xs">
+                                <div id="courseMaterialsTableWrap" class="hidden overflow-hidden bg-white dark:bg-[#151B23] rounded-2xl border border-gray-200 dark:border-[#273244] shadow-2xs">
                                     <div class="overflow-x-auto">
-                                        <table class="w-full divide-y divide-gray-200 text-left">
-                                            <thead class="bg-gray-50/90 text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+                                        <table class="w-full divide-y divide-gray-200 dark:divide-[#273244] text-left">
+                                            <thead class="bg-gray-50/90 dark:bg-[#1C2128] text-[11px] font-bold text-gray-600 dark:text-slate-300 uppercase tracking-wider">
                                                 <tr>
                                                     <th class="px-5 py-3.5">Material Title & Format</th>
                                                     <th class="px-5 py-3.5">Division / Section</th>
                                                     <th class="px-5 py-3.5">Type</th>
-                                                    <th class="px-5 py-3.5">Uploaded By</th>
                                                     <th class="px-5 py-3.5">Date</th>
                                                     <th class="px-5 py-3.5 text-center">Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="divide-y divide-gray-100 bg-white text-xs">
+                                            <tbody class="divide-y divide-gray-100 dark:divide-[#273244] bg-white dark:bg-[#151B23] text-xs">
                                                 @foreach($materials as $material)
                                                     @php
                                                         $rawExt = strtolower(pathinfo($material->url_or_path, PATHINFO_EXTENSION));
@@ -693,7 +686,7 @@
                                                             'updateUrl' => route('staff.courses.materials.update', $material->id)
                                                         ];
                                                     @endphp
-                                                    <tr class="hover:bg-indigo-50/40 transition-colors material-table-row"
+                                                    <tr class="hover:bg-indigo-50/40 dark:hover:bg-[#1C2128]/60 transition-colors material-table-row"
                                                         data-material-title="{{ strtolower($material->title) }}"
                                                         data-material-type="{{ strtolower($material->type) }}"
                                                         data-material-platform="{{ strtolower($material->platform) }}"
@@ -706,32 +699,32 @@
                                                             <div class="flex items-center gap-3">
                                                                 <div class="shrink-0">
                                                                     @if($material->platform === 'youtube')
-                                                                        <div class="h-8 w-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-red-600">
+                                                                        <div class="h-8 w-8 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 flex items-center justify-center text-red-600 dark:text-red-400">
                                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                                         </div>
                                                                     @elseif($material->platform === 'pdf')
-                                                                        <div class="h-8 w-8 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
+                                                                        <div class="h-8 w-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
                                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                                                         </div>
                                                                     @elseif(in_array($rawExt, ['ppt','pptx']))
-                                                                        <div class="h-8 w-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
+                                                                        <div class="h-8 w-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
                                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
                                                                         </div>
                                                                     @else
-                                                                        <div class="h-8 w-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                                                                        <div class="h-8 w-8 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400">
                                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                                                         </div>
                                                                     @endif
                                                                 </div>
                                                                 <div class="min-w-0">
-                                                                    <a href="{{ $material->type === 'link' ? $material->url_or_path : route('materials.view', $material->id) }}" target="_blank" class="font-bold text-gray-900 hover:text-indigo-600 hover:underline transition-colors break-words block" title="Open {{ $material->title }}">
+                                                                    <a href="{{ $material->type === 'link' ? $material->url_or_path : route('materials.view', $material->id) }}" target="_blank" class="font-bold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline transition-colors break-words block" title="Open {{ $material->title }}">
                                                                         {{ $material->title }}
                                                                     </a>
                                                                     <div class="flex items-center gap-1.5 mt-0.5">
-                                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-slate-100 text-slate-700">
+                                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-slate-100 dark:bg-[#1C2128] text-slate-700 dark:text-slate-300 border border-transparent dark:border-[#273244]">
                                                                             {{ $rawExt ? '.' . $rawExt : ($material->platform ?: $material->type) }}
                                                                         </span>
-                                                                        <span class="text-[10px] text-gray-400 capitalize">{{ $material->platform ?: $material->type }}</span>
+                                                                        <span class="text-[10px] text-gray-400 dark:text-slate-400 capitalize">{{ $material->platform ?: $material->type }}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -756,19 +749,16 @@
                                                         </td>
                                                         <td class="px-5 py-3.5 whitespace-nowrap">
                                                             @if($material->type === 'link')
-                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40">
                                                                     🔗 Web Link
                                                                 </span>
                                                             @else
-                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
                                                                     📄 File Resource
                                                                 </span>
                                                             @endif
                                                         </td>
-                                                        <td class="px-5 py-3.5 whitespace-nowrap text-gray-600">
-                                                            <span class="font-medium text-gray-800">{{ $material->staff->profile->first_name ?? 'Faculty' }}</span>
-                                                        </td>
-                                                        <td class="px-5 py-3.5 whitespace-nowrap text-gray-500 font-medium">
+                                                        <td class="px-5 py-3.5 whitespace-nowrap text-gray-500 dark:text-slate-400 font-medium">
                                                             {{ $material->created_at ? $material->created_at->format('M d, Y') : '&mdash;' }}
                                                         </td>
                                                         <td class="px-5 py-3.5 text-center whitespace-nowrap">
@@ -783,7 +773,7 @@
                                                                         <span>View</span>
                                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                                                     </a>
-                                                                    <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-bold transition-colors">
+                                                                    <a href="{{ route('materials.download', $material->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-[#273244] dark:hover:bg-[#384457] text-gray-700 dark:text-slate-200 border border-transparent dark:border-[#384457] rounded-lg text-xs font-bold transition-colors">
                                                                         <span>Download</span>
                                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                                                     </a>
@@ -849,25 +839,27 @@
                 <!-- ========================================================= -->
                 <!-- TAB PANEL 2: ASSIGNMENTS & ASSESSMENTS                    -->
                 <!-- ========================================================= -->
+                <!-- TAB PANEL 2: COURSE ASSIGNMENTS & QUIZZES                  -->
+                <!-- ========================================================= -->
                 <div id="course-panel-assignments" role="tabpanel" aria-labelledby="course-tab-btn-assignments" class="hidden space-y-6">
-                    <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="bg-white dark:bg-[#151B23] p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-[#273244] flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div>
-                            <h3 class="text-base font-bold text-gray-900">Course Assignments & Quizzes</h3>
-                            <p class="text-xs text-gray-500">Manage, evaluate submissions, and publish assessments for {{ $course->name }}</p>
+                            <h3 class="text-base font-bold text-gray-900 dark:text-white">Course Assignments & Quizzes</h3>
+                            <p class="text-xs text-gray-500 dark:text-slate-400">Manage, evaluate submissions, and publish assessments for {{ $course->name }}</p>
                         </div>
                         <a href="{{ route('staff.assignments.create', ['course_id' => $course->id]) }}" class="inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs text-xs font-bold transition-all transform hover:-translate-y-0.5">
                             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            + Create New Assignment
+                            Create New Assignment
                         </a>
                     </div>
 
                     @if($assignments->isEmpty())
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-                            <div class="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto text-purple-600 mb-4">
+                        <div class="bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-gray-100 dark:border-[#273244] p-12 text-center">
+                            <div class="w-16 h-16 bg-purple-50 dark:bg-purple-950/60 rounded-2xl flex items-center justify-center mx-auto text-purple-600 dark:text-purple-400 mb-4">
                                 <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-900">No Assignments For This Course</h3>
-                            <p class="mt-1 text-sm text-gray-500 max-w-sm mx-auto">Create MCQ assessments, questions, or assignments to evaluate student progress.</p>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">No Assignments For This Course</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-slate-400 max-w-sm mx-auto">Create MCQ assessments, questions, or assignments to evaluate student progress.</p>
                             <div class="mt-6">
                                 <a href="{{ route('staff.assignments.create', ['course_id' => $course->id]) }}" class="inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
                                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -878,59 +870,59 @@
                     @else
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             @foreach($assignments as $assignment)
-                                <div class="bg-white rounded-2xl border border-gray-200/80 shadow-sm hover:shadow-md hover:border-purple-300 transition-all flex flex-col justify-between overflow-hidden">
+                                <div class="bg-white dark:bg-[#151B23] rounded-2xl border border-gray-200/80 dark:border-[#273244] shadow-sm hover:shadow-md hover:border-purple-300 dark:hover:border-purple-600/60 transition-all flex flex-col justify-between overflow-hidden">
                                     <div class="h-1.5 bg-gradient-to-r from-purple-500 to-indigo-600"></div>
 
                                     <div class="p-6 flex-1 flex flex-col justify-between">
                                         <div>
                                             <div class="flex items-center justify-between gap-2 mb-3">
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-purple-50 text-purple-700 border border-purple-200/80 shadow-2xs">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold font-mono bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/80 dark:border-purple-800/60 shadow-2xs">
                                                     {{ $course->code }}
                                                 </span>
                                                 @if($assignment->due_date)
-                                                    <span class="inline-flex items-center text-xs font-medium {{ $assignment->isPastDue() ? 'text-red-700 bg-red-50 border border-red-200' : 'text-emerald-700 bg-emerald-50 border border-emerald-200' }} px-2.5 py-0.5 rounded-full">
+                                                    <span class="inline-flex items-center text-xs font-medium {{ $assignment->isPastDue() ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900/50' : 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60' }} px-2.5 py-0.5 rounded-full">
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                                         Due: {{ $assignment->due_date->format('M d, Y') }}
                                                     </span>
                                                 @endif
                                             </div>
 
-                                            <h3 class="text-base font-bold text-gray-900 leading-snug mb-1">
+                                            <h3 class="text-base font-bold text-gray-900 dark:text-white leading-snug mb-1">
                                                 {{ $assignment->title }}
                                             </h3>
 
                                             @if($assignment->description)
-                                                <p class="text-xs text-gray-600 line-clamp-2 mt-2 mb-4 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                                                <p class="text-xs text-gray-600 dark:text-slate-300 line-clamp-2 mt-2 mb-4 bg-gray-50 dark:bg-[#1C2128] p-2.5 rounded-lg border border-gray-100 dark:border-[#273244]">
                                                     {{ $assignment->description }}
                                                 </p>
                                             @endif
                                         </div>
 
                                         <!-- Metrics Row -->
-                                        <div class="grid grid-cols-3 gap-2 pt-3 border-t border-gray-100 text-center mt-3">
-                                            <div class="p-2 rounded-xl bg-gray-50">
-                                                <p class="text-sm font-black text-gray-900">{{ $assignment->max_marks }}</p>
-                                                <p class="text-[10px] uppercase font-bold text-gray-400">Max Marks</p>
+                                        <div class="grid grid-cols-3 gap-2 pt-3 border-t border-gray-100 dark:border-[#273244] text-center mt-3">
+                                            <div class="p-2 rounded-xl bg-gray-50 dark:bg-[#1C2128]">
+                                                <p class="text-sm font-black text-gray-900 dark:text-white">{{ $assignment->max_marks }}</p>
+                                                <p class="text-[10px] uppercase font-bold text-gray-400 dark:text-slate-400">Max Marks</p>
                                             </div>
-                                            <div class="p-2 rounded-xl bg-gray-50">
-                                                <p class="text-sm font-black text-gray-900">{{ $assignment->questions->count() }}</p>
-                                                <p class="text-[10px] uppercase font-bold text-gray-400">Questions</p>
+                                            <div class="p-2 rounded-xl bg-gray-50 dark:bg-[#1C2128]">
+                                                <p class="text-sm font-black text-gray-900 dark:text-white">{{ $assignment->questions->count() }}</p>
+                                                <p class="text-[10px] uppercase font-bold text-gray-400 dark:text-slate-400">Questions</p>
                                             </div>
-                                            <div class="p-2 rounded-xl bg-purple-50 border border-purple-100">
-                                                <p class="text-sm font-black text-purple-700">{{ $assignment->submissions_count }}</p>
-                                                <p class="text-[10px] uppercase font-bold text-purple-500">Submitted</p>
+                                            <div class="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100 dark:border-purple-900/50">
+                                                <p class="text-sm font-black text-purple-700 dark:text-purple-300">{{ $assignment->submissions_count }}</p>
+                                                <p class="text-[10px] uppercase font-bold text-purple-500 dark:text-purple-400">Submitted</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Card Actions -->
-                                    <div class="bg-gray-50/80 px-5 py-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                                    <div class="bg-gray-50/80 dark:bg-[#1C2128] px-5 py-3 border-t border-gray-100 dark:border-[#273244] flex items-center justify-between gap-2">
                                         <a href="{{ route('staff.assignments.show', $assignment->id) }}" class="flex-1 inline-flex justify-center items-center px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-2xs text-xs font-bold transition-colors">
                                             <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             View / Grade
                                         </a>
-                                        <a href="{{ route('staff.assignments.edit', $assignment->id) }}" class="inline-flex justify-center items-center px-3 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-semibold transition-colors" title="Edit Assignment">
-                                            <svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        <a href="{{ route('staff.assignments.edit', $assignment->id) }}" class="inline-flex justify-center items-center px-3 py-2 bg-white dark:bg-[#151B23] border border-gray-300 dark:border-[#273244] hover:bg-gray-50 dark:hover:bg-[#273244] text-gray-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition-colors" title="Edit Assignment">
+                                            <svg class="w-3.5 h-3.5 text-gray-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                         </a>
                                     </div>
                                 </div>
@@ -945,46 +937,46 @@
                 <div id="course-panel-overview" role="tabpanel" aria-labelledby="course-tab-btn-overview" class="hidden space-y-6">
                     
                     <!-- Course Academic Info Banner -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
-                        <div class="flex items-center gap-2.5 pb-4 mb-4 border-b border-gray-100">
-                            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <div class="bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-gray-100 dark:border-[#273244] p-5 sm:p-6">
+                        <div class="flex items-center gap-2.5 pb-4 mb-4 border-b border-gray-100 dark:border-[#273244]">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
                             <div>
-                                <h3 class="text-sm font-bold text-gray-900">Academic Course Information</h3>
-                                <p class="text-xs text-gray-500">Official curriculum, department, and semester specifications</p>
+                                <h3 class="text-sm font-bold text-gray-900 dark:text-white">Academic Course Information</h3>
+                                <p class="text-xs text-gray-500 dark:text-slate-400">Official curriculum, department, and semester specifications</p>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            <div class="bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Course Code & Name</p>
-                                <p class="font-bold text-gray-900 text-sm mt-1 flex items-center gap-1.5 flex-wrap">
-                                    <span class="font-mono text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded text-xs border border-indigo-100">{{ $course->code }}</span>
+                            <div class="bg-gray-50/70 dark:bg-[#1C2128] p-3.5 rounded-xl border border-gray-100 dark:border-[#273244]">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-400">Course Code & Name</p>
+                                <p class="font-bold text-gray-900 dark:text-white text-sm mt-1 flex items-center gap-1.5 flex-wrap">
+                                    <span class="font-mono text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded text-xs border border-indigo-100 dark:border-indigo-800/60">{{ $course->code }}</span>
                                     <span>{{ $course->name }}</span>
                                 </p>
                             </div>
 
-                            <div class="bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Department</p>
-                                <p class="font-bold text-gray-900 text-sm mt-1 truncate" title="{{ $course->department->name ?? 'N/A' }}">
+                            <div class="bg-gray-50/70 dark:bg-[#1C2128] p-3.5 rounded-xl border border-gray-100 dark:border-[#273244]">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-400">Department</p>
+                                <p class="font-bold text-gray-900 dark:text-white text-sm mt-1 truncate" title="{{ $course->department->name ?? 'N/A' }}">
                                     {{ $course->department->name ?? 'N/A' }}
                                 </p>
                             </div>
 
-                            <div class="bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Regulation & Curriculum</p>
-                                <p class="font-bold text-gray-900 text-sm mt-1">
+                            <div class="bg-gray-50/70 dark:bg-[#1C2128] p-3.5 rounded-xl border border-gray-100 dark:border-[#273244]">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-400">Regulation & Curriculum</p>
+                                <p class="font-bold text-gray-900 dark:text-white text-sm mt-1">
                                     Regulation {{ $course->regulation->code ?? 'Standard' }}
                                     @if($course->regulation && $course->regulation->curriculum)
-                                        <span class="text-xs text-gray-500 font-medium">({{ $course->regulation->curriculum }})</span>
+                                        <span class="text-xs text-gray-500 dark:text-slate-400 font-medium">({{ $course->regulation->curriculum }})</span>
                                     @endif
                                 </p>
                             </div>
 
-                            <div class="bg-gray-50/70 p-3.5 rounded-xl border border-gray-100">
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Semester & Year</p>
-                                <p class="font-bold text-gray-900 text-sm mt-1">
+                            <div class="bg-gray-50/70 dark:bg-[#1C2128] p-3.5 rounded-xl border border-gray-100 dark:border-[#273244]">
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-400">Semester & Year</p>
+                                <p class="font-bold text-gray-900 dark:text-white text-sm mt-1">
                                     Year {{ $course->year ?? 1 }}, Semester {{ $course->semester ?? 1 }}
                                 </p>
                             </div>
@@ -992,26 +984,26 @@
                     </div>
 
                     <!-- Enrolled Students List Card (Full Width) -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-gray-100 dark:border-[#273244] overflow-hidden">
                         <!-- Table Card Header -->
-                        <div class="p-5 border-b border-gray-100 bg-gray-50/70 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="p-5 border-b border-gray-100 dark:border-[#273244] bg-gray-50/70 dark:bg-[#1C2128] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-2">
-                                        <h3 class="text-base font-bold text-gray-900">Enrolled Students</h3>
-                                        <span id="enrolledCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <h3 class="text-base font-bold text-gray-900 dark:text-white">Enrolled Students</h3>
+                                        <span id="enrolledCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
                                             {{ $course->enrollments->count() }} {{ Str::plural('Student', $course->enrollments->count()) }}
                                         </span>
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-0.5">Students actively registered and participating in this course</p>
+                                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Students actively registered and participating in this course</p>
                                 </div>
                             </div>
                             <div class="relative w-full sm:w-72">
-                                <input type="text" id="studentSearchInput" oninput="filterEnrolledStudents(this.value)" placeholder="Search by name, roll no, email..." class="w-full pl-9 pr-3 py-2 text-xs bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-shadow shadow-xs">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <input type="text" id="studentSearchInput" oninput="filterEnrolledStudents(this.value)" placeholder="Search by name, roll no, email..." class="w-full pl-9 pr-3 py-2 text-xs bg-white dark:bg-[#151B23] border border-gray-300 dark:border-[#273244] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-shadow shadow-xs font-medium">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 </div>
                             </div>
@@ -1021,7 +1013,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
                                 <thead>
-                                    <tr class="bg-gray-50/80 text-[11px] uppercase tracking-wider font-bold text-gray-500 border-b border-gray-200">
+                                    <tr class="bg-gray-50/80 dark:bg-[#1C2128] text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400 border-b border-gray-200 dark:border-[#273244]">
                                         <th class="py-3.5 px-4 text-center w-12">#</th>
                                         <th class="py-3.5 px-4">Student Name</th>
                                         <th class="py-3.5 px-4">Roll Number / ID</th>
@@ -1031,7 +1023,7 @@
                                         <th class="py-3.5 px-4 text-center">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-100" id="studentsTableBody">
+                                <tbody class="divide-y divide-gray-100 dark:divide-[#273244]" id="studentsTableBody">
                                     @forelse($course->enrollments as $index => $student)
                                     @php
                                         $firstName = $student->profile->first_name ?? '';
@@ -1045,8 +1037,8 @@
                                         $deptName = $student->profile->department->name ?? ($student->profile->departments_id ?? ($course->department->name ?? '—'));
                                         $programName = $student->profile->program->name ?? ($student->profile->programs_id ?? null);
                                     @endphp
-                                    <tr class="student-row hover:bg-indigo-50/40 transition-colors" data-student-search="{{ strtolower($fullName . ' ' . $student->username . ' ' . ($email ?? '') . ' ' . ($deptName ?? '') . ' ' . ($phone ?? '')) }}">
-                                        <td class="py-3.5 px-4 text-center font-mono text-xs text-gray-400 font-semibold student-index">
+                                    <tr class="student-row hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20 transition-colors" data-student-search="{{ strtolower($fullName . ' ' . $student->username . ' ' . ($email ?? '') . ' ' . ($deptName ?? '') . ' ' . ($phone ?? '')) }}">
+                                        <td class="py-3.5 px-4 text-center font-mono text-xs text-gray-400 dark:text-slate-500 font-semibold student-index">
                                             {{ $index + 1 }}
                                         </td>
                                         <td class="py-3.5 px-4">
@@ -1055,41 +1047,41 @@
                                                     {{ substr($firstName ?: ($student->username ?: 'S'), 0, 1) }}
                                                 </div>
                                                 <div>
-                                                    <span class="font-bold text-gray-900 block leading-tight">{{ $fullName }}</span>
-                                                    <span class="text-[11px] text-gray-400 sm:hidden font-mono">{{ $student->username }}</span>
+                                                    <span class="font-bold text-gray-900 dark:text-white block leading-tight">{{ $fullName }}</span>
+                                                    <span class="text-[11px] text-gray-400 dark:text-slate-500 sm:hidden font-mono">{{ $student->username }}</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="py-3.5 px-4">
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
                                                 {{ $student->username }}
                                             </span>
                                         </td>
                                         <td class="py-3.5 px-4 text-xs">
-                                            <p class="font-medium text-gray-800">{{ $deptName }}</p>
+                                            <p class="font-medium text-gray-800 dark:text-slate-200">{{ $deptName }}</p>
                                             @if($programName)
-                                                <p class="text-[11px] text-gray-400">{{ $programName }}</p>
+                                                <p class="text-[11px] text-gray-400 dark:text-slate-400">{{ $programName }}</p>
                                             @endif
                                         </td>
                                         <td class="py-3.5 px-4 text-xs">
                                             @if($email)
-                                                <a href="mailto:{{ $email }}" class="inline-flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 hover:underline">
-                                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                                <a href="mailto:{{ $email }}" class="inline-flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline">
+                                                    <svg class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                                     {{ $email }}
                                                 </a>
                                             @else
-                                                <span class="text-gray-400 italic">Not specified</span>
+                                                <span class="text-gray-400 dark:text-slate-500 italic">Not specified</span>
                                             @endif
                                         </td>
-                                        <td class="py-3.5 px-4 text-xs text-gray-600">
+                                        <td class="py-3.5 px-4 text-xs text-gray-600 dark:text-slate-300">
                                             @if($phone)
                                                 <span class="font-mono">{{ $phone }}</span>
                                             @else
-                                                <span class="text-gray-400">—</span>
+                                                <span class="text-gray-400 dark:text-slate-500">—</span>
                                             @endif
                                         </td>
                                         <td class="py-3.5 px-4 text-center">
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 shadow-2xs">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                                 Active
                                             </span>
@@ -1097,24 +1089,24 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="7" class="py-12 text-center text-gray-400">
-                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3 text-gray-400">
+                                        <td colspan="7" class="py-12 text-center text-gray-400 dark:text-slate-500">
+                                            <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#1C2128] flex items-center justify-center mx-auto mb-3 text-gray-400 dark:text-slate-500">
                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                                             </div>
-                                            <p class="text-sm font-semibold text-gray-600">No Students Enrolled</p>
-                                            <p class="text-xs text-gray-400 mt-1">There are currently no students registered for this course.</p>
+                                            <p class="text-sm font-semibold text-gray-600 dark:text-slate-300">No Students Enrolled</p>
+                                            <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">There are currently no students registered for this course.</p>
                                         </td>
                                     </tr>
                                     @endforelse
 
                                     <!-- Filter No-Match State -->
                                     <tr id="no-students-matched-row" style="display: none;">
-                                        <td colspan="7" class="py-10 text-center text-gray-500">
-                                            <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-2 font-bold text-sm">
+                                        <td colspan="7" class="py-10 text-center text-gray-500 dark:text-slate-400">
+                                            <div class="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-2 font-bold text-sm">
                                                 !
                                             </div>
-                                            <p class="text-xs font-semibold text-gray-700">No matching students found</p>
-                                            <p class="text-[11px] text-gray-400 mt-0.5">Try searching with a different name or roll number.</p>
+                                            <p class="text-xs font-semibold text-gray-700 dark:text-slate-200">No matching students found</p>
+                                            <p class="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">Try searching with a different name or roll number.</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1125,40 +1117,40 @@
 
             </div>
             
-            <footer class="mt-8 border-t border-gray-200 pt-4 pb-2">
-                <p class="text-center text-xs text-gray-500 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700">Technology Development (TD)</span>.</p>
+            <footer class="mt-8 border-t border-gray-200 dark:border-[#273244] pt-4 pb-2">
+                <p class="text-center text-xs text-gray-500 dark:text-slate-400 font-medium">&copy; {{ date('Y') }} Learning Management System. Powered by <span class="font-semibold text-gray-700 dark:text-slate-200">Technology Development (TD)</span>.</p>
             </footer>
         </main>
     </div>
 
     <!-- Manage Materials Modal -->
-    <div id="manageMaterialsModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 overflow-y-auto transition-opacity" role="dialog" aria-labelledby="manageMaterialsModalTitle" aria-modal="true">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden border border-gray-100 transform transition-all my-8">
+    <div id="manageMaterialsModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-gray-900/70 backdrop-blur-sm p-4 overflow-y-auto transition-opacity" aria-labelledby="manageMaterialsModalTitle" aria-modal="true">
+        <div class="bg-white dark:bg-[#151B23] rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden border border-gray-100 dark:border-[#273244] transform transition-all my-8" role="dialog">
             <!-- Modal Header -->
-            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50/80 to-white flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <div class="modal-header px-6 py-5 sm:py-6 border-b border-gray-100 dark:border-[#273244] bg-slate-50/80 dark:bg-[#1C2128] flex justify-between items-center">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                     </div>
                     <div>
-                        <h3 id="manageMaterialsModalTitle" class="text-base font-extrabold text-gray-900">Manage Course Materials</h3>
-                        <p class="text-xs text-gray-500 font-medium">{{ $course->code }} &bull; {{ $course->name }}</p>
+                        <h3 id="manageMaterialsModalTitle" class="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">Manage Course Materials</h3>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 font-medium mt-1">{{ $course->code }} &bull; {{ $course->name }}</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeManageMaterialsModal()" class="w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 flex items-center justify-center transition-colors focus:outline-none" aria-label="Close modal">
+                <button type="button" onclick="closeManageMaterialsModal()" class="w-9 h-9 rounded-xl text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#273244] flex items-center justify-center transition-colors focus:outline-none cursor-pointer" aria-label="Close modal">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
 
             <!-- Segmented Switcher Controls (Link vs File) -->
-            <div class="p-3.5 bg-gray-50/80 border-b border-gray-100">
-                <div class="grid grid-cols-2 gap-1.5 p-1 bg-gray-200/70 rounded-xl">
-                    <button type="button" id="tab-link-btn" class="flex items-center justify-center gap-2 py-2 px-3 text-xs font-bold rounded-lg transition-all shadow-xs bg-white text-indigo-700 cursor-pointer">
-                        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+            <div class="p-4 bg-gray-50/50 dark:bg-[#151B23] border-b border-gray-100 dark:border-[#273244]">
+                <div class="modal-tab-track grid grid-cols-2 gap-2 p-1.5 bg-gray-200/70 dark:bg-[#0D1117] rounded-xl border border-transparent dark:border-[#273244]">
+                    <button type="button" id="tab-link-btn" class="modal-tab-btn flex items-center justify-center gap-2 py-2.5 px-4 text-xs sm:text-sm font-bold rounded-lg transition-all shadow-xs bg-white dark:bg-[#273244] text-indigo-700 dark:text-indigo-300 border border-gray-200/50 dark:border-[#384457] cursor-pointer">
+                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                         <span>Web Link</span>
                     </button>
-                    <button type="button" id="tab-file-btn" class="flex items-center justify-center gap-2 py-2 px-3 text-xs font-semibold rounded-lg transition-all text-gray-600 hover:text-gray-900 cursor-pointer">
-                        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <button type="button" id="tab-file-btn" class="modal-tab-btn flex items-center justify-center gap-2 py-2.5 px-4 text-xs sm:text-sm font-semibold rounded-lg transition-all text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-[#161B22] border border-transparent cursor-pointer">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                         <span>Upload File</span>
                     </button>
                 </div>
@@ -1172,42 +1164,23 @@
                         <input type="hidden" name="type" value="link">
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Material Title <span class="text-red-500">*</span></label>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Material Title <span class="text-red-500">*</span></label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </div>
-                                    <input type="text" name="title" value="{{ old('type') === 'link' ? old('title') : '' }}" placeholder="e.g., Lecture 1 Video / Unit 1 Notes" class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('title') border-red-500 @enderror transition-all" required>
+                                    <input type="text" name="title" value="{{ old('type') === 'link' ? old('title') : '' }}" placeholder="e.g., Lecture 1 Video / Unit 1 Notes" class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('title') border-red-500 @enderror transition-all font-medium" required>
                                 </div>
                                 @if(old('type') === 'link')
                                     @error('title') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                                 @endif
                             </div>
 
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Material Division / Section <span class="text-red-500">*</span></label>
-                                <select name="division" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('division') border-red-500 @enderror transition-all" required>
-                                    <option value="">Select Division</option>
-                                    <option value="Course objective and outcomes" {{ old('type') === 'link' && old('division') == 'Course objective and outcomes' ? 'selected' : '' }}>🎯 Course objective and outcomes</option>
-                                    <option value="Syllabus document" {{ old('type') === 'link' && old('division') == 'Syllabus document' ? 'selected' : '' }}>📜 Syllabus document</option>
-                                    <option value="PPTs" {{ old('type') === 'link' && old('division') == 'PPTs' ? 'selected' : '' }}>📊 PPTs</option>
-                                    <option value="Lecture notes" {{ old('type') === 'link' && old('division') == 'Lecture notes' ? 'selected' : '' }}>📝 Lecture notes</option>
-                                    <option value="Lab manual" {{ old('type') === 'link' && old('division') == 'Lab manual' ? 'selected' : '' }}>🧪 Lab manual</option>
-                                    <option value="Assigment Questions" {{ old('type') === 'link' && old('division') == 'Assigment Questions' ? 'selected' : '' }}>📋 Assigment Questions</option>
-                                    <option value="Question Bank" {{ old('type') === 'link' && old('division') == 'Question Bank' ? 'selected' : '' }}>🗂️ Question Bank</option>
-                                    <option value="Gate Questions" {{ old('type') === 'link' && old('division') == 'Gate Questions' ? 'selected' : '' }}>🎓 Gate Questions</option>
-                                    <option value="Previous Question Papers" {{ old('type') === 'link' && old('division') == 'Previous Question Papers' ? 'selected' : '' }}>📑 Previous Question Papers</option>
-                                    <option value="Videos" {{ old('type') === 'link' && (old('division') == 'Videos' || !old('division')) ? 'selected' : '' }}>🎥 Videos</option>
-                                    <option value="Additional material" {{ old('type') === 'link' && old('division') == 'Additional material' ? 'selected' : '' }}>📁 Additional material</option>
-                                </select>
-                                @if(old('type') === 'link')
-                                    @error('division') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                                @endif
-                            </div>
+
 
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Platform / Source <span class="text-red-500">*</span></label>
-                                <select name="platform" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('platform') border-red-500 @enderror transition-all" required>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Platform / Source <span class="text-red-500">*</span></label>
+                                <select name="platform" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('platform') border-red-500 @enderror transition-all font-medium" required>
                                     <option value="">Select Platform</option>
                                     <option value="Reference Portal" {{ old('type') === 'link' && old('platform') == 'Reference Portal' ? 'selected' : '' }}>🌐 Reference Portal / Academic Roadmap</option>
                                     <option value="youtube" {{ old('type') === 'link' && old('platform') == 'youtube' ? 'selected' : '' }}>▶️ YouTube Video</option>
@@ -1220,20 +1193,20 @@
                                 @endif
                             </div>
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Direct URL <span class="text-red-500">*</span></label>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Direct URL <span class="text-red-500">*</span></label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                                     </div>
-                                    <input type="url" name="url" value="{{ old('type') === 'link' ? old('url') : '' }}" placeholder="https://youtube.com/... or https://drive.google.com/..." class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('url') border-red-500 @enderror transition-all" required>
+                                    <input type="url" name="url" value="{{ old('type') === 'link' ? old('url') : '' }}" placeholder="https://youtube.com/... or https://drive.google.com/..." class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('url') border-red-500 @enderror transition-all font-medium" required>
                                 </div>
                                 @if(old('type') === 'link')
                                     @error('url') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                                 @endif
                             </div>
-                            <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
-                                <button type="button" onclick="closeManageMaterialsModal()" class="px-4 py-2 text-xs sm:text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none">Cancel</button>
-                                <button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-bold py-2.5 px-5 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
+                            <div class="pt-4 border-t border-gray-100 dark:border-[#273244] flex items-center justify-end gap-2.5">
+                                <button type="button" onclick="closeManageMaterialsModal()" class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-[#1C2128] border border-gray-300 dark:border-[#273244] rounded-xl hover:bg-gray-50 dark:hover:bg-[#273244] transition-colors focus:outline-none cursor-pointer">Cancel</button>
+                                <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold py-2.5 px-5 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     <span>Save Link Material</span>
                                 </button>
@@ -1251,20 +1224,20 @@
                         <input type="hidden" name="file_name" id="file_name">
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Document Title <span class="text-red-500">*</span></label>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Document Title <span class="text-red-500">*</span></label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                     </div>
-                                    <input type="text" name="title" value="{{ old('type') === 'file' ? old('title') : '' }}" placeholder="e.g., Unit 1 Lecture Presentation" class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('title') border-red-500 @enderror transition-all" required>
+                                    <input type="text" name="title" value="{{ old('type') === 'file' ? old('title') : '' }}" placeholder="e.g., Unit 1 Lecture Presentation" class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('title') border-red-500 @enderror transition-all font-medium" required>
                                 </div>
                                 @if(old('type') === 'file')
                                     @error('title') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                                 @endif
                             </div>
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Material Division / Section <span class="text-red-500">*</span></label>
-                                <select name="division" id="file-division-select" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('division') border-red-500 @enderror transition-all" required>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Material Division / Section <span class="text-red-500">*</span></label>
+                                <select name="division" id="file-division-select" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('division') border-red-500 @enderror transition-all font-medium" required>
                                     <option value="">Select Division</option>
                                     <option value="Course objective and outcomes" {{ old('type') === 'file' && old('division') == 'Course objective and outcomes' ? 'selected' : '' }}>🎯 Course objective and outcomes</option>
                                     <option value="Syllabus document" {{ old('type') === 'file' && old('division') == 'Syllabus document' ? 'selected' : '' }}>📜 Syllabus document</option>
@@ -1283,8 +1256,8 @@
                                 @endif
                             </div>
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-1.5">Document Format <span class="text-red-500">*</span></label>
-                                <select name="platform" id="file-type-select" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('platform') border-red-500 @enderror transition-all" required>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Document Format <span class="text-red-500">*</span></label>
+                                <select name="platform" id="file-type-select" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('platform') border-red-500 @enderror transition-all font-medium" required>
                                     <option value="">Select Document Format</option>
                                     <option value="pdf" {{ old('type') === 'file' && old('platform') == 'pdf' ? 'selected' : '' }}>📕 PDF Document (.pdf)</option>
                                     <option value="word" {{ old('type') === 'file' && old('platform') == 'word' ? 'selected' : '' }}>📘 Word Document (.doc, .docx)</option>
@@ -1298,47 +1271,47 @@
                             </div>
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600">Choose File <span class="text-red-500">*</span></label>
-                                    <span class="text-[11px] font-semibold text-gray-400">Max 25MB</span>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">Choose File <span class="text-red-500">*</span></label>
+                                    <span class="text-[11px] font-semibold text-gray-400 dark:text-slate-500">Max 25MB</span>
                                 </div>
                                 
-                                <div id="file-dropzone-container" class="border-2 border-dashed border-gray-300 hover:border-indigo-400 rounded-2xl p-4 text-center bg-gray-50/50 hover:bg-indigo-50/30 transition-all cursor-pointer relative group">
+                                <div id="file-dropzone-container" class="border-2 border-dashed border-gray-300 dark:border-[#273244] hover:border-indigo-400 dark:hover:border-indigo-500/70 rounded-2xl p-5 text-center bg-gray-50/50 dark:bg-[#1C2128]/50 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20 transition-all cursor-pointer relative group">
                                     <div class="flex flex-col items-center justify-center">
-                                        <div id="file-icon-preview" class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2 shadow-2xs border border-indigo-100 transition-transform">
-                                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                        <div id="file-icon-preview" class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2 shadow-2xs border border-indigo-100 dark:border-indigo-800/50 transition-transform">
+                                            <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                                         </div>
-                                        <p id="file-select-title" class="text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors">Click to select document</p>
-                                        <p id="file-select-subtitle" class="text-[10px] text-gray-400 mt-0.5">Supports PDF, DOCX, PPTX, XLSX, TXT, CSV, ZIP (Max 25MB)</p>
+                                        <p id="file-select-title" class="text-xs font-bold text-gray-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Click to select document</p>
+                                        <p id="file-select-subtitle" class="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">Supports PDF, DOCX, PPTX, XLSX, TXT, CSV, ZIP (Max 25MB)</p>
                                     </div>
                                     <input type="file" name="file" id="file-upload-input" accept=".pdf,.doc,.docx,.ppt,.pptx,.pps,.ppsx,.xls,.xlsx,.csv,.txt,.zip,.rar,.png,.jpg,.jpeg,.webp" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                                 </div>
 
                                 <!-- Dynamic In-Modal File Size Error Alert Banner -->
-                                <div id="file-size-error-banner" class="hidden mt-3 p-3.5 bg-red-50 border-2 border-red-200 rounded-xl flex items-start gap-3 text-red-800 transition-all shadow-2xs">
-                                    <div class="w-7 h-7 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                                <div id="file-size-error-banner" class="hidden mt-3 p-3.5 bg-red-50 dark:bg-red-950/40 border-2 border-red-200 dark:border-red-900/50 rounded-xl flex items-start gap-3 text-red-800 dark:text-red-300 transition-all shadow-2xs">
+                                    <div class="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-xs font-bold text-red-900" id="file-size-error-title">File Size Exceeds 25MB Limit</p>
-                                        <p class="text-[11px] font-medium text-red-700 mt-0.5 leading-relaxed" id="file-size-error-msg">The selected file exceeds the maximum allowed limit of 25MB. Please choose a smaller file.</p>
+                                        <p class="text-xs font-bold text-red-900 dark:text-red-200" id="file-size-error-title">File Size Exceeds 25MB Limit</p>
+                                        <p class="text-[11px] font-medium text-red-700 dark:text-red-300 mt-0.5 leading-relaxed" id="file-size-error-msg">The selected file exceeds the maximum allowed limit of 25MB. Please choose a smaller file.</p>
                                     </div>
-                                    <button type="button" onclick="dismissFileSizeError()" class="text-red-400 hover:text-red-700 p-1 rounded-md transition-colors" title="Dismiss">
+                                    <button type="button" onclick="dismissFileSizeError()" class="text-red-400 hover:text-red-700 dark:hover:text-red-200 p-1 rounded-md transition-colors cursor-pointer" title="Dismiss">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
                                 </div>
 
                                 @if(old('type') === 'file')
                                     @error('file')
-                                        <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-xs text-red-700 font-semibold">
+                                        <div class="mt-3 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-xl flex items-center gap-2 text-xs text-red-700 dark:text-red-300 font-semibold">
                                             <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                             <span>{{ $message }}</span>
                                         </div>
                                     @enderror
                                 @endif
                             </div>
-                            <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
-                                <button type="button" onclick="closeManageMaterialsModal()" class="px-4 py-2 text-xs sm:text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none">Cancel</button>
-                                <button type="submit" id="submit-upload-btn" class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-bold py-2.5 px-5 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
+                            <div class="pt-4 border-t border-gray-100 dark:border-[#273244] flex items-center justify-end gap-2.5">
+                                <button type="button" onclick="closeManageMaterialsModal()" class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-[#1C2128] border border-gray-300 dark:border-[#273244] rounded-xl hover:bg-gray-50 dark:hover:bg-[#273244] transition-colors focus:outline-none cursor-pointer">Cancel</button>
+                                <button type="submit" id="submit-upload-btn" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold py-2.5 px-5 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                                     <span>Upload Document</span>
                                 </button>
@@ -1386,20 +1359,20 @@
     </div>
 
     <!-- Allocate / Edit Division Modal -->
-    <div id="allocateDivisionModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 overflow-y-auto transition-opacity" role="dialog" aria-labelledby="allocateDivisionModalTitle" aria-modal="true">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 transform transition-all my-8">
+    <div id="allocateDivisionModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-gray-900/70 backdrop-blur-sm p-4 overflow-y-auto transition-opacity" aria-labelledby="allocateDivisionModalTitle" aria-modal="true">
+        <div class="bg-white dark:bg-[#151B23] rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-[#273244] transform transition-all my-8" role="dialog">
             <!-- Modal Header -->
-            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50/90 via-white to-white flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            <div class="modal-header px-6 py-5 sm:py-6 border-b border-gray-100 dark:border-[#273244] bg-slate-50/80 dark:bg-[#1C2128] flex justify-between items-center">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     </div>
                     <div>
-                        <h3 id="allocateDivisionModalTitle" class="text-base font-extrabold text-gray-900">Allocate / Reallocate Material</h3>
-                        <p id="allocate-material-subtitle" class="text-xs text-gray-500 font-medium">Assign or update the division section for this material</p>
+                        <h3 id="allocateDivisionModalTitle" class="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">Allocate / Reallocate Material</h3>
+                        <p id="allocate-material-subtitle" class="text-xs text-gray-500 dark:text-slate-400 font-medium mt-1">Assign or update the division section for this material</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeAllocateDivisionModal()" class="w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 flex items-center justify-center transition-colors focus:outline-none" aria-label="Close modal">
+                <button type="button" onclick="closeAllocateDivisionModal()" class="w-9 h-9 rounded-xl text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#273244] flex items-center justify-center transition-colors focus:outline-none cursor-pointer" aria-label="Close modal">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -1413,19 +1386,19 @@
                 <div class="p-6 space-y-4">
                     <!-- Material Title Input -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Material Title <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Material Title <span class="text-red-500">*</span></label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </div>
-                            <input type="text" id="allocate-title-input" name="title" class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-800" required>
+                            <input type="text" id="allocate-title-input" name="title" class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium" required>
                         </div>
                     </div>
 
                     <!-- Material Division Select -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Material Division / Section <span class="text-red-500">*</span></label>
-                        <select id="allocate-division-select" name="division" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 bg-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-800 shadow-2xs" required>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Material Division / Section <span class="text-red-500">*</span></label>
+                        <select id="allocate-division-select" name="division" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium shadow-2xs" required>
                             <option value="">-- Select Division --</option>
                             <option value="Course objective and outcomes">🎯 Course objective and outcomes</option>
                             <option value="Syllabus document">📜 Syllabus document</option>
@@ -1439,18 +1412,18 @@
                             <option value="Videos">🎥 Videos</option>
                             <option value="Additional material">📁 Additional material</option>
                         </select>
-                        <p class="text-[11px] text-gray-500 mt-1">Select which section this resource belongs to so students and faculty can find it organized properly.</p>
+                        <p class="text-[11px] text-gray-500 dark:text-slate-400 mt-1">Select which section this resource belongs to so students and faculty can find it organized properly.</p>
                     </div>
 
                     <!-- Platform / Source Selection (Optional) -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Platform / Format</label>
-                        <input type="text" id="allocate-platform-select" name="platform" placeholder="e.g. pdf, ppt, youtube, website" class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium text-gray-700 bg-gray-50/50">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Platform / Format</label>
+                        <input type="text" id="allocate-platform-select" name="platform" placeholder="e.g. pdf, ppt, youtube, website" class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-gray-50/50 dark:bg-[#1C2128] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium">
                     </div>
 
-                    <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-2.5">
-                        <button type="button" onclick="closeAllocateDivisionModal()" class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none transition-colors">Cancel</button>
-                        <button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-bold py-2.5 px-5 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
+                    <div class="pt-4 border-t border-gray-100 dark:border-[#273244] flex items-center justify-end gap-2.5">
+                        <button type="button" onclick="closeAllocateDivisionModal()" class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-[#1C2128] border border-gray-300 dark:border-[#273244] rounded-xl hover:bg-gray-50 dark:hover:bg-[#273244] focus:outline-none transition-colors cursor-pointer">Cancel</button>
+                        <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold py-2.5 px-5 rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             <span>Save Allocation</span>
                         </button>
@@ -1573,23 +1546,13 @@
                 if (key === tabKey) {
                     if (panels[key]) panels[key].classList.remove('hidden');
                     if (metricCards[key]) {
-                        metricCards[key].classList.remove('border-gray-200', 'bg-white', 'shadow-2xs');
-                        metricCards[key].classList.add('shadow-md', 'ring-2');
-                        if (key === 'materials') metricCards[key].classList.add('ring-indigo-400', 'border-indigo-300', 'bg-indigo-50/70');
-                        if (key === 'assignments') metricCards[key].classList.add('ring-purple-400', 'border-purple-300', 'bg-purple-50/70');
-                        if (key === 'overview') metricCards[key].classList.add('ring-emerald-400', 'border-emerald-300', 'bg-emerald-50/70');
+                        metricCards[key].classList.add('is-active-tab');
                     }
                     window.history.replaceState(null, null, '#' + key);
                 } else {
                     if (panels[key]) panels[key].classList.add('hidden');
                     if (metricCards[key]) {
-                        metricCards[key].classList.remove(
-                            'shadow-md', 'ring-2', 
-                            'ring-indigo-400', 'border-indigo-300', 'bg-indigo-50/70', 'bg-indigo-100/60',
-                            'ring-purple-400', 'border-purple-300', 'bg-purple-50/70', 'bg-purple-100/60',
-                            'ring-emerald-400', 'border-emerald-300', 'bg-emerald-50/70', 'bg-emerald-100/60'
-                        );
-                        metricCards[key].classList.add('shadow-2xs', 'border-gray-200', 'bg-white');
+                        metricCards[key].classList.remove('is-active-tab');
                     }
                 }
             });
@@ -1926,30 +1889,43 @@
         const tabFileContent = document.getElementById('tab-file-content');
 
         if(tabLinkBtn && tabFileBtn) {
-            tabLinkBtn.addEventListener('click', () => {
-                tabLinkBtn.className = 'flex items-center justify-center gap-2 py-2 px-3 text-xs font-bold rounded-lg transition-all shadow-xs bg-white text-indigo-700 cursor-pointer';
-                tabFileBtn.className = 'flex items-center justify-center gap-2 py-2 px-3 text-xs font-semibold rounded-lg transition-all text-gray-600 hover:text-gray-900 cursor-pointer';
-
-                tabFileContent.classList.add('hidden');
-                tabFileContent.classList.remove('block');
+            const setUploadModalTab = (activeType) => {
+                const isLink = activeType === 'link';
                 
-                tabLinkContent.classList.add('block');
-                tabLinkContent.classList.remove('hidden');
-            });
+                // Link Tab
+                tabLinkBtn.className = isLink 
+                    ? 'modal-tab-btn flex items-center justify-center gap-2 py-2.5 px-4 text-xs sm:text-sm font-bold rounded-lg transition-all shadow-xs bg-white dark:bg-[#273244] text-indigo-700 dark:text-indigo-300 border border-gray-200/50 dark:border-[#384457] cursor-pointer'
+                    : 'modal-tab-btn flex items-center justify-center gap-2 py-2.5 px-4 text-xs sm:text-sm font-semibold rounded-lg transition-all text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-[#161B22] border border-transparent cursor-pointer';
+                const linkSvg = tabLinkBtn.querySelector('svg');
+                if (linkSvg) linkSvg.setAttribute('class', isLink ? 'w-4 h-4 text-indigo-600 dark:text-indigo-400' : 'w-4 h-4 text-gray-500 dark:text-slate-400');
 
-            tabFileBtn.addEventListener('click', () => {
-                tabFileBtn.className = 'flex items-center justify-center gap-2 py-2 px-3 text-xs font-bold rounded-lg transition-all shadow-xs bg-white text-indigo-700 cursor-pointer';
-                tabLinkBtn.className = 'flex items-center justify-center gap-2 py-2 px-3 text-xs font-semibold rounded-lg transition-all text-gray-600 hover:text-gray-900 cursor-pointer';
+                // File Tab
+                tabFileBtn.className = !isLink 
+                    ? 'modal-tab-btn flex items-center justify-center gap-2 py-2.5 px-4 text-xs sm:text-sm font-bold rounded-lg transition-all shadow-xs bg-white dark:bg-[#273244] text-indigo-700 dark:text-indigo-300 border border-gray-200/50 dark:border-[#384457] cursor-pointer'
+                    : 'modal-tab-btn flex items-center justify-center gap-2 py-2.5 px-4 text-xs sm:text-sm font-semibold rounded-lg transition-all text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-[#161B22] border border-transparent cursor-pointer';
+                const fileSvg = tabFileBtn.querySelector('svg');
+                if (fileSvg) fileSvg.setAttribute('class', !isLink ? 'w-4 h-4 text-indigo-600 dark:text-indigo-400' : 'w-4 h-4 text-gray-500 dark:text-slate-400');
 
-                tabLinkContent.classList.add('hidden');
-                tabLinkContent.classList.remove('block');
-                
-                tabFileContent.classList.add('block');
-                tabFileContent.classList.remove('hidden');
-            });
+                if (isLink) {
+                    tabFileContent?.classList.add('hidden');
+                    tabFileContent?.classList.remove('block');
+                    tabLinkContent?.classList.add('block');
+                    tabLinkContent?.classList.remove('hidden');
+                } else {
+                    tabLinkContent?.classList.add('hidden');
+                    tabLinkContent?.classList.remove('block');
+                    tabFileContent?.classList.add('block');
+                    tabFileContent?.classList.remove('hidden');
+                }
+            };
+
+            tabLinkBtn.addEventListener('click', () => setUploadModalTab('link'));
+            tabFileBtn.addEventListener('click', () => setUploadModalTab('file'));
             
             @if(old('type') === 'file')
-                tabFileBtn.click();
+                setUploadModalTab('file');
+            @else
+                setUploadModalTab('link');
             @endif
         }
 
@@ -1981,15 +1957,15 @@
             if (fileNameInput) fileNameInput.value = '';
             if (fileSelectTitle) {
                 fileSelectTitle.textContent = 'Click to select document';
-                fileSelectTitle.className = 'text-xs font-bold text-gray-700 group-hover:text-indigo-600 transition-colors';
+                fileSelectTitle.className = 'text-xs font-bold text-gray-700 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors';
             }
             if (fileSelectSubtitle) {
                 fileSelectSubtitle.textContent = 'Supports PDF, DOCX, PPTX, XLSX, CSV, ZIP (Max 25MB)';
-                fileSelectSubtitle.className = 'text-[10px] text-gray-400 mt-0.5';
+                fileSelectSubtitle.className = 'text-[10px] text-gray-400 dark:text-slate-500 mt-0.5';
             }
             if (fileIconPreview) {
-                fileIconPreview.innerHTML = '<svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>';
-                fileIconPreview.className = 'w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2 shadow-2xs border border-indigo-100 transition-transform';
+                fileIconPreview.innerHTML = '<svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>';
+                fileIconPreview.className = 'w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2 shadow-2xs border border-indigo-100 dark:border-indigo-800/50 transition-transform';
             }
         }
 
@@ -2012,7 +1988,7 @@
                     fileSizeErrorTitle.textContent = `File Size (${fileSizeMB} MB) Exceeds 25MB Limit`;
                 }
                 if (fileSizeErrorMsg) {
-                    fileSizeErrorMsg.innerHTML = `The selected file <span class="font-bold text-red-900 break-all">"${file.name}"</span> is <span class="font-bold text-red-900">${fileSizeMB} MB</span>. Maximum allowed file size is <span class="font-bold text-red-900">25 MB</span>. Please choose a smaller file.`;
+                    fileSizeErrorMsg.innerHTML = `The selected file <span class="font-bold text-red-900 dark:text-red-300 break-all">"${file.name}"</span> is <span class="font-bold text-red-900 dark:text-red-300">${fileSizeMB} MB</span>. Maximum allowed file size is <span class="font-bold text-red-900 dark:text-red-300">25 MB</span>. Please choose a smaller file.`;
                 }
                 if (fileSizeErrorBanner) {
                     fileSizeErrorBanner.classList.remove('hidden');
@@ -2031,11 +2007,11 @@
             const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
             if (fileSelectTitle) {
                 fileSelectTitle.textContent = file.name;
-                fileSelectTitle.className = 'text-xs font-bold text-indigo-700 truncate max-w-[280px] sm:max-w-md';
+                fileSelectTitle.className = 'text-xs font-bold text-indigo-700 dark:text-indigo-300 truncate max-w-[280px] sm:max-w-md';
             }
             if (fileSelectSubtitle) {
                 fileSelectSubtitle.textContent = `File Size: ${fileSizeMB} MB • Reading file into buffer...`;
-                fileSelectSubtitle.className = 'text-[11px] font-semibold text-amber-600 mt-0.5 animate-pulse';
+                fileSelectSubtitle.className = 'text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-0.5 animate-pulse';
             }
 
             const filename = file.name.toLowerCase();
@@ -2067,7 +2043,7 @@
                 if (iconSvg) {
                     fileIconPreview.innerHTML = iconSvg;
                 } else {
-                    fileIconPreview.innerHTML = '<svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>';
+                    fileIconPreview.innerHTML = '<svg class="w-6 h-6 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>';
                 }
                 fileIconPreview.classList.remove('hidden');
                 fileIconPreview.classList.add('flex');
@@ -2083,7 +2059,7 @@
                 }
                 if (fileSelectSubtitle) {
                     fileSelectSubtitle.textContent = `File Size: ${fileSizeMB} MB • Ready to upload ✓`;
-                    fileSelectSubtitle.className = 'text-[11px] font-semibold text-emerald-600 mt-0.5';
+                    fileSelectSubtitle.className = 'text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5';
                 }
             };
             reader.onerror = function() {

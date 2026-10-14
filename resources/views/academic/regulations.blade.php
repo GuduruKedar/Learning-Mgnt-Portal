@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Regulations - LMS</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
@@ -162,13 +162,15 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex items-center gap-4">
-                                                <button type="button" class="text-indigo-600 hover:text-indigo-900 edit-regulation-btn" 
+                                            <div class="flex items-center gap-1.5">
+                                                <button type="button" 
+                                                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50/90 text-indigo-600 border border-indigo-200/70 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 edit-regulation-btn" 
                                                     data-id="{{ $reg->id }}"
                                                     data-code="{{ $reg->code }}"
                                                     data-curriculum="{{ $reg->curriculum ?? ($reg->name !== $reg->code ? $reg->name : '') }}"
-                                                    data-status="{{ $reg->status }}">
-                                                    Edit
+                                                    data-status="{{ $reg->status }}"
+                                                    title="Edit Regulation">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                 </button>
                                                 @php
                                                     $regCoursesCount = $reg->courses_count ?? $reg->courses()->count();
@@ -197,9 +199,9 @@
                                                         deleteUrl: '{{ $regDelUrl }}',
                                                         submitBtnText: 'Yes, Delete Regulation & All Linked Data'
                                                     })"
-                                                    class="text-red-600 hover:text-red-900 cursor-pointer font-medium"
+                                                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 cursor-pointer"
                                                     title="Delete Regulation & Cascade All Linked Data">
-                                                    Delete
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                 </button>
                                             </div>
                                         </td>
@@ -289,13 +291,13 @@
                                 <option value="Inactive">Inactive</option>
                             </select>
                         </div>
-                        <div>
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors">
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <button type="button" id="cancelEditModalBtn" class="w-full py-2.5 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 rounded-xl transition-all shadow-xs text-center cursor-pointer">
+                                Cancel
+                            </button>
+                            <button type="submit" class="w-full py-2.5 px-4 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:scale-95 rounded-xl shadow-xs transition-all text-center cursor-pointer">
                                 Update Regulation
                             </button>
-                        </div>
-                        <div class="mt-4 flex justify-end">
-                            <button type="button" id="cancelEditModalBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto">Cancel</button>
                         </div>
                     </div>
                 </form>

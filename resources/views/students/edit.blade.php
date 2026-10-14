@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Student - LMS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/tailwindcss.js') }}"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
@@ -211,8 +211,22 @@
                                     @enderror
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Password <span class="text-xs text-slate-400 font-normal lowercase">(leave blank to keep current)</span></label>
-                                    <input type="password" name="password" placeholder="Enter new password if changing" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Password <span class="text-xs text-slate-400 font-normal lowercase">(leave blank to keep current)</span></label>
+                                    <div class="relative">
+                                        <input type="password" id="student_password" name="password" autocomplete="new-password" class="w-full pl-3.5 password-input-with-actions py-2.5 bg-slate-50 dark:bg-[#1C2430] border border-slate-200 dark:border-[#273244] rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-[#151B23] focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" placeholder="Enter new password">
+                                        <div class="password-actions-group">
+                                            <button type="button" onclick="setStudentDefaultPassword()" class="password-default-btn text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/60 hover:bg-orange-100 dark:hover:bg-orange-900/60 border border-orange-200 dark:border-orange-800/60 shadow-2xs" title="Auto-fill default password Student#963">
+                                                Use Default
+                                            </button>
+                                            <button type="button" onclick="toggleStudentPassword()" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors focus:outline-none cursor-pointer" aria-label="Toggle password visibility">
+                                                <svg id="studentPwdEyeOpen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                <svg id="studentPwdEyeClosed" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                        <span>Default password is <code class="font-mono font-bold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/60 px-1.5 py-0.5 rounded border border-orange-200 dark:border-orange-800/60">Student#963</code>. If changing, must be at least 8 characters with a symbol (e.g. @, #, !).</span>
+                                    </p>
                                     @error('password')
                                         <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                                     @enderror
@@ -221,9 +235,12 @@
                         </div>
 
                         <!-- Form Actions -->
-                        <div class="border-t border-slate-100 pt-6 flex items-center justify-end gap-3">
-                            <a href="{{ route('students.index') }}" class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-all shadow-xs">Cancel</a>
-                            <button type="submit" class="px-6 py-2.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-md transition-all">Update Student</button>
+                        <div class="border-t border-slate-100 dark:border-slate-800 pt-6 flex items-center justify-end gap-3">
+                            <a href="{{ route('students.index') }}" class="px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-all shadow-xs">Cancel</a>
+                            <button type="submit" class="btn-primary px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/40 transition-all cursor-pointer flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <span>Update Student</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -381,6 +398,35 @@
                 }
             }
         });
+    </script>
+    <script>
+        function toggleStudentPassword() {
+            const input = document.getElementById('student_password');
+            const openIcon = document.getElementById('studentPwdEyeOpen');
+            const closedIcon = document.getElementById('studentPwdEyeClosed');
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (openIcon) openIcon.classList.add('hidden');
+                if (closedIcon) closedIcon.classList.remove('hidden');
+            } else {
+                input.type = 'password';
+                if (openIcon) openIcon.classList.remove('hidden');
+                if (closedIcon) closedIcon.classList.add('hidden');
+            }
+        }
+
+        function setStudentDefaultPassword() {
+            const input = document.getElementById('student_password');
+            if (!input) return;
+            input.value = 'Student#963';
+            input.type = 'text';
+            const openIcon = document.getElementById('studentPwdEyeOpen');
+            const closedIcon = document.getElementById('studentPwdEyeClosed');
+            if (openIcon) openIcon.classList.add('hidden');
+            if (closedIcon) closedIcon.classList.remove('hidden');
+            input.focus();
+        }
     </script>
 </body>
 </html>

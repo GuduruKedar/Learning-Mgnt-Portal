@@ -19,10 +19,36 @@ class CourseMaterialController extends Controller
             abort(403);
         }
 
-        // Fetch assigned courses grouped by regulation & curriculum with materials
-        $courses = $user->courses()
-            ->with(['regulation', 'department', 'materials.staff.profile'])
-            ->withCount(['materials', 'assignments', 'enrollments'])
+        $assignedToYear1 = Course::whereHas('staff', fn($q) => $q->where('users.id', $user->id))
+            ->where('year', 1)
+            ->exists();
+        $deptCode = $user->profile?->departments_id;
+
+        $coursesQuery = Course::query();
+        $coursesQuery->where(function ($q) use ($user, $assignedToYear1, $deptCode) {
+            $q->whereHas('staff', fn($sq) => $sq->where('users.id', $user->id));
+            if ($assignedToYear1 && $deptCode) {
+                $q->orWhere(function ($yq) use ($deptCode) {
+                    $yq->where('department_id', $deptCode)
+                       ->where('year', 1);
+                });
+            }
+        });
+
+        // Fetch assigned courses grouped by regulation & curriculum with materials (only own uploaded materials for faculty)
+        $courses = $coursesQuery
+            ->with(['regulation', 'department', 'materials' => function($q) use ($user) {
+                $q->where('staff_id', $user->id)->with('staff.profile');
+            }])
+            ->withCount([
+                'materials' => function($q) use ($user) {
+                    $q->where('staff_id', $user->id);
+                }, 
+                'assignments' => function($q) use ($user) {
+                    $q->where('staff_id', $user->id);
+                }, 
+                'enrollments'
+            ])
             ->get();
             
         $groupedCourses = $courses->groupBy(function($course) {
@@ -31,14 +57,15 @@ class CourseMaterialController extends Controller
 
         $courseIds = $courses->pluck('id');
 
-        // All materials across all assigned courses for combined section-wise view
+        // All materials across all assigned courses for combined section-wise view (only own uploaded materials)
         $allMaterials = CourseMaterial::whereIn('course_id', $courseIds)
+            ->where('staff_id', $user->id)
             ->with(['course', 'staff.profile'])
             ->latest()
             ->get();
 
-        // Fetch all assignments for assigned courses
-        $assignments = \App\Models\Assignment::whereIn('course_id', $courseIds)
+        // Fetch all assignments for assigned courses (only own created assignments for faculty)
+        $assignments = \App\Models\Assignment::where('staff_id', $user->id)
             ->with(['course', 'questions'])
             ->withCount('submissions')
             ->latest()
@@ -50,15 +77,9 @@ class CourseMaterialController extends Controller
             ->take(6)
             ->get();
 
-        $totalMaterialsCount = \App\Models\CourseMaterial::where(function($q) use ($user, $courseIds) {
-            $q->where('staff_id', $user->id)
-              ->orWhereIn('course_id', $courseIds);
-        })->count();
+        $totalMaterialsCount = \App\Models\CourseMaterial::where('staff_id', $user->id)->count();
 
-        $totalAssignmentsCount = \App\Models\Assignment::where(function($q) use ($user, $courseIds) {
-            $q->where('staff_id', $user->id)
-              ->orWhereIn('course_id', $courseIds);
-        })->count();
+        $totalAssignmentsCount = \App\Models\Assignment::where('staff_id', $user->id)->count();
 
         return view('staff.my_courses', compact(
             'groupedCourses', 
@@ -74,7 +95,7 @@ class CourseMaterialController extends Controller
     public function index(Request $request, $course_id)
     {
         $user = Auth::user();
-        if ($user->role !== 'sta') {
+        if (!in_array($user->role, ['sta', 'admin', 'sa'])) {
             abort(403);
         }
 
@@ -86,21 +107,57 @@ class CourseMaterialController extends Controller
             'enrollments.profile.program'
         ])->findOrFail($course_id);
 
-        // Verify the staff is assigned to this course OR is in the same department
+        // Verify only the assigned staff (respective faculty), 1st year authorized faculty, or privileged roles can access this course
         $isAssigned = $course->staff->contains($user->id);
-        $isSameDept = $user->profile && $user->profile->departments_id === $course->department_id;
+        $isPrivileged = in_array($user->role, ['sa', 'admin']);
+        $isYear1Access = false;
+        if ((int)$course->year === 1 && $user->profile?->departments_id === $course->department_id) {
+            $isYear1Access = Course::whereHas('staff', fn($q) => $q->where('users.id', $user->id))
+                ->where('year', 1)
+                ->exists();
+        }
 
-        if (!$isAssigned && !$isSameDept) {
+        if (!$isAssigned && !$isPrivileged && !$isYear1Access) {
             abort(403, 'You do not have permission to access this course.');
+        }
+
+        // Department coordinator scope verification
+        if ($user->role === 'admin' && !empty($user->profile?->departments_id) && $course->department_id !== $user->profile?->departments_id) {
+            abort(403, 'You do not have permission to access courses outside your department.');
         }
 
         $materials = \App\Services\CacheService::getCourseMaterials($course_id);
 
-        // Fetch all assigned courses for the quick course switcher & section view navigation
-        $assignedCourses = $user->courses()
-            ->withCount('materials')
-            ->orderBy('code')
-            ->get();
+        // For faculty, they only see their own uploaded materials for the course
+        if ($user->role === 'sta') {
+            $materials = $materials->where('staff_id', $user->id);
+        }
+        // Note: For coordinators ('admin') and superadmin ('sa'), they see ALL materials uploaded for the course by all faculty!
+
+        // Fetch all assigned/accessible courses for the quick course switcher & section view navigation
+        if ($user->role === 'admin') {
+            $deptId = $user->profile?->departments_id;
+            $assignedCourses = Course::when($deptId, fn($q) => $q->where('department_id', $deptId))
+                ->withCount('materials')
+                ->orderBy('code')
+                ->get();
+        } elseif ($user->role === 'sa') {
+            $assignedCourses = Course::withCount('materials')
+                ->orderBy('code')
+                ->get();
+        } else {
+            $assignedCourses = $user->courses()
+                ->withCount([
+                    'materials' => function($q) use ($user) {
+                        $q->where('staff_id', $user->id);
+                    },
+                    'assignments' => function($q) use ($user) {
+                        $q->where('staff_id', $user->id);
+                    }
+                ])
+                ->orderBy('code')
+                ->get();
+        }
 
         // Exact counts and breakdown for stats cards
         $totalMaterialsCount = $materials->count();
@@ -108,7 +165,11 @@ class CourseMaterialController extends Controller
         $linksCount = $materials->where('type', 'link')->count();
 
         // Fetch assignments for this specific course
-        $assignments = \App\Models\Assignment::where('course_id', $course_id)
+        $assignmentsQuery = \App\Models\Assignment::where('course_id', $course_id);
+        if ($user->role === 'sta') {
+            $assignmentsQuery->where('staff_id', $user->id);
+        }
+        $assignments = $assignmentsQuery
             ->with(['questions'])
             ->withCount('submissions')
             ->latest()
@@ -138,17 +199,21 @@ class CourseMaterialController extends Controller
     public function store(Request $request, $course_id)
     {
         $user = Auth::user();
-        if ($user->role !== 'sta') {
+        if (!in_array($user->role, ['sta', 'admin', 'sa'])) {
             abort(403);
         }
 
         $course = Course::findOrFail($course_id);
         
         $isAssigned = $course->staff->contains($user->id);
-        $isSameDept = $user->profile->departments_id === $course->department_id;
+        $isPrivileged = in_array($user->role, ['sa', 'admin']);
         
-        if (!$isAssigned && !$isSameDept) {
+        if (!$isAssigned && !$isPrivileged) {
             abort(403, 'You do not have permission to modify this course.');
+        }
+
+        if ($user->role === 'admin' && !empty($user->profile?->departments_id) && $course->department_id !== $user->profile?->departments_id) {
+            abort(403, 'You do not have permission to modify courses outside your department.');
         }
 
         $allowedExts = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'pps', 'ppsx', 'xls', 'xlsx', 'csv', 'txt', 'zip', 'rar', 'png', 'jpg', 'jpeg', 'webp'];
@@ -301,20 +366,23 @@ class CourseMaterialController extends Controller
     public function update(Request $request, $id)
     {
         $user = Auth::user();
-        if ($user->role !== 'sta' && $user->role !== 'sa') {
+        if (!in_array($user->role, ['sta', 'admin', 'sa'])) {
             abort(403);
         }
 
         $material = CourseMaterial::findOrFail($id);
         $course = $material->course;
 
-        $isSameDept = $course && $user->profile && ($user->profile->departments_id === $course->department_id);
         $isAssigned = $course && $course->staff->contains($user->id);
         $isOwner = $material->staff_id === $user->id;
         $isPrivileged = in_array($user->role, ['sa', 'admin']);
 
-        if (!$isSameDept && !$isAssigned && !$isOwner && !$isPrivileged) {
+        if (!$isAssigned && !$isOwner && !$isPrivileged) {
             abort(403, 'You do not have permission to modify this material.');
+        }
+
+        if ($user->role === 'admin' && !empty($user->profile?->departments_id) && $course && $course->department_id !== $user->profile?->departments_id) {
+            abort(403, 'You do not have permission to modify materials outside your department.');
         }
 
         $request->validate([
@@ -374,14 +442,17 @@ class CourseMaterialController extends Controller
         }
         */
 
-        // NEW FUNCTIONALITY: In that department, every faculty can delete the materials
-        $isSameDept = $user->profile && ($user->profile->departments_id === $course->department_id);
+        // Respective assigned faculty, owner, or privileged admin can delete
         $isAssigned = $course && $course->staff->contains($user->id);
         $isOwner = $material->staff_id === $user->id;
         $isPrivileged = in_array($user->role, ['sa', 'admin']);
 
-        if (!$isSameDept && !$isAssigned && !$isOwner && !$isPrivileged) {
+        if (!$isAssigned && !$isOwner && !$isPrivileged) {
             abort(403, 'You do not have permission to delete this material.');
+        }
+
+        if ($user->role === 'admin' && !empty($user->profile?->departments_id) && $course && $course->department_id !== $user->profile?->departments_id) {
+            abort(403, 'You do not have permission to delete materials outside your department.');
         }
 
         $materialTitle = $material->title;

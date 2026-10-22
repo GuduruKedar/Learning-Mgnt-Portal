@@ -48,6 +48,12 @@ class User extends Authenticatable
         return $this->hasMany(AssignmentSubmission::class, 'student_id');
     }
 
+    public function assignedPrivateAssignments()
+    {
+        return $this->belongsToMany(Assignment::class, 'assignment_students', 'student_id', 'assignment_id')
+                    ->withTimestamps();
+    }
+
     public function enrolledCourses()
     {
         return $this->belongsToMany(Course::class, 'enrollments', 'user_id', 'course_id');

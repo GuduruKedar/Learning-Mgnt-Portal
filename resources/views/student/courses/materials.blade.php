@@ -408,8 +408,12 @@
                                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase font-mono tracking-wider {{ in_array($rawExt, ['ppt','pptx','pps']) ? 'bg-amber-100 text-amber-800 border border-amber-200' : (in_array($rawExt, ['xls','xlsx','csv']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($rawExt === 'pdf' ? 'bg-rose-100 text-rose-800 border border-rose-200' : (in_array($rawExt, ['doc','docx']) ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-200'))) }}">
                                                                         {{ $rawExt ? '.' . $rawExt : ($material->platform ?: $material->type) }}
                                                                     </span>
-                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 capitalize">
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-[#1C2128] border border-slate-200 dark:border-[#273244] capitalize">
                                                                         {{ $material->platform ?: $material->type }}
+                                                                    </span>
+                                                                    <span class="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 dark:text-slate-400" title="Uploaded by {{ trim(($material->staff->profile->first_name ?? '') . ' ' . ($material->staff->profile->last_name ?? '')) ?: ($material->staff->username ?? 'Faculty') }}">
+                                                                        <svg class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                                                        <span class="truncate max-w-[130px]">{{ trim(($material->staff->profile->first_name ?? '') . ' ' . ($material->staff->profile->last_name ?? '')) ?: ($material->staff->username ?? 'Faculty') }}</span>
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -420,12 +424,18 @@
                                                             {{ $material->title }}
                                                         </a>
 
-                                                        {{-- Division Tag Badge --}}
-                                                        <div class="mt-2.5">
+                                                        {{-- Division Tag Badge & Created By --}}
+                                                        <div class="mt-2.5 flex items-center justify-between gap-2 flex-wrap">
                                                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold {{ $catMeta['badge_class'] }} border shadow-2xs">
                                                                 <span>{{ $catMeta['icon'] }}</span>
                                                                 <span>{{ $material->effective_division }}</span>
                                                             </span>
+
+                                                            <div class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-600 dark:text-slate-300 bg-gray-50 dark:bg-[#1C2430] px-2.5 py-1 rounded-lg border border-gray-200/80 dark:border-[#273244]" title="Created By">
+                                                                <svg class="w-3 h-3 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                                                <span class="text-gray-400 dark:text-slate-400 font-normal">Created by:</span>
+                                                                <span class="font-bold text-gray-800 dark:text-slate-200 truncate max-w-[130px]">{{ trim(($material->staff->profile->first_name ?? '') . ' ' . ($material->staff->profile->last_name ?? '')) ?: ($material->staff->username ?? 'Faculty') }}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -463,7 +473,7 @@
                                                 <th class="px-5 py-3.5">Material Title & Format</th>
                                                 <th class="px-5 py-3.5">Division / Section</th>
                                                 <th class="px-5 py-3.5">Type</th>
-                                                <th class="px-5 py-3.5">Date</th>
+                                                <th class="px-5 py-3.5">Created By</th>
                                                 <th class="px-5 py-3.5 text-center">Actions</th>
                                             </tr>
                                         </thead>
@@ -535,8 +545,15 @@
                                                             </span>
                                                         @endif
                                                     </td>
-                                                    <td class="px-5 py-3.5 whitespace-nowrap text-gray-500 dark:text-slate-400 font-medium">
-                                                        {{ $material->created_at ? $material->created_at->format('M d, Y') : '&mdash;' }}
+                                                    <td class="px-5 py-3.5 whitespace-nowrap text-gray-700 dark:text-slate-300">
+                                                        <div class="flex items-center gap-2">
+                                                            <div class="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-[10px] font-bold border border-indigo-200 dark:border-indigo-800/60 shrink-0">
+                                                                {{ strtoupper(substr($material->staff->profile->first_name ?? ($material->staff->username ?? 'F'), 0, 1)) }}
+                                                            </div>
+                                                            <span class="font-semibold text-gray-800 dark:text-slate-200">
+                                                                {{ trim(($material->staff->profile->first_name ?? '') . ' ' . ($material->staff->profile->last_name ?? '')) ?: ($material->staff->username ?? 'Faculty') }}
+                                                            </span>
+                                                        </div>
                                                     </td>
                                                     <td class="px-5 py-3.5 text-center whitespace-nowrap">
                                                         <div class="flex items-center justify-center gap-1.5">

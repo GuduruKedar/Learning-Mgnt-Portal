@@ -23,6 +23,16 @@ class StudentAssignmentController extends Controller
 
         $query = Assignment::whereIn('course_id', $enrolledCourseIds)
             ->whereIn('status', ['published', 'closed'])
+            ->where(function($q) use ($user) {
+                $q->where('type', 'public')
+                  ->orWhereNull('type')
+                  ->orWhere(function($sub) use ($user) {
+                      $sub->where('type', 'private')
+                          ->whereHas('assignedStudents', function($sq) use ($user) {
+                              $sq->where('users.id', $user->id);
+                          });
+                  });
+            })
             ->with(['course', 'staff', 'questions', 'submissions' => function ($q) use ($user) {
                 $q->where('student_id', $user->id);
             }]);
@@ -106,6 +116,10 @@ class StudentAssignmentController extends Controller
             abort(403, 'You are not enrolled in the course for this assignment.');
         }
 
+        if (!$assignment->isAccessibleBy($user)) {
+            abort(403, 'This is a private assignment and your account has not been granted access.');
+        }
+
         $assignment->load(['course.department', 'staff', 'questions']);
         $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
             ->where('student_id', $user->id)
@@ -121,8 +135,17 @@ class StudentAssignmentController extends Controller
             $userAnswersByQuestionId = $submission->answers->keyBy('question_id');
             foreach ($assignment->questions as $question) {
                 $ans = $userAnswersByQuestionId->get($question->id);
-                if ($ans && $ans->selected_option) {
-                    if ($ans->is_correct) {
+                $isAttempted = false;
+                if ($ans) {
+                    if ($question->isCoding()) {
+                        $isAttempted = !empty(trim((string)$ans->code));
+                    } else {
+                        $isAttempted = !empty($ans->selected_option);
+                    }
+                }
+
+                if ($isAttempted) {
+                    if ($ans->is_correct || $ans->marks_awarded > 0) {
                         $correctCount++;
                     } else {
                         $incorrectCount++;
@@ -143,7 +166,7 @@ class StudentAssignmentController extends Controller
         ));
     }
 
-    public function submit(Request $request, Assignment $assignment)
+    public function submit(Request $request, Assignment $assignment, \App\Services\CodeExecutionService $codeExecutor)
     {
         $user = Auth::user();
 
@@ -157,16 +180,21 @@ class StudentAssignmentController extends Controller
             abort(403, 'You are not enrolled in this course.');
         }
 
+        if (!$assignment->isAccessibleBy($user)) {
+            abort(403, 'This is a private assignment and your account has not been granted access.');
+        }
+
         $submission = AssignmentSubmission::where('assignment_id', $assignment->id)
             ->where('student_id', $user->id)
             ->first();
 
         if ($submission) {
             return redirect()->route('student.assignments.show', $assignment->id)
-                ->with('error', 'You have already submitted this MCQ assignment.');
+                ->with('error', 'You have already submitted this assignment.');
         }
 
         $answersInput = $request->input('answers', []);
+        $codeAnswersInput = $request->input('code_answers', []);
         $questions = $assignment->questions;
 
         $totalScore = 0;
@@ -183,27 +211,63 @@ class StudentAssignmentController extends Controller
         ]);
 
         foreach ($questions as $question) {
-            $selected = isset($answersInput[$question->id]) ? strtoupper(trim((string)$answersInput[$question->id])) : null;
-            $isCorrect = false;
-            $marksEarned = 0;
+            if ($question->isCoding()) {
+                $qCodeData = $codeAnswersInput[$question->id] ?? [];
+                $submittedCode = is_array($qCodeData) ? ($qCodeData['code'] ?? '') : (string)$qCodeData;
+                $submittedLang = is_array($qCodeData) ? ($qCodeData['language'] ?? 'python') : 'python';
 
-            if ($selected && in_array($selected, ['A', 'B', 'C', 'D'])) {
-                if ($selected === $question->correct_option) {
-                    $isCorrect = true;
-                    $marksEarned = $question->marks;
+                $isCorrect = false;
+                $marksEarned = 0;
+                $testCaseResults = [];
+                $execOutput = '';
+
+                if (!empty(trim($submittedCode))) {
+                    $testCases = is_array($question->test_cases) ? $question->test_cases : [];
+                    $eval = $codeExecutor->runTestCases($submittedLang, $submittedCode, $testCases, $question->marks);
+
+                    $isCorrect = !empty($eval['passed']);
+                    $marksEarned = (int)($eval['score'] ?? 0);
+                    $testCaseResults = $eval['results'] ?? [];
+                    $execOutput = "Passed {$eval['passed_count']} / {$eval['total_test_cases']} Test Cases.";
                     $totalScore += $marksEarned;
                 }
-            } else {
-                $selected = null;
-            }
 
-            AssignmentAnswer::create([
-                'submission_id' => $submission->id,
-                'question_id' => $question->id,
-                'selected_option' => $selected,
-                'is_correct' => $isCorrect,
-                'marks_awarded' => $marksEarned,
-            ]);
+                AssignmentAnswer::create([
+                    'submission_id' => $submission->id,
+                    'question_id' => $question->id,
+                    'selected_option' => null,
+                    'code' => $submittedCode,
+                    'language' => $submittedLang,
+                    'test_case_results' => $testCaseResults,
+                    'code_output' => $execOutput,
+                    'is_correct' => $isCorrect,
+                    'marks_awarded' => $marksEarned,
+                ]);
+
+            } else {
+                // MCQ evaluation
+                $selected = isset($answersInput[$question->id]) ? strtoupper(trim((string)$answersInput[$question->id])) : null;
+                $isCorrect = false;
+                $marksEarned = 0;
+
+                if ($selected && in_array($selected, ['A', 'B', 'C', 'D'])) {
+                    if ($selected === $question->correct_option) {
+                        $isCorrect = true;
+                        $marksEarned = $question->marks;
+                        $totalScore += $marksEarned;
+                    }
+                } else {
+                    $selected = null;
+                }
+
+                AssignmentAnswer::create([
+                    'submission_id' => $submission->id,
+                    'question_id' => $question->id,
+                    'selected_option' => $selected,
+                    'is_correct' => $isCorrect,
+                    'marks_awarded' => $marksEarned,
+                ]);
+            }
         }
 
         $submission->update([
@@ -211,7 +275,34 @@ class StudentAssignmentController extends Controller
         ]);
 
         return redirect()->route('student.assignments.show', $assignment->id)
-            ->with('success', "MCQ Assignment submitted! You scored {$totalScore} / {$maxPossible} Marks.");
+            ->with('success', "Assignment submitted! You scored {$totalScore} / {$maxPossible} Marks.");
+    }
+
+    public function runCode(Request $request, \App\Services\CodeExecutionService $codeExecutor)
+    {
+        $request->validate([
+            'language' => 'required|string|in:c,java,python',
+            'code' => 'required|string',
+            'stdin' => 'nullable|string',
+            'test_cases' => 'nullable|array',
+        ]);
+
+        $language = strtolower($request->language);
+        $code = $request->code;
+        $stdin = (string)$request->input('stdin', '');
+        $testCases = $request->input('test_cases', null);
+
+        if (is_array($testCases) && count($testCases) > 0) {
+            // For interactive runs in student view, evaluate against public test cases only
+            $publicTestCases = array_values(array_filter($testCases, function ($tc) {
+                return empty($tc['is_hidden']);
+            }));
+            $result = $codeExecutor->runTestCases($language, $code, $publicTestCases);
+        } else {
+            $result = $codeExecutor->execute($language, $code, $stdin);
+        }
+
+        return response()->json($result);
     }
 
     public function downloadReport(Assignment $assignment)

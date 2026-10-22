@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Course;
+use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
+use App\Models\CourseMaterial;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -132,29 +136,47 @@ class DashboardController extends Controller
             }
             $departmentStaffCount = $departmentStaffQuery->count();
 
-            // Assigned Courses (Courses the faculty needs to teach)
-            $assignedCourses = $user->courses()
+            // Assigned Courses (Courses the faculty needs to teach, including 1st Year subjects if faculty teaches Yr 1)
+            $assignedToYear1 = Course::whereHas('staff', fn($q) => $q->where('users.id', $user->id))
+                ->where('year', 1)
+                ->exists();
+            $deptCode = $user->profile?->departments_id;
+
+            $assignedCoursesQuery = Course::query();
+            $assignedCoursesQuery->where(function ($q) use ($user, $assignedToYear1, $deptCode) {
+                $q->whereHas('staff', fn($sq) => $sq->where('users.id', $user->id));
+                if ($assignedToYear1 && $deptCode) {
+                    $q->orWhere(function ($yq) use ($deptCode) {
+                        $yq->where('department_id', $deptCode)
+                           ->where('year', 1);
+                    });
+                }
+            });
+
+            $assignedCourses = $assignedCoursesQuery
                 ->with(['regulation', 'department'])
-                ->withCount(['materials', 'assignments', 'enrollments'])
+                ->withCount([
+                    'materials' => function($q) use ($user) {
+                        $q->where('staff_id', $user->id);
+                    },
+                    'assignments' => function($q) use ($user) {
+                        $q->where('staff_id', $user->id);
+                    },
+                    'enrollments'
+                ])
                 ->get();
 
             $assignedCourseIds = $assignedCourses->pluck('id');
             $coursesToTeachCount = $assignedCourses->count();
 
-            // Materials Uploaded Query (uploaded by this faculty or across assigned courses)
-            $materialsQuery = \App\Models\CourseMaterial::where(function($q) use ($user, $assignedCourseIds) {
-                $q->where('staff_id', $user->id)
-                  ->orWhereIn('course_id', $assignedCourseIds);
-            });
+            // Materials Uploaded Query (uploaded by this faculty)
+            $materialsQuery = \App\Models\CourseMaterial::where('staff_id', $user->id);
             $totalMaterialsCount = (clone $materialsQuery)->count();
             $uploadedFilesCount = (clone $materialsQuery)->where('type', 'file')->count();
             $uploadedLinksCount = (clone $materialsQuery)->where('type', 'link')->count();
 
-            // Assessments Given Query (created by this faculty or across assigned courses)
-            $assignmentsQuery = \App\Models\Assignment::where(function($q) use ($user, $assignedCourseIds) {
-                $q->where('staff_id', $user->id)
-                  ->orWhereIn('course_id', $assignedCourseIds);
-            });
+            // Assessments Given Query (created by this faculty)
+            $assignmentsQuery = \App\Models\Assignment::where('staff_id', $user->id);
             $totalAssignmentsCount = (clone $assignmentsQuery)->count();
             $activeAssignmentsCount = (clone $assignmentsQuery)->where('status', 'published')->where(function($q) {
                 $q->whereNull('due_date')->orWhere('due_date', '>=', now());

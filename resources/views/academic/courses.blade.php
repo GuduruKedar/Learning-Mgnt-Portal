@@ -36,6 +36,10 @@
                         </span>
                     </div>
                     <div class="flex items-center gap-2.5">
+                        <a href="{{ route('academic.cohorts') }}" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold py-2 px-3.5 rounded-xl shadow-xs transition-all flex items-center gap-1.5 text-xs" title="Bulk Enroll Student Cohorts">
+                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            <span>Cohort Enrollment</span>
+                        </a>
                         <a href="{{ route('academic.courses.allocations') }}" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold py-2 px-3.5 rounded-xl shadow-xs transition-all flex items-center gap-1.5 text-xs">
                             <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                             <span>Assign Faculty (Allocations)</span>
@@ -193,7 +197,10 @@
                                         @forelse($courses as $course)
                                         <tr class="hover:bg-slate-50/70 transition-colors">
                                             <td class="px-5 py-3 text-sm text-gray-900">
-                                                <div class="font-bold text-indigo-700 font-mono">{{ $course->code }}</div>
+                                                <a href="{{ route('staff.courses.materials', $course->id) }}" class="font-bold text-indigo-700 hover:text-indigo-900 hover:underline font-mono inline-flex items-center gap-1 group/code" title="View Full Course Materials & Resources">
+                                                    <span>{{ $course->code }}</span>
+                                                    <svg class="w-3 h-3 opacity-0 group-hover/code:opacity-100 transition-opacity text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                </a>
                                                 <div class="text-slate-800 font-medium text-xs">{{ $course->name }}</div>
                                             </td>
                                             <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500">
@@ -291,6 +298,12 @@
 
                                             <td class="px-5 py-3 whitespace-nowrap text-sm font-medium text-center min-w-[110px]">
                                                 <div class="flex items-center justify-center gap-1.5">
+                                                    <a href="{{ route('academic.cohorts', ['course_id' => $course->id]) }}" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-200/80 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Enroll Student Cohorts in Bulk">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                                    </a>
+                                                    <a href="{{ route('staff.courses.materials', $course->id) }}" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/80 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="View Course Materials (All Faculty Uploads)">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                                    </a>
                                                     <a href="{{ route('academic.courses.edit', $course->id) }}" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200/80 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Course">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                     </a>

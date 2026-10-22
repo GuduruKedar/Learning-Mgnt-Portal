@@ -31,4 +31,15 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'code_execution' => [
+        'wandbox_url' => env('WANDBOX_API_URL', 'https://wandbox.org/api/compile.json'),
+        'timeout' => env('CODE_EXECUTION_TIMEOUT', 25),
+        'connect_timeout' => env('CODE_EXECUTION_CONNECT_TIMEOUT', 6),
+        'java_timeout' => env('CODE_EXECUTION_JAVA_TIMEOUT', 25),
+        'c_timeout' => env('CODE_EXECUTION_C_TIMEOUT', 18),
+        'python_timeout' => env('CODE_EXECUTION_PYTHON_TIMEOUT', 15),
+        'local_python_enabled' => env('CODE_EXECUTION_LOCAL_PYTHON', true),
+        'local_python_timeout' => env('CODE_EXECUTION_LOCAL_PYTHON_TIMEOUT', 4.0),
+    ],
+
 ];

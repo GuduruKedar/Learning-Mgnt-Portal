@@ -118,55 +118,90 @@
                         $selectedOpt = $userAns ? $userAns->selected_option : null;
                         $isCorrect = $userAns ? $userAns->is_correct : false;
                     @endphp
-                    <div class="page-break-inside-avoid p-4 sm:p-5 rounded-xl border {{ $isCorrect ? 'bg-emerald-50/30 border-emerald-300' : ($selectedOpt ? 'bg-red-50/30 border-red-300' : 'bg-gray-50 border-gray-200') }}">
+                    @php
+                        $isCodingQ = $q->isCoding();
+                        $hasSubmittedCode = $isCodingQ && $userAns && !empty(trim((string)$userAns->code));
+                        $cardBg = $isCorrect ? 'bg-emerald-50/30 border-emerald-300' : (($selectedOpt || $hasSubmittedCode) ? 'bg-red-50/30 border-red-300' : 'bg-gray-50 border-gray-200');
+                    @endphp
+                    <div class="page-break-inside-avoid p-4 sm:p-5 rounded-xl border {{ $cardBg }}">
                         <!-- Question Header -->
                         <div class="flex items-start justify-between gap-3 mb-3">
                             <div class="flex items-start gap-2.5">
-                                <span class="w-6 h-6 rounded-full {{ $isCorrect ? 'bg-emerald-600 text-white' : ($selectedOpt ? 'bg-red-600 text-white' : 'bg-gray-400 text-white') }} text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                <span class="w-6 h-6 rounded-full {{ $isCorrect ? 'bg-emerald-600 text-white' : (($selectedOpt || $hasSubmittedCode) ? 'bg-red-600 text-white' : 'bg-gray-400 text-white') }} text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                                     {{ $idx + 1 }}
                                 </span>
-                                <h4 class="text-sm font-bold text-gray-900 leading-snug">{{ $q->question_text }}</h4>
-                            </div>
-                            <span class="text-xs font-black {{ $isCorrect ? 'text-emerald-700' : 'text-red-600' }} shrink-0">
-                                {{ $isCorrect ? "+{$q->marks} Marks" : '0 Marks' }}
-                            </span>
-                        </div>
-
-                        <!-- Options Grid -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mt-2">
-                            @foreach(['A', 'B', 'C', 'D'] as $opt)
-                                @php
-                                    $optText = $q->{'option_' . strtolower($opt)};
-                                    $isStudentPick = ($selectedOpt === $opt);
-                                    $isActualCorrect = ($q->correct_option === $opt);
-
-                                    $cardClass = 'bg-white border-gray-200 text-gray-700';
-                                    if ($isActualCorrect) {
-                                        $cardClass = 'bg-emerald-100 border-emerald-400 font-bold text-emerald-950';
-                                    }
-                                    if ($isStudentPick && !$isActualCorrect) {
-                                        $cardClass = 'bg-red-100 border-red-400 font-bold text-red-950';
-                                    }
-                                @endphp
-                                <div class="p-2.5 rounded-lg border {{ $cardClass }} flex items-center justify-between">
-                                    <span class="leading-tight"><strong class="mr-1">{{ $opt }}.</strong> {{ $optText }}</span>
-                                    <div class="flex items-center gap-1 shrink-0 ml-2">
-                                        @if($isActualCorrect)
-                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-600 text-white">Correct Answer</span>
-                                        @endif
-                                        @if($isStudentPick)
-                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $isActualCorrect ? 'bg-emerald-800 text-white' : 'bg-red-600 text-white' }}">Your Answer</span>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-sm font-bold text-gray-900 leading-snug">{{ $q->question_text }}</h4>
+                                        @if($isCodingQ)
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">Coding Problem</span>
                                         @endif
                                     </div>
                                 </div>
-                            @endforeach
+                            </div>
+                            <span class="text-xs font-black {{ $isCorrect ? 'text-emerald-700' : 'text-red-600' }} shrink-0">
+                                {{ $isCorrect ? "+{$q->marks} Marks" : ($userAns && $userAns->marks_awarded > 0 ? "+{$userAns->marks_awarded} Marks" : '0 Marks') }}
+                            </span>
                         </div>
 
-                        <!-- Explanation if available -->
-                        @if($q->explanation)
-                            <div class="mt-2.5 text-xs text-gray-700 bg-white p-2.5 rounded-lg border border-gray-200">
-                                <strong class="text-indigo-900">Explanation:</strong> {{ $q->explanation }}
+                        @if($isCodingQ)
+                            <!-- Coding Question Review -->
+                            <div class="mt-2 space-y-2 text-xs">
+                                <div class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-gray-200">
+                                    <span class="text-gray-600 font-semibold">Language: <strong class="text-indigo-700 uppercase font-mono">{{ $userAns->language ?? 'N/A' }}</strong></span>
+                                    <span class="font-bold {{ $isCorrect ? 'text-emerald-700' : 'text-amber-700' }}">
+                                        {{ $userAns->code_output ?? ($isCorrect ? 'All Test Cases Passed' : 'Test cases evaluated') }}
+                                    </span>
+                                </div>
+
+                                @if($hasSubmittedCode)
+                                    <div>
+                                        <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Submitted Code:</div>
+                                        <pre class="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-[11px] overflow-x-auto whitespace-pre-wrap">{{ $userAns->code }}</pre>
+                                    </div>
+                                @else
+                                    <div class="p-3 bg-gray-100 text-gray-500 rounded-lg italic">
+                                        No code submitted for this problem.
+                                    </div>
+                                @endif
                             </div>
+                        @else
+                            <!-- Options Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs mt-2">
+                                @foreach(['A', 'B', 'C', 'D'] as $opt)
+                                    @php
+                                        $optText = $q->{'option_' . strtolower($opt)};
+                                        $isStudentPick = ($selectedOpt === $opt);
+                                        $isActualCorrect = ($q->correct_option === $opt);
+
+                                        $cardClass = 'bg-white border-gray-200 text-gray-700';
+                                        if ($isActualCorrect) {
+                                            $cardClass = 'bg-emerald-100 border-emerald-400 font-bold text-emerald-950';
+                                        }
+                                        if ($isStudentPick && !$isActualCorrect) {
+                                            $cardClass = 'bg-red-100 border-red-400 font-bold text-red-950';
+                                        }
+                                    @endphp
+                                    <div class="p-2.5 rounded-lg border {{ $cardClass }} flex items-center justify-between">
+                                        <span class="leading-tight"><strong class="mr-1">{{ $opt }}.</strong> {{ $optText }}</span>
+                                        <div class="flex items-center gap-1 shrink-0 ml-2">
+                                            @if($isActualCorrect)
+                                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-600 text-white">Correct Answer</span>
+                                            @endif
+                                            @if($isStudentPick)
+                                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $isActualCorrect ? 'bg-emerald-800 text-white' : 'bg-red-600 text-white' }}">Your Answer</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <!-- Explanation if available -->
+                            @if($q->explanation)
+                                <div class="mt-2.5 text-xs text-gray-700 bg-white p-2.5 rounded-lg border border-gray-200">
+                                    <strong class="text-indigo-900">Explanation:</strong> {{ $q->explanation }}
+                                </div>
+                            @endif
                         @endif
                     </div>
                 @endforeach

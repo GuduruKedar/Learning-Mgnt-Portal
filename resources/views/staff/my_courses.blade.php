@@ -682,7 +682,7 @@
                                                                         {{ $material->title }}
                                                                     </a>
                                                                     <p class="text-[11px] text-gray-500 mt-1 truncate">{{ $material->course->name ?? '' }}</p>
-                                                                    <div class="mt-2">
+                                                                    <div class="mt-2 flex items-center justify-between gap-2 flex-wrap">
                                                                         <button type="button"
                                                                             data-material='@json($allocData)'
                                                                             onclick="openAllocateDivisionModal(JSON.parse(this.getAttribute('data-material')))"
@@ -692,6 +692,11 @@
                                                                             <span>{{ $material->effective_division }}</span>
                                                                             <svg class="w-2.5 h-2.5 opacity-60 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                                         </button>
+
+                                                                        <div class="inline-flex items-center gap-1 text-[10px] font-medium text-gray-500" title="Created By">
+                                                                            <span class="text-gray-400">By:</span>
+                                                                            <span class="font-semibold text-gray-700 truncate max-w-[120px]">{{ trim(($material->staff->profile->first_name ?? '') . ' ' . ($material->staff->profile->last_name ?? '')) ?: ($material->staff->username ?? 'Faculty') }}</span>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>

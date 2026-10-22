@@ -47,6 +47,17 @@
                                 <span class="text-xs text-gray-500 font-semibold">{{ $assignment->course->name }}</span>
                                 <span class="text-gray-300">&bull;</span>
                                 <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-800">MCQ Test</span>
+                                @if($assignment->isPrivate())
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                        Private Assignment ({{ $totalEnrolled }} Students)
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        Public Assignment
+                                    </span>
+                                @endif
                                 @if($assignment->status === 'draft')
                                     <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-600">Draft</span>
                                 @elseif($assignment->isPastDue())
@@ -94,9 +105,9 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             </div>
                             <div class="min-w-0">
-                                <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Enrolled</p>
+                                <p class="text-xs font-bold uppercase tracking-wider text-gray-400">{{ $assignment->isPrivate() ? 'Allowed Students' : 'Total Enrolled' }}</p>
                                 <h3 class="text-2xl font-black text-gray-900 tracking-tight mt-0.5">{{ $totalEnrolled }}</h3>
-                                <p class="text-[11px] font-medium text-gray-500 truncate mt-0.5">Students in {{ $assignment->course->code }}</p>
+                                <p class="text-[11px] font-medium text-gray-500 truncate mt-0.5">{{ $assignment->isPrivate() ? 'Private Roster in ' . $assignment->course->code : 'Students in ' . $assignment->course->code }}</p>
                             </div>
                         </div>
                         <div class="text-gray-300 group-hover:text-blue-600 transition-colors pr-1">
@@ -176,30 +187,56 @@
 
                     <!-- Panel 1: Questions List -->
                     <div id="tab-questions-panel" class="p-6 sm:p-8 space-y-6">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-base font-bold text-gray-900">Questions in this Assignment</h3>
-                            <button type="button" onclick="document.getElementById('addQuestionModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors">
-                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                Add MCQ Question
-                            </button>
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900">Questions in this Assignment</h3>
+                                <p class="text-xs text-gray-500">Supports Multiple Choice Questions (MCQ) & Coding Problems with C, Java, and Python compilers.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="document.getElementById('addQuestionModal').classList.remove('hidden')" class="inline-flex items-center px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    Add MCQ Question
+                                </button>
+                                <button type="button" onclick="document.getElementById('addCodingQuestionModal').classList.remove('hidden')" class="inline-flex items-center px-3.5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
+                                    <svg class="w-4 h-4 mr-1.5 text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                    Add Coding Question (C, Java, Python)
+                                </button>
+                            </div>
                         </div>
 
                         @if($assignment->questions->isEmpty())
                             <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-8 text-center">
                                 <p class="text-sm font-medium text-gray-600">No questions added to this assignment yet.</p>
-                                <button type="button" onclick="document.getElementById('addQuestionModal').classList.remove('hidden')" class="mt-3 inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg">Add First Question</button>
+                                <div class="mt-4 flex items-center justify-center gap-3">
+                                    <button type="button" onclick="document.getElementById('addQuestionModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-xs">Add MCQ Question</button>
+                                    <button type="button" onclick="document.getElementById('addCodingQuestionModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl shadow-xs">Add Coding Question</button>
+                                </div>
                             </div>
                         @else
                             <div class="space-y-4">
                                 @foreach($assignment->questions as $index => $q)
-                                <div class="bg-gray-50/80 rounded-xl p-5 border border-gray-200">
+                                <div class="bg-gray-50/80 rounded-xl p-5 border {{ $q->isCoding() ? 'border-purple-200 bg-purple-50/20' : 'border-gray-200' }}">
                                     <div class="flex items-start justify-between gap-4">
                                         <div class="flex items-start gap-3">
-                                            <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                                            <span class="w-7 h-7 rounded-full {{ $q->isCoding() ? 'bg-purple-600 text-white' : 'bg-indigo-600 text-white' }} text-xs font-bold flex items-center justify-center shrink-0">
                                                 Q{{ $index + 1 }}
                                             </span>
                                             <div>
-                                                <h4 class="text-sm font-bold text-gray-900">{{ $q->question_text }}</h4>
+                                                <div class="flex flex-wrap items-center gap-2 mb-1">
+                                                    @if($q->isCoding())
+                                                        <span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200">
+                                                            Coding Problem
+                                                        </span>
+                                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 font-mono">
+                                                            {{ strtoupper(str_replace(',', ' • ', $q->allowed_languages ?: 'c,java,python')) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">
+                                                            MCQ
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <h4 class="text-sm font-bold text-gray-900 whitespace-pre-line">{{ $q->question_text }}</h4>
                                                 <span class="inline-block mt-1 text-xs text-gray-500 font-semibold">{{ $q->marks }} {{ Str::plural('Mark', $q->marks) }}</span>
                                             </div>
                                         </div>
@@ -207,52 +244,87 @@
                                             onclick="window.openUniversalDeleteModal({
                                                 title: 'Delete Assessment Question',
                                                 itemName: 'Question {{ $index + 1 }}: {{ addslashes(Str::limit($q->question_text, 40)) }}',
-                                                itemType: 'Question ({{ $q->marks }} {{ Str::plural('Mark', $q->marks) }})',
+                                                itemType: '{{ $q->isCoding() ? 'Coding Question' : 'MCQ Question' }} ({{ $q->marks }} {{ Str::plural('Mark', $q->marks) }})',
                                                 deleteUrl: '{{ route('staff.assignments.questions.destroy', $q->id) }}',
                                                 warningMessage: 'Deleting this question will remove it from the assessment and adjust the total assignment maximum marks accordingly.',
                                                 cascadeItems: [
-                                                    { label: 'Question Options & Key', count: '4 Choices' },
+                                                    { label: 'Question Config & Test Cases', count: '{{ $q->isCoding() ? count($q->test_cases ?? []) . ' Test Cases' : '4 Choices' }}' },
                                                     { label: 'Student Submitted Answers for Q{{ $index + 1 }}', count: 'All Students' }
                                                 ]
                                             })"
-                                            class="w-8 h-8 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5"
+                                            class="w-8 h-8 flex items-center justify-center rounded-xl bg-rose-50/80 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5 shrink-0"
                                             title="Delete Question">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
 
-                                    <!-- 4 Options Grid -->
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-4 text-xs">
-                                        <div class="p-2.5 rounded-lg border {{ $q->correct_option === 'A' ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-900' : 'bg-white border-gray-200 text-gray-700' }} flex items-center justify-between">
-                                            <span><strong>A.</strong> {{ $q->option_a }}</span>
-                                            @if($q->correct_option === 'A')
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800">Correct</span>
-                                            @endif
-                                        </div>
-                                        <div class="p-2.5 rounded-lg border {{ $q->correct_option === 'B' ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-900' : 'bg-white border-gray-200 text-gray-700' }} flex items-center justify-between">
-                                            <span><strong>B.</strong> {{ $q->option_b }}</span>
-                                            @if($q->correct_option === 'B')
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800">Correct</span>
-                                            @endif
-                                        </div>
-                                        <div class="p-2.5 rounded-lg border {{ $q->correct_option === 'C' ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-900' : 'bg-white border-gray-200 text-gray-700' }} flex items-center justify-between">
-                                            <span><strong>C.</strong> {{ $q->option_c }}</span>
-                                            @if($q->correct_option === 'C')
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800">Correct</span>
-                                            @endif
-                                        </div>
-                                        <div class="p-2.5 rounded-lg border {{ $q->correct_option === 'D' ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-900' : 'bg-white border-gray-200 text-gray-700' }} flex items-center justify-between">
-                                            <span><strong>D.</strong> {{ $q->option_d }}</span>
-                                            @if($q->correct_option === 'D')
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800">Correct</span>
-                                            @endif
-                                        </div>
-                                    </div>
+                                    @if($q->isCoding())
+                                        @php
+                                            $testCases = is_array($q->test_cases) ? $q->test_cases : [];
+                                        @endphp
+                                        <div class="mt-4 pt-3 border-t border-purple-100 space-y-3">
+                                            <div class="flex items-center justify-between text-xs">
+                                                <span class="font-bold text-gray-700">Automated Test Cases ({{ count($testCases) }})</span>
+                                                <span class="text-gray-400 text-[11px]">Evaluates student code with input & expected output</span>
+                                            </div>
 
-                                    @if($q->explanation)
-                                    <div class="mt-3 text-xs text-gray-500 bg-white p-2.5 rounded-lg border border-gray-100">
-                                        <span class="font-bold text-gray-700">Explanation:</span> {{ $q->explanation }}
-                                    </div>
+                                            @if(empty($testCases))
+                                                <p class="text-xs text-gray-400 italic">No automated test cases configured. Output will be evaluated upon submission.</p>
+                                            @else
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                                    @foreach($testCases as $tIdx => $tc)
+                                                        <div class="p-3 bg-white rounded-lg border border-gray-200 space-y-1">
+                                                            <div class="flex items-center justify-between">
+                                                                <span class="font-bold text-gray-800">Test Case {{ $tIdx + 1 }}</span>
+                                                                @if(!empty($tc['is_hidden']))
+                                                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Hidden</span>
+                                                                @else
+                                                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Public Sample</span>
+                                                                @endif
+                                                            </div>
+                                                            <div class="font-mono text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-100 space-y-1">
+                                                                <div><span class="text-gray-400">Stdin:</span> {{ $tc['input'] ?: '(None)' }}</div>
+                                                                <div><span class="text-gray-400">Stdout:</span> {{ $tc['expected_output'] ?: '(None)' }}</div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <!-- 4 Options Grid -->
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-4 text-xs">
+                                            <div class="p-2.5 rounded-lg border {{ $q->correct_option === 'A' ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-900' : 'bg-white border-gray-200 text-gray-700' }} flex items-center justify-between">
+                                                <span><strong>A.</strong> {{ $q->option_a }}</span>
+                                                @if($q->correct_option === 'A')
+                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800">Correct</span>
+                                                @endif
+                                            </div>
+                                            <div class="p-2.5 rounded-lg border {{ $q->correct_option === 'B' ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-900' : 'bg-white border-gray-200 text-gray-700' }} flex items-center justify-between">
+                                                <span><strong>B.</strong> {{ $q->option_b }}</span>
+                                                @if($q->correct_option === 'B')
+                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800">Correct</span>
+                                                @endif
+                                            </div>
+                                            <div class="p-2.5 rounded-lg border {{ $q->correct_option === 'C' ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-900' : 'bg-white border-gray-200 text-gray-700' }} flex items-center justify-between">
+                                                <span><strong>C.</strong> {{ $q->option_c }}</span>
+                                                @if($q->correct_option === 'C')
+                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800">Correct</span>
+                                                @endif
+                                            </div>
+                                            <div class="p-2.5 rounded-lg border {{ $q->correct_option === 'D' ? 'bg-emerald-50 border-emerald-300 font-bold text-emerald-900' : 'bg-white border-gray-200 text-gray-700' }} flex items-center justify-between">
+                                                <span><strong>D.</strong> {{ $q->option_d }}</span>
+                                                @if($q->correct_option === 'D')
+                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-200 text-emerald-800">Correct</span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        @if($q->explanation)
+                                        <div class="mt-3 text-xs text-gray-500 bg-white p-2.5 rounded-lg border border-gray-100">
+                                            <span class="font-bold text-gray-700">Explanation:</span> {{ $q->explanation }}
+                                        </div>
+                                        @endif
                                     @endif
                                 </div>
                                 @endforeach
@@ -454,6 +526,150 @@
             </form>
         </div>
     </div>
+    <!-- Add Coding Question Modal -->
+    <div id="addCodingQuestionModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[92vh] flex flex-col border border-purple-200">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-purple-100 flex justify-between items-center bg-gradient-to-r from-violet-50 to-indigo-50 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center font-mono font-bold shadow-xs">
+                        &lt;/&gt;
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-indigo-950">Add Coding Problem</h3>
+                        <p class="text-xs text-purple-700 font-medium">Supports interactive C, Java, and Python compilation with test cases</p>
+                    </div>
+                </div>
+                <button type="button" onclick="document.getElementById('addCodingQuestionModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form action="{{ route('staff.assignments.questions.store', $assignment->id) }}" method="POST" class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+                @csrf
+                <input type="hidden" name="type" value="code">
+
+                <!-- Problem Statement -->
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1.5">Problem Statement & Requirements <span class="text-red-500">*</span></label>
+                    <textarea name="question_text" rows="3" required placeholder="Describe the programming problem, input/output specifications, constraints, and instructions..." class="w-full text-xs sm:text-sm border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Marks -->
+                    <div>
+                        <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1.5">Marks Allocated <span class="text-red-500">*</span></label>
+                        <input type="number" name="marks" value="10" min="1" max="100" required class="w-full text-xs sm:text-sm border border-gray-300 rounded-xl p-2.5 font-bold text-indigo-900">
+                    </div>
+
+                    <!-- Allowed Languages -->
+                    <div>
+                        <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1.5">Permitted Languages</label>
+                        <div class="flex items-center gap-3 pt-1">
+                            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" name="allowed_languages[]" value="c" checked class="rounded text-purple-600 focus:ring-purple-500">
+                                <span class="font-bold text-gray-800">C (GCC 13)</span>
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" name="allowed_languages[]" value="java" checked class="rounded text-purple-600 focus:ring-purple-500">
+                                <span class="font-bold text-gray-800">Java (OpenJDK 21)</span>
+                            </label>
+                            <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" name="allowed_languages[]" value="python" checked class="rounded text-purple-600 focus:ring-purple-500">
+                                <span class="font-bold text-gray-800">Python (3.14)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Starter Code Tabs -->
+                <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/60 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-gray-800 uppercase tracking-wider">Starter Code Boilerplates (Optional)</span>
+                        <div class="flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-200 text-[11px] font-bold">
+                            <button type="button" onclick="switchStarterTab('python')" id="starter-tab-python-btn" class="px-2.5 py-1 rounded bg-purple-600 text-white">Python</button>
+                            <button type="button" onclick="switchStarterTab('c')" id="starter-tab-c-btn" class="px-2.5 py-1 rounded text-gray-600 hover:text-gray-900">C</button>
+                            <button type="button" onclick="switchStarterTab('java')" id="starter-tab-java-btn" class="px-2.5 py-1 rounded text-gray-600 hover:text-gray-900">Java</button>
+                        </div>
+                    </div>
+
+                    <div id="starter-tab-python">
+                        <textarea name="starter_code_python" rows="5" class="w-full font-mono text-xs p-3 bg-gray-900 text-emerald-400 rounded-xl border border-gray-700" placeholder="# Python starter code">def solve():
+    # Read input and solve
+    pass
+
+if __name__ == '__main__':
+    solve()</textarea>
+                    </div>
+
+                    <div id="starter-tab-c" class="hidden">
+                        <textarea name="starter_code_c" rows="5" class="w-full font-mono text-xs p-3 bg-gray-900 text-blue-300 rounded-xl border border-gray-700" placeholder="// C starter code">#include &lt;stdio.h&gt;
+
+int main() {
+    // Write your C code here
+    return 0;
+}</textarea>
+                    </div>
+
+                    <div id="starter-tab-java" class="hidden">
+                        <textarea name="starter_code_java" rows="5" class="w-full font-mono text-xs p-3 bg-gray-900 text-amber-300 rounded-xl border border-gray-700" placeholder="// Java starter code">import java.util.Scanner;
+
+public class Solution {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        // Write your solution here
+    }
+}</textarea>
+                    </div>
+                </div>
+
+                <!-- Test Cases Builder -->
+                <div class="border border-purple-200 rounded-xl p-4 bg-purple-50/30 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-gray-900 uppercase tracking-wider block">Automated Test Cases</span>
+                            <span class="text-gray-500 text-[11px]">Inputs sent via stdin and compared against expected stdout</span>
+                        </div>
+                        <button type="button" onclick="addTestCaseRow()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Add Test Case
+                        </button>
+                    </div>
+
+                    <div id="testCasesContainer" class="space-y-3">
+                        <!-- Test Case 1 (Default) -->
+                        <div class="test-case-row p-3.5 bg-white rounded-xl border border-gray-200 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-purple-950">Test Case #1</span>
+                                <label class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-600 cursor-pointer">
+                                    <input type="checkbox" name="test_cases[0][is_hidden]" value="1" class="rounded text-purple-600">
+                                    <span>Hidden Test Case (graded on submission only)</span>
+                                </label>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Standard Input (stdin)</label>
+                                    <textarea name="test_cases[0][input]" rows="2" placeholder="e.g. 5" class="w-full font-mono text-xs border border-gray-300 rounded-lg p-2"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Expected Output (stdout) <span class="text-red-500">*</span></label>
+                                    <textarea name="test_cases[0][expected_output]" rows="2" required placeholder="e.g. 10" class="w-full font-mono text-xs border border-gray-300 rounded-lg p-2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="pt-3 border-t border-gray-100 flex justify-end gap-3 shrink-0">
+                    <button type="button" onclick="document.getElementById('addCodingQuestionModal').classList.add('hidden')" class="px-4 py-2 text-xs font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-xl shadow-sm hover:shadow transition-all">Save Coding Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <!-- Student Response Review Modal -->
     <div id="studentReviewModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity">
@@ -482,14 +698,14 @@
             <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/80 shrink-0">
                 <div>
-                    <h3 class="text-base font-bold text-gray-900">Enrolled Students</h3>
+                    <h3 class="text-base font-bold text-gray-900">{{ $assignment->isPrivate() ? 'Allowed Students (Private Access)' : 'Enrolled Students' }}</h3>
                     <p class="text-xs text-gray-500 mt-0.5">
                         <span class="font-mono font-bold text-indigo-700">{{ $assignment->course->code }}</span> &bull; {{ $assignment->course->name }}
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                        {{ $totalEnrolled }} Enrolled
+                        {{ $totalEnrolled }} {{ $assignment->isPrivate() ? 'Allowed' : 'Enrolled' }}
                     </span>
                     <button type="button" onclick="closeEnrolledStudentsModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -532,7 +748,7 @@
                         @empty
                             <tr>
                                 <td colspan="3" class="py-8 text-center text-gray-400 text-xs">
-                                    No students enrolled in this course.
+                                    {{ $assignment->isPrivate() ? 'No students assigned to this private assignment.' : 'No students enrolled in this course.' }}
                                 </td>
                             </tr>
                         @endforelse
@@ -669,6 +885,54 @@
             }
         }
 
+        function switchStarterTab(lang) {
+            ['python', 'c', 'java'].forEach(l => {
+                const tab = document.getElementById(`starter-tab-${l}`);
+                const btn = document.getElementById(`starter-tab-${l}-btn`);
+                if (tab && btn) {
+                    if (l === lang) {
+                        tab.classList.remove('hidden');
+                        btn.className = 'px-2.5 py-1 rounded bg-purple-600 text-white';
+                    } else {
+                        tab.classList.add('hidden');
+                        btn.className = 'px-2.5 py-1 rounded text-gray-600 hover:text-gray-900';
+                    }
+                }
+            });
+        }
+
+        let testCaseIndex = 1;
+        function addTestCaseRow() {
+            const container = document.getElementById('testCasesContainer');
+            if (!container) return;
+            const idx = testCaseIndex++;
+            const div = document.createElement('div');
+            div.className = 'test-case-row p-3.5 bg-white rounded-xl border border-gray-200 space-y-2';
+            div.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-purple-950">Test Case #${idx + 1}</span>
+                    <div class="flex items-center gap-3">
+                        <label class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-600 cursor-pointer">
+                            <input type="checkbox" name="test_cases[${idx}][is_hidden]" value="1" class="rounded text-purple-600">
+                            <span>Hidden Test Case</span>
+                        </label>
+                        <button type="button" onclick="this.closest('.test-case-row').remove()" class="text-rose-500 hover:text-rose-700 text-xs font-bold">&times; Remove</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Standard Input (stdin)</label>
+                        <textarea name="test_cases[${idx}][input]" rows="2" placeholder="stdin input" class="w-full font-mono text-xs border border-gray-300 rounded-lg p-2"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Expected Output (stdout) <span class="text-red-500">*</span></label>
+                        <textarea name="test_cases[${idx}][expected_output]" rows="2" required placeholder="expected output" class="w-full font-mono text-xs border border-gray-300 rounded-lg p-2"></textarea>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
         function openStudentReviewModal(studentName, marks, maxMarks, percentage, answers) {
             document.getElementById('reviewStudentMeta').textContent = `${studentName} — Score: ${marks} / ${maxMarks} (${percentage}%)`;
             const container = document.getElementById('reviewQuestionsContainer');
@@ -676,52 +940,99 @@
 
             assignmentQuestions.forEach((q, idx) => {
                 const ans = answers[q.id];
-                const selectedOpt = ans ? ans.selected_option : null;
+                const isCoding = (q.type === 'code');
                 const isCorrect = ans ? ans.is_correct : false;
+                const marksAwarded = ans ? ans.marks_awarded : 0;
 
                 const card = document.createElement('div');
-                card.className = `p-4 rounded-xl border ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : (selectedOpt ? 'bg-red-50/40 border-red-200' : 'bg-gray-50 border-gray-200')}`;
+                card.className = `p-4 rounded-xl border ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : (ans ? 'bg-amber-50/40 border-amber-200' : 'bg-gray-50 border-gray-200')}`;
 
-                let optionsHtml = '';
-                ['A', 'B', 'C', 'D'].forEach(opt => {
-                    const optText = q[`option_${opt.toLowerCase()}`];
-                    const isStudentPick = selectedOpt === opt;
-                    const isActualCorrect = q.correct_option === opt;
+                if (isCoding) {
+                    const submittedCode = (ans && ans.code) ? ans.code : '';
+                    const lang = (ans && ans.language) ? ans.language.toUpperCase() : 'N/A';
+                    const testResults = (ans && ans.test_case_results) ? ans.test_case_results : [];
+                    const statusText = ans ? (ans.code_output || `${marksAwarded} / ${q.marks} Marks`) : 'Unattempted';
 
-                    let optClass = 'bg-white border-gray-200 text-gray-700';
-                    let badge = '';
-
-                    if (isActualCorrect) {
-                        optClass = 'bg-emerald-100 border-emerald-400 font-bold text-emerald-900';
-                        badge = '<span class="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded font-bold ml-2">Correct Answer</span>';
+                    let testCaseHtml = '';
+                    if (Array.isArray(testResults) && testResults.length > 0) {
+                        testCaseHtml = `
+                            <div class="mt-3 pt-2 border-t border-gray-200 space-y-1">
+                                <div class="font-bold text-[11px] text-gray-700">Test Case Execution Details:</div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                    ${testResults.map(tc => `
+                                        <div class="p-2 rounded bg-white border ${tc.passed ? 'border-emerald-300 text-emerald-900' : 'border-rose-300 text-rose-900'} text-[11px] flex items-center justify-between">
+                                            <span>Test #${tc.test_case_id} ${tc.is_hidden ? '(Hidden)' : '(Sample)'}</span>
+                                            <span class="font-bold px-1.5 py-0.5 rounded text-[10px] ${tc.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${tc.passed ? 'PASSED' : 'FAILED'}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
                     }
-                    if (isStudentPick && !isActualCorrect) {
-                        optClass = 'bg-red-100 border-red-400 font-bold text-red-900';
-                        badge = '<span class="text-[10px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold ml-2">Student Picked</span>';
-                    } else if (isStudentPick && isActualCorrect) {
-                        badge += '<span class="text-[10px] bg-emerald-700 text-white px-1.5 py-0.5 rounded font-bold ml-2">Student Picked</span>';
-                    }
 
-                    optionsHtml += `
-                        <div class="p-2 rounded-lg border ${optClass} text-xs flex items-center justify-between">
-                            <span><strong>${opt}.</strong> ${optText}</span>
-                            <div>${badge}</div>
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 mr-1.5 uppercase font-mono">Coding</span>
+                                <span class="text-xs font-bold text-gray-900">Q${idx + 1}. ${q.question_text}</span>
+                            </div>
+                            <span class="text-xs font-bold ${isCorrect ? 'text-emerald-700' : 'text-gray-700'}">
+                                ${marksAwarded} / ${q.marks} Marks
+                            </span>
                         </div>
+                        <div class="flex items-center gap-3 text-xs mb-2">
+                            <span class="text-gray-500">Language: <strong class="text-purple-700 font-mono">${lang}</strong></span>
+                            <span class="text-gray-400">&bull;</span>
+                            <span class="font-semibold text-gray-700">${statusText}</span>
+                        </div>
+                        ${submittedCode ? `
+                            <pre class="bg-gray-900 text-gray-100 p-3 rounded-lg font-mono text-[11px] overflow-x-auto whitespace-pre-wrap">${submittedCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                        ` : `<div class="p-3 bg-gray-100 text-gray-500 rounded-lg text-xs italic">No code submitted for this question.</div>`}
+                        ${testCaseHtml}
                     `;
-                });
+                } else {
+                    const selectedOpt = ans ? ans.selected_option : null;
+                    let optionsHtml = '';
+                    ['A', 'B', 'C', 'D'].forEach(opt => {
+                        const optText = q[`option_${opt.toLowerCase()}`];
+                        const isStudentPick = selectedOpt === opt;
+                        const isActualCorrect = q.correct_option === opt;
 
-                card.innerHTML = `
-                    <div class="flex items-start justify-between mb-2">
-                        <span class="text-xs font-bold text-gray-900">Q${idx + 1}. ${q.question_text}</span>
-                        <span class="text-xs font-bold ${isCorrect ? 'text-emerald-700' : 'text-red-600'}">
-                            ${isCorrect ? `+${q.marks} Marks` : '0 Marks'}
-                        </span>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-                        ${optionsHtml}
-                    </div>
-                    ${q.explanation ? `<div class="mt-2 text-[11px] text-gray-500 italic">Explanation: ${q.explanation}</div>` : ''}
-                `;
+                        let optClass = 'bg-white border-gray-200 text-gray-700';
+                        let badge = '';
+
+                        if (isActualCorrect) {
+                            optClass = 'bg-emerald-100 border-emerald-400 font-bold text-emerald-900';
+                            badge = '<span class="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded font-bold ml-2">Correct Answer</span>';
+                        }
+                        if (isStudentPick && !isActualCorrect) {
+                            optClass = 'bg-red-100 border-red-400 font-bold text-red-900';
+                            badge = '<span class="text-[10px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold ml-2">Student Picked</span>';
+                        } else if (isStudentPick && isActualCorrect) {
+                            badge += '<span class="text-[10px] bg-emerald-700 text-white px-1.5 py-0.5 rounded font-bold ml-2">Student Picked</span>';
+                        }
+
+                        optionsHtml += `
+                            <div class="p-2 rounded-lg border ${optClass} text-xs flex items-center justify-between">
+                                <span><strong>${opt}.</strong> ${optText}</span>
+                                <div>${badge}</div>
+                            </div>
+                        `;
+                    });
+
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between mb-2">
+                            <span class="text-xs font-bold text-gray-900">Q${idx + 1}. ${q.question_text}</span>
+                            <span class="text-xs font-bold ${isCorrect ? 'text-emerald-700' : 'text-red-600'}">
+                                ${isCorrect ? `+${q.marks} Marks` : '0 Marks'}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                            ${optionsHtml}
+                        </div>
+                        ${q.explanation ? `<div class="mt-2 text-[11px] text-gray-500 italic">Explanation: ${q.explanation}</div>` : ''}
+                    `;
+                }
 
                 container.appendChild(card);
             });

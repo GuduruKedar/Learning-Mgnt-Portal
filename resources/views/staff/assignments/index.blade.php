@@ -200,9 +200,21 @@
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between overflow-hidden">
                             <div class="p-6">
                                 <div class="flex items-center justify-between mb-3">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold font-mono tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold font-mono tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-100">
                                         {{ $assignment->course->code }}
-                                    </span>
+                                        </span>
+                                        @if($assignment->isPrivate())
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200" title="Private Assignment ({{ $assignment->assigned_students_count ?? $assignment->assignedStudents->count() }} designated students)">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                                Private ({{ $assignment->assigned_students_count ?? $assignment->assignedStudents->count() }})
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                Public
+                                            </span>
+                                        @endif
+                                    </div>
                                     @if($assignment->status === 'draft')
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">Draft</span>
                                     @elseif($assignment->status === 'closed')
@@ -242,7 +254,11 @@
                                     <div class="flex justify-between items-center">
                                         <span class="text-gray-500">Submissions:</span>
                                         <span class="font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded text-xs">
-                                            {{ $assignment->submissions->count() }} of {{ $assignment->course->enrollments->count() }} enrolled
+                                            @if($assignment->isPrivate())
+                                                {{ $assignment->submissions->count() }} of {{ $assignment->assigned_students_count ?? $assignment->assignedStudents->count() }} allowed
+                                            @else
+                                                {{ $assignment->submissions->count() }} of {{ $assignment->course->enrollments->count() }} enrolled
+                                            @endif
                                         </span>
                                     </div>
                                 </div>

@@ -18,7 +18,6 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <!-- Top Header -->
-        <!-- Top Header -->
         @include('partials.top_header')
 
         <!-- Main Scrollable Content -->
@@ -26,6 +25,26 @@
             <div class="max-w-4xl mx-auto space-y-6">
 
                 <!-- Alert Messages -->
+                @if(session('success'))
+                <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg shadow-sm flex items-center justify-between">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-emerald-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        <span class="text-sm font-medium text-emerald-800">{{ session('success') }}</span>
+                    </div>
+                    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700">&times;</button>
+                </div>
+                @endif
+
+                @if(session('error'))
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+                        <span class="text-sm font-medium text-red-800">{{ session('error') }}</span>
+                    </div>
+                    <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700">&times;</button>
+                </div>
+                @endif
+
                 @if($errors->any())
                 <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
                     <h4 class="text-sm font-bold text-red-800 mb-1">Please fix the following validation errors:</h4>
@@ -40,7 +59,7 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-6 border-b border-gray-100">
                         <h1 class="text-xl font-bold text-gray-900">Edit Assignment: {{ $assignment->title }}</h1>
-                        <p class="text-xs text-gray-500 mt-1">Update the instructions, due date, maximum marks, or attached reference document.</p>
+                        <p class="text-xs text-gray-500 mt-1">Update the instructions, due date, maximum marks, or access type.</p>
                     </div>
 
                     <div class="p-6 sm:p-8">
@@ -102,6 +121,16 @@
                                         <option value="draft" {{ old('status', $assignment->status) == 'draft' ? 'selected' : '' }}>Draft</option>
                                         <option value="closed" {{ old('status', $assignment->status) == 'closed' ? 'selected' : '' }}>Closed</option>
                                     </select>
+                                </div>
+
+                                <!-- Assignment Access & Cohort Selection -->
+                                <div class="md:col-span-2 pt-2">
+                                    @include('staff.assignments.partials.access_type_selector', [
+                                        'prefix' => 'edit',
+                                        'type' => old('type', $assignment->type ?? 'public'),
+                                        'assignedStudentIds' => old('student_ids', $assignedStudentIds ?? []),
+                                        'programs' => $programs ?? collect()
+                                    ])
                                 </div>
                             </div>
 

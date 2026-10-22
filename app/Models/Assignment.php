@@ -18,6 +18,7 @@ class Assignment extends Model
         'due_date',
         'attachment_path',
         'status',
+        'type',
     ];
 
     protected $casts = [
@@ -43,6 +44,30 @@ class Assignment extends Model
     public function questions()
     {
         return $this->hasMany(AssignmentQuestion::class)->orderBy('order', 'asc');
+    }
+
+    public function assignedStudents()
+    {
+        return $this->belongsToMany(User::class, 'assignment_students', 'assignment_id', 'student_id')
+                    ->withTimestamps();
+    }
+
+    public function isPublic(): bool
+    {
+        return ($this->type ?? 'public') === 'public';
+    }
+
+    public function isPrivate(): bool
+    {
+        return $this->type === 'private';
+    }
+
+    public function isAccessibleBy(User $user): bool
+    {
+        if ($this->isPublic()) {
+            return true;
+        }
+        return $this->assignedStudents()->where('users.id', $user->id)->exists();
     }
 
     public function recalculateMaxMarks(): int

@@ -26,9 +26,12 @@ class LoginController extends Controller
         $empId = trim($request->emp_id);
         $password = $request->password;
 
-        $user = \App\Models\User::where('username', $empId)
-            ->orWhereRaw('LOWER(TRIM(username)) = ?', [strtolower($empId)])
-            ->first();
+        // Optimized: O(1) indexed lookup with eager-loaded profile
+        $user = \App\Models\User::with('profile')->where('username', $empId)->first();
+        if (!$user) {
+            // Case-insensitive fallback if entered with different casing
+            $user = \App\Models\User::with('profile')->whereRaw('LOWER(username) = ?', [strtolower($empId)])->first();
+        }
 
         if ($user && $user->requires_password_reset) {
             return back()->withErrors([
@@ -45,9 +48,12 @@ class LoginController extends Controller
         if ($authenticated) {
             $authUser = Auth::user();
             if ($authUser) {
-                $authUser->failed_login_attempts = 0;
-                $authUser->requires_password_reset = false;
-                $authUser->save();
+                // High-performance optimization: Only execute DB UPDATE if flags actually changed
+                if ($authUser->failed_login_attempts > 0 || $authUser->requires_password_reset) {
+                    $authUser->failed_login_attempts = 0;
+                    $authUser->requires_password_reset = false;
+                    $authUser->save();
+                }
 
                 // Prime session with user identity to eliminate redundant SQL queries across all routes
                 $profile = $authUser->profile;
@@ -72,7 +78,7 @@ class LoginController extends Controller
                 'Authentication',
                 'User ' . ($user->profile->username ?? $user->username) . ' signed in successfully.',
                 'info',
-                ['user' => $user]
+                ['user' => $authUser ?? $user]
             );
 
             return redirect()->route('dashboard');

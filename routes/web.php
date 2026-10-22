@@ -23,17 +23,24 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Course Materials & Assignments (Staff only) - Defined before Admin routes to avoid wildcard conflict with Route::resource('staff')
-    Route::middleware('role:sta')->group(function () {
-        Route::get('/staff/courses', [\App\Http\Controllers\CourseMaterialController::class, 'myCourses'])->name('staff.courses.index');
+    // Course Materials Hub & CRUD (Staff, Coordinator, Super Admin)
+    Route::middleware('role:sta,admin,sa')->group(function () {
         Route::get('/staff/courses/{course}', [\App\Http\Controllers\CourseMaterialController::class, 'index'])->name('staff.courses.materials');
         Route::post('/staff/courses/{course}/materials', [\App\Http\Controllers\CourseMaterialController::class, 'store'])->name('staff.courses.materials.store');
         Route::put('/staff/materials/{material}', [\App\Http\Controllers\CourseMaterialController::class, 'update'])->name('staff.courses.materials.update');
         Route::delete('/staff/materials/{material}', [\App\Http\Controllers\CourseMaterialController::class, 'destroy'])->name('staff.courses.materials.destroy');
+    });
+
+    // Staff only (My Courses & Assignments)
+    Route::middleware('role:sta')->group(function () {
+        Route::get('/staff/courses', [\App\Http\Controllers\CourseMaterialController::class, 'myCourses'])->name('staff.courses.index');
 
         // Staff Assignments
         Route::get('/staff/assignments', [\App\Http\Controllers\StaffAssignmentController::class, 'index'])->name('staff.assignments.index');
         Route::get('/staff/assignments/template', [\App\Http\Controllers\StaffAssignmentController::class, 'downloadTemplate'])->name('staff.assignments.template');
+        Route::get('/staff/assignments/students-template', [\App\Http\Controllers\StaffAssignmentController::class, 'downloadStudentTemplate'])->name('staff.assignments.students.template');
+        Route::get('/staff/courses/{course}/cohort-students', [\App\Http\Controllers\StaffAssignmentController::class, 'getCourseCohortStudents'])->name('staff.courses.cohort-students');
+        Route::post('/staff/assignments/parse-students', [\App\Http\Controllers\StaffAssignmentController::class, 'parseStudentsExcel'])->name('staff.assignments.parse-students');
         Route::get('/staff/assignments/create', [\App\Http\Controllers\StaffAssignmentController::class, 'create'])->name('staff.assignments.create');
         Route::post('/staff/assignments', [\App\Http\Controllers\StaffAssignmentController::class, 'store'])->name('staff.assignments.store');
         Route::post('/staff/assignments/bulk-upload', [\App\Http\Controllers\StaffAssignmentController::class, 'bulkUpload'])->name('staff.assignments.bulk');
@@ -44,6 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/staff/assignments/{assignment}', [\App\Http\Controllers\StaffAssignmentController::class, 'destroy'])->name('staff.assignments.destroy');
         Route::post('/staff/assignments/{assignment}/questions', [\App\Http\Controllers\StaffAssignmentController::class, 'storeQuestion'])->name('staff.assignments.questions.store');
         Route::delete('/staff/assignments/questions/{question}', [\App\Http\Controllers\StaffAssignmentController::class, 'destroyQuestion'])->name('staff.assignments.questions.destroy');
+        Route::post('/staff/assignments/run-code', [\App\Http\Controllers\StaffAssignmentController::class, 'runCode'])->name('staff.assignments.run-code');
     });
     
     // ==========================================
@@ -171,6 +179,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/courses/{course}/allocate', [\App\Http\Controllers\AcademicController::class, 'allocateStaff'])->name('academic.courses.allocate');
         Route::delete('/courses/{course}/allocate/{staff}', [\App\Http\Controllers\AcademicController::class, 'unallocateStaff'])->name('academic.courses.unallocate');
         
+        // Cohort Student Course Enrollment
+        Route::get('/cohort-enrollment', [\App\Http\Controllers\CohortController::class, 'index'])->name('academic.cohorts');
+        Route::post('/cohort-enrollment/enroll', [\App\Http\Controllers\CohortController::class, 'enroll'])->name('academic.cohorts.enroll');
+        Route::post('/cohort-enrollment/unenroll', [\App\Http\Controllers\CohortController::class, 'unenroll'])->name('academic.cohorts.unenroll');
+        
         Route::resource('staff', \App\Http\Controllers\StaffController::class);
     });
 
@@ -203,6 +216,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/student/assignments/{assignment}', [\App\Http\Controllers\StudentAssignmentController::class, 'show'])->name('student.assignments.show');
             Route::get('/student/assignments/{assignment}/download', [\App\Http\Controllers\StudentAssignmentController::class, 'downloadReport'])->name('student.assignments.download');
             Route::post('/student/assignments/{assignment}/submit', [\App\Http\Controllers\StudentAssignmentController::class, 'submit'])->name('student.assignments.submit');
+            Route::post('/student/assignments/run-code', [\App\Http\Controllers\StudentAssignmentController::class, 'runCode'])->name('student.assignments.run-code');
         });
     });
 

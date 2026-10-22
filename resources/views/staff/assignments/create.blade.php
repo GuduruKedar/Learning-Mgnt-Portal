@@ -27,6 +27,16 @@
             <div class="w-full space-y-6">
 
                 <!-- Alert Messages -->
+                @if(session('success'))
+                <div class="bg-emerald-50 dark:bg-emerald-950/40 border-l-4 border-emerald-500 p-4 rounded-r-xl shadow-xs flex items-center justify-between">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-emerald-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                        <span class="text-sm font-medium text-emerald-800 dark:text-emerald-300">{{ session('success') }}</span>
+                    </div>
+                    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700">&times;</button>
+                </div>
+                @endif
+
                 @if(session('error'))
                 <div class="bg-red-50 dark:bg-red-950/40 border-l-4 border-red-500 p-4 rounded-r-xl shadow-xs flex items-start justify-between">
                     <div class="flex items-center">
@@ -51,8 +61,8 @@
                 <!-- Page Header -->
                 <div class="border-b border-slate-200 dark:border-[#273244] pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h1 class="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">Create MCQ Assignment</h1>
-                        <p class="mt-1 text-sm text-slate-500 dark:text-[#94A3B8]">Build interactive multiple choice questions or upload full question banks in bulk using Excel.</p>
+                        <h1 class="text-2xl font-bold text-slate-900 dark:text-[#F8FAFC] tracking-tight">Create Assignment & Code Assessments</h1>
+                        <p class="mt-1 text-sm text-slate-500 dark:text-[#94A3B8]">Build interactive Multiple Choice Questions (MCQ) and Coding Problems (C, Java, Python) with online compiler test cases.</p>
                     </div>
                     <div class="flex items-center gap-2.5 shrink-0">
                         <a href="{{ route('staff.assignments.template') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:shadow transition-all transform hover:-translate-y-0.5 cursor-pointer">
@@ -72,7 +82,7 @@
                         </button>
                         <button type="button" id="tab-single-btn" onclick="switchTab('single')" class="px-6 py-3.5 text-sm font-bold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center transition-colors cursor-pointer">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            Manual MCQ Form
+                            Interactive Assignment Builder
                         </button>
                     </div>
 
@@ -142,6 +152,16 @@
                                             Description / Instructions <span class="text-slate-400 text-xs font-normal lowercase">(optional)</span>
                                         </label>
                                         <textarea name="description" rows="2" placeholder="Provide instructions or guidelines for students..." class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl p-3 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">{{ old('description') }}</textarea>
+                                    </div>
+
+                                    <!-- Assignment Access & Cohort Selection -->
+                                    <div class="md:col-span-2 pt-2">
+                                        @include('staff.assignments.partials.access_type_selector', [
+                                            'prefix' => 'bulk',
+                                            'type' => old('type', 'public'),
+                                            'assignedStudentIds' => old('student_ids', []),
+                                            'programs' => $programs ?? collect()
+                                        ])
                                     </div>
                                 </div>
                             </div>
@@ -275,7 +295,7 @@
 
                     <!-- Single Assignment Creation Panel -->
                     <div id="tab-single-content" class="p-6 sm:p-8 bg-white dark:bg-[#151B23] hidden space-y-6">
-                        <form action="{{ route('staff.assignments.store') }}" method="POST" class="space-y-6">
+                        <form action="{{ route('staff.assignments.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                             @csrf
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
@@ -328,72 +348,128 @@
                                     </label>
                                     <textarea name="description" rows="2" placeholder="e.g. Please choose the single best answer for each question. Each question carries 1 mark." class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl p-3 bg-slate-50 dark:bg-[#1C2430] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-[#151B23] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">{{ old('description') }}</textarea>
                                 </div>
+
+                                <!-- Assignment Access & Cohort Selection -->
+                                <div class="md:col-span-2 pt-2">
+                                    @include('staff.assignments.partials.access_type_selector', [
+                                        'prefix' => 'manual',
+                                        'type' => old('type', 'public'),
+                                        'assignedStudentIds' => old('student_ids', []),
+                                        'programs' => $programs ?? collect()
+                                    ])
+                                </div>
                             </div>
 
                             <!-- Initial Question 1 -->
-                            <div class="border-t border-slate-200 dark:border-[#273244] pt-6">
-                                <div class="flex items-center justify-between mb-4">
+                            <div class="border-t border-slate-200 dark:border-[#273244] pt-6 space-y-4">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                     <h3 class="text-base font-bold text-slate-900 dark:text-[#F8FAFC] flex items-center gap-2.5">
                                         <span class="w-7 h-7 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 text-xs font-bold flex items-center justify-center shadow-2xs">Q1</span>
                                         <span>Add Question 1 <span class="text-xs font-normal text-slate-400 dark:text-slate-400">(Optional - more questions can be added later)</span></span>
                                     </h3>
+
+                                    <!-- Question Type Toggle -->
+                                    <div class="inline-flex items-center gap-1 p-1 bg-slate-100 dark:bg-[#1C2430] rounded-xl border border-slate-200/80 dark:border-[#273244]">
+                                        <label class="px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-1.5 text-indigo-700 dark:text-indigo-400 bg-white dark:bg-[#151B23] shadow-xs" id="q1_type_mcq_label">
+                                            <input type="radio" name="questions[0][type]" value="mcq" checked onchange="toggleQ1Type('mcq')" class="sr-only">
+                                            <span>MCQ Question</span>
+                                        </label>
+                                        <label class="px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-700" id="q1_type_code_label">
+                                            <input type="radio" name="questions[0][type]" value="code" onchange="toggleQ1Type('code')" class="sr-only">
+                                            <span>Coding Problem (C, Java, Python)</span>
+                                        </label>
+                                    </div>
                                 </div>
 
                                 <div class="bg-slate-50 dark:bg-[#1C2430] p-6 rounded-2xl border border-slate-200/80 dark:border-[#273244] shadow-xs space-y-5">
                                     <div class="space-y-1.5">
-                                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Question Statement</label>
-                                        <textarea name="questions[0][question_text]" rows="3" placeholder="Type the question here..." class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl p-3 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all"></textarea>
+                                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Question Statement / Problem Requirements</label>
+                                        <textarea name="questions[0][question_text]" rows="3" placeholder="Type the question or coding problem statement here..." class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl p-3 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all"></textarea>
                                     </div>
 
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div class="space-y-1.5">
-                                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                                                <span class="w-5 h-5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 text-[11px] font-bold flex items-center justify-center">A</span>
-                                                <span>Option A</span>
-                                            </label>
-                                            <input type="text" name="questions[0][option_a]" placeholder="Choice A text" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
+                                    <!-- MCQ Specific Options -->
+                                    <div id="q1_mcq_fields" class="space-y-4">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div class="space-y-1.5">
+                                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <span class="w-5 h-5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 text-[11px] font-bold flex items-center justify-center">A</span>
+                                                    <span>Option A</span>
+                                                </label>
+                                                <input type="text" name="questions[0][option_a]" placeholder="Choice A text" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <span class="w-5 h-5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 text-[11px] font-bold flex items-center justify-center">B</span>
+                                                    <span>Option B</span>
+                                                </label>
+                                                <input type="text" name="questions[0][option_b]" placeholder="Choice B text" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <span class="w-5 h-5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 text-[11px] font-bold flex items-center justify-center">C</span>
+                                                    <span>Option C</span>
+                                                </label>
+                                                <input type="text" name="questions[0][option_c]" placeholder="Choice C text" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <span class="w-5 h-5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 text-[11px] font-bold flex items-center justify-center">D</span>
+                                                    <span>Option D</span>
+                                                </label>
+                                                <input type="text" name="questions[0][option_d]" placeholder="Choice D text" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
+                                            </div>
                                         </div>
-                                        <div class="space-y-1.5">
-                                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                                                <span class="w-5 h-5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 text-[11px] font-bold flex items-center justify-center">B</span>
-                                                <span>Option B</span>
-                                            </label>
-                                            <input type="text" name="questions[0][option_b]" placeholder="Choice B text" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
-                                        </div>
-                                        <div class="space-y-1.5">
-                                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                                                <span class="w-5 h-5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 text-[11px] font-bold flex items-center justify-center">C</span>
-                                                <span>Option C</span>
-                                            </label>
-                                            <input type="text" name="questions[0][option_c]" placeholder="Choice C text" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
-                                        </div>
-                                        <div class="space-y-1.5">
-                                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                                                <span class="w-5 h-5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 text-[11px] font-bold flex items-center justify-center">D</span>
-                                                <span>Option D</span>
-                                            </label>
-                                            <input type="text" name="questions[0][option_d]" placeholder="Choice D text" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-200/60 dark:border-[#273244]/60">
+                                            <div class="space-y-1.5">
+                                                <label class="block text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Correct Option <span class="text-red-500">*</span></label>
+                                                <select name="questions[0][correct_option]" class="w-full text-sm font-semibold border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all cursor-pointer">
+                                                    <option value="A">Option A</option>
+                                                    <option value="B">Option B</option>
+                                                    <option value="C">Option C</option>
+                                                    <option value="D">Option D</option>
+                                                </select>
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Marks</label>
+                                                <input type="number" name="questions[0][marks]" value="1" min="1" max="100" class="w-full text-sm font-semibold border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Explanation <span class="text-slate-400 font-normal lowercase">(optional)</span></label>
+                                                <input type="text" name="questions[0][explanation]" placeholder="Why this option is correct" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-200/60 dark:border-[#273244]/60">
-                                        <div class="space-y-1.5">
-                                            <label class="block text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Correct Option <span class="text-red-500">*</span></label>
-                                            <select name="questions[0][correct_option]" class="w-full text-sm font-semibold border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all cursor-pointer">
-                                                <option value="A">Option A</option>
-                                                <option value="B">Option B</option>
-                                                <option value="C">Option C</option>
-                                                <option value="D">Option D</option>
-                                            </select>
+                                    <!-- Coding Specific Fields -->
+                                    <div id="q1_code_fields" class="hidden space-y-4 pt-2">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div class="space-y-1.5">
+                                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Marks for Coding Problem</label>
+                                                <input type="number" id="q1_code_marks" value="10" min="1" max="100" class="w-full text-sm font-semibold border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100">
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Permitted Compilers</label>
+                                                <div class="flex items-center gap-3 pt-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+                                                    <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                                        <input type="checkbox" name="questions[0][allowed_languages][]" value="c" checked class="rounded text-indigo-600">
+                                                        <span>C (GCC 13)</span>
+                                                    </label>
+                                                    <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                                        <input type="checkbox" name="questions[0][allowed_languages][]" value="java" checked class="rounded text-indigo-600">
+                                                        <span>Java (OpenJDK 21)</span>
+                                                    </label>
+                                                    <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                                                        <input type="checkbox" name="questions[0][allowed_languages][]" value="python" checked class="rounded text-indigo-600">
+                                                        <span>Python (3.14)</span>
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="space-y-1.5">
-                                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Marks</label>
-                                            <input type="number" name="questions[0][marks]" value="1" min="1" max="100" class="w-full text-sm font-semibold border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
-                                        </div>
-                                        <div class="space-y-1.5">
-                                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Explanation <span class="text-slate-400 font-normal lowercase">(optional)</span></label>
-                                            <input type="text" name="questions[0][explanation]" placeholder="Why this option is correct" class="w-full text-sm border border-slate-200 dark:border-[#273244] rounded-xl px-3.5 py-2.5 bg-white dark:bg-[#151B23] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all">
-                                        </div>
+
+                                        <p class="text-xs text-purple-700 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-950/40 p-3 rounded-xl border border-purple-100 dark:border-purple-900/40">
+                                            Tip: Full test case suite and starter code templates can also be configured or modified from the assignment management screen.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -429,6 +505,9 @@
                 create: false,
                 maxOptions: null,
                 placeholder: '-- Choose Course --',
+                onChange: function(val) {
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             });
         }
 
@@ -547,5 +626,31 @@
             window.initLMSUI();
         }
     </script>
+
+    <script>
+        function toggleQ1Type(type) {
+            const mcqFields = document.getElementById('q1_mcq_fields');
+            const codeFields = document.getElementById('q1_code_fields');
+            const mcqLabel = document.getElementById('q1_type_mcq_label');
+            const codeLabel = document.getElementById('q1_type_code_label');
+            const marksInput = document.querySelector('input[name="questions[0][marks]"]');
+            const codeMarks = document.getElementById('q1_code_marks');
+
+            if (type === 'code') {
+                if (mcqFields) mcqFields.classList.add('hidden');
+                if (codeFields) codeFields.classList.remove('hidden');
+                if (mcqLabel) mcqLabel.className = 'px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-700';
+                if (codeLabel) codeLabel.className = 'px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-1.5 text-purple-700 dark:text-purple-400 bg-white dark:bg-[#151B23] shadow-xs';
+                if (marksInput && codeMarks) marksInput.value = codeMarks.value;
+            } else {
+                if (mcqFields) mcqFields.classList.remove('hidden');
+                if (codeFields) codeFields.classList.add('hidden');
+                if (mcqLabel) mcqLabel.className = 'px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-1.5 text-indigo-700 dark:text-indigo-400 bg-white dark:bg-[#151B23] shadow-xs';
+                if (codeLabel) codeLabel.className = 'px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-700';
+                if (marksInput) marksInput.value = 1;
+            }
+        }
+    </script>
+
 </body>
 </html>

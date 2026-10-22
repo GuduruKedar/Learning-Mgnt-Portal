@@ -329,7 +329,7 @@ class CacheService
     {
         $key = 'lms_course_materials_' . $courseId;
         return Cache::remember($key, self::TTL_1_HOUR, function () use ($courseId) {
-            return CourseMaterial::where('course_id', $courseId)->latest()->get();
+            return CourseMaterial::with(['staff.profile'])->where('course_id', $courseId)->latest()->get();
         });
     }
 

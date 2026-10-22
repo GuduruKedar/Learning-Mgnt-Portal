@@ -13,6 +13,10 @@ class AssignmentAnswer extends Model
         'submission_id',
         'question_id',
         'selected_option',
+        'code',
+        'language',
+        'test_case_results',
+        'code_output',
         'is_correct',
         'marks_awarded',
     ];
@@ -20,6 +24,7 @@ class AssignmentAnswer extends Model
     protected $casts = [
         'is_correct' => 'boolean',
         'marks_awarded' => 'integer',
+        'test_case_results' => 'array',
     ];
 
     public function submission()

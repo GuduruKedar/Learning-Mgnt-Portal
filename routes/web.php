@@ -267,3 +267,17 @@ Route::get('/preview/welcome-email', function () {
     return new \App\Mail\UserWelcomeMail($user, 'Student#963', $profile);
 })->name('email.welcome.preview');
 
+// Password Reset Email Preview Route
+Route::get('/preview/password-reset-email', function () {
+    $user = \App\Models\User::with('profile')->whereNotNull('profile_id')->first()
+        ?? new \App\Models\User(['username' => '221FA04001']);
+    $profile = $user->profile ?? new \App\Models\Profile([
+        'first_name' => 'John',
+        'last_name' => 'Doe',
+        'email' => 'john.doe@vignan.ac.in',
+        'designation' => 'Student (CSE)',
+    ]);
+    return new \App\Mail\UserPasswordResetMail($user, 'Student' . rand(1000, 9999), $profile);
+})->name('email.password-reset.preview');
+
+

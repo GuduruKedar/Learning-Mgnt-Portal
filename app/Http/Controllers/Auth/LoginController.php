@@ -38,43 +38,46 @@ class LoginController extends Controller
 
         if ($user && $user->requires_password_reset) {
             $phone = $user->profile?->phone;
-            if (!empty($phone)) {
-                $tempPassword = $this->generateTemporaryPassword($user);
-                $user->password = Hash::make($tempPassword);
-                $user->failed_login_attempts = 0;
-                $user->requires_password_reset = false;
-                $user->save();
+            $email = $user->profile?->email;
+            $hasPhone = !empty($phone);
+            $hasEmail = !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL);
 
-                $sms = app(SmsService::class);
-                $sms->sendCredentials($phone, $user->username, $tempPassword);
-
-                if (!empty($user->profile?->email) && filter_var($user->profile->email, FILTER_VALIDATE_EMAIL)) {
-                    try {
-                        \Illuminate\Support\Facades\Mail::to($user->profile->email)->send(new \App\Mail\UserWelcomeMail($user, $tempPassword, $user->profile));
-                    } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::warning("[UserWelcomeMail] Failed sending email: " . $e->getMessage());
-                    }
-                }
-
-                \App\Services\ActivityLogger::log(
-                    'account_unlocked_sms',
-                    'Temporary Password Sent via SMS',
-                    'Authentication',
-                    "Locked account {$user->username} was issued a temporary password via SMS.",
-                    'info',
-                    ['user' => $user]
-                );
-
-                $maskedPhone = substr($phone, 0, 2) . '******' . substr($phone, -2);
-                return back()->with([
-                    'forgot_success' => "Your account was locked. A new temporary password has been sent to your registered mobile number ({$maskedPhone}). Please enter it below to login.",
-                    'prefilled_username' => $user->username,
-                    'show_forgot_password' => true,
+            if (!$hasPhone && !$hasEmail) {
+                return back()->withErrors([
+                    'emp_id' => 'Your account has been locked. No registered mobile number or email address is on file. Please contact your Department Coordinator to unlock your account.',
                 ]);
             }
 
-            return back()->withErrors([
-                'emp_id' => 'Your account has been locked. No registered mobile number is on file. Please contact your Department Coordinator to unlock your account.',
+            $tempPassword = $this->generateTemporaryPassword($user);
+            $user->password = Hash::make($tempPassword);
+            $user->failed_login_attempts = 0;
+            $user->requires_password_reset = false;
+            $user->save();
+
+            $dispatch = \App\Services\UserPasswordResetNotificationService::sendResetCredentials($user, $tempPassword, $user->profile);
+
+            \App\Services\ActivityLogger::log(
+                'account_unlocked_credentials',
+                'Temporary Password Sent via SMS/Email',
+                'Authentication',
+                "Locked account {$user->username} was issued a temporary password.",
+                'info',
+                ['user' => $user]
+            );
+
+            $channels = [];
+            if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+                $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
+            }
+            if ($dispatch['has_email'] && $dispatch['masked_email']) {
+                $channels[] = "email ({$dispatch['masked_email']})";
+            }
+            $channelText = implode(' and ', $channels);
+
+            return back()->with([
+                'forgot_success' => "Your account was locked. A new temporary password has been sent to your {$channelText}. Please enter it below to login.",
+                'prefilled_username' => $user->username,
+                'show_forgot_password' => true,
             ]);
         }
 
@@ -186,25 +189,34 @@ class LoginController extends Controller
         $request->validate([
             'username' => 'required|string',
         ], [
-            'username.required' => 'Please enter your Username / Registration Number.',
+            'username.required' => 'Please enter your Username / Registration Number or registered Email.',
         ]);
 
-        $empId = trim($request->username);
+        $identifier = trim($request->username);
 
-        // 1. Check first if the user exists
-        $user = User::with('profile')->where('username', $empId)->first();
+        // 1. Resolve user by username (exact or lowercase) OR by registered profile email
+        $user = User::with('profile')->where('username', $identifier)->first();
         if (!$user) {
-            $user = User::with('profile')->whereRaw('LOWER(username) = ?', [strtolower($empId)])->first();
+            $user = User::with('profile')->whereRaw('LOWER(username) = ?', [strtolower($identifier)])->first();
+        }
+        if (!$user && filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $user = User::with('profile')->whereHas('profile', function ($q) use ($identifier) {
+                $q->whereRaw('LOWER(email) = ?', [strtolower($identifier)]);
+            })->first();
         }
 
         if (!$user) {
-            return back()->with('forgot_error', "No user account was found with username '{$empId}'. Please check your credentials or contact your Department Coordinator.");
+            return back()->with('forgot_error', "No user account was found with identifier '{$identifier}'. Please check your credentials or contact your Department Coordinator.");
         }
 
-        // 2. Check if phone number is present on profile
+        // 2. Check if at least one contact channel (phone or email) is present on profile
         $phone = $user->profile?->phone;
-        if (empty($phone)) {
-            return back()->with('forgot_error', "No mobile phone number is linked to account '{$user->username}'. Please contact your Department Coordinator to register your mobile number.");
+        $email = $user->profile?->email;
+        $hasPhone = !empty($phone);
+        $hasEmail = !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL);
+
+        if (!$hasPhone && !$hasEmail) {
+            return back()->with('forgot_error', "No mobile phone number is linked to account '{$user->username}', and no valid email address is on file. Please contact your Department Coordinator to register your contact details.");
         }
 
         // 3. Generate a secure temporary password
@@ -216,31 +228,29 @@ class LoginController extends Controller
         $user->requires_password_reset = false;
         $user->save();
 
-        // 5. Send password to phone number via approved JioCX SMS Template
-        $smsResult = $sms->sendCredentials($phone, $user->username, $newPassword);
-
-        // 6. Also dispatch email if available
-        if (!empty($user->profile?->email) && filter_var($user->profile->email, FILTER_VALIDATE_EMAIL)) {
-            try {
-                \Illuminate\Support\Facades\Mail::to($user->profile->email)->send(new \App\Mail\UserWelcomeMail($user, $newPassword, $user->profile));
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning("[UserWelcomeMail] Failed sending email: " . $e->getMessage());
-            }
-        }
+        // 5. Send credentials via JioCX SMS Gateway and/or Institutional Email
+        $dispatch = \App\Services\UserPasswordResetNotificationService::sendResetCredentials($user, $newPassword, $user->profile);
 
         \App\Services\ActivityLogger::log(
-            'forgot_password_sms',
-            'Password Reset via SMS',
+            'forgot_password_reset',
+            'Password Reset Dispatched',
             'Authentication',
-            "User {$user->username} requested forgot password. New password dispatched via SMS to registered mobile.",
+            "User {$user->username} requested password reset. New credentials dispatched via " . ($dispatch['has_phone'] && $dispatch['has_email'] ? 'SMS & Email' : ($dispatch['has_phone'] ? 'SMS' : 'Email')) . '.',
             'info',
             ['user' => $user]
         );
 
-        $maskedPhone = substr($phone, 0, 2) . '******' . substr($phone, -2);
+        $channels = [];
+        if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+            $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
+        }
+        if ($dispatch['has_email'] && $dispatch['masked_email']) {
+            $channels[] = "email ({$dispatch['masked_email']})";
+        }
+        $channelText = implode(' and ', $channels);
 
         return back()->with([
-            'forgot_success' => "A new temporary password has been sent to your registered mobile number ({$maskedPhone}). Please enter it below to login to your account.",
+            'forgot_success' => "A new temporary password has been sent to your {$channelText}. Please enter it below to login to your account.",
             'prefilled_username' => $user->username,
         ]);
     }

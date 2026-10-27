@@ -195,7 +195,7 @@
                         <div class="mb-3.5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200/90 text-emerald-800 text-xs flex items-start gap-2.5 animate-fadeIn">
                             <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <div class="flex-1">
-                                <span class="font-bold block">Password Reset via SMS</span>
+                                <span class="font-bold block">Password Reset Confirmed</span>
                                 <p class="text-[11px] leading-relaxed mt-0.5 text-emerald-700">{{ session('forgot_success') }}</p>
                             </div>
                         </div>
@@ -225,7 +225,7 @@
                                     <button type="button" onclick="openForgotPasswordModal()" class="font-bold underline text-indigo-700 hover:text-indigo-900 cursor-pointer">
                                         Forgot Password?
                                     </button> 
-                                    to reset your credentials via SMS.
+                                    to reset your credentials via SMS or Email.
                                 </p>
                             </div>
                         </div>
@@ -354,7 +354,7 @@
                             <h3 class="text-sm font-bold text-white tracking-tight">Security Alert & Password Reset</h3>
                             <span class="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">Official</span>
                         </div>
-                        <p class="text-[11px] text-slate-300 mt-0.5">Automated SMS Credentials Dispatch System</p>
+                        <p class="text-[11px] text-slate-300 mt-0.5">Automated SMS & Institutional Email Dispatch System</p>
                     </div>
                 </div>
                 <button type="button" onclick="closeForgotPasswordModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none" title="Close dialog">
@@ -375,14 +375,14 @@
                     </div>
                     <div class="text-xs text-amber-900 leading-relaxed">
                         <span class="font-bold text-amber-950 block mb-0.5">⚠️ Security Notice: Password Overwrite Warning</span>
-                        Confirming will <span class="font-bold underline text-amber-950">immediately reset your current password</span> and dispatch a secure temporary password via SMS to your registered mobile number on record.
+                        Confirming will <span class="font-bold underline text-amber-950">immediately reset your current password</span> and dispatch a secure temporary password via SMS and Email to your verified contact details on file.
                     </div>
                 </div>
 
-                <!-- Username Input Field -->
+                <!-- Username / Email Input Field -->
                 <div>
                     <label for="forgot_username" class="block text-xs font-bold text-slate-700 uppercase mb-1.5">
-                        Username / Reg No / Staff ID <span class="text-rose-500">*</span>
+                        Username / Reg No / Staff ID or Registered Email <span class="text-rose-500">*</span>
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -393,7 +393,7 @@
                             id="forgot_username" 
                             name="username" 
                             required 
-                            placeholder="e.g. 211FA04001 or 00002" 
+                            placeholder="e.g. 211FA04001, 10001, or name@vignan.ac.in" 
                             value="{{ old('username', session('prefilled_username')) }}"
                             class="w-full text-sm pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white hover:border-slate-300 transition-all text-slate-900 placeholder-slate-400"
                             autocomplete="off"
@@ -401,7 +401,7 @@
                     </div>
                     <p class="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>SMS will be delivered only to your official registered mobile number.</span>
+                        <span>Credentials will be securely delivered to your registered mobile phone (SMS) and official email address.</span>
                     </p>
                 </div>
 
@@ -412,7 +412,7 @@
                     </button>
                     <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 via-indigo-600 to-indigo-700 hover:from-amber-700 hover:to-indigo-800 text-white font-bold text-xs shadow-md shadow-indigo-200 transition-all flex items-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                        <span>Confirm & Send Password via SMS</span>
+                        <span>Confirm & Send Password via SMS & Email</span>
                     </button>
                 </div>
             </form>

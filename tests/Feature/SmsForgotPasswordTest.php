@@ -338,4 +338,88 @@ class SmsForgotPasswordTest extends TestCase
         $loginResponse->assertRedirect('/dashboard');
         $this->assertAuthenticatedAs($user);
     }
+
+    public function test_forgot_password_dispatches_email_when_email_is_present()
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $profile = Profile::create([
+            'username' => 'STU_EMAIL_01',
+            'first_name' => 'MailUser',
+            'last_name' => 'Student',
+            'email' => 'student.mail@vignan.ac.in',
+            'phone' => '9555566666',
+            'roles_id' => 'stu',
+        ]);
+
+        $user = User::create([
+            'username' => 'STU_EMAIL_01',
+            'password' => Hash::make('OldPassword123'),
+            'profile_id' => $profile->id,
+            'failed_login_attempts' => 1,
+            'requires_password_reset' => false,
+        ]);
+
+        $response = $this->from('/')
+            ->post(route('password.forgot'), [
+                'username' => 'STU_EMAIL_01',
+            ]);
+
+        $response->assertRedirect('/');
+        $response->assertSessionHas('forgot_success');
+        $this->assertStringContainsString('95******66', session('forgot_success'));
+        $this->assertStringContainsString('st****@vignan.ac.in', session('forgot_success'));
+
+        $user->refresh();
+        $this->assertEquals(0, $user->failed_login_attempts);
+
+        // Assert Email was queued / sent to user's registered email
+        \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\UserPasswordResetMail::class, function ($mail) {
+            return $mail->hasTo('student.mail@vignan.ac.in')
+                && $mail->user->username === 'STU_EMAIL_01';
+        });
+
+        // Assert SMS was also dispatched
+        Http::assertSent(function ($request) {
+            return $request['to'] === '9555566666'
+                && str_contains($request['body'], 'Username:STU_EMAIL_01');
+        });
+    }
+
+    public function test_forgot_password_can_lookup_user_by_registered_email()
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $profile = Profile::create([
+            'username' => 'STU_BYEMAIL_01',
+            'first_name' => 'EmailLookup',
+            'last_name' => 'Student',
+            'email' => 'lookup.student@vignan.ac.in',
+            'phone' => '9777788888',
+            'roles_id' => 'stu',
+        ]);
+
+        $user = User::create([
+            'username' => 'STU_BYEMAIL_01',
+            'password' => Hash::make('InitialPass123'),
+            'profile_id' => $profile->id,
+        ]);
+
+        // Submit with registered email instead of username
+        $response = $this->from('/')
+            ->post(route('password.forgot'), [
+                'username' => 'lookup.student@vignan.ac.in',
+            ]);
+
+        $response->assertRedirect('/');
+        $response->assertSessionHas('forgot_success');
+        $this->assertStringContainsString('97******88', session('forgot_success'));
+        $this->assertStringContainsString('lo****@vignan.ac.in', session('forgot_success'));
+
+        \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\UserPasswordResetMail::class, function ($mail) {
+            return $mail->hasTo('lookup.student@vignan.ac.in')
+                && $mail->user->username === 'STU_BYEMAIL_01';
+        });
+    }
 }
+

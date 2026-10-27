@@ -407,14 +407,18 @@ class DashboardController extends Controller
             'requires_password_reset' => false
         ]);
 
-        // Send email and SMS with new credentials and password change instruction
-        \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($user, $newPassword, $user->profile);
+        // Send password reset credentials via SMS and/or Email
+        $dispatch = \App\Services\UserPasswordResetNotificationService::sendResetCredentials($user, $newPassword, $user->profile);
         
-        $phone = $user->profile?->phone;
-        $maskedPhone = $phone ? (substr($phone, 0, 2) . '******' . substr($phone, -2)) : null;
-        $msg = $maskedPhone
-            ? "Password reset successfully for {$user->username}. Credentials dispatched via SMS to {$maskedPhone} and via email."
-            : "Password reset successfully for {$user->username}. Login credentials sent to the user.";
+        $channels = [];
+        if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+            $channels[] = "SMS to {$dispatch['masked_phone']}";
+        }
+        if ($dispatch['has_email'] && $dispatch['masked_email']) {
+            $channels[] = "email to {$dispatch['masked_email']}";
+        }
+        $channelText = !empty($channels) ? (' via ' . implode(' and ', $channels)) : '';
+        $msg = "Password reset successfully for {$user->username}. Credentials dispatched{$channelText}.";
 
         return back()->with('success', $msg);
     }
@@ -459,10 +463,11 @@ class DashboardController extends Controller
             }
         }
 
-        // 3. Check if phone number is available
+        // 3. Check if phone number or email is available
         $phone = $user->profile?->phone;
-        if (empty($phone)) {
-            return back()->with('warning', "User '{$user->username}' does not have a registered mobile number. Please edit their profile to add a mobile number first so credentials can be delivered via SMS.");
+        $email = $user->profile?->email;
+        if (empty($phone) && empty($email)) {
+            return back()->with('warning', "User '{$user->username}' does not have a registered mobile number or email address. Please edit their profile first so credentials can be delivered.");
         }
 
         $newPassword = $request->input('new_password');
@@ -484,18 +489,26 @@ class DashboardController extends Controller
             'requires_password_reset' => false
         ]);
 
-        \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($user, $newPassword, $user->profile);
+        $dispatch = \App\Services\UserPasswordResetNotificationService::sendResetCredentials($user, $newPassword, $user->profile);
 
         \App\Services\ActivityLogger::log(
             'coordinator_reset_password',
             'Password Reset by Coordinator',
             'Authentication',
-            "Coordinator {$currentUser->username} reset password for {$user->username}. Credentials dispatched via SMS to {$phone}.",
+            "Coordinator {$currentUser->username} reset password for {$user->username}. Credentials dispatched via " . ($dispatch['has_phone'] && $dispatch['has_email'] ? 'SMS & Email' : ($dispatch['has_phone'] ? 'SMS' : 'Email')) . '.',
             'info',
             ['user' => $user, 'department_id' => $user->profile?->departments_id]
         );
 
-        $maskedPhone = substr($phone, 0, 2) . '******' . substr($phone, -2);
-        return back()->with('success', "Password reset successfully for {$user->username}. New password has been sent to their mobile number ({$maskedPhone}) via SMS.");
+        $channels = [];
+        if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+            $channels[] = "mobile number ({$dispatch['masked_phone']}) via SMS";
+        }
+        if ($dispatch['has_email'] && $dispatch['masked_email']) {
+            $channels[] = "email ({$dispatch['masked_email']})";
+        }
+        $channelText = implode(' and ', $channels);
+
+        return back()->with('success', "Password reset successfully for {$user->username}. New password has been sent to their {$channelText}.");
     }
 }

@@ -12,6 +12,7 @@ class AssignmentQuestion extends Model
     protected $fillable = [
         'assignment_id',
         'question_text',
+        'image',
         'type',
         'allowed_languages',
         'starter_code',
@@ -53,6 +54,24 @@ class AssignmentQuestion extends Model
         return ($this->type ?? 'mcq') === 'mcq';
     }
 
+    public function hasImage(): bool
+    {
+        return !empty($this->image);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (empty($this->image)) {
+            return null;
+        }
+
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+            return $this->image;
+        }
+
+        return \Illuminate\Support\Facades\Storage::url($this->image);
+    }
+
     public function getAllowedLanguagesArray(): array
     {
         if (empty($this->allowed_languages)) {
@@ -64,3 +83,4 @@ class AssignmentQuestion extends Model
         return array_filter(array_map('trim', explode(',', strtolower($this->allowed_languages))));
     }
 }
+

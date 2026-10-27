@@ -164,6 +164,11 @@
                                                             <span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200 font-mono">Coding</span>
                                                         @endif
                                                     </div>
+                                                    @if($q->hasImage())
+                                                        <div class="my-2.5">
+                                                            <img src="{{ $q->image_url }}" alt="Question {{ $idx + 1 }} Diagram" class="max-h-56 max-w-full rounded-xl border border-gray-200 cursor-pointer object-contain bg-white p-1 shadow-2xs hover:shadow transition-shadow" onclick="openImageViewer('{{ $q->image_url }}', 'Question {{ $idx + 1 }} Diagram')">
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                             <span class="text-xs font-bold {{ $isCorrect ? 'text-emerald-700' : ($marksAwarded > 0 ? 'text-amber-700' : 'text-red-600') }} shrink-0">
@@ -302,6 +307,11 @@
                                                             </span>
                                                         </div>
                                                         <h3 class="text-base font-bold text-gray-900 whitespace-pre-line leading-relaxed">{{ $q->question_text }}</h3>
+                                                        @if($q->hasImage())
+                                                            <div class="mt-3">
+                                                                <img src="{{ $q->image_url }}" alt="Question {{ $idx + 1 }} Diagram" class="max-h-64 max-w-full rounded-xl border border-gray-200 cursor-pointer object-contain bg-white p-1 shadow-2xs hover:shadow transition-shadow" onclick="openImageViewer('{{ $q->image_url }}', 'Question {{ $idx + 1 }} Diagram')">
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                                 <span class="text-xs font-bold text-purple-700 bg-purple-50 border border-purple-100 px-3 py-1 rounded-xl shrink-0">
@@ -389,12 +399,20 @@
                                     @else
                                         <!-- MCQ QUESTION CARD -->
                                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                                            <div class="flex items-start justify-between gap-3 mb-4">
-                                                <div class="flex items-start gap-3">
-                                                    <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
-                                                        Q{{ $idx + 1 }}
-                                                    </span>
-                                                    <h3 class="text-base font-bold text-gray-900">{{ $q->question_text }}</h3>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="flex items-start gap-3">
+                                                        <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                                                            Q{{ $idx + 1 }}
+                                                        </span>
+                                                        <div class="flex-1">
+                                                            <h3 class="text-base font-bold text-gray-900">{{ $q->question_text }}</h3>
+                                                            @if($q->hasImage())
+                                                                <div class="mt-3">
+                                                                    <img src="{{ $q->image_url }}" alt="Question {{ $idx + 1 }} Diagram" class="max-h-64 max-w-full rounded-xl border border-gray-200 cursor-pointer object-contain bg-white p-1 shadow-2xs hover:shadow transition-shadow" onclick="openImageViewer('{{ $q->image_url }}', 'Question {{ $idx + 1 }} Diagram')">
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded shrink-0">
                                                     {{ $q->marks }} {{ Str::plural('Mark', $q->marks) }}
@@ -674,7 +692,34 @@
                 btn.innerHTML = `<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg><span>Run Test Cases (${publicTests.length})</span>`;
             }
         }
+
+        function openImageViewer(imgUrl, caption) {
+            const modal = document.getElementById('imageViewerModal');
+            const img = document.getElementById('imageViewerImg');
+            const cap = document.getElementById('imageViewerCaption');
+            if (modal && img) {
+                img.src = imgUrl;
+                if (cap) cap.textContent = caption || '';
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeImageViewer() {
+            const modal = document.getElementById('imageViewerModal');
+            if (modal) modal.classList.add('hidden');
+        }
     </script>
+
+    <!-- Lightbox Image Viewer Modal -->
+    <div id="imageViewerModal" class="fixed inset-0 z-[120] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all" onclick="closeImageViewer()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <button type="button" onclick="closeImageViewer()" class="absolute -top-10 right-0 text-white/80 hover:text-white p-1 rounded-full cursor-pointer">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <img id="imageViewerImg" src="" alt="Enlarged Diagram" class="max-w-full max-h-[82vh] object-contain rounded-xl shadow-2xl bg-white p-1">
+            <p id="imageViewerCaption" class="mt-2 text-xs font-medium text-white/90 text-center"></p>
+        </div>
+    </div>
 
 </body>
 </html>

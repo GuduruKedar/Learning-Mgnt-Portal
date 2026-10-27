@@ -53,6 +53,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/staff/assignments/{assignment}', [\App\Http\Controllers\StaffAssignmentController::class, 'destroy'])->name('staff.assignments.destroy');
         Route::post('/staff/assignments/{assignment}/questions', [\App\Http\Controllers\StaffAssignmentController::class, 'storeQuestion'])->name('staff.assignments.questions.store');
         Route::delete('/staff/assignments/questions/{question}', [\App\Http\Controllers\StaffAssignmentController::class, 'destroyQuestion'])->name('staff.assignments.questions.destroy');
+        Route::post('/staff/assignments/questions/{question}/image', [\App\Http\Controllers\StaffAssignmentController::class, 'uploadQuestionImage'])->name('staff.assignments.questions.image.upload');
+        Route::delete('/staff/assignments/questions/{question}/image', [\App\Http\Controllers\StaffAssignmentController::class, 'deleteQuestionImage'])->name('staff.assignments.questions.image.delete');
         Route::post('/staff/assignments/run-code', [\App\Http\Controllers\StaffAssignmentController::class, 'runCode'])->name('staff.assignments.run-code');
     });
     

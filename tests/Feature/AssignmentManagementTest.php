@@ -269,4 +269,65 @@ class AssignmentManagementTest extends TestCase
         $exportResponse->assertStatus(200);
         $exportResponse->assertHeader('content-disposition');
     }
+
+    public function test_staff_can_upload_and_delete_image_for_a_particular_question()
+    {
+        Storage::fake('public');
+
+        $assignment = Assignment::create([
+            'course_id' => $this->course->id,
+            'title' => 'Electrical Circuits MCQ with Diagrams',
+            'staff_id' => $this->staffUser->id,
+            'max_marks' => 2,
+            'due_date' => now()->addDays(3),
+            'status' => 'published',
+        ]);
+
+        $question = AssignmentQuestion::create([
+            'assignment_id' => $assignment->id,
+            'question_text' => 'Calculate the equivalent resistance in the circuit diagram below:',
+            'option_a' => '10 Ohms',
+            'option_b' => '20 Ohms',
+            'option_c' => '5 Ohms',
+            'option_d' => '15 Ohms',
+            'correct_option' => 'A',
+            'marks' => 2,
+            'order' => 1,
+        ]);
+
+        $this->assertFalse($question->hasImage());
+
+        // 1. Upload picture to question
+        $file = UploadedFile::fake()->image('circuit.png', 400, 300);
+        $uploadResponse = $this->actingAs($this->staffUser)->post(
+            route('staff.assignments.questions.image.upload', $question->id),
+            ['image' => $file]
+        );
+
+        $uploadResponse->assertSessionHas('success');
+        $question->refresh();
+        $this->assertTrue($question->hasImage());
+        $this->assertNotNull($question->image);
+        Storage::disk('public')->assertExists($question->image);
+
+        // 2. Staff show page displays picture
+        $staffShow = $this->actingAs($this->staffUser)->get(route('staff.assignments.show', $assignment->id));
+        $staffShow->assertStatus(200);
+        $staffShow->assertSee($question->image_url);
+
+        // 3. Student quiz page displays picture
+        $studentShow = $this->actingAs($this->studentUser)->get(route('student.assignments.show', $assignment->id));
+        $studentShow->assertStatus(200);
+        $studentShow->assertSee($question->image_url);
+
+        // 4. Delete picture from question
+        $deleteResponse = $this->actingAs($this->staffUser)->delete(
+            route('staff.assignments.questions.image.delete', $question->id)
+        );
+        $deleteResponse->assertSessionHas('success');
+        $question->refresh();
+        $this->assertFalse($question->hasImage());
+        $this->assertNull($question->image);
+    }
 }
+

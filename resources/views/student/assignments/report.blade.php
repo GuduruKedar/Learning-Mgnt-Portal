@@ -144,6 +144,12 @@
                             </span>
                         </div>
 
+                        @if($q->hasImage())
+                            <div class="my-2.5">
+                                <img src="{{ $q->image_url }}" alt="Question {{ $idx + 1 }} Diagram" class="max-h-48 max-w-full object-contain rounded-lg border border-gray-200 bg-white p-1">
+                            </div>
+                        @endif
+
                         @if($isCodingQ)
                             <!-- Coding Question Review -->
                             <div class="mt-2 space-y-2 text-xs">

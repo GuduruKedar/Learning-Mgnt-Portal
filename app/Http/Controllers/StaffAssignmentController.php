@@ -737,6 +737,7 @@ class StaffAssignmentController extends Controller
         if ($type === 'code') {
             $request->validate([
                 'question_text' => 'required|string',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
                 'marks' => 'required|integer|min:1|max:100',
                 'allowed_languages' => 'nullable|array',
                 'starter_code_c' => 'nullable|string',
@@ -744,6 +745,11 @@ class StaffAssignmentController extends Controller
                 'starter_code_python' => 'nullable|string',
                 'test_cases' => 'nullable|array',
             ]);
+
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('assignment_questions', 'public');
+            }
 
             $allowedLangs = $request->input('allowed_languages', ['c', 'java', 'python']);
             if (is_array($allowedLangs)) {
@@ -775,6 +781,7 @@ class StaffAssignmentController extends Controller
             AssignmentQuestion::create([
                 'assignment_id' => $assignment->id,
                 'question_text' => $request->question_text,
+                'image' => $imagePath,
                 'type' => 'code',
                 'allowed_languages' => $allowedLangs,
                 'starter_code' => $starterCodes,
@@ -790,6 +797,7 @@ class StaffAssignmentController extends Controller
 
         $request->validate([
             'question_text' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
             'option_a' => 'required|string',
             'option_b' => 'required|string',
             'option_c' => 'required|string',
@@ -799,11 +807,17 @@ class StaffAssignmentController extends Controller
             'explanation' => 'nullable|string',
         ]);
 
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('assignment_questions', 'public');
+        }
+
         $order = $assignment->questions()->count() + 1;
 
         AssignmentQuestion::create([
             'assignment_id' => $assignment->id,
             'question_text' => $request->question_text,
+            'image' => $imagePath,
             'type' => 'mcq',
             'option_a' => $request->option_a,
             'option_b' => $request->option_b,
@@ -818,6 +832,52 @@ class StaffAssignmentController extends Controller
         $assignment->recalculateMaxMarks();
 
         return redirect()->route('staff.assignments.show', $assignment->id)->with('success', 'MCQ question added successfully.');
+    }
+
+    public function uploadQuestionImage(Request $request, AssignmentQuestion $question)
+    {
+        $this->authorizeStaffAccess($question->assignment);
+
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
+        ]);
+
+        if ($question->image && Storage::disk('public')->exists($question->image)) {
+            Storage::disk('public')->delete($question->image);
+        }
+
+        $path = $request->file('image')->store('assignment_questions', 'public');
+        $question->update(['image' => $path]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Picture attached to question successfully.',
+                'image_url' => $question->image_url,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Picture attached to question successfully.');
+    }
+
+    public function deleteQuestionImage(Request $request, AssignmentQuestion $question)
+    {
+        $this->authorizeStaffAccess($question->assignment);
+
+        if ($question->image && Storage::disk('public')->exists($question->image)) {
+            Storage::disk('public')->delete($question->image);
+        }
+
+        $question->update(['image' => null]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Question picture removed successfully.',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Question picture removed successfully.');
     }
 
     public function runCode(Request $request, \App\Services\CodeExecutionService $codeExecutor)
@@ -847,6 +907,10 @@ class StaffAssignmentController extends Controller
     {
         $assignment = $question->assignment;
         $this->authorizeStaffAccess($assignment);
+
+        if ($question->image && Storage::disk('public')->exists($question->image)) {
+            Storage::disk('public')->delete($question->image);
+        }
 
         $qText = \Illuminate\Support\Str::limit(strip_tags($question->question_text ?? $question->question ?? ''), 60);
         $assignmentTitle = $assignment->title;

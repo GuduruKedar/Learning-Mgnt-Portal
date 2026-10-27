@@ -86,6 +86,10 @@ class AssignmentsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             $rawCorrect = isset($row['correct_option']) ? trim((string)$row['correct_option']) : (isset($row['answer']) ? trim((string)$row['answer']) : '');
             $marks = isset($row['marks']) ? (int)$row['marks'] : (isset($row['points']) ? (int)$row['points'] : 1);
             $explanation = isset($row['explanation']) ? trim((string)$row['explanation']) : null;
+            $image = isset($row['image']) ? trim((string)$row['image']) : (isset($row['image_url']) ? trim((string)$row['image_url']) : (isset($row['picture']) ? trim((string)$row['picture']) : null));
+            if (empty($image)) {
+                $image = null;
+            }
 
             // Check required fields
             if ($questionText === '') {
@@ -167,6 +171,7 @@ class AssignmentsImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
             AssignmentQuestion::create([
                 'assignment_id' => $assignment->id,
                 'question_text' => $questionText,
+                'image' => $image,
                 'option_a' => $optA,
                 'option_b' => $optB,
                 'option_c' => $optC,

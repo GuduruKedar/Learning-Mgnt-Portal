@@ -238,6 +238,43 @@
                                                 </div>
                                                 <h4 class="text-sm font-bold text-gray-900 whitespace-pre-line">{{ $q->question_text }}</h4>
                                                 <span class="inline-block mt-1 text-xs text-gray-500 font-semibold">{{ $q->marks }} {{ Str::plural('Mark', $q->marks) }}</span>
+
+                                                @if($q->hasImage())
+                                                    <div class="mt-3 relative group/qimg inline-block">
+                                                        <div class="relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xs hover:shadow-md transition-all">
+                                                            <img src="{{ $q->image_url }}" alt="Question {{ $index + 1 }} Diagram" class="max-h-56 max-w-full object-contain cursor-pointer rounded-xl bg-gray-50" onclick="openImageViewer('{{ $q->image_url }}', 'Question {{ $index + 1 }} Diagram')">
+                                                            <div class="absolute inset-0 bg-slate-950/30 opacity-0 group-hover/qimg:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                                                <span class="px-2.5 py-1 rounded-lg bg-white/95 text-slate-800 text-[11px] font-bold shadow-xs flex items-center gap-1">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                                                                    Click to Enlarge
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mt-2 flex items-center gap-2.5">
+                                                            <button type="button" onclick="openUploadImageModal({{ $q->id }}, '{{ addslashes(Str::limit($q->question_text, 50)) }}', '{{ $q->image_url }}')" class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer">
+                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                                <span>Change Picture</span>
+                                                            </button>
+                                                            <span class="text-gray-300">&bull;</span>
+                                                            <form action="{{ route('staff.assignments.questions.image.delete', $q->id) }}" method="POST" onsubmit="return confirm('Remove picture from Question {{ $index + 1 }}?')" class="inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="inline-flex items-center gap-1 text-[11px] font-bold text-rose-500 hover:text-rose-700 cursor-pointer">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                                    <span>Remove</span>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <!-- Button to attach picture if none exists -->
+                                                    <div class="mt-2.5">
+                                                        <button type="button" onclick="openUploadImageModal({{ $q->id }}, '{{ addslashes(Str::limit($q->question_text, 50)) }}', null)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-indigo-300 hover:border-indigo-500 bg-indigo-50/50 hover:bg-indigo-50 text-[11px] font-bold text-indigo-700 transition-all cursor-pointer shadow-2xs hover:shadow-xs">
+                                                            <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                            <span>+ Attach Diagram / Picture</span>
+                                                        </button>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                         <button type="button"
@@ -473,11 +510,18 @@
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <form action="{{ route('staff.assignments.questions.store', $assignment->id) }}" method="POST" class="p-6 space-y-4">
+            <form action="{{ route('staff.assignments.questions.store', $assignment->id) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
                 @csrf
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Question Statement <span class="text-red-500">*</span></label>
                     <textarea name="question_text" rows="2" required placeholder="Type the question text here..." class="w-full text-sm border border-gray-300 rounded-lg p-2.5"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Question Diagram / Picture <span class="text-xs font-normal text-gray-500 lowercase">(optional - jpg, png, webp, svg)</span>
+                    </label>
+                    <input type="file" name="image" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,image/gif" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-gray-300 rounded-lg p-1.5 bg-gray-50/50">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -546,7 +590,7 @@
             </div>
 
             <!-- Modal Form -->
-            <form action="{{ route('staff.assignments.questions.store', $assignment->id) }}" method="POST" class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+            <form action="{{ route('staff.assignments.questions.store', $assignment->id) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
                 @csrf
                 <input type="hidden" name="type" value="code">
 
@@ -554,6 +598,12 @@
                 <div>
                     <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1.5">Problem Statement & Requirements <span class="text-red-500">*</span></label>
                     <textarea name="question_text" rows="3" required placeholder="Describe the programming problem, input/output specifications, constraints, and instructions..." class="w-full text-xs sm:text-sm border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
+                </div>
+
+                <!-- Problem Diagram / Image (Optional) -->
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase tracking-wider mb-1.5">Problem Diagram / Graphic <span class="text-xs font-normal text-gray-500 lowercase">(optional)</span></label>
+                    <input type="file" name="image" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,image/gif" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 border border-gray-300 rounded-xl p-2 bg-gray-50/50">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -766,12 +816,90 @@ public class Solution {
                     Close
                 </button>
             </div>
+    <!-- Upload Question Picture Modal -->
+    <div id="uploadQuestionImageModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 transition-all">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100" onclick="event.stopPropagation()">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-indigo-50/80 to-slate-50">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900" id="uploadModalTitle">Attach Question Picture</h3>
+                        <p class="text-[11px] text-gray-500">Diagram, circuit, graph, or formula image for this question</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeUploadImageModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-700 flex items-center justify-center transition-colors cursor-pointer">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form id="uploadQuestionImageForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+                @csrf
+                
+                <!-- Target Question Preview -->
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-0.5">Selected Question</span>
+                    <p id="uploadModalQuestionText" class="text-xs font-semibold text-slate-800 line-clamp-2"></p>
+                </div>
+
+                <!-- Existing Image Preview if present -->
+                <div id="existingImagePreviewContainer" class="hidden">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">Current Picture</span>
+                    <div class="p-2 bg-gray-50 rounded-xl border border-gray-200 text-center">
+                        <img id="existingImagePreview" src="" alt="Current Picture" class="max-h-36 max-w-full mx-auto object-contain rounded-lg">
+                    </div>
+                </div>
+
+                <!-- File Dropzone -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5">
+                        Choose Picture File <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative border-2 border-dashed border-gray-300 hover:border-indigo-500 rounded-xl p-4 text-center bg-gray-50/50 hover:bg-indigo-50/30 transition-all cursor-pointer group" onclick="document.getElementById('question_image_input').click()">
+                        <input type="file" id="question_image_input" name="image" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,image/gif" required class="hidden" onchange="previewSelectedQuestionImage(this)">
+                        <div id="fileUploadPrompt" class="space-y-1">
+                            <svg class="w-8 h-8 text-gray-400 group-hover:text-indigo-600 mx-auto transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <p class="text-xs font-bold text-gray-700 group-hover:text-indigo-700">Click to browse picture file</p>
+                            <p class="text-[11px] text-gray-400">PNG, JPG, WEBP, SVG up to 5MB</p>
+                        </div>
+                        <div id="newFilePreviewContainer" class="hidden space-y-2">
+                            <img id="newFilePreviewImg" src="" alt="Selected Preview" class="max-h-40 max-w-full mx-auto object-contain rounded-lg border border-gray-200">
+                            <p id="newFileName" class="text-xs font-mono font-bold text-indigo-700"></p>
+                            <span class="text-[11px] text-slate-500 underline cursor-pointer">Click to change selection</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
+                    <button type="button" onclick="closeUploadImageModal()" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" id="uploadImageSubmitBtn" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm hover:shadow transition-all flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <span>Save Picture</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lightbox Image Viewer Modal -->
+    <div id="imageViewerModal" class="fixed inset-0 z-[120] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all" onclick="closeImageViewer()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <button type="button" onclick="closeImageViewer()" class="absolute -top-10 right-0 text-white/80 hover:text-white p-1 rounded-full cursor-pointer">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <img id="imageViewerImg" src="" alt="Enlarged Diagram" class="max-w-full max-h-[82vh] object-contain rounded-xl shadow-2xl bg-white p-1">
+            <p id="imageViewerCaption" class="mt-2 text-xs font-medium text-white/90 text-center"></p>
         </div>
     </div>
 
     <!-- Global Questions Data for JS modal -->
     <script>
-        const assignmentQuestions = @json($assignment->questions);
+        const assignmentQuestions = @json($assignment->questions->map(function($q) {
+            return array_merge($q->toArray(), ['image_url' => $q->image_url]);
+        }));
 
         function switchViewTab(tab) {
             const qBtn = document.getElementById('tab-questions-btn');
@@ -933,6 +1061,70 @@ public class Solution {
             container.appendChild(div);
         }
 
+        function openUploadImageModal(questionId, questionText, currentImageUrl) {
+            const modal = document.getElementById('uploadQuestionImageModal');
+            const form = document.getElementById('uploadQuestionImageForm');
+            const title = document.getElementById('uploadModalTitle');
+            const qTextEl = document.getElementById('uploadModalQuestionText');
+            const existingContainer = document.getElementById('existingImagePreviewContainer');
+            const existingImg = document.getElementById('existingImagePreview');
+            const fileInput = document.getElementById('question_image_input');
+            const filePrompt = document.getElementById('fileUploadPrompt');
+            const newPreviewContainer = document.getElementById('newFilePreviewContainer');
+
+            form.action = `/staff/assignments/questions/${questionId}/image`;
+            qTextEl.textContent = questionText;
+            fileInput.value = '';
+            filePrompt.classList.remove('hidden');
+            newPreviewContainer.classList.add('hidden');
+
+            if (currentImageUrl) {
+                title.textContent = 'Change Question Picture';
+                existingImg.src = currentImageUrl;
+                existingContainer.classList.remove('hidden');
+            } else {
+                title.textContent = 'Attach Question Picture';
+                existingContainer.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeUploadImageModal() {
+            const modal = document.getElementById('uploadQuestionImageModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function previewSelectedQuestionImage(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('newFilePreviewImg').src = e.target.result;
+                    document.getElementById('newFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+                    document.getElementById('fileUploadPrompt').classList.add('hidden');
+                    document.getElementById('newFilePreviewContainer').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function openImageViewer(imgUrl, caption) {
+            const modal = document.getElementById('imageViewerModal');
+            const img = document.getElementById('imageViewerImg');
+            const cap = document.getElementById('imageViewerCaption');
+            if (modal && img) {
+                img.src = imgUrl;
+                if (cap) cap.textContent = caption || '';
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeImageViewer() {
+            const modal = document.getElementById('imageViewerModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
         function openStudentReviewModal(studentName, marks, maxMarks, percentage, answers) {
             document.getElementById('reviewStudentMeta').textContent = `${studentName} — Score: ${marks} / ${maxMarks} (${percentage}%)`;
             const container = document.getElementById('reviewQuestionsContainer');
@@ -946,6 +1138,12 @@ public class Solution {
 
                 const card = document.createElement('div');
                 card.className = `p-4 rounded-xl border ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : (ans ? 'bg-amber-50/40 border-amber-200' : 'bg-gray-50 border-gray-200')}`;
+
+                const imageHtml = q.image_url ? `
+                    <div class="my-2.5">
+                        <img src="${q.image_url}" alt="Question Diagram" class="max-h-48 max-w-full rounded-lg border border-gray-200 cursor-pointer object-contain bg-white shadow-2xs hover:shadow" onclick="openImageViewer('${q.image_url}', 'Question ${idx + 1} Diagram')">
+                    </div>
+                ` : '';
 
                 if (isCoding) {
                     const submittedCode = (ans && ans.code) ? ans.code : '';
@@ -980,6 +1178,7 @@ public class Solution {
                                 ${marksAwarded} / ${q.marks} Marks
                             </span>
                         </div>
+                        ${imageHtml}
                         <div class="flex items-center gap-3 text-xs mb-2">
                             <span class="text-gray-500">Language: <strong class="text-purple-700 font-mono">${lang}</strong></span>
                             <span class="text-gray-400">&bull;</span>
@@ -1027,6 +1226,7 @@ public class Solution {
                                 ${isCorrect ? `+${q.marks} Marks` : '0 Marks'}
                             </span>
                         </div>
+                        ${imageHtml}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                             ${optionsHtml}
                         </div>

@@ -251,7 +251,12 @@
                                                             </div>
                                                         </div>
                                                         <div class="mt-2 flex items-center gap-2.5">
-                                                            <button type="button" onclick="openUploadImageModal({{ $q->id }}, '{{ addslashes(Str::limit($q->question_text, 50)) }}', '{{ $q->image_url }}')" class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer">
+                                                            <button type="button"
+                                                                data-question-id="{{ $q->id }}"
+                                                                data-question-text="{{ Str::limit($q->question_text, 120) }}"
+                                                                data-image-url="{{ $q->image_url ?? '' }}"
+                                                                onclick="openUploadImageModal(this)"
+                                                                class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer">
                                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                                                 <span>Change Picture</span>
                                                             </button>
@@ -269,7 +274,12 @@
                                                 @else
                                                     <!-- Button to attach picture if none exists -->
                                                     <div class="mt-2.5">
-                                                        <button type="button" onclick="openUploadImageModal({{ $q->id }}, '{{ addslashes(Str::limit($q->question_text, 50)) }}', null)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-indigo-300 hover:border-indigo-500 bg-indigo-50/50 hover:bg-indigo-50 text-[11px] font-bold text-indigo-700 transition-all cursor-pointer shadow-2xs hover:shadow-xs">
+                                                        <button type="button"
+                                                            data-question-id="{{ $q->id }}"
+                                                            data-question-text="{{ Str::limit($q->question_text, 120) }}"
+                                                            data-image-url=""
+                                                            onclick="openUploadImageModal(this)"
+                                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-indigo-300 hover:border-indigo-500 bg-indigo-50/50 hover:bg-indigo-50 text-[11px] font-bold text-indigo-700 transition-all cursor-pointer shadow-2xs hover:shadow-xs">
                                                             <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                                             <span>+ Attach Diagram / Picture</span>
                                                         </button>
@@ -812,12 +822,15 @@ public class Solution {
             <!-- Modal Footer -->
             <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/80 flex items-center justify-between shrink-0">
                 <span class="text-xs text-gray-500 font-medium">Total: <strong class="text-gray-900">{{ $totalEnrolled }}</strong> Students</span>
-                <button type="button" onclick="closeEnrolledStudentsModal()" class="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
+                <button type="button" onclick="closeEnrolledStudentsModal()" class="px-4 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer">
                     Close
                 </button>
             </div>
+        </div>
+    </div>
+
     <!-- Upload Question Picture Modal -->
-    <div id="uploadQuestionImageModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 transition-all">
+    <div id="uploadQuestionImageModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4 transition-all" onclick="closeUploadImageModal()">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100" onclick="event.stopPropagation()">
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-indigo-50/80 to-slate-50">
                 <div class="flex items-center gap-2.5">
@@ -834,7 +847,7 @@ public class Solution {
                 </button>
             </div>
 
-            <form id="uploadQuestionImageForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+            <form id="uploadQuestionImageForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4" onsubmit="handleImageUploadSubmit(event)">
                 @csrf
                 
                 <!-- Target Question Preview -->
@@ -856,15 +869,19 @@ public class Solution {
                     <label class="block text-xs font-bold text-gray-700 mb-1.5">
                         Choose Picture File <span class="text-red-500">*</span>
                     </label>
-                    <div class="relative border-2 border-dashed border-gray-300 hover:border-indigo-500 rounded-xl p-4 text-center bg-gray-50/50 hover:bg-indigo-50/30 transition-all cursor-pointer group" onclick="document.getElementById('question_image_input').click()">
-                        <input type="file" id="question_image_input" name="image" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,image/gif" required class="hidden" onchange="previewSelectedQuestionImage(this)">
+                    <div id="imageDropZone" class="relative border-2 border-dashed border-gray-300 hover:border-indigo-500 rounded-xl p-4 text-center bg-gray-50/50 hover:bg-indigo-50/30 transition-all cursor-pointer group"
+                        onclick="document.getElementById('question_image_input').click()"
+                        ondragover="event.preventDefault(); this.classList.add('border-indigo-500', 'bg-indigo-50/50');"
+                        ondragleave="event.preventDefault(); this.classList.remove('border-indigo-500', 'bg-indigo-50/50');"
+                        ondrop="handleImageDrop(event, this)">
+                        <input type="file" id="question_image_input" name="image" accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,image/gif" class="hidden" onchange="previewSelectedQuestionImage(this)">
                         <div id="fileUploadPrompt" class="space-y-1">
                             <svg class="w-8 h-8 text-gray-400 group-hover:text-indigo-600 mx-auto transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            <p class="text-xs font-bold text-gray-700 group-hover:text-indigo-700">Click to browse picture file</p>
+                            <p class="text-xs font-bold text-gray-700 group-hover:text-indigo-700">Click to browse or drag & drop picture</p>
                             <p class="text-[11px] text-gray-400">PNG, JPG, WEBP, SVG up to 5MB</p>
                         </div>
                         <div id="newFilePreviewContainer" class="hidden space-y-2">
-                            <img id="newFilePreviewImg" src="" alt="Selected Preview" class="max-h-40 max-w-full mx-auto object-contain rounded-lg border border-gray-200">
+                            <img id="newFilePreviewImg" src="" alt="Selected Preview" class="max-h-40 max-w-full mx-auto object-contain rounded-lg border border-gray-200 bg-white">
                             <p id="newFileName" class="text-xs font-mono font-bold text-indigo-700"></p>
                             <span class="text-[11px] text-slate-500 underline cursor-pointer">Click to change selection</span>
                         </div>
@@ -1061,7 +1078,14 @@ public class Solution {
             container.appendChild(div);
         }
 
-        function openUploadImageModal(questionId, questionText, currentImageUrl) {
+        function openUploadImageModal(target, questionText, currentImageUrl) {
+            let questionId = target;
+            if (typeof target === 'object' && target !== null && target.dataset) {
+                questionId = target.dataset.questionId;
+                questionText = target.dataset.questionText || '';
+                currentImageUrl = target.dataset.imageUrl || null;
+            }
+
             const modal = document.getElementById('uploadQuestionImageModal');
             const form = document.getElementById('uploadQuestionImageForm');
             const title = document.getElementById('uploadModalTitle');
@@ -1072,19 +1096,33 @@ public class Solution {
             const filePrompt = document.getElementById('fileUploadPrompt');
             const newPreviewContainer = document.getElementById('newFilePreviewContainer');
 
+            if (!modal || !form) {
+                console.error('Modal or form element not found');
+                return;
+            }
+
             form.action = `/staff/assignments/questions/${questionId}/image`;
-            qTextEl.textContent = questionText;
-            fileInput.value = '';
-            filePrompt.classList.remove('hidden');
-            newPreviewContainer.classList.add('hidden');
+            if (qTextEl) qTextEl.textContent = questionText || '';
+            if (fileInput) fileInput.value = '';
+            if (filePrompt) filePrompt.classList.remove('hidden');
+            if (newPreviewContainer) newPreviewContainer.classList.add('hidden');
+
+            const submitBtn = document.getElementById('uploadImageSubmitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>Save Picture</span>
+                `;
+            }
 
             if (currentImageUrl) {
-                title.textContent = 'Change Question Picture';
-                existingImg.src = currentImageUrl;
-                existingContainer.classList.remove('hidden');
+                if (title) title.textContent = 'Change Question Picture';
+                if (existingImg) existingImg.src = currentImageUrl;
+                if (existingContainer) existingContainer.classList.remove('hidden');
             } else {
-                title.textContent = 'Attach Question Picture';
-                existingContainer.classList.add('hidden');
+                if (title) title.textContent = 'Attach Question Picture';
+                if (existingContainer) existingContainer.classList.add('hidden');
             }
 
             modal.classList.remove('hidden');
@@ -1093,6 +1131,34 @@ public class Solution {
         function closeUploadImageModal() {
             const modal = document.getElementById('uploadQuestionImageModal');
             if (modal) modal.classList.add('hidden');
+        }
+
+        function handleImageDrop(e, container) {
+            e.preventDefault();
+            container.classList.remove('border-indigo-500', 'bg-indigo-50/50');
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                const input = document.getElementById('question_image_input');
+                input.files = e.dataTransfer.files;
+                previewSelectedQuestionImage(input);
+            }
+        }
+
+        function handleImageUploadSubmit(e) {
+            const fileInput = document.getElementById('question_image_input');
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Please select a picture file to attach first.');
+                return false;
+            }
+            const btn = document.getElementById('uploadImageSubmitBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <span>Saving Picture...</span>
+                `;
+            }
+            return true;
         }
 
         function previewSelectedQuestionImage(input) {

@@ -297,6 +297,21 @@ class AssignmentManagementTest extends TestCase
 
         $this->assertFalse($question->hasImage());
 
+        // 0. Verify initial page renders attach button with data-question-id and proper modal placement
+        $initialStaffShow = $this->actingAs($this->staffUser)->get(route('staff.assignments.show', $assignment->id));
+        $initialStaffShow->assertStatus(200);
+        $initialHtml = $initialStaffShow->getContent();
+        $this->assertStringContainsString('+ Attach Diagram / Picture', $initialHtml);
+        $this->assertStringContainsString('data-question-id="' . $question->id . '"', $initialHtml);
+        $this->assertStringContainsString('onclick="openUploadImageModal(this)"', $initialHtml);
+
+        // Verify uploadQuestionImageModal is outside enrolledStudentsModal
+        $enrolledModalPos = strpos($initialHtml, 'id="enrolledStudentsModal"');
+        $uploadModalPos = strpos($initialHtml, 'id="uploadQuestionImageModal"');
+        $this->assertNotFalse($enrolledModalPos);
+        $this->assertNotFalse($uploadModalPos);
+        $this->assertTrue($uploadModalPos > $enrolledModalPos);
+
         // 1. Upload picture to question
         $file = UploadedFile::fake()->image('circuit.png', 400, 300);
         $uploadResponse = $this->actingAs($this->staffUser)->post(
@@ -310,10 +325,11 @@ class AssignmentManagementTest extends TestCase
         $this->assertNotNull($question->image);
         Storage::disk('public')->assertExists($question->image);
 
-        // 2. Staff show page displays picture
+        // 2. Staff show page displays picture and change picture button
         $staffShow = $this->actingAs($this->staffUser)->get(route('staff.assignments.show', $assignment->id));
         $staffShow->assertStatus(200);
         $staffShow->assertSee($question->image_url);
+        $staffShow->assertSee('Change Picture');
 
         // 3. Student quiz page displays picture
         $studentShow = $this->actingAs($this->studentUser)->get(route('student.assignments.show', $assignment->id));

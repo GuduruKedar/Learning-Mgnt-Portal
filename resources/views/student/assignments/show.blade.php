@@ -399,13 +399,14 @@
                                     @else
                                         <!-- MCQ QUESTION CARD -->
                                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                                            <div class="flex items-start justify-between gap-4">
                                                 <div class="flex-1 min-w-0">
                                                     <div class="flex items-start gap-3">
                                                         <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
                                                             Q{{ $idx + 1 }}
                                                         </span>
                                                         <div class="flex-1">
-                                                            <h3 class="text-base font-bold text-gray-900">{{ $q->question_text }}</h3>
+                                                            <h3 class="text-base font-bold text-gray-900 whitespace-pre-line leading-relaxed">{{ $q->question_text }}</h3>
                                                             @if($q->hasImage())
                                                                 <div class="mt-3">
                                                                     <img src="{{ $q->image_url }}" alt="Question {{ $idx + 1 }} Diagram" class="max-h-64 max-w-full rounded-xl border border-gray-200 cursor-pointer object-contain bg-white p-1 shadow-2xs hover:shadow transition-shadow" onclick="openImageViewer('{{ $q->image_url }}', 'Question {{ $idx + 1 }} Diagram')">

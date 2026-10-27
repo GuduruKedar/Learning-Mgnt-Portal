@@ -66,13 +66,15 @@ class LoginController extends Controller
             );
 
             $channels = [];
-            if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+            if ($dispatch['sms_sent'] && $dispatch['masked_phone']) {
+                $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
+            } elseif ($dispatch['has_phone'] && $dispatch['masked_phone']) {
                 $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
             }
-            if ($dispatch['has_email'] && $dispatch['masked_email']) {
+            if ($dispatch['email_sent'] && $dispatch['masked_email']) {
                 $channels[] = "email ({$dispatch['masked_email']})";
             }
-            $channelText = implode(' and ', $channels);
+            $channelText = !empty($channels) ? implode(' and ', $channels) : 'registered contact details';
 
             return back()->with([
                 'forgot_success' => "Your account was locked. A new temporary password has been sent to your {$channelText}. Please enter it below to login.",
@@ -241,13 +243,17 @@ class LoginController extends Controller
         );
 
         $channels = [];
-        if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+        if ($dispatch['sms_sent'] && $dispatch['masked_phone']) {
+            $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
+        } elseif ($dispatch['has_phone'] && $dispatch['masked_phone']) {
             $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
         }
-        if ($dispatch['has_email'] && $dispatch['masked_email']) {
+
+        if ($dispatch['email_sent'] && $dispatch['masked_email']) {
             $channels[] = "email ({$dispatch['masked_email']})";
         }
-        $channelText = implode(' and ', $channels);
+
+        $channelText = !empty($channels) ? implode(' and ', $channels) : 'registered contact details';
 
         return back()->with([
             'forgot_success' => "A new temporary password has been sent to your {$channelText}. Please enter it below to login to your account.",

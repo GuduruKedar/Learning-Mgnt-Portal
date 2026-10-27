@@ -114,7 +114,7 @@
                             </table>
 
                             <!-- Unauthorized Notice Alert -->
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 8px; margin-bottom: 28px; border-top: 1px solid #fee2e2; border-right: 1px solid #fee2e2; border-bottom: 1px solid #fee2e2;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 8px; margin-bottom: 24px; border-top: 1px solid #fee2e2; border-right: 1px solid #fee2e2; border-bottom: 1px solid #fee2e2;">
                                 <tr>
                                     <td style="padding: 14px 18px;">
                                         <div style="font-size: 12px; font-weight: 700; color: #991b1b; margin-bottom: 4px;">
@@ -122,6 +122,20 @@
                                         </div>
                                         <p style="margin: 0; font-size: 12px; color: #b91c1c; line-height: 1.5;">
                                             If you did not initiate this request, someone may be trying to access your account. Please log in immediately using the credentials above, change your password, and inform your Department Coordinator or University IT Administrator.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Out of Service Coordinator Notice -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; border-left: 4px solid #6366f1; border-radius: 8px; margin-bottom: 28px; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                                <tr>
+                                    <td style="padding: 14px 18px;">
+                                        <div style="font-size: 12px; font-weight: 700; color: #312e81; margin-bottom: 4px;">
+                                            📱 Phone Out of Service or Need Direct Assistance?
+                                        </div>
+                                        <p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.5;">
+                                            In case your phone is out of service, unreachable, or you cannot receive SMS verification, you can contact your <strong>Department Coordinator</strong> directly to reset your password or update your registered contact details.
                                         </p>
                                     </td>
                                 </tr>

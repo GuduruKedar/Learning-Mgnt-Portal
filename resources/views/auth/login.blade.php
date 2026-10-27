@@ -340,24 +340,24 @@
     <!-- Forgot Password Modal: Security Warning & Verification Dialog   -->
     <!-- ============================================================== -->
     <div id="forgotPasswordModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4 transition-all duration-200" onclick="if(event.target===this) closeForgotPasswordModal()">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 animate-scale-up" onclick="event.stopPropagation()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200/90 animate-scale-up" onclick="event.stopPropagation()">
             <!-- Modal Header: Official Security Warning Theme -->
             <div class="px-6 py-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border-b border-indigo-900/40 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0 shadow-inner">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                         </svg>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h3 class="text-sm font-bold text-white tracking-tight">Security Alert & Password Reset</h3>
-                            <span class="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">Official</span>
+                            <h3 class="text-sm font-bold text-white tracking-tight">Security & Credentials Recovery</h3>
+                            <span class="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">Official</span>
                         </div>
-                        <p class="text-[11px] text-slate-300 mt-0.5">Automated SMS & Institutional Email Dispatch System</p>
+                        <p class="text-[11px] text-slate-300 mt-0.5">Automated SMS & Institutional Email Dispatch</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeForgotPasswordModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none" title="Close dialog">
+                <button type="button" onclick="closeForgotPasswordModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none cursor-pointer" title="Close dialog">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -367,21 +367,21 @@
                 @csrf
                 
                 <!-- Security Warning Banner -->
-                <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200/90 flex items-start gap-3">
-                    <div class="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center shrink-0 mt-0.5 text-amber-800">
+                <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/90 flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center shrink-0 mt-0.5 text-amber-700">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                         </svg>
                     </div>
                     <div class="text-xs text-amber-900 leading-relaxed">
-                        <span class="font-bold text-amber-950 block mb-0.5">⚠️ Security Notice: Password Overwrite Warning</span>
-                        Confirming will <span class="font-bold underline text-amber-950">immediately reset your current password</span> and dispatch a secure temporary password via SMS and Email to your verified contact details on file.
+                        <span class="font-bold text-amber-950 block mb-0.5">Security Notice: Password Reset</span>
+                        Confirming will immediately reset your current password and dispatch a secure temporary password via <span class="font-bold text-amber-950">SMS</span> and <span class="font-bold text-amber-950">Email</span> to your official records.
                     </div>
                 </div>
 
                 <!-- Username / Email Input Field -->
                 <div>
-                    <label for="forgot_username" class="block text-xs font-bold text-slate-700 uppercase mb-1.5">
+                    <label for="forgot_username" class="block text-xs font-bold text-slate-700 uppercase mb-1.5 tracking-wider">
                         Username / Reg No / Staff ID or Registered Email <span class="text-rose-500">*</span>
                     </label>
                     <div class="relative">
@@ -395,23 +395,36 @@
                             required 
                             placeholder="e.g. 211FA04001, 10001, or name@vignan.ac.in" 
                             value="{{ old('username', session('prefilled_username')) }}"
-                            class="w-full text-sm pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white hover:border-slate-300 transition-all text-slate-900 placeholder-slate-400"
+                            class="w-full text-sm pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 bg-white hover:border-slate-300 transition-all text-slate-900 placeholder-slate-400 outline-none"
                             autocomplete="off"
                         >
                     </div>
                     <p class="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Credentials will be securely delivered to your registered mobile phone (SMS) and official email address.</span>
+                        <span>Credentials will be securely delivered to your registered mobile (SMS) and official email.</span>
                     </p>
+                </div>
+
+                <!-- Out of Service / Department Coordinator Assistance Box -->
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-2.5 text-xs text-slate-700">
+                    <div class="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                    </div>
+                    <div class="leading-relaxed">
+                        <span class="font-bold text-slate-900 block mb-0.5">Phone Out of Service or Unreachable?</span>
+                        In case your registered phone is out of service, unreachable, or you cannot receive messages, you can reach out directly to your <strong class="text-indigo-700 font-semibold">Department Coordinator</strong> to unlock your account or update your mobile number.
+                    </div>
                 </div>
 
                 <!-- Footer Actions -->
                 <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
-                    <button type="button" onclick="closeForgotPasswordModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold text-xs transition-colors cursor-pointer">
+                    <button type="button" onclick="closeForgotPasswordModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold text-xs transition-colors cursor-pointer">
                         Cancel / Go Back
                     </button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 via-indigo-600 to-indigo-700 hover:from-amber-700 hover:to-indigo-800 text-white font-bold text-xs shadow-md shadow-indigo-200 transition-all flex items-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs shadow-md shadow-indigo-600/20 hover:shadow-indigo-600/30 transition-all flex items-center gap-2 cursor-pointer">
+                        <svg class="w-4 h-4 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                         <span>Confirm & Send Password via SMS & Email</span>
                     </button>
                 </div>

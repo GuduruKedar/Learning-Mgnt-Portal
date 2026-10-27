@@ -737,7 +737,7 @@ class StaffAssignmentController extends Controller
         if ($type === 'code') {
             $request->validate([
                 'question_text' => 'required|string',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
+                'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:10240'],
                 'marks' => 'required|integer|min:1|max:100',
                 'allowed_languages' => 'nullable|array',
                 'starter_code_c' => 'nullable|string',
@@ -797,7 +797,7 @@ class StaffAssignmentController extends Controller
 
         $request->validate([
             'question_text' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
+            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:10240'],
             'option_a' => 'required|string',
             'option_b' => 'required|string',
             'option_c' => 'required|string',
@@ -839,7 +839,13 @@ class StaffAssignmentController extends Controller
         $this->authorizeStaffAccess($question->assignment);
 
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
+            'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:10240'],
+        ], [
+            'image.required' => 'Please select a picture file to upload.',
+            'image.file' => 'The uploaded file is not valid.',
+            'image.mimes' => 'The picture must be an image file (JPG, PNG, GIF, WEBP, or SVG).',
+            'image.max' => 'The picture size must not exceed 10MB.',
+            'image.uploaded' => 'The picture failed to upload. Please ensure your temporary directory is writable and the file size is under 10MB.',
         ]);
 
         if ($question->image && Storage::disk('public')->exists($question->image)) {

@@ -26,5 +26,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Paginator::useTailwind();
+
+        $tmpDir = storage_path('tmp');
+        if (!is_dir($tmpDir)) {
+            @mkdir($tmpDir, 0777, true);
+        }
     }
 }

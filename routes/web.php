@@ -255,29 +255,70 @@ Route::get('/500-preview', function () {
 })->name('errors.500.preview');
 
 // Welcome Email Preview Route
-Route::get('/preview/welcome-email', function () {
-    $user = \App\Models\User::with('profile')->whereNotNull('profile_id')->first()
-        ?? new \App\Models\User(['username' => '221FA04001']);
-    $profile = $user->profile ?? new \App\Models\Profile([
-        'first_name' => 'John',
-        'last_name' => 'Doe',
-        'email' => 'john.doe@vignan.ac.in',
+Route::get('/preview/welcome-email', function (\Illuminate\Http\Request $request) {
+    $username = $request->query('username', '221FA04001');
+    $name = $request->query('name', 'John Doe');
+    $email = $request->query('email', 'john.doe@vignan.ac.in');
+    $password = $request->query('password', 'Student#963');
+
+    $user = new \App\Models\User(['username' => $username]);
+    $profile = new \App\Models\Profile([
+        'first_name' => $name,
+        'email' => $email,
         'designation' => 'Student (CSE)',
     ]);
-    return new \App\Mail\UserWelcomeMail($user, 'Student#963', $profile);
+    return new \App\Mail\UserWelcomeMail($user, $password, $profile);
 })->name('email.welcome.preview');
 
 // Password Reset Email Preview Route
-Route::get('/preview/password-reset-email', function () {
-    $user = \App\Models\User::with('profile')->whereNotNull('profile_id')->first()
-        ?? new \App\Models\User(['username' => '221FA04001']);
-    $profile = $user->profile ?? new \App\Models\Profile([
-        'first_name' => 'John',
-        'last_name' => 'Doe',
-        'email' => 'john.doe@vignan.ac.in',
+Route::get('/preview/password-reset-email', function (\Illuminate\Http\Request $request) {
+    $username = $request->query('username', '221FA04001');
+    $name = $request->query('name', 'John Doe');
+    $email = $request->query('email', 'john.doe@vignan.ac.in');
+    $password = $request->query('password', 'Student#' . rand(1000, 9999));
+
+    $user = new \App\Models\User(['username' => $username]);
+    $profile = new \App\Models\Profile([
+        'first_name' => $name,
+        'email' => $email,
         'designation' => 'Student (CSE)',
     ]);
-    return new \App\Mail\UserPasswordResetMail($user, 'Student' . rand(1000, 9999), $profile);
+    return new \App\Mail\UserPasswordResetMail($user, $password, $profile);
 })->name('email.password-reset.preview');
+
+// Test Dispatch Password Reset Email Endpoint
+Route::get('/mail/test-password-reset', function (\Illuminate\Http\Request $request) {
+    $targetEmail = $request->query('email') ?: env('ADMIN_ALERT_EMAIL', 'web@vignan.ac.in');
+    $sampleUsername = $request->query('username', '221FA04001');
+    $samplePassword = $request->query('password', 'Student#' . rand(1000, 9999));
+
+    $user = new \App\Models\User(['username' => $sampleUsername]);
+    $profile = new \App\Models\Profile([
+        'first_name' => $request->query('name', 'Sample Student'),
+        'email' => $targetEmail,
+        'phone' => '9440151948',
+        'designation' => 'Student (CSE)',
+    ]);
+
+    try {
+        \Illuminate\Support\Facades\Mail::to($targetEmail)->send(new \App\Mail\UserPasswordResetMail($user, $samplePassword, $profile));
+        return response()->json([
+            'success' => true,
+            'message' => "Example password reset email template dispatched successfully to {$targetEmail}.",
+            'details' => [
+                'recipient' => $targetEmail,
+                'username' => $sampleUsername,
+                'temporary_password' => $samplePassword,
+                'mailer' => config('mail.default'),
+            ],
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to dispatch email: ' . $e->getMessage(),
+        ], 500);
+    }
+})->name('mail.test.password-reset');
+
 
 

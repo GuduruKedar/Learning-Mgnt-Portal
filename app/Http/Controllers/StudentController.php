@@ -111,7 +111,7 @@ class StudentController extends Controller
                 'unique:profiles,email'
             ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
-            'phone_number' => 'nullable|numeric|digits:10',
+            'phone_number' => ['required', 'numeric', 'digits:10'],
             'school_id' => [
                 Rule::requiredIf(Auth::user()->role === 'sa'),
                 'nullable',
@@ -134,6 +134,9 @@ class StudentController extends Controller
         ], [
             'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
             'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
+            'phone_number.required' => 'The mobile phone number is required.',
+            'phone_number.digits' => 'The mobile phone number must be exactly 10 digits.',
+            'phone_number.numeric' => 'The mobile phone number must contain only digits.',
             'school_id.required' => 'The school field is required.',
             'school_id.exists' => 'The selected school is invalid.',
             'department_id.required' => 'The department field is required.',
@@ -183,6 +186,9 @@ class StudentController extends Controller
             'profile_id' => $profile->id,
         ]);
 
+        // Send welcome email with login credentials and password change instruction
+        $mailSent = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($newUser, $password, $profile);
+
         \App\Services\ActivityLogger::log(
             'student_created',
             'New Student Created',
@@ -198,7 +204,12 @@ class StudentController extends Controller
             ]
         );
 
-        return redirect()->route('students.index')->with('success', 'Student created successfully.');
+        $successMsg = 'Student created successfully.';
+        if ($mailSent) {
+            $successMsg .= ' Login credentials and password change instructions have been emailed to ' . $profile->email . '.';
+        }
+
+        return redirect()->route('students.index')->with('success', $successMsg);
     }
 
     public function show($id)

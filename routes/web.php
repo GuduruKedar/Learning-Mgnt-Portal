@@ -17,6 +17,8 @@ use App\Http\Controllers\DashboardController;
 
 Route::get('/', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/authenticate', [LoginController::class, 'login'])->name('authenticate');
+Route::post('/forgot-password', [LoginController::class, 'forgotPassword'])->name('password.forgot');
+Route::get('/sms/test-vsat', [\App\Http\Controllers\SmsController::class, 'sendVsat'])->name('sms.test.vsat');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get');
 
@@ -153,6 +155,7 @@ Route::middleware('auth')->group(function () {
 
         // Reset User Password
         Route::post('/users/{id}/reset-password', [\App\Http\Controllers\DashboardController::class, 'resetUserPassword'])->name('users.reset-password');
+        Route::post('/coordinator/reset-password-by-username', [\App\Http\Controllers\DashboardController::class, 'resetUserPasswordByUsername'])->name('coordinator.reset-password-by-username');
 
         // Bulk Upload Routes
         Route::post('/bulk-upload', [\App\Http\Controllers\BulkUploadController::class, 'store'])->name('bulk-upload.store');
@@ -250,4 +253,17 @@ Route::post('/webhook/error-report', [\App\Http\Controllers\ErrorReportControlle
 Route::get('/500-preview', function () {
     abort(500, 'Simulated test 500 error for verification');
 })->name('errors.500.preview');
+
+// Welcome Email Preview Route
+Route::get('/preview/welcome-email', function () {
+    $user = \App\Models\User::with('profile')->whereNotNull('profile_id')->first()
+        ?? new \App\Models\User(['username' => '221FA04001']);
+    $profile = $user->profile ?? new \App\Models\Profile([
+        'first_name' => 'John',
+        'last_name' => 'Doe',
+        'email' => 'john.doe@vignan.ac.in',
+        'designation' => 'Student (CSE)',
+    ]);
+    return new \App\Mail\UserWelcomeMail($user, 'Student#963', $profile);
+})->name('email.welcome.preview');
 

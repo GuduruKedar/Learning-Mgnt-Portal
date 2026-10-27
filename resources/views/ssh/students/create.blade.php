@@ -146,8 +146,8 @@
                                     <input type="email" name="email" value="{{ old('email') }}" placeholder="student@vignan.ac.in or @gmail.com" class="w-full text-sm rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 py-2.5 px-3 bg-slate-50/40 hover:bg-white transition-all">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Mobile Number</label>
-                                    <input type="text" name="phone_number" value="{{ old('phone_number') }}" maxlength="10" placeholder="10 digit mobile number" class="w-full text-sm rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 py-2.5 px-3 bg-slate-50/40 hover:bg-white transition-all">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Mobile Number <span class="text-rose-500">*</span></label>
+                                    <input type="text" name="phone_number" value="{{ old('phone_number') }}" required maxlength="10" placeholder="10 digit mobile number" class="w-full text-sm rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 py-2.5 px-3 bg-slate-50/40 hover:bg-white transition-all">
                                 </div>
                             </div>
 

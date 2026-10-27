@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $assignment->title }} - Assessment & Code Runner</title>
+    <title>{{ $assignment->title }} - Assessment</title>
     <script src="{{ asset('js/tailwindcss.js') }}"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/mobile.css') }}">
@@ -343,8 +343,8 @@
                                                 <input type="hidden" name="code_answers[{{ $q->id }}][language]" id="lang_submit_{{ $q->id }}" value="{{ $defaultLang }}">
                                             </div>
 
-                                            <!-- Interactive Test & Console Panel -->
-                                            <div class="bg-gray-50 rounded-2xl border border-gray-200 p-4 space-y-3">
+                                            <!-- Interactive Test & Console Panel (Hidden from UI while retaining underlying structure) -->
+                                            <div class="hidden bg-gray-50 rounded-2xl border border-gray-200 p-4 space-y-3">
                                                 <!-- Action Buttons -->
                                                 <div class="flex flex-wrap items-center justify-between gap-3">
                                                     <div class="flex items-center gap-2">

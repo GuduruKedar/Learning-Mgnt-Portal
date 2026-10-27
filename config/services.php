@@ -42,4 +42,13 @@ return [
         'local_python_timeout' => env('CODE_EXECUTION_LOCAL_PYTHON_TIMEOUT', 4.0),
     ],
 
+    'jiocx_sms' => [
+        'url' => env('JIOCX_SMS_URL', 'https://smsapi.jiocx.com/apggw/vignans/sms/v1/send'),
+        'username' => env('JIOCX_SMS_USERNAME', 'jiocx-vignans'),
+        'password' => env('JIOCX_SMS_PASSWORD', ''),
+        'sender_id' => env('JIOCX_SMS_SENDER_ID', 'VIGNAN'),
+        'dlt_entity_id' => env('JIOCX_DLT_ENTITY_ID', '1101385640000011255'),
+        'template_create_account' => env('JIOCX_DLT_TEMPLATE_ID_Create_Account', '1777179265526294215'),
+    ],
+
 ];

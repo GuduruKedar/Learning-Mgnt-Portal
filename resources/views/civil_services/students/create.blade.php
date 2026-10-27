@@ -111,8 +111,8 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Phone Number</label>
-                                    <input type="text" name="phone_number" value="{{ old('phone_number') }}" placeholder="10-digit number" class="w-full text-sm rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 py-2.5 px-3.5 bg-slate-50/40 hover:bg-white transition-all">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Phone Number <span class="text-rose-500">*</span></label>
+                                    <input type="text" name="phone_number" value="{{ old('phone_number') }}" required maxlength="10" placeholder="10-digit number" class="w-full text-sm rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 py-2.5 px-3.5 bg-slate-50/40 hover:bg-white transition-all">
                                     @error('phone_number')
                                         <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror

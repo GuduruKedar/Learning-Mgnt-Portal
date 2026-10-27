@@ -103,7 +103,7 @@ class StaffController extends Controller
                 'unique:profiles,email'
             ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
-            'phone_number' => 'nullable|numeric|digits:10',
+            'phone_number' => ['required', 'numeric', 'digits:10'],
             'school_id' => Auth::user()->role === 'sa' ? 'required|exists:schools,id' : 'nullable',
             'department_id' => [
                 Auth::user()->role === 'sa' ? 'required' : 'nullable', 
@@ -113,6 +113,9 @@ class StaffController extends Controller
         ], [
             'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
             'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
+            'phone_number.required' => 'The mobile phone number is required.',
+            'phone_number.digits' => 'The mobile phone number must be exactly 10 digits.',
+            'phone_number.numeric' => 'The mobile phone number must contain only digits.',
             'username.regex' => 'The Employee ID / Username must be exactly 5 digits (e.g. 10001). Only 5 digits are accepted.',
             'username.required' => 'The Employee ID / Username is required.',
             'username.unique' => 'This Employee ID / Username is already registered.',
@@ -151,13 +154,21 @@ class StaffController extends Controller
             'photo' => $photoPath,
         ]);
 
-        User::create([
+        $user = User::create([
             'username' => $validated['username'],
             'password' => Hash::make($password),
             'profile_id' => $profile->id,
         ]);
 
-        return redirect()->route('staff.index')->with('success', 'Staff member created successfully.');
+        // Send welcome email with login credentials and password change instruction
+        $mailSent = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($user, $password, $profile);
+
+        $successMsg = 'Staff member created successfully.';
+        if ($mailSent) {
+            $successMsg .= ' Login credentials and password change instructions have been emailed to ' . $profile->email . '.';
+        }
+
+        return redirect()->route('staff.index')->with('success', $successMsg);
     }
 
     public function show($id)

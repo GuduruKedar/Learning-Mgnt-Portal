@@ -104,7 +104,7 @@ class CivilAdminController extends Controller
             'username' => ['required', 'string', 'size:10', 'regex:/^\d{2}[a-zA-Z0-9]{2}[a-zA-Z0-9]{1,2}\d+$/', 'unique:users,username'],
             'email' => ['nullable', 'string', 'email', 'unique:profiles,email'],
             'password' => ['nullable', 'string', 'min:6'],
-            'phone_number' => ['nullable', 'numeric', 'digits:10'],
+            'phone_number' => ['required', 'numeric', 'digits:10'],
             'school_id' => ['required', 'exists:schools,id'],
             'department_id' => [
                 'required',
@@ -153,6 +153,9 @@ class CivilAdminController extends Controller
             'profile_id' => $profile->id,
         ]);
 
+        // Send welcome email with login credentials and password change instruction
+        $mailSent = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($user, $password, $profile);
+
         // Enroll in Civil Services
         CivilServiceEnrollment::create([
             'user_id' => $user->id,
@@ -161,8 +164,13 @@ class CivilAdminController extends Controller
             'enrolled_at' => now(),
         ]);
 
+        $successMsg = "Student {$user->username} successfully created and enrolled into Civil Services!";
+        if ($mailSent) {
+            $successMsg .= " Login credentials and password change instructions have been emailed to {$profile->email}.";
+        }
+
         return redirect()->route('civil.students.index')
-            ->with('success', "Student {$user->username} successfully created and enrolled into Civil Services!");
+            ->with('success', $successMsg);
     }
 
     /**

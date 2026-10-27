@@ -119,8 +119,8 @@
                         <!-- Row 4: Phone & Initial Password -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Phone Number</label>
-                                <input type="text" name="phone_number" value="{{ old('phone_number') }}" maxlength="10" placeholder="10-digit mobile" class="w-full text-sm rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3">
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Phone Number <span class="text-rose-500">*</span></label>
+                                <input type="text" name="phone_number" value="{{ old('phone_number') }}" required maxlength="10" placeholder="10-digit mobile" class="w-full text-sm rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Initial Password</label>

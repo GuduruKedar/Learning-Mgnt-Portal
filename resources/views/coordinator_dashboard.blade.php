@@ -127,6 +127,50 @@
                     </div>
                 </div>
 
+                <!-- Forgot Password / SMS Credentials Dispatch Tool -->
+                <div class="bg-white dark:bg-[#151B23] rounded-2xl shadow-sm border border-slate-200/80 dark:border-[#273244] p-5 sm:p-6 transition-all">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 flex items-center justify-center font-bold shadow-xs shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900 dark:text-[#F8FAFC]">Forgot Password & SMS Dispatch</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Instantly reset password and send login credentials to user's registered phone via JioCX SMS</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form action="{{ route('coordinator.reset-password-by-username') }}" method="POST" class="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-end">
+                        @csrf
+                        <div class="sm:col-span-5">
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">
+                                Student Reg No / Staff ID <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                </div>
+                                <input type="text" name="username" required placeholder="e.g. 211FA04001 or 03141" class="w-full text-sm rounded-xl pl-9 pr-3 py-2.5 border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 dark:text-white transition-all">
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-4">
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">
+                                Custom Password <span class="text-slate-400 text-[10px] font-normal lowercase">(optional)</span>
+                            </label>
+                            <input type="text" name="new_password" placeholder="Leave blank for role default" class="w-full text-sm rounded-xl px-3 py-2.5 border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 dark:text-white transition-all">
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md shadow-amber-200 dark:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                <span>Reset & Send SMS</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
                 <!-- Department Programs Section -->
                 <div>
                     <div class="flex items-center justify-between mb-3.5">

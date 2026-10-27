@@ -162,7 +162,7 @@ class CoordinatorController extends Controller
                 'unique:profiles,email'
             ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
-            'phone_number' => 'nullable|numeric|digits:10',
+            'phone_number' => ['required', 'numeric', 'digits:10'],
             'school_id' => 'required|exists:schools,id',
             'department_id' => [
                 'required', 
@@ -171,6 +171,9 @@ class CoordinatorController extends Controller
         ], [
             'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
             'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
+            'phone_number.required' => 'The mobile phone number is required.',
+            'phone_number.digits' => 'The mobile phone number must be exactly 10 digits.',
+            'phone_number.numeric' => 'The mobile phone number must contain only digits.',
         ]);
 
         $dept = \App\Models\Department::findOrFail($validated['department_id']);
@@ -217,11 +220,14 @@ class CoordinatorController extends Controller
                 'roles_id' => 'admin',
             ]);
 
-            User::create([
+            $newUser = User::create([
                 'username' => $username,
                 'password' => Hash::make($password),
                 'profile_id' => $profile->id,
             ]);
+
+            // Send welcome email with login credentials and password change instruction
+            \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($newUser, $password, $profile);
 
             return $profile;
         });

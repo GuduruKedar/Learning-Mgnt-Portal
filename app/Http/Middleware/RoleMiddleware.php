@@ -22,7 +22,7 @@ class RoleMiddleware
             return redirect('/login');
         }
 
-        $userRole = session('auth_user_role') ?? Auth::user()->role;
+        $userRole = Auth::user()->role;
 
         if (!in_array($userRole, $roles)) {
             \Log::warning('RoleMiddleware rejected unauthorized access:', ['userRole' => $userRole, 'roles' => $roles, 'url' => $request->url()]);

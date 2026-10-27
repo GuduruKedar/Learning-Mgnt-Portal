@@ -406,7 +406,96 @@ class DashboardController extends Controller
             'failed_login_attempts' => 0,
             'requires_password_reset' => false
         ]);
+
+        // Send email and SMS with new credentials and password change instruction
+        \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($user, $newPassword, $user->profile);
         
-        return back()->with('success', 'Password reset successfully.');
+        $phone = $user->profile?->phone;
+        $maskedPhone = $phone ? (substr($phone, 0, 2) . '******' . substr($phone, -2)) : null;
+        $msg = $maskedPhone
+            ? "Password reset successfully for {$user->username}. Credentials dispatched via SMS to {$maskedPhone} and via email."
+            : "Password reset successfully for {$user->username}. Login credentials sent to the user.";
+
+        return back()->with('success', $msg);
+    }
+
+    public function resetUserPasswordByUsername(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string',
+            'new_password' => 'nullable|string|min:4',
+        ], [
+            'username.required' => 'Please enter the Username / Registration Number.',
+        ]);
+
+        $empId = trim($request->username);
+        $currentUser = Auth::user();
+
+        if (!in_array($currentUser->role, ['sa', 'admin', 'ssh_admin'])) {
+            abort(403, 'Unauthorized. You do not have permission to reset passwords.');
+        }
+
+        // 1. Check first if user exists
+        $user = User::with('profile')->where('username', $empId)->first();
+        if (!$user) {
+            $user = User::with('profile')->whereRaw('LOWER(username) = ?', [strtolower($empId)])->first();
+        }
+
+        if (!$user) {
+            return back()->with('error', "No user found with username or registration number '{$empId}'.");
+        }
+
+        // 2. Department & Role Scope Checks
+        if ($currentUser->role === 'ssh_admin') {
+            if (in_array($user->role, ['sa', 'admin', 'ssh_admin'])) {
+                return back()->with('error', 'Unauthorized. You can only reset passwords for staff and first-year students.');
+            }
+        } elseif ($currentUser->role === 'admin') {
+            if (in_array($user->role, ['sa', 'admin', 'ssh_admin'])) {
+                return back()->with('error', 'Unauthorized. You can only reset passwords for staff and students.');
+            }
+            if ($user->profile?->departments_id !== $currentUser->profile?->departments_id) {
+                return back()->with('error', "Unauthorized. User '{$user->username}' belongs to another department. You can only reset passwords for users in your department.");
+            }
+        }
+
+        // 3. Check if phone number is available
+        $phone = $user->profile?->phone;
+        if (empty($phone)) {
+            return back()->with('warning', "User '{$user->username}' does not have a registered mobile number. Please edit their profile to add a mobile number first so credentials can be delivered via SMS.");
+        }
+
+        $newPassword = $request->input('new_password');
+        if (empty($newPassword)) {
+            if ($user->role === 'stu') {
+                $newPassword = 'Student' . rand(1000, 9999);
+            } elseif ($user->role === 'sta') {
+                $newPassword = 'Staff' . rand(1000, 9999);
+            } elseif ($user->role === 'admin') {
+                $newPassword = 'Admin' . rand(1000, 9999);
+            } else {
+                $newPassword = 'Vignan' . rand(1000, 9999);
+            }
+        }
+
+        $user->update([
+            'password' => Hash::make($newPassword),
+            'failed_login_attempts' => 0,
+            'requires_password_reset' => false
+        ]);
+
+        \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($user, $newPassword, $user->profile);
+
+        \App\Services\ActivityLogger::log(
+            'coordinator_reset_password',
+            'Password Reset by Coordinator',
+            'Authentication',
+            "Coordinator {$currentUser->username} reset password for {$user->username}. Credentials dispatched via SMS to {$phone}.",
+            'info',
+            ['user' => $user, 'department_id' => $user->profile?->departments_id]
+        );
+
+        $maskedPhone = substr($phone, 0, 2) . '******' . substr($phone, -2);
+        return back()->with('success', "Password reset successfully for {$user->username}. New password has been sent to their mobile number ({$maskedPhone}) via SMS.");
     }
 }

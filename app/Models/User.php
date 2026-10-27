@@ -21,6 +21,8 @@ class User extends Authenticatable
         'username',
         'password',
         'profile_id',
+        'failed_login_attempts',
+        'requires_password_reset',
     ];
 
     public function profile()
@@ -72,8 +74,8 @@ class User extends Authenticatable
     // Fast session-cached accessors to eliminate redundant database queries on every request
     public function getRoleAttribute()
     {
-        // 1. If checking the currently authenticated user and role is stored in session, return instantly (0 SQL queries)
-        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && session()->has('auth_user_role')) {
+        // 1. If checking the currently authenticated user and role is stored in session for THIS user, return instantly (0 SQL queries)
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && session('auth_user_id') === $this->id && session()->has('auth_user_role')) {
             return session('auth_user_role');
         }
 
@@ -81,7 +83,10 @@ class User extends Authenticatable
         $role = $this->profile->roles_id ?? ($this->profile->role->name ?? null);
 
         if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && $role) {
-            session(['auth_user_role' => $role]);
+            session([
+                'auth_user_id' => $this->id,
+                'auth_user_role' => $role,
+            ]);
         }
 
         return $role;
@@ -172,6 +177,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'requires_password_reset' => 'boolean',
+        'failed_login_attempts' => 'integer',
     ];
 
     public function scopeRole($query, $roleName)

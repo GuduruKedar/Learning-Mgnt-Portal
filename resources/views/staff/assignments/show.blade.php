@@ -190,14 +190,14 @@
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
                                 <h3 class="text-base font-bold text-gray-900">Questions in this Assignment</h3>
-                                <p class="text-xs text-gray-500">Supports Multiple Choice Questions (MCQ) & Coding Problems with C, Java, and Python compilers.</p>
+                                <p class="text-xs text-gray-500">Supports Multiple Choice Questions (MCQ).</p>
                             </div>
                             <div class="flex items-center gap-2">
                                 <button type="button" onclick="document.getElementById('addQuestionModal').classList.remove('hidden')" class="inline-flex items-center px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
                                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                     Add MCQ Question
                                 </button>
-                                <button type="button" onclick="document.getElementById('addCodingQuestionModal').classList.remove('hidden')" class="inline-flex items-center px-3.5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
+                                <button type="button" onclick="document.getElementById('addCodingQuestionModal').classList.remove('hidden')" class="hidden inline-flex items-center px-3.5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs hover:shadow transition-all cursor-pointer">
                                     <svg class="w-4 h-4 mr-1.5 text-violet-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
                                     Add Coding Question (C, Java, Python)
                                 </button>
@@ -209,7 +209,7 @@
                                 <p class="text-sm font-medium text-gray-600">No questions added to this assignment yet.</p>
                                 <div class="mt-4 flex items-center justify-center gap-3">
                                     <button type="button" onclick="document.getElementById('addQuestionModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow-xs">Add MCQ Question</button>
-                                    <button type="button" onclick="document.getElementById('addCodingQuestionModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl shadow-xs">Add Coding Question</button>
+                                    <button type="button" onclick="document.getElementById('addCodingQuestionModal').classList.remove('hidden')" class="hidden inline-flex items-center px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl shadow-xs">Add Coding Question</button>
                                 </div>
                             </div>
                         @else

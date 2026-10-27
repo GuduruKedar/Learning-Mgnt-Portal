@@ -218,7 +218,7 @@ class SshAdminController extends Controller
                 'unique:profiles,email'
             ],
             'password' => ['nullable', 'string', 'min:6'],
-            'phone_number' => ['nullable', 'numeric', 'digits:10'],
+            'phone_number' => ['required', 'numeric', 'digits:10'],
             'school_id' => ['required', 'exists:schools,id'],
             'department_id' => [
                 'required',
@@ -272,11 +272,14 @@ class SshAdminController extends Controller
             'photo' => $photoPath,
         ]);
 
-        User::create([
+        $newUser = User::create([
             'username' => $validated['username'],
             'password' => Hash::make($password),
             'profile_id' => $profile->id,
         ]);
+
+        // Send welcome email with login credentials and password change instruction
+        $mailSent = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($newUser, $password, $profile);
 
         ActivityLog::create([
             'user_id' => Auth::id() ?? 1,
@@ -285,9 +288,14 @@ class SshAdminController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
+        $successMsg = "First Year student {$profile->username} successfully registered!";
+        if ($mailSent) {
+            $successMsg .= " Login credentials and password change instructions have been emailed to {$profile->email}.";
+        }
+
         return redirect()
             ->route('ssh.students.index')
-            ->with('success', "First Year student {$profile->username} successfully registered!");
+            ->with('success', $successMsg);
     }
 
     /**
@@ -828,7 +836,7 @@ class SshAdminController extends Controller
                 'unique:profiles,email'
             ],
             'password' => ['nullable', 'string', 'min:6'],
-            'phone_number' => ['nullable', 'numeric', 'digits:10'],
+            'phone_number' => ['required', 'numeric', 'digits:10'],
             'department_id' => ['required', 'exists:departments,id'],
             'designation' => ['required', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:webp,jpeg,png,jpg', 'max:2048'],
@@ -871,6 +879,9 @@ class SshAdminController extends Controller
             'profile_id' => $profile->id,
         ]);
 
+        // Send welcome email with login credentials and password change instruction
+        $mailSent = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($user, $password, $profile);
+
         \App\Services\ActivityLogger::log(
             'ssh_staff_created',
             'S&H Faculty Registered',
@@ -880,7 +891,12 @@ class SshAdminController extends Controller
             ['user' => $user, 'department_id' => $deptCode]
         );
 
-        return redirect()->route('ssh.staff.index')->with('success', "Faculty {$user->username} successfully registered in {$profile->department->name}!");
+        $successMsg = "Faculty {$user->username} successfully registered in " . ($profile->department->name ?? $deptCode) . "!";
+        if ($mailSent) {
+            $successMsg .= " Login credentials and password change instructions have been emailed to {$profile->email}.";
+        }
+
+        return redirect()->route('ssh.staff.index')->with('success', $successMsg);
     }
 
     /**

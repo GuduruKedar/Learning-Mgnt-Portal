@@ -737,7 +737,6 @@ class StaffAssignmentController extends Controller
         if ($type === 'code') {
             $request->validate([
                 'question_text' => 'required|string',
-                'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:10240'],
                 'marks' => 'required|integer|min:1|max:100',
                 'allowed_languages' => 'nullable|array',
                 'starter_code_c' => 'nullable|string',
@@ -746,10 +745,7 @@ class StaffAssignmentController extends Controller
                 'test_cases' => 'nullable|array',
             ]);
 
-            $imagePath = null;
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('assignment_questions', 'public');
-            }
+            $imagePath = $this->processAndStoreQuestionImage($request->file('image'));
 
             $allowedLangs = $request->input('allowed_languages', ['c', 'java', 'python']);
             if (is_array($allowedLangs)) {
@@ -797,7 +793,6 @@ class StaffAssignmentController extends Controller
 
         $request->validate([
             'question_text' => 'required|string',
-            'image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:10240'],
             'option_a' => 'required|string',
             'option_b' => 'required|string',
             'option_c' => 'required|string',
@@ -807,10 +802,7 @@ class StaffAssignmentController extends Controller
             'explanation' => 'nullable|string',
         ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('assignment_questions', 'public');
-        }
+        $imagePath = $this->processAndStoreQuestionImage($request->file('image'));
 
         $order = $assignment->questions()->count() + 1;
 
@@ -838,22 +830,19 @@ class StaffAssignmentController extends Controller
     {
         $this->authorizeStaffAccess($question->assignment);
 
-        $request->validate([
-            'image' => ['required', 'file', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:10240'],
-        ], [
-            'image.required' => 'Please select a picture file to upload.',
-            'image.file' => 'The uploaded file is not valid.',
-            'image.mimes' => 'The picture must be an image file (JPG, PNG, GIF, WEBP, or SVG).',
-            'image.max' => 'The picture size must not exceed 10MB.',
-            'image.uploaded' => 'The picture failed to upload. Please ensure your temporary directory is writable and the file size is under 10MB.',
-        ]);
+        if (!$request->hasFile('image')) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'image' => ['Please select a picture file to upload.'],
+            ]);
+        }
+
+        $storedPath = $this->processAndStoreQuestionImage($request->file('image'));
 
         if ($question->image && Storage::disk('public')->exists($question->image)) {
             Storage::disk('public')->delete($question->image);
         }
 
-        $path = $request->file('image')->store('assignment_questions', 'public');
-        $question->update(['image' => $path]);
+        $question->update(['image' => $storedPath]);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -864,6 +853,94 @@ class StaffAssignmentController extends Controller
         }
 
         return redirect()->back()->with('success', 'Picture attached to question successfully.');
+    }
+
+    /**
+     * Process and validate an uploaded question image file.
+     * Supports standard image files, JFIF, SVG, WEBP, base64 data URIs, and tiny diagrams.
+     */
+    protected function processAndStoreQuestionImage($file)
+    {
+        if (!$file) {
+            return null;
+        }
+
+        if ($file->getSize() > 10 * 1024 * 1024) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'image' => ['The picture size must not exceed 10MB.'],
+            ]);
+        }
+
+        $path = $file->getRealPath();
+        if (!$path || !file_exists($path)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'image' => ['The uploaded picture file could not be read.'],
+            ]);
+        }
+
+        $content = file_get_contents($path);
+        $trimmed = trim($content);
+        $clientExt = strtolower($file->getClientOriginalExtension());
+        $mime = strtolower((string)$file->getMimeType());
+        $clientMime = strtolower((string)$file->getClientMimeType());
+
+        $processedBinary = null;
+        $finalExt = 'jpg';
+
+        // 1. Check if it is a base64 data URI (e.g. "data:image/jpeg;base64,...")
+        if (preg_match('/^data:image\/([a-zA-Z0-9\+\-\.]+);base64,(.+)$/s', $trimmed, $m)) {
+            $bin = base64_decode($m[2]);
+            if ($bin !== false && strlen($bin) > 0) {
+                $processedBinary = $bin;
+                $finalExt = strtolower($m[1]) === 'jpeg' ? 'jpg' : strtolower($m[1]);
+            }
+        }
+        // 2. Check if it is a raw base64 string
+        elseif (strlen($trimmed) > 50 && preg_match('/^[a-zA-Z0-9+\/=\r\n]+$/', $trimmed)) {
+            $bin = base64_decode($trimmed, true);
+            if ($bin !== false) {
+                $info = @getimagesizefromstring($bin);
+                if ($info !== false) {
+                    $processedBinary = $bin;
+                    $finalExt = image_type_to_extension($info[2], false) ?: 'jpg';
+                }
+            }
+        }
+        // 3. SVG vector graphic
+        elseif ($clientExt === 'svg' || str_starts_with($mime, 'image/svg') || str_contains($content, '<svg')) {
+            if (str_contains($content, '<svg')) {
+                $processedBinary = $content;
+                $finalExt = 'svg';
+            }
+        }
+
+        // 4. Standard image MIME or getimagesize or allowed image extension
+        if ($processedBinary === null) {
+            $allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'jfif', 'ico', 'avif'];
+            $isImageMime = str_starts_with($mime, 'image/') || str_starts_with($clientMime, 'image/');
+            $hasImageExt = in_array($clientExt, $allowedExts);
+            $imageSize = @getimagesize($path);
+
+            if ($isImageMime || $imageSize !== false || $hasImageExt) {
+                $processedBinary = $content;
+                $finalExt = $clientExt ?: ($imageSize ? image_type_to_extension($imageSize[2], false) : 'jpg');
+                if ($finalExt === 'jpeg' || $finalExt === 'jfif') {
+                    $finalExt = 'jpg';
+                }
+            }
+        }
+
+        if ($processedBinary === null) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'image' => ['The selected file is not a supported picture format. Please upload a JPG, PNG, WEBP, or SVG image.'],
+            ]);
+        }
+
+        $filename = Str::random(40) . '.' . $finalExt;
+        $storedPath = 'assignment_questions/' . $filename;
+        Storage::disk('public')->put($storedPath, $processedBinary);
+
+        return $storedPath;
     }
 
     public function deleteQuestionImage(Request $request, AssignmentQuestion $question)

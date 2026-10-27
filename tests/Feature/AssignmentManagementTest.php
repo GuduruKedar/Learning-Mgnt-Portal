@@ -336,7 +336,25 @@ class AssignmentManagementTest extends TestCase
         $studentShow->assertStatus(200);
         $studentShow->assertSee($question->image_url);
 
-        // 4. Delete picture from question
+        // 4. Test uploading a 1KB small JPG file
+        $smallJpg = UploadedFile::fake()->create('small_icon.jpg', 1, 'image/jpeg');
+        $smallUploadRes = $this->actingAs($this->staffUser)->post(
+            route('staff.assignments.questions.image.upload', $question->id),
+            ['image' => $smallJpg]
+        );
+        $smallUploadRes->assertSessionHas('success');
+        $question->refresh();
+        $this->assertTrue($question->hasImage());
+
+        // 5. Test rejecting a non-image text file
+        $invalidFile = UploadedFile::fake()->create('document.txt', 1, 'text/plain');
+        $failUploadRes = $this->actingAs($this->staffUser)->post(
+            route('staff.assignments.questions.image.upload', $question->id),
+            ['image' => $invalidFile]
+        );
+        $failUploadRes->assertSessionHasErrors('image');
+
+        // 6. Delete picture from question
         $deleteResponse = $this->actingAs($this->staffUser)->delete(
             route('staff.assignments.questions.image.delete', $question->id)
         );
@@ -346,4 +364,5 @@ class AssignmentManagementTest extends TestCase
         $this->assertNull($question->image);
     }
 }
+
 

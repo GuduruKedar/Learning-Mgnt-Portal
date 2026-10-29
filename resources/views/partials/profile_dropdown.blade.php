@@ -2,7 +2,7 @@
     $currentUser = Auth::user();
 @endphp
 <div class="relative">
-    <button id="profileDropdownBtn" onclick="event.stopPropagation(); const m = document.getElementById('profileDropdownMenu'); if(m) m.classList.toggle('hidden');" class="flex items-center gap-2 sm:gap-3 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-[#1C2430] transition-all focus:outline-none shrink-0" aria-label="Open profile menu">
+    <button id="profileDropdownBtn" onclick="event.stopPropagation(); const notif = document.getElementById('notificationsDropdownMenu'); if(notif) notif.classList.add('hidden'); const m = document.getElementById('profileDropdownMenu'); if(m) m.classList.toggle('hidden');" class="flex items-center gap-2 sm:gap-3 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-[#1C2430] transition-all focus:outline-none shrink-0" aria-label="Open profile menu">
         @if(Auth::check() && $currentUser && !empty($currentUser->photo))
             <img class="w-8 h-8 rounded-full object-cover shadow-sm border border-slate-200 dark:border-[#273244]" src="{{ asset('storage/' . $currentUser->photo) }}" alt="">
         @else

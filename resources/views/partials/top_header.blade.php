@@ -19,6 +19,7 @@
     </div>
     <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
         @include('partials.theme_toggle')
+        @include('partials.notifications_dropdown')
         @include('partials.profile_dropdown')
     </div>
 </header>

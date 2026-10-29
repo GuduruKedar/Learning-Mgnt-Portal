@@ -100,7 +100,6 @@ class StaffController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email'
             ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
             'phone_number' => ['required', 'numeric', 'digits:10'],
@@ -120,6 +119,20 @@ class StaffController extends Controller
             'username.required' => 'The Employee ID / Username is required.',
             'username.unique' => 'This Employee ID / Username is already registered.',
         ]);
+
+        // If email already exists in profiles and confirmation flag was not explicitly passed
+        if (!empty($validated['email']) && !$request->boolean('confirm_duplicate_email')) {
+            $existingProfile = \App\Models\Profile::where('email', $validated['email'])->first();
+            if ($existingProfile) {
+                $existingName = trim(($existingProfile->first_name ?? '') . ' ' . ($existingProfile->last_name ?? ''));
+                return back()->withInput()->with('duplicate_email_warning', [
+                    'email' => $validated['email'],
+                    'name' => $existingName ?: $existingProfile->username,
+                    'username' => $existingProfile->username,
+                    'role' => $existingProfile->roles_id ?? 'User',
+                ]);
+            }
+        }
 
         if (Auth::user()->role === 'admin') {
             $validated['school_id'] = Auth::user()->profile->schools_id;
@@ -212,7 +225,6 @@ class StaffController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email,'.$staff->profile_id
             ],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => Auth::user()->role === 'sa' ? 'required|exists:schools,id' : 'nullable',
@@ -367,5 +379,52 @@ class StaffController extends Controller
         });
 
         return redirect()->route('staff.index')->with('success', 'Faculty member and all associated courses, materials, and assignments have been permanently removed.');
+    }
+
+    public function checkEmail(Request $request)
+    {
+        $email = trim($request->query('email', ''));
+        $ignoreId = $request->query('ignore_id');
+
+        if (empty($email)) {
+            return response()->json(['exists' => false]);
+        }
+
+        $query = \App\Models\Profile::where('email', $email)->with(['user', 'role', 'department', 'school']);
+        if (!empty($ignoreId)) {
+            $query->where('id', '!=', $ignoreId);
+        }
+        $existing = $query->first();
+
+        if ($existing) {
+            $name = trim(($existing->first_name ?? '') . ' ' . ($existing->last_name ?? ''));
+            $roleKey = $existing->roles_id ?? ($existing->role->name ?? '');
+            $roleLabel = match($roleKey) {
+                'admin' => 'Department Coordinator',
+                'sa' => 'Super Admin',
+                'sta' => 'Faculty / Staff',
+                'staff' => 'Faculty / Staff',
+                'student' => 'Student',
+                'stu' => 'Student',
+                'ssh_admin' => 'SSH Admin',
+                'civil_admin' => 'Civil Services Admin',
+                default => !empty($roleKey) ? ucfirst($roleKey) : 'User',
+            };
+
+            $deptName = $existing->department->name ?? $existing->departments_id ?? '';
+            $schoolName = $existing->school->name ?? $existing->schools_id ?? '';
+
+            return response()->json([
+                'exists' => true,
+                'email' => $existing->email,
+                'name' => $name ?: ($existing->username ?? 'Unknown'),
+                'username' => $existing->username ?? ($existing->user->username ?? ''),
+                'role' => $roleLabel,
+                'department' => $deptName,
+                'school' => $schoolName,
+            ]);
+        }
+
+        return response()->json(['exists' => false]);
     }
 }

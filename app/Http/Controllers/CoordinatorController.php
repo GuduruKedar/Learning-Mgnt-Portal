@@ -159,7 +159,7 @@ class CoordinatorController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email'
+
             ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
             'phone_number' => ['required', 'numeric', 'digits:10'],
@@ -176,6 +176,19 @@ class CoordinatorController extends Controller
             'phone_number.numeric' => 'The mobile phone number must contain only digits.',
         ]);
 
+        // If email already exists in profiles and confirmation flag was not explicitly passed
+        if (!empty($validated['email']) && !$request->boolean('confirm_duplicate_email')) {
+            $existingProfile = \App\Models\Profile::where('email', $validated['email'])->first();
+            if ($existingProfile) {
+                $coordExistingName = trim(($existingProfile->first_name ?? '') . ' ' . ($existingProfile->last_name ?? ''));
+                return back()->withInput()->with('duplicate_email_warning', [
+                    'email' => $validated['email'],
+                    'name' => $coordExistingName ?: $existingProfile->username,
+                    'username' => $existingProfile->username,
+                    'role' => $existingProfile->roles_id ?? 'User',
+                ]);
+            }
+        }
         $dept = \App\Models\Department::findOrFail($validated['department_id']);
         $deptCode = strtolower($dept->code ?? '');
         $baseUsername = str_starts_with($deptCode, 'dep_') ? $deptCode : 'dep_' . $deptCode;
@@ -265,7 +278,7 @@ class CoordinatorController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email,'.$coordinator->profile_id
+
             ],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => 'required|exists:schools,id',
@@ -387,5 +400,50 @@ class CoordinatorController extends Controller
             'department_code' => $department->code,
             'department_name' => $department->name
         ]);
+    }
+
+    public function checkEmail(Request $request)
+    {
+        $email = trim($request->query('email', ''));
+        $ignoreId = $request->query('ignore_id');
+
+        if (empty($email)) {
+            return response()->json(['exists' => false]);
+        }
+
+        $query = \App\Models\Profile::where('email', $email)->with(['user', 'role', 'department', 'school']);
+        if (!empty($ignoreId)) {
+            $query->where('id', '!=', $ignoreId);
+        }
+        $existing = $query->first();
+
+        if ($existing) {
+            $name = trim(($existing->first_name ?? '') . ' ' . ($existing->last_name ?? ''));
+            $roleKey = $existing->roles_id ?? ($existing->role->name ?? '');
+            $roleLabel = match($roleKey) {
+                'admin' => 'Department Coordinator',
+                'sa' => 'Super Admin',
+                'staff' => 'Staff / Faculty',
+                'student' => 'Student',
+                'ssh_admin' => 'SSH Admin',
+                'civil_admin' => 'Civil Services Admin',
+                default => !empty($roleKey) ? ucfirst($roleKey) : 'User',
+            };
+
+            $deptName = $existing->department->name ?? $existing->departments_id ?? '';
+            $schoolName = $existing->school->name ?? $existing->schools_id ?? '';
+
+            return response()->json([
+                'exists' => true,
+                'email' => $existing->email,
+                'name' => $name ?: ($existing->username ?? 'Unknown'),
+                'username' => $existing->username ?? ($existing->user->username ?? ''),
+                'role' => $roleLabel,
+                'department' => $deptName,
+                'school' => $schoolName,
+            ]);
+        }
+
+        return response()->json(['exists' => false]);
     }
 }

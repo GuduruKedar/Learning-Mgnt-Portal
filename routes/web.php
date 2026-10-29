@@ -24,6 +24,7 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/users/check-email', [\App\Http\Controllers\StaffController::class, 'checkEmail'])->name('users.check_email');
 
     // Course Materials Hub & CRUD (Staff, Coordinator, Super Admin)
     Route::middleware('role:sta,admin,sa')->group(function () {
@@ -62,6 +63,7 @@ Route::middleware('auth')->group(function () {
     // 1. Super Admin & SSH Admin Analytics Routes (Role: sa, ssh_admin)
     // ==========================================
     Route::middleware('role:sa,ssh_admin')->group(function () {
+        Route::get('/coordinators/check-email', [\App\Http\Controllers\CoordinatorController::class, 'checkEmail'])->name('coordinators.check_email');
         Route::resource('coordinators', \App\Http\Controllers\CoordinatorController::class);
         Route::get('/department-coordinators', [\App\Http\Controllers\CoordinatorController::class, 'departmentCoordinators'])->name('coordinators.departments_list');
         

@@ -599,11 +599,11 @@ class UsersImport implements ToModel, WithHeadingRow, WithChunkReading, WithBatc
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
                 function ($attribute, $value, $fail) {
-                    if ($value && isset($this->existingEmails[strtolower(trim($value))])) {
+                    if ($this->targetRole !== 'admin' && $value && isset($this->existingEmails[strtolower(trim($value))])) {
                         $fail('The email has already been taken.');
                     }
                 },
-                'distinct'
+                $this->targetRole === 'admin' ? 'nullable' : 'distinct'
             ],
             'mobile_number' => [
                 'nullable',

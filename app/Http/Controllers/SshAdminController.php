@@ -215,7 +215,6 @@ class SshAdminController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email'
             ],
             'password' => ['nullable', 'string', 'min:6'],
             'phone_number' => ['required', 'numeric', 'digits:10'],
@@ -326,7 +325,7 @@ class SshAdminController extends Controller
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'size:10', 'regex:/^[0-9]{2}[0-9A-Za-z]{8}$/', 'unique:users,username,' . $student->id . ',id'],
-            'email' => ['nullable', 'email', 'max:255', 'unique:profiles,email,' . ($student->profile->id ?? 0) . ',id'],
+            'email' => ['nullable', 'email', 'max:255'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'school_id' => ['required', 'exists:schools,id'],
             'department_id' => [
@@ -833,7 +832,6 @@ class SshAdminController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email'
             ],
             'password' => ['nullable', 'string', 'min:6'],
             'phone_number' => ['required', 'numeric', 'digits:10'],
@@ -928,7 +926,6 @@ class SshAdminController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email,' . $staff->profile_id
             ],
             'phone_number' => ['nullable', 'numeric', 'digits:10'],
             'department_id' => ['required', 'exists:departments,id'],

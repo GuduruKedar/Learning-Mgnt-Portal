@@ -108,7 +108,6 @@ class StudentController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email'
             ],
             'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(8)->symbols()],
             'phone_number' => ['required', 'numeric', 'digits:10'],
@@ -253,7 +252,6 @@ class StudentController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email,'.$student->profile_id
             ],
             'phone_number' => 'nullable|numeric|digits:10',
             'school_id' => [

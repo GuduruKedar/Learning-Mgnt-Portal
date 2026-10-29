@@ -53,7 +53,7 @@
                         <span class="text-xs font-semibold text-slate-400"><span class="text-red-500">*</span> Required fields</span>
                     </div>
 
-                    <form action="{{ route('staff.store') }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
+                    <form id="staff_create_form" action="{{ route('staff.store') }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
                         @csrf
                         
                         <!-- Personal Info Grid (3 Columns) -->
@@ -97,8 +97,65 @@
                                     @enderror
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
-                                    <input type="email" name="email" value="{{ old('email') }}" placeholder="name@vignan.ac.in" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                                        <span>Email Address</span>
+                                        <span id="email_status_pill" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full transition-all"></span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="email" id="staff_email" name="email" value="{{ old('email') }}" placeholder="name@vignan.ac.in" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium">
+                                        <input type="hidden" name="confirm_duplicate_email" id="confirm_duplicate_email" value="{{ old('confirm_duplicate_email', '0') }}">
+                                        <div id="email_spinner" class="hidden absolute right-3 top-3 text-slate-400">
+                                            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <!-- Live Duplicate Email Warning / Confirmation -->
+                                    <div id="duplicate_email_alert" class="hidden mt-2 p-3 bg-amber-50/90 border border-amber-200 rounded-xl text-xs text-amber-900 shadow-2xs">
+                                        <div class="flex items-start gap-2.5">
+                                            <div class="p-1 bg-amber-100 rounded-lg text-amber-700 shrink-0 mt-0.5">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-bold text-amber-900 flex items-center justify-between">
+                                                    <span>Email already registered</span>
+                                                    <span id="dup_confirmed_tag" class="hidden text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-200">✓ Confirmed to reuse</span>
+                                                </div>
+                                                <p class="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
+                                                    Belongs to <strong id="dup_existing_name" class="font-semibold text-slate-900"></strong> 
+                                                    (<span id="dup_existing_role"></span><span id="dup_existing_dept_wrapper"> • <span id="dup_existing_dept"></span></span>).
+                                                </p>
+                                                <div class="mt-2 flex items-center gap-2" id="dup_action_buttons">
+                                                    <button type="button" onclick="confirmDuplicateEmailUse()" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-[11px] transition-colors shadow-2xs cursor-pointer">
+                                                        Use same email
+                                                    </button>
+                                                    <button type="button" onclick="promptChangeEmail()" class="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg font-semibold text-[11px] transition-colors cursor-pointer">
+                                                        Enter another email
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if(session('duplicate_email_warning'))
+                                    <div class="mt-2 p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900">
+                                        <p class="font-bold mb-1">⚠️ Email Already In Use</p>
+                                        <p class="text-[11px] mb-2 leading-relaxed">The email <strong>{{ session('duplicate_email_warning')['email'] }}</strong> is currently used by <strong>{{ session('duplicate_email_warning')['name'] }}</strong> ({{ session('duplicate_email_warning')['role'] }}). Would you like to use this same email or change it?</p>
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="confirmAndSubmitDuplicateEmail()" class="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-xs cursor-pointer">
+                                                Yes, Use This Email
+                                            </button>
+                                            <button type="button" onclick="promptChangeEmail()" class="px-3 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded-lg text-xs cursor-pointer">
+                                                Enter Another Email
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
+
                                     @error('email')
                                         <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                                     @enderror
@@ -356,5 +413,255 @@
             }
         });
     </script>
+
+    <!-- Duplicate Email Confirmation Modal -->
+    <div id="duplicateEmailModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all duration-200" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="relative bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all p-6">
+            <div class="flex items-center gap-3.5 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900" id="modal-title">Email Already In Use</h3>
+                    <p class="text-xs text-slate-500">Duplicate email address detected</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-6">
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    The email address <span id="modal_dup_email" class="font-mono font-semibold text-teal-600"></span> is already registered in the LMS for:
+                </p>
+
+                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 font-medium">Name:</span>
+                        <span id="modal_dup_name" class="font-bold text-slate-900"></span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 font-medium">Role:</span>
+                        <span id="modal_dup_role" class="px-2 py-0.5 rounded text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-100"></span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 font-medium">Username / ID:</span>
+                        <span id="modal_dup_username" class="font-mono text-slate-800 font-semibold"></span>
+                    </div>
+                    <div class="flex items-center justify-between" id="modal_dup_dept_row">
+                        <span class="text-slate-500 font-medium">Department:</span>
+                        <span id="modal_dup_dept" class="text-slate-800 font-medium"></span>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-teal-50/70 border border-teal-100 rounded-xl">
+                    <p class="text-xs text-teal-950 font-medium leading-relaxed">
+                        Would you like to assign this <strong>same email address</strong> to this faculty member, or enter a different email?
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 pt-2">
+                <button type="button" onclick="closeDuplicateModalAndChangeEmail()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer">
+                    Enter Different Email
+                </button>
+                <button type="button" onclick="confirmDuplicateModalAndSubmit()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-md shadow-teal-600/20 transition-all cursor-pointer">
+                    Yes, Use Same Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Duplicate Email Verification Logic for Staff
+        let currentEmailCheck = { email: '', exists: false, userData: null, confirmed: false };
+        const emailInput = document.getElementById('staff_email');
+        const confirmDupInput = document.getElementById('confirm_duplicate_email');
+        const dupAlert = document.getElementById('duplicate_email_alert');
+        const dupConfirmedTag = document.getElementById('dup_confirmed_tag');
+        const dupActionButtons = document.getElementById('dup_action_buttons');
+        const dupNameEl = document.getElementById('dup_existing_name');
+        const dupRoleEl = document.getElementById('dup_existing_role');
+        const dupDeptEl = document.getElementById('dup_existing_dept');
+        const dupDeptWrapper = document.getElementById('dup_existing_dept_wrapper');
+        const emailSpinner = document.getElementById('email_spinner');
+        const emailStatusPill = document.getElementById('email_status_pill');
+        const dupModal = document.getElementById('duplicateEmailModal');
+        const createForm = document.getElementById('staff_create_form');
+
+        let emailCheckTimeout = null;
+
+        function checkEmailAvailability(emailVal, callback) {
+            emailVal = (emailVal || '').trim();
+            if (!emailVal || !emailVal.includes('@')) {
+                hideDuplicateAlert();
+                currentEmailCheck = { email: emailVal, exists: false, userData: null, confirmed: false };
+                confirmDupInput.value = '0';
+                if (callback) callback(false);
+                return;
+            }
+
+            if (emailSpinner) emailSpinner.classList.remove('hidden');
+
+            fetch('/users/check-email?email=' + encodeURIComponent(emailVal))
+                .then(res => res.json())
+                .then(data => {
+                    if (emailSpinner) emailSpinner.classList.add('hidden');
+                    if (data && data.exists) {
+                        currentEmailCheck = {
+                            email: emailVal,
+                            exists: true,
+                            userData: data,
+                            confirmed: confirmDupInput.value === '1'
+                        };
+                        showDuplicateAlert(data);
+                        if (callback) callback(true, data);
+                    } else {
+                        currentEmailCheck = { email: emailVal, exists: false, userData: null, confirmed: false };
+                        confirmDupInput.value = '0';
+                        hideDuplicateAlert();
+                        if (callback) callback(false);
+                    }
+                })
+                .catch(err => {
+                    if (emailSpinner) emailSpinner.classList.add('hidden');
+                    console.error('Email check error:', err);
+                    if (callback) callback(false);
+                });
+        }
+
+        function showDuplicateAlert(userData) {
+            if (!dupAlert) return;
+            dupNameEl.textContent = userData.name || userData.username;
+            dupRoleEl.textContent = userData.role || 'User';
+            if (userData.department) {
+                dupDeptEl.textContent = userData.department;
+                dupDeptWrapper.classList.remove('hidden');
+            } else {
+                dupDeptWrapper.classList.add('hidden');
+            }
+
+            if (confirmDupInput.value === '1') {
+                dupConfirmedTag.classList.remove('hidden');
+                dupActionButtons.classList.add('hidden');
+                if (emailStatusPill) {
+                    emailStatusPill.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+                    emailStatusPill.textContent = 'Shared Email Confirmed';
+                    emailStatusPill.classList.remove('hidden');
+                }
+            } else {
+                dupConfirmedTag.classList.add('hidden');
+                dupActionButtons.classList.remove('hidden');
+                if (emailStatusPill) {
+                    emailStatusPill.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
+                    emailStatusPill.textContent = 'Email in use';
+                    emailStatusPill.classList.remove('hidden');
+                }
+            }
+            dupAlert.classList.remove('hidden');
+        }
+
+        function hideDuplicateAlert() {
+            if (dupAlert) dupAlert.classList.add('hidden');
+            if (emailStatusPill) emailStatusPill.classList.add('hidden');
+        }
+
+        function confirmDuplicateEmailUse() {
+            confirmDupInput.value = '1';
+            currentEmailCheck.confirmed = true;
+            if (currentEmailCheck.userData) {
+                showDuplicateAlert(currentEmailCheck.userData);
+            }
+        }
+
+        function promptChangeEmail() {
+            confirmDupInput.value = '0';
+            currentEmailCheck.confirmed = false;
+            hideDuplicateAlert();
+            if (emailInput) {
+                emailInput.focus();
+                emailInput.select();
+            }
+        }
+
+        function openDuplicateModal(data) {
+            document.getElementById('modal_dup_email').textContent = emailInput.value;
+            document.getElementById('modal_dup_name').textContent = data.name || data.username;
+            document.getElementById('modal_dup_role').textContent = data.role || 'User';
+            document.getElementById('modal_dup_username').textContent = data.username || 'N/A';
+            
+            const deptRow = document.getElementById('modal_dup_dept_row');
+            if (data.department) {
+                document.getElementById('modal_dup_dept').textContent = data.department;
+                deptRow.classList.remove('hidden');
+            } else {
+                deptRow.classList.add('hidden');
+            }
+
+            dupModal.classList.remove('hidden');
+        }
+
+        function closeDuplicateModalAndChangeEmail() {
+            dupModal.classList.add('hidden');
+            promptChangeEmail();
+        }
+
+        function confirmDuplicateModalAndSubmit() {
+            confirmDupInput.value = '1';
+            currentEmailCheck.confirmed = true;
+            dupModal.classList.add('hidden');
+            createForm.submit();
+        }
+
+        function confirmAndSubmitDuplicateEmail() {
+            confirmDupInput.value = '1';
+            createForm.submit();
+        }
+
+        if (emailInput) {
+            emailInput.addEventListener('input', function() {
+                confirmDupInput.value = '0';
+                currentEmailCheck.confirmed = false;
+                clearTimeout(emailCheckTimeout);
+                emailCheckTimeout = setTimeout(() => {
+                    checkEmailAvailability(this.value);
+                }, 500);
+            });
+
+            emailInput.addEventListener('blur', function() {
+                clearTimeout(emailCheckTimeout);
+                checkEmailAvailability(this.value);
+            });
+        }
+
+        if (createForm) {
+            createForm.addEventListener('submit', function(e) {
+                const emailVal = (emailInput?.value || '').trim();
+                if (confirmDupInput.value === '1' || !emailVal) {
+                    return true;
+                }
+
+                if (currentEmailCheck.exists && currentEmailCheck.email === emailVal) {
+                    e.preventDefault();
+                    openDuplicateModal(currentEmailCheck.userData);
+                    return false;
+                }
+
+                e.preventDefault();
+                checkEmailAvailability(emailVal, function(exists, userData) {
+                    if (exists) {
+                        openDuplicateModal(userData);
+                    } else {
+                        confirmDupInput.value = '0';
+                        createForm.submit();
+                    }
+                });
+            });
+        }
+
+        if (emailInput && emailInput.value) {
+            checkEmailAvailability(emailInput.value);
+        }
+    </script>
+
 </body>
 </html>

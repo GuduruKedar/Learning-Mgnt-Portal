@@ -4,71 +4,81 @@
     $role = $currentUser?->role ?? 'user';
     $roleLabel = ['sa' => 'Super Admin', 'ssh_admin' => 'SSH Admin', 'admin' => 'Department Coordinator', 'civil_admin' => 'Civil Services Admin', 'sta' => 'Faculty Member', 'stu' => 'Student'][$role] ?? 'User';
 
-    // Build role-relevant notifications with real data when available
+    // Curate real, meaningful Academic & Portal Notifications (NEVER audit logs like login/logout or server exceptions)
     $notifications = [];
 
-    // Check for recent ActivityLogs
+    // 1. Recent Course Materials
     try {
-        if (\Illuminate\Support\Facades\Schema::hasTable('activity_logs')) {
-            $logs = \App\Models\ActivityLog::latest()->take(6)->get();
-            foreach ($logs as $log) {
-                $timeAgo = $log->created_at ? $log->created_at->diffForHumans(null, true, true) : 'recent';
-                $severityColor = match($log->severity) {
-                    'danger' => 'rose',
-                    'warning' => 'amber',
-                    'success' => 'emerald',
-                    default => 'blue'
-                };
+        if (\Illuminate\Support\Facades\Schema::hasTable('course_materials')) {
+            $materials = \App\Models\CourseMaterial::with('course')->latest()->take(3)->get();
+            foreach ($materials as $m) {
+                $courseName = $m->course->code ?? $m->course->name ?? 'Course';
+                $timeAgo = $m->created_at ? $m->created_at->diffForHumans(null, true, true) : 'recent';
                 $notifications[] = [
-                    'id' => 'log_' . $log->id,
-                    'title' => $log->action_title ?: ucfirst($log->action ?? 'System Update'),
-                    'message' => \Illuminate\Support\Str::limit($log->description ?? 'Activity recorded in portal', 75),
+                    'id' => 'mat_' . $m->id,
+                    'title' => 'Course Material Added',
+                    'message' => "Material '{$m->title}' uploaded for {$courseName}.",
                     'time' => $timeAgo,
-                    'color' => $severityColor,
-                    'icon' => match($log->module) {
-                        'Authentication' => 'lock',
-                        'Faculty', 'Staff' => 'user-group',
-                        'Coordinator' => 'badge-check',
-                        'Materials' => 'document',
-                        'Assignments' => 'clipboard',
-                        default => 'bell'
-                    }
+                    'color' => 'blue',
+                    'icon' => 'document'
                 ];
             }
         }
-    } catch (\Throwable $e) {
-        // Fallback gracefully
-    }
+    } catch (\Throwable $e) {}
 
-    // If fewer than 3 notifications, supplement with context-aware default notices
-    if (count($notifications) < 3) {
+    // 2. Published Assignments & Quizzes
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('assignments')) {
+            $assignments = \App\Models\Assignment::with('course')->where('status', 'published')->latest()->take(3)->get();
+            foreach ($assignments as $a) {
+                $courseName = $a->course->code ?? $a->course->name ?? 'Course';
+                $timeAgo = $a->created_at ? $a->created_at->diffForHumans(null, true, true) : 'recent';
+                $notifications[] = [
+                    'id' => 'assign_' . $a->id,
+                    'title' => 'Assignment Published',
+                    'message' => "'{$a->title}' is active for {$courseName}.",
+                    'time' => $timeAgo,
+                    'color' => 'emerald',
+                    'icon' => 'clipboard'
+                ];
+            }
+        }
+    } catch (\Throwable $e) {}
+
+    // 3. Positive Academic Milestones (Only student enrollments or cohort additions)
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('activity_logs')) {
+            $academicEvents = \App\Models\ActivityLog::whereIn('action', ['cohort_enrolled', 'student_created'])
+                ->latest()
+                ->take(2)
+                ->get();
+            foreach ($academicEvents as $evt) {
+                $timeAgo = $evt->created_at ? $evt->created_at->diffForHumans(null, true, true) : 'recent';
+                $notifications[] = [
+                    'id' => 'evt_' . $evt->id,
+                    'title' => $evt->action_title ?: 'Academic Update',
+                    'message' => \Illuminate\Support\Str::limit($evt->description, 80),
+                    'time' => $timeAgo,
+                    'color' => 'indigo',
+                    'icon' => 'user-group'
+                ];
+            }
+        }
+    } catch (\Throwable $e) {}
+
+    // Fallback pleasant system alerts if database has fewer items
+    if (count($notifications) < 2) {
         $notifications[] = [
-            'id' => 'sys_1',
-            'title' => 'Portal Session Active',
-            'message' => "Logged in as {$roleLabel}. All academic tools are up to date.",
+            'id' => 'sys_academic',
+            'title' => 'Academic Term Active',
+            'message' => "Logged in as {$roleLabel}. All departmental tools are ready.",
             'time' => '1m',
-            'color' => 'blue',
+            'color' => 'emerald',
             'icon' => 'badge-check'
         ];
-        $notifications[] = [
-            'id' => 'sys_2',
-            'title' => 'Duplicate Email Feature',
-            'message' => 'Staff and Coordinator accounts can now share email addresses with confirmation.',
-            'time' => '10m',
-            'color' => 'emerald',
-            'icon' => 'check'
-        ];
-        $notifications[] = [
-            'id' => 'sys_3',
-            'title' => 'System Performance',
-            'message' => 'Database cache optimization is active and operating normally.',
-            'time' => '1h',
-            'color' => 'indigo',
-            'icon' => 'sparkles'
-        ];
     }
 
-    // Keep max 6 items
+    // Limit to max 6 clean notifications
     $notifications = array_slice($notifications, 0, 6);
     $initialCount = count($notifications);
 @endphp
@@ -111,7 +121,7 @@
         <!-- Header -->
         <div class="px-4 py-3 border-b border-slate-100 dark:border-[#273244] bg-slate-50/80 dark:bg-[#1C2430] flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-slate-800 dark:text-[#F8FAFC] uppercase tracking-wider">Notifications</span>
+                <span class="text-xs font-bold text-slate-800 dark:text-[#F8FAFC] uppercase tracking-wider">Academic Updates</span>
                 <span 
                     id="notifHeaderCountBadge" 
                     class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60"
@@ -151,14 +161,14 @@
                         @else bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60
                         @endif"
                     >
-                        @if($notif['icon'] === 'lock')
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        @elseif($notif['icon'] === 'check' || $notif['icon'] === 'badge-check')
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        @elseif($notif['icon'] === 'sparkles')
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                        @if($notif['icon'] === 'document')
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        @elseif($notif['icon'] === 'clipboard')
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                         @elseif($notif['icon'] === 'user-group')
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        @elseif($notif['icon'] === 'badge-check')
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         @else
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                         @endif
@@ -209,14 +219,11 @@
 
         <!-- Footer -->
         <div class="px-4 py-2 border-t border-slate-100 dark:border-[#273244] bg-slate-50/50 dark:bg-[#1C2430]/60 flex items-center justify-between text-[11px]">
-            <span class="text-slate-400 dark:text-slate-500 font-medium">LMS Alerts & Activity</span>
-            @if(in_array($role, ['sa', 'ssh_admin']))
-                <a href="{{ route('activity_logs.index') }}" class="font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">
-                    View activity logs &rarr;
-                </a>
-            @else
-                <span class="text-[10px] text-slate-400 dark:text-slate-500">Auto-synced</span>
-            @endif
+            <span class="text-slate-400 dark:text-slate-500 font-medium">Academic Notifications</span>
+            <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Up to date
+            </span>
         </div>
     </div>
 </div>
@@ -224,7 +231,7 @@
 <script>
     (function() {
         const userId = "{{ $userId }}";
-        const storageKey = 'lms_cleared_notifs_' + userId;
+        const storageKey = 'lms_cleared_notifs_v2_' + userId;
 
         function getClearedList() {
             try {
@@ -352,7 +359,16 @@
             }
         });
 
-        // Initialize on DOM load or immediately
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const notifMenu = document.getElementById('notificationsDropdownMenu');
+                if (notifMenu && !notifMenu.classList.contains('hidden')) {
+                    notifMenu.classList.add('hidden');
+                }
+            }
+        });
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initNotifications);
         } else {

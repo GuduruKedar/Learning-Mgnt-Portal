@@ -64,14 +64,54 @@
                     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
+
+                        @php
+                            $currentTitle = old('title', $user->profile->title ?? '');
+                            $currentFirstName = old('first_name', $user->profile->first_name ?? $user->first_name);
+
+                            // Auto-extract Dr/Mr prefix if first_name already contains it
+                            if (empty($currentTitle) && !empty($currentFirstName)) {
+                                if (preg_match('/^(Dr\.?|Mr\.?|Mrs\.?|Ms\.?|Prof\.?)\s+(.+)$/i', $currentFirstName, $matches)) {
+                                    $currentTitle = ucfirst(rtrim($matches[1], '.')) . '.';
+                                    $currentFirstName = $matches[2];
+                                }
+                            }
+                        @endphp
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                             
-                            <!-- First Name -->
+                            <!-- Title & First Name -->
                             <div class="space-y-1.5">
-                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                                    First Name <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="first_name" value="{{ old('first_name', $user->first_name) }}" placeholder="e.g. Rajesh" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#1C2430] border border-slate-200 dark:border-[#273244] rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-[#151B23] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all" required>
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                        Title & First Name <span class="text-red-500">*</span>
+                                    </label>
+                                    <!-- Quick Pick Pills -->
+                                    <div class="flex items-center gap-1 sm:gap-1.5" id="titleQuickPills">
+                                        <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider hidden sm:inline">Pick:</span>
+                                        <button type="button" onclick="selectTitle('Dr.')" data-title="Dr." class="title-pill px-2 py-0.5 rounded-lg text-xs font-bold border transition-all cursor-pointer">Dr.</button>
+                                        <button type="button" onclick="selectTitle('Mr.')" data-title="Mr." class="title-pill px-2 py-0.5 rounded-lg text-xs font-bold border transition-all cursor-pointer">Mr.</button>
+                                        <button type="button" onclick="selectTitle('Mrs.')" data-title="Mrs." class="title-pill px-2 py-0.5 rounded-lg text-xs font-bold border transition-all cursor-pointer">Mrs.</button>
+                                        <button type="button" onclick="selectTitle('Ms.')" data-title="Ms." class="title-pill px-2 py-0.5 rounded-lg text-xs font-bold border transition-all cursor-pointer">Ms.</button>
+                                        <button type="button" onclick="selectTitle('Prof.')" data-title="Prof." class="title-pill px-2 py-0.5 rounded-lg text-xs font-bold border transition-all cursor-pointer">Prof.</button>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <div class="relative w-28 sm:w-32 shrink-0">
+                                        <select name="title" id="titleSelect" onchange="syncTitlePills(this.value)" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#1C2430] border border-slate-200 dark:border-[#273244] rounded-xl text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-[#151B23] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer">
+                                            <option value="">No Title</option>
+                                            <option value="Dr." {{ $currentTitle == 'Dr.' || $currentTitle == 'Dr' ? 'selected' : '' }}>Dr.</option>
+                                            <option value="Mr." {{ $currentTitle == 'Mr.' || $currentTitle == 'Mr' ? 'selected' : '' }}>Mr.</option>
+                                            <option value="Mrs." {{ $currentTitle == 'Mrs.' || $currentTitle == 'Mrs' ? 'selected' : '' }}>Mrs.</option>
+                                            <option value="Ms." {{ $currentTitle == 'Ms.' || $currentTitle == 'Ms' ? 'selected' : '' }}>Ms.</option>
+                                            <option value="Prof." {{ $currentTitle == 'Prof.' || $currentTitle == 'Prof' ? 'selected' : '' }}>Prof.</option>
+                                        </select>
+                                    </div>
+                                    <input type="text" name="first_name" value="{{ $currentFirstName }}" placeholder="e.g. Rajesh" class="flex-1 min-w-0 px-4 py-2.5 bg-slate-50 dark:bg-[#1C2430] border border-slate-200 dark:border-[#273244] rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:bg-white dark:focus:bg-[#151B23] focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all" required>
+                                </div>
+                                @error('title')
+                                    <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
+                                @enderror
                                 @error('first_name')
                                     <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                                 @enderror
@@ -271,6 +311,37 @@
     </div>
 
     <script>
+        function selectTitle(val) {
+            const sel = document.getElementById('titleSelect');
+            if (sel) {
+                if (sel.value === val) {
+                    sel.value = '';
+                } else {
+                    sel.value = val;
+                }
+                syncTitlePills(sel.value);
+            }
+        }
+
+        function syncTitlePills(currentVal) {
+            document.querySelectorAll('#titleQuickPills .title-pill').forEach(btn => {
+                const btnVal = btn.getAttribute('data-title');
+                const normalize = v => (v || '').replace('.', '').toLowerCase();
+                if (currentVal && normalize(btnVal) === normalize(currentVal)) {
+                    btn.className = 'title-pill px-2 py-0.5 rounded-lg text-xs font-bold border transition-all cursor-pointer bg-indigo-600 text-white border-indigo-600 shadow-xs scale-105';
+                } else {
+                    btn.className = 'title-pill px-2 py-0.5 rounded-lg text-xs font-bold border transition-all cursor-pointer bg-slate-100 dark:bg-[#1C2430] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#273244] hover:border-indigo-300 dark:hover:border-indigo-700 hover:text-indigo-600 dark:hover:text-indigo-400';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sel = document.getElementById('titleSelect');
+            if (sel) {
+                syncTitlePills(sel.value);
+            }
+        });
+
         function toggleFieldVisibility(inputId, btn) {
             const input = document.getElementById(inputId);
             if (!input) return;

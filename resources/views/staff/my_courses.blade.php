@@ -672,9 +672,19 @@
                                                                             <span>🎯 {{ $material->course->code ?? 'CRS' }}</span>
                                                                         </a>
 
-                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase font-mono tracking-wider {{ in_array($rawExt, ['ppt','pptx','pps']) ? 'bg-amber-100 text-amber-800 border border-amber-200' : (in_array($rawExt, ['xls','xlsx','csv']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($rawExt === 'pdf' ? 'bg-rose-100 text-rose-800 border border-rose-200' : (in_array($rawExt, ['doc','docx']) ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-200'))) }}">
-                                                                            {{ $rawExt ? '.' . $rawExt : ($material->platform ?: $material->type) }}
-                                                                        </span>
+                                                                        @php
+                                                                            $detectedExt = $rawExt ?: $material->detected_file_type;
+                                                                        @endphp
+                                                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                                                            @if($detectedExt)
+                                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase font-mono tracking-wider {{ in_array($detectedExt, ['ppt','pptx','pps']) ? 'bg-amber-100 text-amber-800 border border-amber-200' : (in_array($detectedExt, ['xls','xlsx','csv']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($detectedExt === 'pdf' ? 'bg-rose-100 text-rose-800 border border-rose-200' : (in_array($detectedExt, ['doc','docx']) ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-200'))) }}">
+                                                                                    .{{ $detectedExt }}
+                                                                                </span>
+                                                                            @endif
+                                                                            <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold {{ $material->platform === 'sharepoint' ? 'text-teal-700 bg-teal-50 border border-teal-200' : ($material->platform === 'onedrive' ? 'text-[#0078D4] bg-sky-50 border border-sky-200' : 'text-slate-600 bg-slate-50 border border-slate-200') }} capitalize">
+                                                                                {{ $material->platform === 'sharepoint' ? 'SharePoint' : ($material->platform === 'onedrive' ? 'OneDrive' : ($material->platform ?: $material->type)) }}
+                                                                            </span>
+                                                                        </div>
                                                                     </div>
 
                                                                     <!-- Title -->
@@ -703,9 +713,19 @@
 
                                                             <div class="bg-gray-50/80 px-4 py-2.5 border-t border-gray-100 flex items-center justify-between gap-2">
                                                                 @if($material->type === 'link')
-                                                                    <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1.5">
-                                                                        Open Link <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                                                    </a>
+                                                                    @if($material->platform === 'sharepoint')
+                                                                        <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-teal-600 hover:text-teal-800 hover:bg-teal-50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                                            Open in SharePoint <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                                        </a>
+                                                                    @elseif($material->platform === 'onedrive')
+                                                                        <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-[#0078D4] hover:text-sky-800 hover:bg-sky-50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                                            Open in OneDrive <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                                        </a>
+                                                                    @else
+                                                                        <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                                            Open Link <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                                        </a>
+                                                                    @endif
                                                                 @else
                                                                     <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 py-1.5 rounded-lg transition-colors gap-1">
                                                                         View <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>

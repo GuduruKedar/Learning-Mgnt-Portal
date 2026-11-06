@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:sta,admin,sa')->group(function () {
         Route::get('/staff/courses/{course}', [\App\Http\Controllers\CourseMaterialController::class, 'index'])->name('staff.courses.materials');
         Route::post('/staff/courses/{course}/materials', [\App\Http\Controllers\CourseMaterialController::class, 'store'])->name('staff.courses.materials.store');
+        Route::post('/staff/materials/analyze-url', [\App\Http\Controllers\CourseMaterialController::class, 'analyzeUrlApi'])->name('staff.materials.analyze_url');
         Route::put('/staff/materials/{material}', [\App\Http\Controllers\CourseMaterialController::class, 'update'])->name('staff.courses.materials.update');
         Route::delete('/staff/materials/{material}', [\App\Http\Controllers\CourseMaterialController::class, 'destroy'])->name('staff.courses.materials.destroy');
     });

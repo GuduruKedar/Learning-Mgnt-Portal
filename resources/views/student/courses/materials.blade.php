@@ -370,46 +370,61 @@
                                                             <div class="flex items-center gap-2.5 min-w-0">
                                                                 <a href="{{ $matOpenUrl }}" target="_blank" class="shrink-0 group/icon block" title="Open {{ $material->title }}">
                                                                     @if($material->platform === 'youtube')
-                                                                        <div class="h-10 w-10 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                        <div class="h-10 w-10 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 flex items-center justify-center text-red-600 dark:text-red-400 shadow-2xs group-hover/icon:scale-105 transition-transform" title="YouTube Video">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                                         </div>
-                                                                    @elseif($material->platform === 'drive' || $material->platform === 'onedrive')
-                                                                        <div class="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                    @elseif($material->platform === 'sharepoint')
+                                                                        <div class="h-10 w-10 rounded-xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/60 flex items-center justify-center text-[#038387] dark:text-teal-400 shadow-2xs group-hover/icon:scale-105 transition-transform" title="Microsoft SharePoint">
+                                                                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                                                                <path d="M12.5 3A4.5 4.5 0 0 0 8 7.5c0 .32.03.63.1.93A5.5 5.5 0 0 0 4 13.5 5.5 5.5 0 0 0 9.5 19H12v-2H9.5A3.5 3.5 0 0 1 6 13.5 3.5 3.5 0 0 1 9.5 10c.34 0 .67.05.98.15.5-1.85 2.18-3.15 4.02-3.15 2.1 0 3.86 1.5 4.2 3.5H19a3 3 0 0 1 3 3 3 3 0 0 1-3 3h-3v2h3a5 5 0 0 0 5-5c0-2.45-1.76-4.5-4.14-4.92A4.5 4.5 0 0 0 12.5 3zM10 13v8l6-4z"/>
+                                                                            </svg>
+                                                                        </div>
+                                                                    @elseif($material->platform === 'onedrive')
+                                                                        <div class="h-10 w-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200/80 dark:border-sky-800/60 flex items-center justify-center text-[#0078D4] dark:text-sky-400 shadow-2xs group-hover/icon:scale-105 transition-transform" title="Microsoft OneDrive">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
                                                                         </div>
-                                                                    @elseif($material->platform === 'pdf')
-                                                                        <div class="h-10 w-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                    @elseif($material->platform === 'drive')
+                                                                        <div class="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-2xs group-hover/icon:scale-105 transition-transform" title="Google Drive">
+                                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                                                                        </div>
+                                                                    @elseif($material->platform === 'pdf' || $material->detected_file_type === 'pdf')
+                                                                        <div class="h-10 w-10 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                                                         </div>
-                                                                    @elseif($material->platform === 'word')
-                                                                        <div class="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                    @elseif($material->platform === 'word' || $material->detected_file_type === 'docx')
+                                                                        <div class="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                                                         </div>
-                                                                    @elseif($material->platform === 'excel')
-                                                                        <div class="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                    @elseif($material->platform === 'excel' || $material->detected_file_type === 'xlsx')
+                                                                        <div class="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                                                         </div>
-                                                                    @elseif($material->platform === 'ppt')
-                                                                        <div class="h-10 w-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                    @elseif($material->platform === 'ppt' || $material->detected_file_type === 'pptx')
+                                                                        <div class="h-10 w-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
                                                                         </div>
                                                                     @elseif($material->platform === 'txt')
-                                                                        <div class="h-10 w-10 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-cyan-600 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                        <div class="h-10 w-10 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-100 dark:border-cyan-900/50 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                                                         </div>
                                                                     @else
-                                                                        <div class="h-10 w-10 rounded-xl bg-slate-100 border border-slate-200/70 flex items-center justify-center text-slate-500 shadow-2xs group-hover/icon:scale-105 transition-transform">
+                                                                        <div class="h-10 w-10 rounded-xl bg-slate-100 dark:bg-[#1C2430] border border-slate-200/70 dark:border-[#273244] flex items-center justify-center text-slate-500 shadow-2xs group-hover/icon:scale-105 transition-transform">
                                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                                                         </div>
                                                                     @endif
                                                                 </a>
                                                                 
+                                                                @php
+                                                                    $detectedExt = $rawExt ?: $material->detected_file_type;
+                                                                @endphp
                                                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase font-mono tracking-wider {{ in_array($rawExt, ['ppt','pptx','pps']) ? 'bg-amber-100 text-amber-800 border border-amber-200' : (in_array($rawExt, ['xls','xlsx','csv']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : ($rawExt === 'pdf' ? 'bg-rose-100 text-rose-800 border border-rose-200' : (in_array($rawExt, ['doc','docx']) ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-200'))) }}">
-                                                                        {{ $rawExt ? '.' . $rawExt : ($material->platform ?: $material->type) }}
-                                                                    </span>
-                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-[#1C2128] border border-slate-200 dark:border-[#273244] capitalize">
-                                                                        {{ $material->platform ?: $material->type }}
+                                                                    @if($detectedExt)
+                                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase font-mono tracking-wider {{ in_array($detectedExt, ['ppt','pptx','pps']) ? 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800' : (in_array($detectedExt, ['xls','xlsx','csv']) ? 'bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800' : ($detectedExt === 'pdf' ? 'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800' : (in_array($detectedExt, ['doc','docx']) ? 'bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800' : 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'))) }}">
+                                                                            .{{ $detectedExt }}
+                                                                        </span>
+                                                                    @endif
+                                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold {{ $material->platform === 'sharepoint' ? 'text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800' : ($material->platform === 'onedrive' ? 'text-[#0078D4] dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800' : 'text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-[#1C2128] border border-slate-200 dark:border-[#273244]') }} capitalize">
+                                                                        {{ $material->platform === 'sharepoint' ? 'SharePoint' : ($material->platform === 'onedrive' ? 'OneDrive' : ($material->platform ?: $material->type)) }}
                                                                     </span>
                                                                     <span class="inline-flex items-center gap-1 text-[11px] font-medium text-gray-500 dark:text-slate-400" title="Uploaded by {{ trim(($material->staff->profile->first_name ?? '') . ' ' . ($material->staff->profile->last_name ?? '')) ?: ($material->staff->username ?? 'Faculty') }}">
                                                                         <svg class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -442,9 +457,19 @@
                                                 
                                                 <div class="bg-gray-50/80 dark:bg-[#1C2430]/70 px-4 py-2.5 border-t border-gray-100 dark:border-[#273244] flex items-center justify-between gap-2">
                                                     @if($material->type === 'link')
-                                                        <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 py-1.5 rounded-lg transition-colors gap-1.5">
-                                                            Open Link <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                                        </a>
+                                                        @if($material->platform === 'sharepoint')
+                                                            <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                                Open in SharePoint <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                            </a>
+                                                        @elseif($material->platform === 'onedrive')
+                                                            <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-[#0078D4] dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-300 hover:bg-sky-50 dark:hover:bg-sky-950/50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                                Open in OneDrive <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ $material->url_or_path }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 py-1.5 rounded-lg transition-colors gap-1.5">
+                                                                Open Link <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                            </a>
+                                                        @endif
                                                     @else
                                                         <a href="{{ route('materials.view', $material->id) }}" target="_blank" class="flex-1 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 py-1.5 rounded-lg transition-colors gap-1">
                                                             View <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -484,6 +509,7 @@
                                                     $matCatKey = $material->effective_division;
                                                     $matMeta = $subfolderCategories[$matCatKey] ?? $subfolderCategories['Additional material'];
                                                     $matSlug = Str::slug($matCatKey);
+                                                    $detectedExt = $rawExt ?: $material->detected_file_type;
                                                 @endphp
                                                 <tr class="hover:bg-indigo-50/40 dark:hover:bg-[#1C2430]/50 transition-colors material-table-row"
                                                     data-material-title="{{ strtolower($material->title) }}"
@@ -491,21 +517,31 @@
                                                     data-material-platform="{{ strtolower($material->platform) }}"
                                                     data-material-division="{{ strtolower($material->effective_division) }}"
                                                     data-material-category="{{ strtolower(($matMeta['name'] ?? '') . ' ' . ($matMeta['short_name'] ?? '') . ' ' . $matSlug . ' ' . $matCatKey) }}"
-                                                    data-material-ext="{{ $rawExt }}"
+                                                    data-material-ext="{{ $detectedExt }}"
                                                     data-material-staff="{{ strtolower($material->staff->profile->first_name ?? '') }}"
                                                     data-subfolder="{{ $matSlug }}">
                                                     <td class="px-5 py-3.5">
                                                         <div class="flex items-center gap-3">
                                                             <div class="shrink-0">
                                                                 @if($material->platform === 'youtube')
-                                                                    <div class="h-8 w-8 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 flex items-center justify-center text-red-600 dark:text-red-400">
+                                                                    <div class="h-8 w-8 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 flex items-center justify-center text-red-600 dark:text-red-400" title="YouTube Video">
                                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                                     </div>
-                                                                @elseif($material->platform === 'pdf')
+                                                                @elseif($material->platform === 'sharepoint')
+                                                                    <div class="h-8 w-8 rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/60 flex items-center justify-center text-[#038387] dark:text-teal-400" title="Microsoft SharePoint">
+                                                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                                                            <path d="M12.5 3A4.5 4.5 0 0 0 8 7.5c0 .32.03.63.1.93A5.5 5.5 0 0 0 4 13.5 5.5 5.5 0 0 0 9.5 19H12v-2H9.5A3.5 3.5 0 0 1 6 13.5 3.5 3.5 0 0 1 9.5 10c.34 0 .67.05.98.15.5-1.85 2.18-3.15 4.02-3.15 2.1 0 3.86 1.5 4.2 3.5H19a3 3 0 0 1 3 3 3 3 0 0 1-3 3h-3v2h3a5 5 0 0 0 5-5c0-2.45-1.76-4.5-4.14-4.92A4.5 4.5 0 0 0 12.5 3zM10 13v8l6-4z"/>
+                                                                        </svg>
+                                                                    </div>
+                                                                @elseif($material->platform === 'onedrive')
+                                                                    <div class="h-8 w-8 rounded-lg bg-sky-50 dark:bg-sky-950/40 border border-sky-200/80 dark:border-sky-800/60 flex items-center justify-center text-[#0078D4] dark:text-sky-400" title="Microsoft OneDrive">
+                                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                                                                    </div>
+                                                                @elseif($material->platform === 'pdf' || $detectedExt === 'pdf')
                                                                     <div class="h-8 w-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
                                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                                                     </div>
-                                                                @elseif(in_array($rawExt, ['ppt','pptx']))
+                                                                @elseif(in_array($detectedExt, ['ppt','pptx']))
                                                                     <div class="h-8 w-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400">
                                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
                                                                     </div>
@@ -520,10 +556,14 @@
                                                                     {{ $material->title }}
                                                                 </a>
                                                                 <div class="flex items-center gap-1.5 mt-0.5">
-                                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-slate-100 dark:bg-[#1C2430] text-slate-700 dark:text-slate-300 border border-transparent dark:border-[#273244]">
-                                                                        {{ $rawExt ? '.' . $rawExt : ($material->platform ?: $material->type) }}
+                                                                    @if($detectedExt)
+                                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase {{ in_array($detectedExt, ['ppt','pptx','pps']) ? 'bg-amber-100 text-amber-800' : (in_array($detectedExt, ['xls','xlsx','csv']) ? 'bg-emerald-100 text-emerald-800' : ($detectedExt === 'pdf' ? 'bg-rose-100 text-rose-800' : (in_array($detectedExt, ['doc','docx']) ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'))) }}">
+                                                                            .{{ $detectedExt }}
+                                                                        </span>
+                                                                    @endif
+                                                                    <span class="text-[10px] font-semibold {{ $material->platform === 'sharepoint' ? 'text-teal-700 dark:text-teal-300' : ($material->platform === 'onedrive' ? 'text-[#0078D4] dark:text-sky-300' : 'text-gray-400 dark:text-slate-400') }} capitalize">
+                                                                        {{ $material->platform === 'sharepoint' ? 'SharePoint' : ($material->platform === 'onedrive' ? 'OneDrive' : ($material->platform ?: $material->type)) }}
                                                                     </span>
-                                                                    <span class="text-[10px] text-gray-400 dark:text-slate-400 capitalize">{{ $material->platform ?: $material->type }}</span>
                                                                 </div>
                                                             </div>
                                                         </div>

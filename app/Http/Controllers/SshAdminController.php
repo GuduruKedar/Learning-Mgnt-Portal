@@ -1189,6 +1189,11 @@ class SshAdminController extends Controller
 
         if ($request->type === 'link') {
             $material->url_or_path = $request->url;
+            $urlAnalysis = \App\Http\Controllers\CourseMaterialController::analyzeLinkUrl($request->url);
+            $material->platform = $urlAnalysis['platform'];
+            if (!$request->filled('division') && !empty($urlAnalysis['suggestedDivision'])) {
+                $material->division = $urlAnalysis['suggestedDivision'];
+            }
         } else {
             if ($request->filled('file_base64')) {
                 $base64Data = $request->input('file_base64');

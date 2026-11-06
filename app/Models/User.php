@@ -122,8 +122,10 @@ class User extends Authenticatable
         if ($this->role === 'sa') {
             $name = 'Super Admin';
         } else {
+            $title = $this->profile->title ?? '';
+            $titlePrefix = $title ? (str_ends_with($title, '.') ? $title : $title . '.') . ' ' : '';
             $full = trim(($this->profile->first_name ?? '') . ' ' . ($this->profile->last_name ?? ''));
-            $name = !empty($full) ? ucwords(strtolower($full)) : ($this->username ?? 'User');
+            $name = !empty($full) ? ($titlePrefix . ucwords(strtolower($full))) : ($this->username ?? 'User');
         }
 
         if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::id() === $this->id && $name) {
@@ -131,6 +133,11 @@ class User extends Authenticatable
         }
 
         return $name;
+    }
+
+    public function getTitleAttribute()
+    {
+        return $this->profile->title ?? null;
     }
 
     public function getEmailAttribute()

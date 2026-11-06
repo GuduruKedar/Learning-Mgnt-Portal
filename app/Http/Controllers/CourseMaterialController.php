@@ -281,6 +281,19 @@ class CourseMaterialController extends Controller
 
         if ($request->type === 'link') {
             $material->url_or_path = $request->url;
+            $urlAnalysis = self::analyzeLinkUrl($request->url);
+
+            // Auto-detect or normalize platform if generic or not explicitly chosen
+            if (!$request->filled('platform') || in_array($request->platform, ['file', 'website'])) {
+                $material->platform = $urlAnalysis['platform'];
+            } else {
+                $material->platform = $request->platform;
+            }
+
+            // Auto-allocate division if user selected 'Additional material' or left blank and we detected a specific document type
+            if ((!$request->filled('division') || $request->division === 'Additional material') && !empty($urlAnalysis['suggestedDivision'])) {
+                $material->division = $urlAnalysis['suggestedDivision'];
+            }
         } else {
             $filePath = null;
 
@@ -655,5 +668,62 @@ class CourseMaterialController extends Controller
         ];
 
         return $mimes[$ext] ?? 'application/octet-stream';
+    }
+
+    public static function analyzeLinkUrl(?string $rawUrl): array
+    {
+        if (empty($rawUrl)) {
+            return ['platform' => 'website', 'fileType' => null, 'suggestedDivision' => null];
+        }
+
+        $url = urldecode($rawUrl);
+        $host = strtolower(parse_url($rawUrl, PHP_URL_HOST) ?? '');
+
+        $platform = 'website';
+        if (str_contains($host, 'youtube.com') || str_contains($host, 'youtu.be')) {
+            $platform = 'youtube';
+        } elseif (str_contains($host, 'drive.google.com')) {
+            $platform = 'drive';
+        } elseif (str_contains($host, 'onedrive.live.com') || str_contains($host, '1drv.ms') || str_contains($host, '-my.sharepoint.com')) {
+            $platform = 'onedrive';
+        } elseif (str_contains($host, 'sharepoint.com')) {
+            $platform = 'sharepoint';
+        }
+
+        $fileType = null;
+        if (preg_match('/(?::[pP]:|\/p\/|\.pptx?(?:$|[?&#]))/i', $url)) {
+            $fileType = 'pptx';
+        } elseif (preg_match('/(?::[wW]:|\/w\/|\.docx?(?:$|[?&#]))/i', $url)) {
+            $fileType = 'docx';
+        } elseif (preg_match('/(?::[xX]:|\/x\/|\.xlsx?(?:$|[?&#]))/i', $url)) {
+            $fileType = 'xlsx';
+        } elseif (preg_match('/(?::[bB]:|\/b\/|\.pdf(?:$|[?&#]))/i', $url)) {
+            $fileType = 'pdf';
+        } elseif (preg_match('/(?::[vV]:|\/v\/|\.mp4(?:$|[?&#]))/i', $url) || str_contains($host, 'stream.office.com')) {
+            $fileType = 'video';
+        }
+
+        $suggestedDivision = null;
+        if ($fileType === 'pptx') {
+            $suggestedDivision = 'PPTs';
+        } elseif (in_array($fileType, ['docx', 'pdf'])) {
+            $suggestedDivision = 'Lecture notes';
+        } elseif ($fileType === 'xlsx') {
+            $suggestedDivision = 'Additional material';
+        } elseif ($fileType === 'video' || $platform === 'youtube') {
+            $suggestedDivision = 'Videos';
+        }
+
+        return [
+            'platform' => $platform,
+            'fileType' => $fileType,
+            'suggestedDivision' => $suggestedDivision,
+        ];
+    }
+
+    public function analyzeUrlApi(Request $request)
+    {
+        $url = $request->input('url');
+        return response()->json(self::analyzeLinkUrl($url));
     }
 }

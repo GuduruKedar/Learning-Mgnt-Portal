@@ -290,9 +290,10 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'first_name' => ['required', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-            'middle_name' => ['nullable', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
-            'last_name' => ['required', 'string', 'min:3', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'different:first_name'],
+            'title' => ['nullable', 'string', 'max:20', 'in:Dr,Dr.,Mr,Mr.,Ms,Ms.,Mrs,Mrs.,Prof,Prof.,Doctor,Professor'],
+            'first_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s.]+$/'],
+            'middle_name' => ['nullable', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s.]+$/'],
+            'last_name' => ['required', 'string', 'min:2', 'max:255', 'regex:/^[a-zA-Z\s.]+$/', 'different:first_name'],
             'email' => [
                 'nullable',
                 'string',
@@ -300,11 +301,19 @@ class DashboardController extends Controller
                 'max:255',
                 'not_regex:/@example\.(com|org|net)$/i',
                 'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|vignan\.ac\.in)$/',
-                'unique:profiles,email,'.$user->profile_id
             ],
             'phone_number' => 'nullable|numeric|digits:10',
             'photo' => 'nullable|file|mimes:webp|max:2048',
         ], [
+            'title.in' => 'Please pick a valid title such as Dr., Mr., Ms., Mrs., or Prof.',
+            'first_name.required' => 'First name is required.',
+            'first_name.regex' => 'First name must contain only letters, spaces, or dots.',
+            'first_name.min' => 'First name must be at least 2 characters.',
+            'middle_name.regex' => 'Middle name must contain only letters, spaces, or dots.',
+            'last_name.required' => 'Last name is required.',
+            'last_name.regex' => 'Last name must contain only letters, spaces, or dots.',
+            'last_name.min' => 'Last name must be at least 2 characters.',
+            'last_name.different' => 'Last name must be different from first name.',
             'email.not_regex' => 'Dummy or placeholder email domains (@example.com) are not allowed. Please provide a valid email.',
             'email.regex' => 'The email must belong to an official domain (@vignan.ac.in or @gmail.com).',
             'photo.mimes' => 'Invalid file format. Only .webp format is allowed for profile photo.',
@@ -313,7 +322,15 @@ class DashboardController extends Controller
             'photo.file' => 'The selected file is invalid. Please select a valid .webp image file.',
         ]);
 
+        $rawTitle = $validated['title'] ?? null;
+        $title = null;
+        if (!empty($rawTitle)) {
+            $cleanTitle = ucfirst(rtrim(trim($rawTitle), '.'));
+            $title = $cleanTitle . '.';
+        }
+
         $profileData = [
+            'title' => $title,
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'] ?? null,
             'last_name' => $validated['last_name'],
@@ -331,6 +348,8 @@ class DashboardController extends Controller
         }
 
         $user->profile->update($profileData);
+
+        session()->forget(['auth_user_name', 'auth_user_first_name']);
 
         return redirect()->route('dashboard')->with('success', 'Profile updated successfully.');
     }

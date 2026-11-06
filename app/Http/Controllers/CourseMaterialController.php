@@ -222,7 +222,12 @@ class CourseMaterialController extends Controller
             'title' => 'required|string|max:255',
             'type' => 'required|in:link,file',
             'platform' => 'nullable|string',
-            'url' => 'nullable|required_if:type,link|url',
+            'url' => [
+                'nullable',
+                'required_if:type,link',
+                'url',
+                'regex:/^https:\/\/vignanuniversityorg-my\.sharepoint\.com(\/.*)?$/i',
+            ],
         ];
 
         // 1. If base64 file data is provided from FileReader
@@ -236,8 +241,9 @@ class CourseMaterialController extends Controller
 
         $messages = [
             'title.required' => 'Please provide a title for the course material.',
-            'url.required_if' => 'Please provide a valid URL for the resource.',
+            'url.required_if' => 'Please provide a valid OneDrive URL for the resource.',
             'url.url' => 'The resource link must be a valid web URL (e.g., https://...).',
+            'url.regex' => 'The link must be an official Vignan University OneDrive link (https://vignanuniversityorg-my.sharepoint.com/...).',
             'file.required' => 'Please select a document file to upload.',
             'file.file' => 'The uploaded file is invalid or corrupted. Please try again.',
             'file.uploaded' => 'The file could not be uploaded. Please ensure the file is under 25MB and try again.',

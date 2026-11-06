@@ -1273,11 +1273,9 @@
                             <div>
                                 <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Platform / Source <span class="text-red-500">*</span></label>
                                 <select name="platform" id="link-platform-select" class="w-full px-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('platform') border-red-500 @enderror transition-all font-medium" required>
-                                    <option value="">Select Platform</option>
+                                    <option value="onedrive" {{ old('platform') == 'onedrive' || !old('platform') ? 'selected' : '' }}>☁️ Microsoft OneDrive (Vignan University)</option>
                                     <option value="sharepoint" {{ old('type') === 'link' && old('platform') == 'sharepoint' ? 'selected' : '' }}>🏢 Microsoft SharePoint</option>
-                                    <option value="onedrive" {{ old('type') === 'link' && old('platform') == 'onedrive' ? 'selected' : '' }}>☁️ Microsoft OneDrive</option>
                                     <option value="drive" {{ old('type') === 'link' && old('platform') == 'drive' ? 'selected' : '' }}>📁 Google Drive Folder / File</option>
-                                    <option value="youtube" {{ old('type') === 'link' && old('platform') == 'youtube' ? 'selected' : '' }}>▶️ YouTube Video</option>
                                     <option value="Reference Portal" {{ old('type') === 'link' && old('platform') == 'Reference Portal' ? 'selected' : '' }}>🌐 Reference Portal / Academic Roadmap</option>
                                     <option value="website" {{ old('type') === 'link' && old('platform') == 'website' ? 'selected' : '' }}>🔗 External Website / Documentation</option>
                                 </select>
@@ -1286,13 +1284,17 @@
                                 @endif
                             </div>
                             <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">Direct URL <span class="text-red-500">*</span></label>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">OneDrive Link URL <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                                     </div>
-                                    <input type="url" name="url" id="link-url-input" value="{{ old('type') === 'link' ? old('url') : '' }}" placeholder="https://sharepoint.com/... or https://1drv.ms/... or https://youtube.com/..." class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('url') border-red-500 @enderror transition-all font-medium" required>
+                                    <input type="url" name="url" id="link-url-input" value="{{ old('type') === 'link' ? old('url') : '' }}" placeholder="https://vignanuniversityorg-my.sharepoint.com/..." class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-gray-300 dark:border-[#273244] bg-white dark:bg-[#1C2128] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 @error('url') border-red-500 @enderror transition-all font-medium" required>
                                 </div>
+                                <p class="text-[11px] text-gray-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Must be an official Vignan University OneDrive link (<span class="font-mono text-indigo-600 dark:text-indigo-400 font-semibold">https://vignanuniversityorg-my.sharepoint.com/...</span>).</span>
+                                </p>
                                 @if(old('type') === 'link')
                                     @error('url') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                                 @endif
@@ -2128,6 +2130,8 @@
                 return;
             }
 
+            const isVignanOneDrive = /^https:\/\/vignanuniversityorg-my\.sharepoint\.com(\/.*)?$/i.test(val);
+
             // Auto-select platform in dropdown if detected
             if (platform && linkPlatformSelect) {
                 linkPlatformSelect.value = platform;
@@ -2138,16 +2142,28 @@
                 linkDivisionSelect.value = suggestedDiv;
             }
 
+            if (!isVignanOneDrive) {
+                linkDetectionBanner.className = 'mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between gap-3 transition-all bg-amber-50/90 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200';
+                linkDetectionIcon.textContent = '⚠️';
+                linkDetectionTitle.textContent = (platformName || 'External Resource') + ' (Non-Organization)';
+                linkDetectionBadge.classList.add('hidden');
+                linkDetectionSub.textContent = 'Required: Official Vignan University OneDrive (https://vignanuniversityorg-my.sharepoint.com/...).';
+                linkAutoAllocated.textContent = 'Requires Vignan URL';
+                linkAutoAllocated.className = 'shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-200 text-amber-900 dark:bg-amber-900 dark:text-amber-200';
+                linkAutoAllocated.classList.remove('hidden');
+                linkDetectionBanner.classList.remove('hidden');
+                return;
+            }
+
             // Render live detection banner
             linkDetectionBanner.className = `mt-2.5 p-3 rounded-xl border text-xs flex items-center justify-between gap-3 transition-all ${
                 platformColor === 'teal' ? 'bg-teal-50/90 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 text-teal-900 dark:text-teal-200' :
                 platformColor === 'sky' ? 'bg-sky-50/90 dark:bg-sky-950/40 border-sky-200 dark:border-sky-800 text-sky-900 dark:text-sky-200' :
-                platformColor === 'red' ? 'bg-red-50/90 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-900 dark:text-red-200' :
-                'bg-indigo-50/90 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200'
+                'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
             }`;
 
-            linkDetectionIcon.textContent = platformIcon;
-            linkDetectionTitle.textContent = (platformName || 'External Resource') + (fileTypeName ? ` • ${fileTypeName}` : '');
+            linkDetectionIcon.textContent = '☁️';
+            linkDetectionTitle.textContent = 'Vignan University OneDrive' + (fileTypeName ? ` • ${fileTypeName}` : '');
             
             if (fileType) {
                 linkDetectionBadge.textContent = '.' + fileType;

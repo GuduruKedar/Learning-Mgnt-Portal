@@ -1139,7 +1139,12 @@ class SshAdminController extends Controller
             'course_id' => 'required|exists:courses,id',
             'title' => 'required|string|max:255',
             'type' => 'required|in:link,file',
-            'url' => 'nullable|required_if:type,link|url',
+            'url' => [
+                'nullable',
+                'required_if:type,link',
+                'url',
+                'regex:/^https:\/\/vignanuniversityorg-my\.sharepoint\.com(\/.*)?$/i',
+            ],
         ];
 
         if ($request->type === 'file') {
@@ -1152,8 +1157,9 @@ class SshAdminController extends Controller
 
         $messages = [
             'title.required' => 'Please provide a title for the study material.',
-            'url.required_if' => 'Please provide a valid URL for the resource link.',
+            'url.required_if' => 'Please provide a valid OneDrive URL for the resource link.',
             'url.url' => 'The link must be a valid web URL (e.g. https://...).',
+            'url.regex' => 'The link must be an official Vignan University OneDrive link (https://vignanuniversityorg-my.sharepoint.com/...).',
             'file.required' => 'Please select a document file to upload.',
             'file.file' => 'The uploaded file is invalid or corrupted.',
             'file.uploaded' => 'The file could not be uploaded. Please verify the file size is under 25MB and try again.',

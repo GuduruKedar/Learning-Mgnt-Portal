@@ -277,8 +277,8 @@ class SshAdminController extends Controller
             'profile_id' => $profile->id,
         ]);
 
-        // Send welcome email with login credentials and password change instruction
-        $mailSent = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($newUser, $password, $profile);
+        // Send welcome credentials (SMS for students; SMTP email is stopped for students)
+        $dispatch = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentialsResult($newUser, $password, $profile);
 
         ActivityLog::create([
             'user_id' => Auth::id() ?? 1,
@@ -288,8 +288,8 @@ class SshAdminController extends Controller
         ]);
 
         $successMsg = "First Year student {$profile->username} successfully registered!";
-        if ($mailSent) {
-            $successMsg .= " Login credentials and password change instructions have been emailed to {$profile->email}.";
+        if (!empty($dispatch['sms_sent'])) {
+            $successMsg .= " Login credentials have been sent via SMS to {$profile->phone}.";
         }
 
         return redirect()

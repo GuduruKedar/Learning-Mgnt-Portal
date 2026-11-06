@@ -153,8 +153,8 @@ class CivilAdminController extends Controller
             'profile_id' => $profile->id,
         ]);
 
-        // Send welcome email with login credentials and password change instruction
-        $mailSent = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($user, $password, $profile);
+        // Send welcome credentials (SMS for students; SMTP email is stopped for students)
+        $dispatch = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentialsResult($user, $password, $profile);
 
         // Enroll in Civil Services
         CivilServiceEnrollment::create([
@@ -165,8 +165,8 @@ class CivilAdminController extends Controller
         ]);
 
         $successMsg = "Student {$user->username} successfully created and enrolled into Civil Services!";
-        if ($mailSent) {
-            $successMsg .= " Login credentials and password change instructions have been emailed to {$profile->email}.";
+        if (!empty($dispatch['sms_sent'])) {
+            $successMsg .= " Login credentials have been sent via SMS to {$profile->phone}.";
         }
 
         return redirect()->route('civil.students.index')

@@ -12,7 +12,17 @@ use Throwable;
 class UserPasswordResetNotificationService
 {
     /**
+     * Determine if a user or profile belongs to the student role.
+     */
+    public static function isStudent(User $user, ?Profile $profile = null): bool
+    {
+        $role = strtolower((string)($profile?->roles_id ?? $user->profile?->roles_id ?? $user->role ?? ''));
+        return in_array($role, ['stu', 'student', '4', '6']);
+    }
+
+    /**
      * Send password reset credentials via SMS and/or Email.
+     * Note: SMTP mail is stopped for student role; only SMS is dispatched for students.
      *
      * @param User $user
      * @param string $plainPassword
@@ -24,11 +34,12 @@ class UserPasswordResetNotificationService
         $profile = $profile ?? $user->profile;
         $email = $profile?->email;
         $phone = $profile?->phone;
+        $isStudent = self::isStudent($user, $profile);
 
         $smsSent = false;
         $emailSent = false;
 
-        // 1. Dispatch SMS Credentials via JioCX Gateway
+        // 1. Dispatch SMS Credentials via JioCX Gateway (Sent to all roles including students)
         if (!empty($phone)) {
             try {
                 $sms = app(SmsService::class);
@@ -44,8 +55,10 @@ class UserPasswordResetNotificationService
             }
         }
 
-        // 2. Dispatch Password Reset Email
-        if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        // 2. Dispatch Password Reset Email via SMTP (STOPPED for student role - only for staff/admin/coordinator)
+        if ($isStudent) {
+            Log::info("[UserPasswordReset] Skipped SMTP reset email for student '{$user->username}': SMTP mail is stopped for students role.");
+        } elseif (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
             try {
                 Mail::to($email)->send(new UserPasswordResetMail($user, $plainPassword, $profile));
                 Log::info("[UserPasswordReset] Reset email dispatched successfully to '{$email}' for user '{$user->username}'.");
@@ -58,10 +71,11 @@ class UserPasswordResetNotificationService
         return [
             'sms_sent' => $smsSent,
             'email_sent' => $emailSent,
+            'is_student' => $isStudent,
             'has_phone' => !empty($phone),
-            'has_email' => !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL),
+            'has_email' => !$isStudent && !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL),
             'masked_phone' => self::maskPhone($phone),
-            'masked_email' => self::maskEmail($email),
+            'masked_email' => $isStudent ? null : self::maskEmail($email),
         ];
     }
 

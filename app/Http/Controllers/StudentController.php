@@ -185,8 +185,8 @@ class StudentController extends Controller
             'profile_id' => $profile->id,
         ]);
 
-        // Send welcome email with login credentials and password change instruction
-        $mailSent = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentials($newUser, $password, $profile);
+        // Send credentials via SMS (SMTP email is stopped for students)
+        $dispatch = \App\Services\UserWelcomeNotificationService::sendWelcomeCredentialsResult($newUser, $password, $profile);
 
         \App\Services\ActivityLogger::log(
             'student_created',
@@ -204,8 +204,8 @@ class StudentController extends Controller
         );
 
         $successMsg = 'Student created successfully.';
-        if ($mailSent) {
-            $successMsg .= ' Login credentials and password change instructions have been emailed to ' . $profile->email . '.';
+        if (!empty($dispatch['sms_sent'])) {
+            $successMsg .= ' Login credentials have been sent via SMS to the student\'s registered mobile number (' . $profile->phone . ').';
         }
 
         return redirect()->route('students.index')->with('success', $successMsg);

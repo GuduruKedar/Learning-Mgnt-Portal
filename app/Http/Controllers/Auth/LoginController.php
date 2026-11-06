@@ -37,12 +37,18 @@ class LoginController extends Controller
         }
 
         if ($user && $user->requires_password_reset) {
+            $isStudent = \App\Services\UserPasswordResetNotificationService::isStudent($user, $user->profile);
             $phone = $user->profile?->phone;
             $email = $user->profile?->email;
             $hasPhone = !empty($phone);
-            $hasEmail = !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL);
+            $hasEmail = !$isStudent && !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL);
 
             if (!$hasPhone && !$hasEmail) {
+                if ($isStudent) {
+                    return back()->withErrors([
+                        'emp_id' => 'Your account has been locked. No registered mobile number is on file to receive your unlock credentials via SMS. Please contact your Department Coordinator.',
+                    ]);
+                }
                 return back()->withErrors([
                     'emp_id' => 'Your account has been locked. No registered mobile number or email address is on file. Please contact your Department Coordinator to unlock your account.',
                 ]);
@@ -212,12 +218,16 @@ class LoginController extends Controller
         }
 
         // 2. Check if at least one contact channel (phone or email) is present on profile
+        $isStudent = \App\Services\UserPasswordResetNotificationService::isStudent($user, $user->profile);
         $phone = $user->profile?->phone;
         $email = $user->profile?->email;
         $hasPhone = !empty($phone);
-        $hasEmail = !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL);
+        $hasEmail = !$isStudent && !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL);
 
         if (!$hasPhone && !$hasEmail) {
+            if ($isStudent) {
+                return back()->with('forgot_error', "No mobile phone number is linked to student account '{$user->username}'. As email delivery is disabled for students, please contact your Department Coordinator to register your mobile number.");
+            }
             return back()->with('forgot_error', "No mobile phone number is linked to account '{$user->username}', and no valid email address is on file. Please contact your Department Coordinator to register your contact details.");
         }
 

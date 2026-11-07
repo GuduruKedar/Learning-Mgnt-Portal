@@ -49,6 +49,7 @@ return [
         'sender_id' => env('JIOCX_SMS_SENDER_ID', 'VIGNAN'),
         'dlt_entity_id' => env('JIOCX_DLT_ENTITY_ID', '1101385640000011255'),
         'template_create_account' => env('JIOCX_DLT_TEMPLATE_ID_Create_Account', '1777179265526294215'),
+        'simulate' => env('JIOCX_SMS_SIMULATE', false),
     ],
 
 ];

@@ -109,7 +109,17 @@ class StaffAssignmentController extends Controller
 
     public function downloadStudentTemplate()
     {
-        return Excel::download(new PrivateAssignmentStudentTemplateExport(), 'Private_Assignment_Students_Template.xlsx');
+        $sampleStudents = User::role('stu')
+            ->whereNotNull('username')
+            ->where('username', '!=', '')
+            ->limit(3)
+            ->pluck('username')
+            ->toArray();
+
+        return Excel::download(
+            new PrivateAssignmentStudentTemplateExport($sampleStudents ?: ['241FA04001', '241FA04002', '241FA04003']),
+            'Private_Assignment_Students_Template.xlsx'
+        );
     }
 
     public function getCourseCohortStudents(Request $request, $course_id)
@@ -123,11 +133,38 @@ class StaffAssignmentController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Strictly only students enrolled in this course
-        $query = $course->enrollments()->with(['profile.program']);
+        // Enrolled student IDs and department cohort matching
+        $enrolledIds = $course->enrollments()->pluck('users.id')->toArray();
+        $targetDeptCode = $course->department_id ?: ($user->profile?->departments_id);
+
+        $query = User::role('stu')->with(['profile.program']);
+
+        if (!empty($enrolledIds)) {
+            // Include enrolled students as well as cohort students in this course's department
+            $query->where(function ($q) use ($enrolledIds, $targetDeptCode) {
+                $q->whereIn('users.id', $enrolledIds);
+                if ($targetDeptCode) {
+                    $q->orWhereHas('profile', fn($sq) => $sq->where('departments_id', $targetDeptCode));
+                }
+            });
+        } elseif ($targetDeptCode) {
+            // No direct enrollments yet: show cohort students matching course/faculty department
+            $query->whereHas('profile', fn($sq) => $sq->where('departments_id', $targetDeptCode));
+        }
 
         if ($request->filled('academic_year') && $request->academic_year !== 'all') {
-            $query->whereHas('profile', fn($q) => $q->where('academic_year', $request->academic_year));
+            $yearVal = $request->academic_year;
+            $courseYearMatches = $course->year && ((string)$course->year === (string)$yearVal);
+
+            $query->whereHas('profile', function ($q) use ($yearVal, $courseYearMatches) {
+                $q->where(function ($sq) use ($yearVal, $courseYearMatches) {
+                    $sq->where('academic_year', $yearVal);
+                    if ($courseYearMatches) {
+                        $sq->orWhereNull('academic_year')
+                           ->orWhere('academic_year', '');
+                    }
+                });
+            });
         }
 
         if ($request->filled('semester') && $request->semester !== 'all') {
@@ -146,14 +183,28 @@ class StaffAssignmentController extends Controller
                 } elseif ((int)$semVal === 2) {
                     $acceptableSems[] = (string)($y * 2);
                 }
+            } else {
+                if ((string)$semVal === '1') {
+                    $acceptableSems = array_merge($acceptableSems, ['1', '3', '5', '7']);
+                } elseif ((string)$semVal === '2') {
+                    $acceptableSems = array_merge($acceptableSems, ['2', '4', '6', '8']);
+                } elseif (in_array((int)$semVal, [1, 3, 5, 7])) {
+                    $acceptableSems[] = '1';
+                } elseif (in_array((int)$semVal, [2, 4, 6, 8])) {
+                    $acceptableSems[] = '2';
+                }
             }
             $acceptableSems = array_values(array_unique($acceptableSems));
 
-            $query->whereHas('profile', function ($q) use ($acceptableSems) {
-                $q->where(function ($sq) use ($acceptableSems) {
-                    $sq->whereIn('semester', $acceptableSems)
-                       ->orWhereNull('semester')
-                       ->orWhere('semester', '');
+            $courseSemMatches = $course->semester && in_array((string)$course->semester, $acceptableSems);
+
+            $query->whereHas('profile', function ($q) use ($acceptableSems, $courseSemMatches) {
+                $q->where(function ($sq) use ($acceptableSems, $courseSemMatches) {
+                    $sq->whereIn('semester', $acceptableSems);
+                    if ($courseSemMatches) {
+                        $sq->orWhereNull('semester')
+                           ->orWhere('semester', '');
+                    }
                 });
             });
         }
@@ -174,16 +225,22 @@ class StaffAssignmentController extends Controller
             });
         }
 
-        $students = $query->get()->map(function ($stu) {
+        $students = $query->get()->map(function ($stu) use ($course) {
             $profile = $stu->profile;
             $name = trim(($profile->first_name ?? '') . ' ' . ($profile->last_name ?? ''));
+            $ay = $profile->academic_year ?: ($course->year ?: 'N/A');
+            $sem = $profile->semester ?: ($course->semester ?: 'N/A');
+            if (is_numeric($sem) && (int)$sem > 2) {
+                $sem = ((int)$sem % 2 === 1) ? '1' : '2';
+            }
+
             return [
                 'id' => $stu->id,
                 'username' => $stu->username,
                 'name' => $name ?: $stu->username,
                 'email' => $profile->email ?? '',
-                'academic_year' => $profile->academic_year ?? 'N/A',
-                'semester' => $profile->semester ?? 'N/A',
+                'academic_year' => $ay,
+                'semester' => $sem,
                 'program' => $profile->program->name ?? ($profile->programs_id ?? 'N/A'),
                 'section' => $profile->section ?? 'N/A',
             ];
@@ -222,6 +279,14 @@ class StaffAssignmentController extends Controller
         $file = $request->file('file') ?: $request->file('student_excel');
         $base64 = $request->input('file_base64');
 
+        if (!$file && !$base64) {
+            return response()->json(['error' => 'No spreadsheet file was received. Please select a valid .xlsx, .xls or .csv file.'], 422);
+        }
+
+        if ($file && !$file->isValid()) {
+            return response()->json(['error' => 'File upload error: ' . $file->getErrorMessage()], 422);
+        }
+
         $tempPath = null;
         if ($base64) {
             if (preg_match('/^data:.*?;base64,/', $base64, $match)) {
@@ -230,19 +295,19 @@ class StaffAssignmentController extends Controller
             $content = base64_decode($base64);
             $ext = strtolower(pathinfo($request->input('file_name', 'students.xlsx'), PATHINFO_EXTENSION)) ?: 'xlsx';
             $tempDir = storage_path('app/temp');
-            if (!file_exists($tempDir)) mkdir($tempDir, 0777, true);
+            if (!file_exists($tempDir)) @mkdir($tempDir, 0777, true);
             $tempPath = $tempDir . '/' . uniqid('students_', true) . '.' . $ext;
             file_put_contents($tempPath, $content);
-        } elseif ($file && $file->isValid()) {
+        } elseif ($file) {
             $ext = strtolower($file->getClientOriginalExtension());
             $tempDir = storage_path('app/temp');
-            if (!file_exists($tempDir)) mkdir($tempDir, 0777, true);
-            $tempPath = $tempDir . '/' . uniqid('students_', true) . '.' . $ext;
+            if (!file_exists($tempDir)) @mkdir($tempDir, 0777, true);
+            $tempPath = $tempDir . '/' . uniqid('students_', true) . '.' . ($ext ?: 'xlsx');
             $file->move($tempDir, basename($tempPath));
         }
 
         if (!$tempPath || !file_exists($tempPath)) {
-            return response()->json(['error' => 'No valid file uploaded.'], 422);
+            return response()->json(['error' => 'Unable to read uploaded file on the server. Please check file permissions and try again.'], 422);
         }
 
         try {
@@ -251,7 +316,7 @@ class StaffAssignmentController extends Controller
 
             if (empty($extractedRegs)) {
                 return response()->json([
-                    'error' => 'No student register numbers found in the uploaded file. Please make sure there is a column with register/roll numbers.',
+                    'error' => 'No student register numbers found in the uploaded file. Please make sure there is a column with register/roll numbers (e.g. header "register_number").',
                     'students' => [],
                     'count' => 0,
                 ], 422);
@@ -264,11 +329,6 @@ class StaffAssignmentController extends Controller
 
             $courseId = $request->input('course_id');
             $course = $courseId ? Course::find($courseId) : null;
-            $enrolledUserIds = $course ? $course->enrollments()->pluck('users.id')->toArray() : null;
-
-            if ($enrolledUserIds !== null) {
-                $matchedUsers = $matchedUsers->filter(fn($u) => in_array($u->id, $enrolledUserIds))->values();
-            }
 
             $matchedRegs = $matchedUsers->pluck('username')->map(fn($u) => strtolower(trim($u)))->toArray();
             $unmatched = array_values(array_filter($extractedRegs, fn($r) => !in_array(strtolower(trim($r)), $matchedRegs)));
@@ -288,17 +348,77 @@ class StaffAssignmentController extends Controller
                 ];
             });
 
+            $unmatchedCount = count($unmatched);
+            $matchedCount = $students->count();
+
+            $msg = "Successfully matched {$matchedCount} student(s) from Excel file.";
+            if ($unmatchedCount > 0) {
+                $preview = implode(', ', array_slice($unmatched, 0, 5));
+                if ($unmatchedCount > 5) {
+                    $preview .= " ... (+" . ($unmatchedCount - 5) . " more)";
+                }
+                $msg .= " ({$unmatchedCount} register number(s) not found in database: {$preview})";
+            }
+
             return response()->json([
                 'success' => true,
-                'count' => $students->count(),
+                'count' => $matchedCount,
                 'students' => $students,
                 'unmatched' => $unmatched,
-                'message' => "Successfully matched {$students->count()} enrolled student(s) from Excel file." . (!empty($unmatched) ? " (" . count($unmatched) . " not enrolled in this course)" : ""),
+                'message' => $msg,
             ]);
         } catch (\Throwable $e) {
             if ($tempPath && file_exists($tempPath)) @unlink($tempPath);
             return response()->json(['error' => 'Failed to parse spreadsheet: ' . $e->getMessage()], 422);
         }
+    }
+
+    public function matchStudents(Request $request)
+    {
+        $raw = $request->input('register_numbers', '');
+        $regs = preg_split('/[\s,;]+/', trim($raw));
+        $regs = array_values(array_filter(array_map('trim', $regs)));
+
+        if (empty($regs)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No register numbers provided.',
+                'students' => [],
+                'unmatched' => [],
+                'count' => 0
+            ], 422);
+        }
+
+        $matchedUsers = User::role('stu')
+            ->with(['profile.program'])
+            ->whereIn('username', $regs)
+            ->get();
+
+        $matchedUsernames = $matchedUsers->pluck('username')->map(fn($u) => strtolower(trim($u)))->toArray();
+        $unmatched = array_values(array_filter($regs, fn($r) => !in_array(strtolower(trim($r)), $matchedUsernames)));
+
+        $students = $matchedUsers->map(function ($stu) {
+            $p = $stu->profile;
+            $name = trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? ''));
+            return [
+                'id' => $stu->id,
+                'username' => $stu->username,
+                'name' => $name ?: $stu->username,
+                'email' => $p->email ?? '',
+                'academic_year' => $p->academic_year ?? 'N/A',
+                'semester' => $p->semester ?? 'N/A',
+                'program' => $p->program->name ?? ($p->programs_id ?? 'N/A'),
+                'section' => $p->section ?? 'N/A',
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'count' => $students->count(),
+            'students' => $students,
+            'unmatched' => $unmatched,
+            'message' => "Successfully matched {$students->count()} student(s)." . (!empty($unmatched) ? " (" . count($unmatched) . " not found in student database: " . implode(', ', $unmatched) . ")" : ""),
+        ]);
     }
 
     protected function resolvePrivateStudentIds(Request $request): array
@@ -345,75 +465,154 @@ class StaffAssignmentController extends Controller
 
         $allIds = array_values(array_unique(array_filter(array_map('intval', $studentIds))));
 
-        $courseId = $request->input('course_id');
-        if ($courseId) {
-            $course = Course::find($courseId);
-            if ($course) {
-                $enrolledIds = $course->enrollments()->pluck('users.id')->toArray();
-                $allIds = array_values(array_intersect($allIds, $enrolledIds));
-            }
-        }
-
         return $allIds;
     }
 
     protected function extractRegisterNumbersFromSpreadsheet(string $filePath): array
     {
-        try {
-            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($filePath);
-            $reader->setReadDataOnly(true);
-            $spreadsheet = $reader->load($filePath);
-            $sheet = $spreadsheet->getActiveSheet();
-            $rows = $sheet->toArray(null, true, true, false);
+        $extracted = [];
+        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
 
-            if (empty($rows)) {
-                return [];
+        $headerAliases = [
+            'registernumber', 'register_number', 'registerno', 'register_no',
+            'registrationnumber', 'registration_number', 'registrationno', 'registration_no',
+            'rollnumber', 'roll_number', 'rollno', 'roll_no',
+            'regno', 'reg_no', 'htno', 'ht_no', 'hallticketno', 'hallticket_number',
+            'username', 'student_id', 'studentid', 'student_username', 'studentusername',
+            'studentregno', 'student_reg_no', 'studentregnumber', 'student_register_number',
+            'user_id', 'userid'
+        ];
+
+        $cleanCell = function ($val) {
+            $val = trim((string)$val);
+            $val = trim($val, "'\" \t\n\r\0\x0B");
+            if (preg_match('/^[0-9]+(\.[0-9]+)?[eE]\+[0-9]+$/', $val)) {
+                $val = sprintf('%.0f', (float)$val);
+            } elseif (preg_match('/^([0-9]+)\.0+$/', $val, $m)) {
+                $val = $m[1];
             }
+            return $val;
+        };
 
-            $targetColIndex = 0;
-            $headerRowIndex = null;
-            $headerAliases = ['register_number', 'reg_no', 'roll_no', 'rollno', 'regno', 'username', 'student_id', 'student_username', 'register_no'];
+        $rows = [];
 
-            for ($r = 0; $r < min(3, count($rows)); $r++) {
-                if (!is_array($rows[$r])) continue;
-                foreach ($rows[$r] as $colIdx => $val) {
-                    $norm = strtolower(trim(preg_replace('/[^a-zA-Z0-9_]/', '', (string)$val)));
-                    if (in_array($norm, $headerAliases)) {
-                        $targetColIndex = $colIdx;
-                        $headerRowIndex = $r;
-                        break 2;
+        // 1. Fast, high-compatibility CSV parsing if CSV or text
+        if (in_array($ext, ['csv', 'txt'])) {
+            $handle = @fopen($filePath, 'r');
+            if ($handle) {
+                $firstLine = fgets($handle);
+                if ($firstLine !== false) {
+                    $firstLine = preg_replace('/^\xEF\xBB\xBF/', '', $firstLine);
+                    $delimiters = [',', ';', "\t", '|'];
+                    $bestDelim = ',';
+                    $maxCount = 0;
+                    foreach ($delimiters as $d) {
+                        $c = substr_count($firstLine, $d);
+                        if ($c > $maxCount) {
+                            $maxCount = $c;
+                            $bestDelim = $d;
+                        }
                     }
-                }
-            }
-
-            $extracted = [];
-            $startRow = $headerRowIndex !== null ? $headerRowIndex + 1 : 0;
-
-            for ($i = $startRow; $i < count($rows); $i++) {
-                if (!is_array($rows[$i])) continue;
-                $val = trim((string)($rows[$i][$targetColIndex] ?? ''));
-                if ($val === '') {
-                    foreach ($rows[$i] as $cVal) {
-                        $trimmed = trim((string)$cVal);
-                        if ($trimmed !== '') {
-                            $val = $trimmed;
-                            break;
+                    rewind($handle);
+                    while (($data = fgetcsv($handle, 0, $bestDelim)) !== false) {
+                        if (!empty($data) && array_filter($data, fn($v) => trim((string)$v) !== '')) {
+                            if (empty($rows)) {
+                                $data[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string)$data[0]);
+                            }
+                            $rows[] = $data;
                         }
                     }
                 }
-                if (preg_match('/^[0-9]+(\.[0-9]+)?[eE]\+[0-9]+$/', $val)) {
-                    $val = sprintf('%.0f', (float)$val);
+                fclose($handle);
+            }
+        }
+
+        // 2. PhpSpreadsheet parser (for xlsx, xls, or if CSV parser returned empty)
+        if (empty($rows)) {
+            try {
+                $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($filePath);
+                $reader->setReadDataOnly(true);
+                $spreadsheet = $reader->load($filePath);
+                $sheet = $spreadsheet->getActiveSheet();
+                $rows = $sheet->toArray(null, true, true, false);
+                $spreadsheet->disconnectWorksheets();
+                unset($spreadsheet);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Error parsing spreadsheet for students with PhpSpreadsheet: ' . $e->getMessage());
+            }
+        }
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        $targetColIndex = null;
+        $headerRowIndex = null;
+
+        // Search for header in first 5 rows
+        $scanLimit = min(5, count($rows));
+        for ($r = 0; $r < $scanLimit; $r++) {
+            if (!is_array($rows[$r])) continue;
+            foreach ($rows[$r] as $colIdx => $val) {
+                $norm = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', (string)$val)));
+                if (in_array($norm, $headerAliases, true)) {
+                    $targetColIndex = $colIdx;
+                    $headerRowIndex = $r;
+                    break 2;
                 }
-                if ($val !== '' && !in_array(strtolower($val), $headerAliases)) {
-                    $extracted[] = $val;
+            }
+        }
+
+        // If no header found, heuristic: choose column with most alphanumeric identifiers
+        if ($targetColIndex === null) {
+            $colScores = [];
+            foreach ($rows as $rIdx => $row) {
+                if (!is_array($row)) continue;
+                foreach ($row as $cIdx => $cVal) {
+                    $cleaned = $cleanCell($cVal);
+                    if ($cleaned !== '' && preg_match('/^[a-zA-Z0-9_\-\/]{3,30}$/', $cleaned)) {
+                        $colScores[$cIdx] = ($colScores[$cIdx] ?? 0) + 1;
+                    }
+                }
+            }
+            if (!empty($colScores)) {
+                arsort($colScores);
+                $targetColIndex = key($colScores);
+            } else {
+                $targetColIndex = 0;
+            }
+
+            // Check if row 0 looks like a header label
+            $firstVal = strtolower(trim((string)($rows[0][$targetColIndex] ?? '')));
+            if (preg_match('/(reg|roll|student|id|name|number|code)/i', $firstVal)) {
+                $headerRowIndex = 0;
+            } else {
+                $headerRowIndex = null;
+            }
+        }
+
+        $startRow = $headerRowIndex !== null ? $headerRowIndex + 1 : 0;
+
+        for ($i = $startRow; $i < count($rows); $i++) {
+            if (!is_array($rows[$i])) continue;
+            $val = $cleanCell($rows[$i][$targetColIndex] ?? '');
+            if ($val === '') {
+                foreach ($rows[$i] as $cVal) {
+                    $cleaned = $cleanCell($cVal);
+                    if ($cleaned !== '') {
+                        $val = $cleaned;
+                        break;
+                    }
                 }
             }
 
-            return array_values(array_unique($extracted));
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Error parsing spreadsheet for students: ' . $e->getMessage());
-            return [];
+            $norm = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '', $val)));
+            if ($val !== '' && !in_array($norm, $headerAliases, true)) {
+                $extracted[] = $val;
+            }
         }
+
+        return array_values(array_unique($extracted));
     }
 
     public function store(Request $request)
@@ -471,6 +670,12 @@ class StaffAssignmentController extends Controller
 
         if ($type === 'private' && !empty($privateStudentIds)) {
             $assignment->assignedStudents()->sync($privateStudentIds);
+            if ($request->course_id) {
+                $course = Course::find($request->course_id);
+                if ($course) {
+                    $course->enrollments()->syncWithoutDetaching($privateStudentIds);
+                }
+            }
         }
 
         if ($request->has('questions') && is_array($request->questions)) {
@@ -578,6 +783,12 @@ class StaffAssignmentController extends Controller
             if ($type === 'private' && !empty($privateStudentIds)) {
                 $targetAssignment->update(['type' => 'private']);
                 $targetAssignment->assignedStudents()->sync($privateStudentIds);
+                if ($formCourseId) {
+                    $course = Course::find($formCourseId);
+                    if ($course) {
+                        $course->enrollments()->syncWithoutDetaching($privateStudentIds);
+                    }
+                }
             }
 
             $targetAssignmentId = $targetAssignment->id;
@@ -1081,6 +1292,12 @@ class StaffAssignmentController extends Controller
         if ($type === 'private') {
             if (!empty($privateStudentIds)) {
                 $assignment->assignedStudents()->sync($privateStudentIds);
+                if ($request->course_id) {
+                    $course = Course::find($request->course_id);
+                    if ($course) {
+                        $course->enrollments()->syncWithoutDetaching($privateStudentIds);
+                    }
+                }
             }
         } else {
             $assignment->assignedStudents()->detach();

@@ -16,9 +16,10 @@ class StudentAssignmentController extends Controller
     {
         $user = Auth::user();
 
-        // Get enrolled course IDs
-        $enrolledCourseIds = Course::whereHas('enrollments', function ($q) use ($user) {
-            $q->where('users.id', $user->id);
+        // Get enrolled course IDs (enrolled or having private assignments assigned to student)
+        $enrolledCourseIds = Course::where(function ($cq) use ($user) {
+            $cq->whereHas('enrollments', fn($q) => $q->where('users.id', $user->id))
+              ->orWhereHas('assignments', fn($aq) => $aq->where('type', 'private')->whereHas('assignedStudents', fn($asq) => $asq->where('users.id', $user->id)));
         })->pluck('id');
 
         $query = Assignment::whereIn('course_id', $enrolledCourseIds)
@@ -106,10 +107,11 @@ class StudentAssignmentController extends Controller
     {
         $user = Auth::user();
 
-        // Check student enrollment
+        // Check student enrollment or assignment access
         $isEnrolled = Course::where('id', $assignment->course_id)
-            ->whereHas('enrollments', function ($q) use ($user) {
-                $q->where('users.id', $user->id);
+            ->where(function ($q) use ($user, $assignment) {
+                $q->whereHas('enrollments', fn($eq) => $eq->where('users.id', $user->id))
+                  ->orWhere(fn() => $assignment->assignedStudents()->where('users.id', $user->id)->exists());
             })->exists();
 
         if (!$isEnrolled) {
@@ -170,10 +172,11 @@ class StudentAssignmentController extends Controller
     {
         $user = Auth::user();
 
-        // Verify enrollment
+        // Verify enrollment or assignment access
         $isEnrolled = Course::where('id', $assignment->course_id)
-            ->whereHas('enrollments', function ($q) use ($user) {
-                $q->where('users.id', $user->id);
+            ->where(function ($q) use ($user, $assignment) {
+                $q->whereHas('enrollments', fn($eq) => $eq->where('users.id', $user->id))
+                  ->orWhere(fn() => $assignment->assignedStudents()->where('users.id', $user->id)->exists());
             })->exists();
 
         if (!$isEnrolled) {
@@ -310,8 +313,9 @@ class StudentAssignmentController extends Controller
         $user = Auth::user();
 
         $isEnrolled = Course::where('id', $assignment->course_id)
-            ->whereHas('enrollments', function ($q) use ($user) {
-                $q->where('users.id', $user->id);
+            ->where(function ($q) use ($user, $assignment) {
+                $q->whereHas('enrollments', fn($eq) => $eq->where('users.id', $user->id))
+                  ->orWhere(fn() => $assignment->assignedStudents()->where('users.id', $user->id)->exists());
             })->exists();
 
         if (!$isEnrolled) {

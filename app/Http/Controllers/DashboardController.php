@@ -430,14 +430,18 @@ class DashboardController extends Controller
         $dispatch = \App\Services\UserPasswordResetNotificationService::sendResetCredentials($user, $newPassword, $user->profile);
         
         $channels = [];
-        if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+        if ($dispatch['sms_sent'] && $dispatch['masked_phone']) {
             $channels[] = "SMS to {$dispatch['masked_phone']}";
         }
-        if ($dispatch['has_email'] && $dispatch['masked_email']) {
+        if ($dispatch['email_sent'] && $dispatch['masked_email']) {
             $channels[] = "email to {$dispatch['masked_email']}";
         }
-        $channelText = !empty($channels) ? (' via ' . implode(' and ', $channels)) : '';
-        $msg = "Password reset successfully for {$user->username}. Credentials dispatched{$channelText}.";
+        if (!empty($channels)) {
+            $channelText = ' via ' . implode(' and ', $channels);
+            $msg = "Password reset successfully for {$user->username}. Credentials dispatched{$channelText}.";
+        } else {
+            $msg = "Password reset successfully for {$user->username}. Temporary password: {$newPassword} (Note: External SMS/Email delivery failed).";
+        }
 
         return back()->with('success', $msg);
     }
@@ -520,14 +524,20 @@ class DashboardController extends Controller
         );
 
         $channels = [];
-        if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+        if ($dispatch['sms_sent'] && $dispatch['masked_phone']) {
             $channels[] = "mobile number ({$dispatch['masked_phone']}) via SMS";
         }
-        if ($dispatch['has_email'] && $dispatch['masked_email']) {
+        if ($dispatch['email_sent'] && $dispatch['masked_email']) {
             $channels[] = "email ({$dispatch['masked_email']})";
         }
-        $channelText = implode(' and ', $channels);
 
-        return back()->with('success', "Password reset successfully for {$user->username}. New password has been sent to their {$channelText}.");
+        if (!empty($channels)) {
+            $channelText = implode(' and ', $channels);
+            $msg = "Password reset successfully for {$user->username}. New password has been sent to their {$channelText}.";
+        } else {
+            $msg = "Password reset successfully for {$user->username}. New password: {$newPassword} (Note: External SMS/Email delivery failed).";
+        }
+
+        return back()->with('success', $msg);
     }
 }

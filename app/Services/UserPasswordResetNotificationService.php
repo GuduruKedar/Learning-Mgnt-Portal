@@ -69,6 +69,7 @@ class UserPasswordResetNotificationService
         }
 
         return [
+            'success' => ($smsSent || $emailSent),
             'sms_sent' => $smsSent,
             'email_sent' => $emailSent,
             'is_student' => $isStudent,
@@ -76,6 +77,7 @@ class UserPasswordResetNotificationService
             'has_email' => !$isStudent && !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL),
             'masked_phone' => self::maskPhone($phone),
             'masked_email' => $isStudent ? null : self::maskEmail($email),
+            'plain_password' => $plainPassword,
         ];
     }
 

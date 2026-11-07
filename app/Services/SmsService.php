@@ -40,6 +40,19 @@ class SmsService
             return ['success' => false, 'status' => 0, 'data' => ['error' => 'Recipient phone number is empty']];
         }
 
+        // Support simulated SMS in local testing/development environments
+        if (!empty($cfg['simulate'])) {
+            Log::info("[SmsService] [SIMULATED] SMS dispatched to '{$cleanTo}'.", [
+                'template_id' => $templateId,
+                'message'     => $body,
+            ]);
+            return [
+                'success' => true,
+                'status'  => 200,
+                'data'    => ['message' => 'Simulated SMS dispatch', 'simulated' => true],
+            ];
+        }
+
         try {
             $response = Http::timeout(10)
                 ->connectTimeout(10)
@@ -66,8 +79,12 @@ class SmsService
                     'message'     => $body,
                 ]);
             } else {
-                Log::warning("[SmsService] SMS delivery returned non-200 status for '{$cleanTo}'.", [
-                    'status'   => $response->status(),
+                $status = $response->status();
+                $hint = ($status === 403)
+                    ? ' (HTTP 403 Forbidden: client IP is likely not whitelisted on JioCX DLT gateway Google Cloud Armor. To simulate SMS for local testing, set JIOCX_SMS_SIMULATE=true in .env)'
+                    : '';
+                Log::warning("[SmsService] SMS delivery returned non-200 status for '{$cleanTo}'{$hint}.", [
+                    'status'   => $status,
                     'response' => $data,
                     'message'  => $body,
                 ]);

@@ -158,8 +158,8 @@
                             <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Semester</label>
                             <select id="{{ $prefix }}-cohort-sem" onchange="fetchCohortStudents('{{ $prefix }}')" class="w-full text-xs border border-slate-200 dark:border-[#273244] rounded-lg p-1.5 bg-white dark:bg-[#151B23] text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-indigo-500">
                                 <option value="all" selected>All Semesters</option>
-                                <option value="1">Sem 1 (1-1)</option>
-                                <option value="2">Sem 2 (1-2)</option>
+                                <option value="1">Sem 1</option>
+                                <option value="2">Sem 2</option>
                             </select>
                         </div>
 
@@ -242,55 +242,67 @@
     }
 
     function getSelectedCourseId(prefix) {
-        const form = document.getElementById(prefix + '-access-type-wrapper').closest('form');
+        const wrapper = document.getElementById(prefix + '-access-type-wrapper');
+        if (!wrapper) return null;
+        const form = wrapper.closest('form');
         if (!form) return null;
         const courseSelect = form.querySelector('select[name="course_id"]');
-        return courseSelect ? courseSelect.value : null;
+        if (!courseSelect) return null;
+        if (courseSelect.tomselect) {
+            return courseSelect.tomselect.getValue() || courseSelect.value || null;
+        }
+        return courseSelect.value || null;
     }
 
-    function handleCohortYearChange(prefix) {
+    function updateCohortSemesterOptions(prefix, targetSem = null) {
         const yearSelect = document.getElementById(prefix + '-cohort-year');
         const semSelect = document.getElementById(prefix + '-cohort-sem');
         if (!yearSelect || !semSelect) return;
 
         const selectedYear = yearSelect.value;
-        const currentSem = semSelect.value;
+        const currentSem = targetSem !== null ? String(targetSem) : semSelect.value;
 
         let opts = '<option value="all">All Semesters</option>';
-        let validSems = [];
 
         if (selectedYear === '1') {
             opts += '<option value="1">Sem 1 (1-1)</option>';
             opts += '<option value="2">Sem 2 (1-2)</option>';
-            validSems = ['1', '2'];
         } else if (selectedYear === '2') {
-            opts += '<option value="3">Sem 3 (2-1)</option>';
-            opts += '<option value="4">Sem 4 (2-2)</option>';
-            validSems = ['3', '4'];
+            opts += '<option value="1">Sem 1 (2-1)</option>';
+            opts += '<option value="2">Sem 2 (2-2)</option>';
         } else if (selectedYear === '3') {
-            opts += '<option value="5">Sem 5 (3-1)</option>';
-            opts += '<option value="6">Sem 6 (3-2)</option>';
-            validSems = ['5', '6'];
+            opts += '<option value="1">Sem 1 (3-1)</option>';
+            opts += '<option value="2">Sem 2 (3-2)</option>';
         } else if (selectedYear === '4') {
-            opts += '<option value="7">Sem 7 (4-1)</option>';
-            opts += '<option value="8">Sem 8 (4-2)</option>';
-            validSems = ['7', '8'];
+            opts += '<option value="1">Sem 1 (4-1)</option>';
+            opts += '<option value="2">Sem 2 (4-2)</option>';
         } else {
-            for (let s = 1; s <= 8; s++) {
-                const yr = Math.ceil(s / 2);
-                const semInYr = (s % 2 === 1) ? 1 : 2;
-                opts += `<option value="${s}">Sem ${s} (Yr ${yr}-${semInYr})</option>`;
-                validSems.push(String(s));
-            }
+            // All Years
+            opts += '<option value="1">Sem 1</option>';
+            opts += '<option value="2">Sem 2</option>';
         }
 
         semSelect.innerHTML = opts;
-        if (validSems.includes(currentSem)) {
+
+        // Maintain selection if '1' or '2' is selected; otherwise map cumulative or default to 'all'
+        if (currentSem === '1' || currentSem === '2') {
             semSelect.value = currentSem;
+        } else if (selectedYear !== 'all') {
+            const y = parseInt(selectedYear);
+            if (currentSem === String(y * 2 - 1)) {
+                semSelect.value = '1';
+            } else if (currentSem === String(y * 2)) {
+                semSelect.value = '2';
+            } else {
+                semSelect.value = 'all';
+            }
         } else {
             semSelect.value = 'all';
         }
+    }
 
+    function handleCohortYearChange(prefix) {
+        updateCohortSemesterOptions(prefix);
         fetchCohortStudents(prefix);
     }
 
@@ -323,24 +335,12 @@
                     return;
                 }
 
-                // Auto-sync Year dropdown with selected course on first fetch
+                // Auto-sync Year & Semester dropdown with selected course on first fetch
                 if (!window.accessSelectorStates[prefix].hasInitializedYear && data.course_year) {
                     window.accessSelectorStates[prefix].hasInitializedYear = true;
                     if (yearSelect && yearSelect.value === 'all') {
                         yearSelect.value = String(data.course_year);
-                        // Update semester options for course's year
-                        let autoOpts = '<option value="all">All Semesters</option>';
-                        const cYr = parseInt(data.course_year);
-                        if (cYr === 1) {
-                            autoOpts += '<option value="1">Sem 1 (1-1)</option><option value="2">Sem 2 (1-2)</option>';
-                        } else if (cYr === 2) {
-                            autoOpts += '<option value="3">Sem 3 (2-1)</option><option value="4">Sem 4 (2-2)</option>';
-                        } else if (cYr === 3) {
-                            autoOpts += '<option value="5">Sem 5 (3-1)</option><option value="6">Sem 6 (3-2)</option>';
-                        } else if (cYr === 4) {
-                            autoOpts += '<option value="7">Sem 7 (4-1)</option><option value="8">Sem 8 (4-2)</option>';
-                        }
-                        semSelect.innerHTML = autoOpts;
+                        updateCohortSemesterOptions(prefix, data.course_semester || 'all');
                     }
                 }
 
@@ -473,7 +473,7 @@
         if (!file) return;
 
         const statusBox = document.getElementById(prefix + '-excel-status');
-        statusBox.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-red-50', 'text-red-800', 'border-red-200');
+        statusBox.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200', 'bg-red-50', 'text-red-800', 'border-red-200');
         statusBox.classList.add('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
         statusBox.innerHTML = '<span class="inline-block animate-spin mr-1.5">&#9696;</span> Reading spreadsheet & matching student register numbers...';
 
@@ -489,9 +489,33 @@
             method: 'POST',
             body: formData,
             credentials: 'same-origin',
-            headers: { 'Accept': 'application/json' }
+            headers: { 
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         })
-        .then(res => res.json())
+        .then(async res => {
+            let data = null;
+            try {
+                data = await res.json();
+            } catch (jsonErr) {
+                // Non-JSON response (e.g. redirect or fatal error HTML)
+            }
+
+            if (!res.ok) {
+                const msg = (data && (data.error || data.message)) ||
+                    (res.status === 419 ? 'Session expired. Please refresh the page.' :
+                     res.status === 403 ? 'Unauthorized. You do not have permission to manage private student assignments.' :
+                     `Upload failed with server error ${res.status}`);
+                throw new Error(msg);
+            }
+
+            if (!data) {
+                throw new Error('Received unexpected response format from server. Please refresh and try again.');
+            }
+
+            return data;
+        })
         .then(data => {
             if (data.error) {
                 statusBox.classList.remove('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
@@ -512,8 +536,13 @@
             }
 
             statusBox.classList.remove('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
-            statusBox.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
-            statusBox.innerHTML = `<strong>✓ Excel Processed:</strong> ${data.message}`;
+            if (data.count > 0) {
+                statusBox.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+                statusBox.innerHTML = `<strong>✓ Excel Processed:</strong> ${data.message}`;
+            } else {
+                statusBox.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
+                statusBox.innerHTML = `<strong>Notice:</strong> ${data.message || 'No students in the database matched the register numbers in the uploaded spreadsheet.'}`;
+            }
 
             renderCohortStudentRoster(prefix);
             updateSelectedBadge(prefix);
@@ -522,7 +551,10 @@
             console.error(err);
             statusBox.classList.remove('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
             statusBox.classList.add('bg-red-50', 'text-red-800', 'border-red-200');
-            statusBox.textContent = 'Failed to process Excel spreadsheet. Please ensure valid file format.';
+            statusBox.textContent = err.message || 'Failed to process Excel spreadsheet. Please ensure valid file format.';
+        })
+        .finally(() => {
+            input.value = '';
         });
     }
 
@@ -536,25 +568,94 @@
         const state = window.accessSelectorStates[prefix];
         const statusBox = document.getElementById(prefix + '-excel-status');
 
-        // Check against currently cached students first
-        let matchedCount = 0;
-        state.cachedStudents.forEach(stu => {
-            if (regs.includes(stu.username)) {
-                state.selectedIds.add(stu.id);
-                matchedCount++;
+        statusBox.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-red-50', 'text-red-800', 'border-red-200');
+        statusBox.classList.add('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
+        statusBox.innerHTML = '<span class="inline-block animate-spin mr-1.5">&#9696;</span> Matching student register numbers with student database...';
+
+        const formData = new FormData();
+        formData.append('register_numbers', raw);
+        const courseId = getSelectedCourseId(prefix);
+        if (courseId) {
+            formData.append('course_id', courseId);
+        }
+        formData.append('_token', '{{ csrf_token() }}');
+
+        fetch('{{ route('staff.assignments.match-students') }}', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+            headers: { 
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
+        })
+        .then(async res => {
+            let data = null;
+            try {
+                data = await res.json();
+            } catch (e) {}
+
+            if (!res.ok) {
+                const msg = (data && (data.error || data.message)) ||
+                    (res.status === 419 ? 'Session expired. Please refresh the page.' :
+                     res.status === 403 ? 'Unauthorized. You do not have permission to manage private student assignments.' :
+                     `Matching failed with server error ${res.status}`);
+                throw new Error(msg);
+            }
+            return data;
+        })
+        .then(data => {
+            if (!data.success && data.error) {
+                statusBox.classList.remove('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
+                statusBox.classList.add('bg-red-50', 'text-red-800', 'border-red-200');
+                statusBox.textContent = data.error || data.message || 'No students matched.';
+                return;
+            }
+
+            if (data.students && data.students.length > 0) {
+                data.students.forEach(s => {
+                    state.selectedIds.add(s.id);
+                    // Add to cached students list if not present
+                    if (!state.cachedStudents.some(cs => cs.id === s.id)) {
+                        state.cachedStudents.unshift(s);
+                    }
+                });
+            }
+
+            statusBox.classList.remove('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
+            if (data.count > 0) {
+                statusBox.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+                statusBox.innerHTML = `<strong>✓ Matched:</strong> ${data.message}`;
+            } else {
+                statusBox.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
+                statusBox.innerHTML = `<strong>Notice:</strong> None of the entered register numbers exist in the student database.`;
+            }
+
+            renderCohortStudentRoster(prefix);
+            updateSelectedBadge(prefix);
+        })
+        .catch(err => {
+            console.error(err);
+            // Fallback: check cached students
+            let matchedCount = 0;
+            state.cachedStudents.forEach(stu => {
+                if (regs.includes(stu.username)) {
+                    state.selectedIds.add(stu.id);
+                    matchedCount++;
+                }
+            });
+            statusBox.classList.remove('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
+            statusBox.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+            statusBox.innerHTML = `<strong>✓ Matched:</strong> ${matchedCount} student(s) selected from cache. Remaining will be matched on submit.`;
+            renderCohortStudentRoster(prefix);
+            updateSelectedBadge(prefix);
         });
-
-        statusBox.classList.remove('hidden', 'bg-red-50', 'text-red-800', 'border-red-200');
-        statusBox.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
-        statusBox.innerHTML = `<strong>✓ Matched:</strong> ${matchedCount} student(s) selected from pasted list. Remaining will be matched on submit.`;
-
-        renderCohortStudentRoster(prefix);
-        updateSelectedBadge(prefix);
     }
 
     // Bind course switcher to auto-reload cohort students if private and handle form validation
     document.addEventListener('DOMContentLoaded', () => {
+        updateCohortSemesterOptions('{{ $prefix }}');
+
         const wrapper = document.getElementById('{{ $prefix }}-access-type-wrapper');
         if (wrapper) {
             const form = wrapper.closest('form');
@@ -562,6 +663,13 @@
                 const courseSelect = form.querySelector('select[name="course_id"]');
                 if (courseSelect) {
                     courseSelect.addEventListener('change', () => {
+                        if (window.accessSelectorStates['{{ $prefix }}']) {
+                            window.accessSelectorStates['{{ $prefix }}'].hasInitializedYear = false;
+                        }
+                        const yearSelect = document.getElementById('{{ $prefix }}-cohort-year');
+                        if (yearSelect) yearSelect.value = 'all';
+                        updateCohortSemesterOptions('{{ $prefix }}', 'all');
+
                         const privateRadio = form.querySelector('input[name="type"][value="private"]');
                         if (privateRadio && privateRadio.checked) {
                             fetchCohortStudents('{{ $prefix }}');

@@ -16,7 +16,9 @@ use App\Http\Controllers\DashboardController;
 */
 
 Route::get('/', [LoginController::class, 'showLogin'])->name('login');
+Route::get('/login', fn() => redirect()->route('login'));
 Route::post('/authenticate', [LoginController::class, 'login'])->name('authenticate');
+Route::get('/authenticate', fn() => redirect()->route('login'));
 Route::post('/forgot-password', [LoginController::class, 'forgotPassword'])->name('password.forgot');
 Route::get('/sms/test-vsat', [\App\Http\Controllers\SmsController::class, 'sendVsat'])->name('sms.test.vsat');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -24,6 +26,7 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/session/heartbeat', [\App\Http\Controllers\ActivityLogController::class, 'heartbeat'])->name('session.heartbeat');
     Route::get('/users/check-email', [\App\Http\Controllers\StaffController::class, 'checkEmail'])->name('users.check_email');
 
     // Course Materials Hub & CRUD (Staff, Coordinator, Super Admin)
@@ -35,8 +38,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/staff/materials/{material}', [\App\Http\Controllers\CourseMaterialController::class, 'destroy'])->name('staff.courses.materials.destroy');
     });
 
-    // Staff only (My Courses & Assignments)
-    Route::middleware('role:sta')->group(function () {
+    // Staff & Academic Admins (My Courses & Assignments)
+    Route::middleware('role:sta,admin,sa')->group(function () {
         Route::get('/staff/courses', [\App\Http\Controllers\CourseMaterialController::class, 'myCourses'])->name('staff.courses.index');
 
         // Staff Assignments
@@ -45,6 +48,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/staff/assignments/students-template', [\App\Http\Controllers\StaffAssignmentController::class, 'downloadStudentTemplate'])->name('staff.assignments.students.template');
         Route::get('/staff/courses/{course}/cohort-students', [\App\Http\Controllers\StaffAssignmentController::class, 'getCourseCohortStudents'])->name('staff.courses.cohort-students');
         Route::post('/staff/assignments/parse-students', [\App\Http\Controllers\StaffAssignmentController::class, 'parseStudentsExcel'])->name('staff.assignments.parse-students');
+        Route::post('/staff/assignments/match-students', [\App\Http\Controllers\StaffAssignmentController::class, 'matchStudents'])->name('staff.assignments.match-students');
         Route::get('/staff/assignments/create', [\App\Http\Controllers\StaffAssignmentController::class, 'create'])->name('staff.assignments.create');
         Route::post('/staff/assignments', [\App\Http\Controllers\StaffAssignmentController::class, 'store'])->name('staff.assignments.store');
         Route::post('/staff/assignments/bulk-upload', [\App\Http\Controllers\StaffAssignmentController::class, 'bulkUpload'])->name('staff.assignments.bulk');
@@ -74,6 +78,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity_logs.index');
         Route::get('/activity-logs/export', [\App\Http\Controllers\ActivityLogController::class, 'export'])->name('activity_logs.export');
         Route::get('/activity-logs/{id}', [\App\Http\Controllers\ActivityLogController::class, 'show'])->name('activity_logs.show');
+
+        // Dynamic Schools & Departments Management
+        Route::get('/academic/departments-schools', [\App\Http\Controllers\SchoolDepartmentController::class, 'index'])->name('academic.departments.index');
+        Route::post('/academic/schools', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeSchool'])->name('academic.schools.store');
+        Route::put('/academic/schools/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateSchool'])->name('academic.schools.update');
+        Route::delete('/academic/schools/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroySchool'])->name('academic.schools.destroy');
+        Route::post('/academic/departments', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeDepartment'])->name('academic.departments.store');
+        Route::put('/academic/departments/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateDepartment'])->name('academic.departments.update');
+        Route::delete('/academic/departments/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyDepartment'])->name('academic.departments.destroy');
     });
 
     // ==========================================

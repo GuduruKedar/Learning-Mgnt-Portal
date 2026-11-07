@@ -421,5 +421,47 @@ class SmsForgotPasswordTest extends TestCase
                 && $mail->user->username === 'STU_BYEMAIL_01';
         });
     }
+
+    public function test_forgot_password_checks_username_and_dispatches_credentials()
+    {
+        $profile = Profile::create([
+            'username' => 'STU_VERIFY_01',
+            'first_name' => 'Verify',
+            'last_name' => 'User',
+            'phone' => '9988776655',
+            'email' => 'verify.user@vignan.ac.in',
+            'roles_id' => 'stu',
+        ]);
+
+        $user = User::create([
+            'username' => 'STU_VERIFY_01',
+            'password' => Hash::make('InitialPass123'),
+            'profile_id' => $profile->id,
+        ]);
+
+        $response = $this->from('/')
+            ->post(route('password.forgot'), [
+                'username' => 'STU_VERIFY_01',
+            ]);
+
+        $response->assertRedirect('/');
+        $response->assertSessionHas('forgot_success');
+        $this->assertStringContainsString('99******55', session('forgot_success'));
+        $this->assertStringContainsString('ve****@vignan.ac.in', session('forgot_success'));
+        // Passwords must never be displayed publicly in session
+        $this->assertFalse(session()->has('dev_temp_password'));
+    }
+
+    public function test_sms_service_simulation_mode()
+    {
+        config(['services.jiocx_sms.simulate' => true]);
+
+        $sms = new SmsService();
+        $result = $sms->sendCredentials('9876543210', 'SIM_USER', 'Pass123');
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals(200, $result['status']);
+        $this->assertTrue($result['data']['simulated']);
+    }
 }
 

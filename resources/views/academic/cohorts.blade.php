@@ -96,21 +96,119 @@
                 <!-- Section 1: Target Course Selection Banner -->
                 <div class="bg-white rounded-2xl border border-gray-200/90 shadow-2xs p-5 sm:p-6 transition-all">
                     <form action="{{ route('academic.cohorts') }}" method="GET" id="courseSelectionForm">
+                        <input type="hidden" name="course_id" id="course_id_input" value="{{ $selectedCourse?->id ?? '' }}">
+
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div class="flex-1">
-                                <label for="course_select" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                                    <span>Step 1 &bull; Select Target Subject / Course Code</span>
+                            <div class="flex-1 relative" id="courseComboboxWrapper">
+                                <label for="course_search_input" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                                    <span class="flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                        <span>Step 1 &bull; Select Target Subject / Course Code</span>
+                                    </span>
+                                    <span class="text-[11px] font-medium text-indigo-600 bg-indigo-50/80 px-2 py-0.5 rounded-full border border-indigo-100/80 flex items-center gap-1">
+                                        <svg class="w-3 h-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        Type Course Code to filter
+                                    </span>
                                 </label>
-                                <select name="course_id" id="course_select" onchange="document.getElementById('courseSelectionForm').submit()" class="w-full h-11 px-3.5 bg-gray-50 hover:bg-white border border-gray-300 focus:border-indigo-500 rounded-xl text-xs sm:text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all cursor-pointer">
-                                    @forelse($courses as $c)
-                                        <option value="{{ $c->id }}" {{ $selectedCourse && $selectedCourse->id === $c->id ? 'selected' : '' }}>
-                                            {{ $c->code }} — {{ $c->name }} (Year {{ $c->year ?? 1 }}, Sem {{ $c->semester ?? 1 }}) &bull; {{ $c->enrollments_count ?? 0 }} enrolled
-                                        </option>
-                                    @empty
-                                        <option value="">No courses available in this department</option>
-                                    @endforelse
-                                </select>
+
+                                <!-- Combobox Search Input -->
+                                <div class="relative flex items-center">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-indigo-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+
+                                    <input type="text"
+                                           id="course_search_input"
+                                           autocomplete="off"
+                                           spellcheck="false"
+                                           placeholder="Type course code (e.g. UPSC-CSAT, CS101) or course name..."
+                                           value="{{ $selectedCourse ? $selectedCourse->code . ' — ' . $selectedCourse->name : '' }}"
+                                           data-default-value="{{ $selectedCourse ? $selectedCourse->code . ' — ' . $selectedCourse->name : '' }}"
+                                           class="w-full h-11 pl-10 pr-24 bg-gray-50 hover:bg-white focus:bg-white border border-gray-300 focus:border-indigo-500 rounded-xl text-xs sm:text-sm font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all cursor-text">
+
+                                    <!-- Right Action Buttons -->
+                                    <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1">
+                                        <button type="button" 
+                                                id="course_clear_btn" 
+                                                title="Clear search" 
+                                                class="p-1 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors {{ $selectedCourse ? '' : 'hidden' }}">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                        <button type="button" 
+                                                id="course_dropdown_toggle" 
+                                                title="Show all courses"
+                                                class="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer">
+                                            <svg class="w-4 h-4 transform transition-transform duration-200" id="course_dropdown_arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Floating Dropdown Menu -->
+                                <div id="course_dropdown_menu"
+                                     class="hidden absolute left-0 right-0 mt-1.5 bg-white border border-gray-200/90 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-gray-100 max-h-72 overflow-y-auto"
+                                     role="listbox">
+                                    <div class="px-3.5 py-2 bg-slate-50/90 text-[11px] font-bold text-gray-500 flex items-center justify-between sticky top-0 z-10 border-b border-gray-100 backdrop-blur-xs">
+                                        <span id="course_results_count">Showing {{ $courses->count() }} courses</span>
+                                        <span class="text-gray-400 font-normal hidden sm:inline">&uarr;&darr; to navigate &bull; Enter to select</span>
+                                    </div>
+
+                                    <div id="course_options_container" class="divide-y divide-gray-50">
+                                        @forelse($courses as $c)
+                                        <div class="course-dropdown-item px-3.5 py-2.5 hover:bg-indigo-50/80 cursor-pointer transition-colors flex items-center justify-between gap-3 text-left {{ $selectedCourse && $selectedCourse->id === $c->id ? 'bg-indigo-50/90 text-indigo-900 is-selected' : 'text-gray-800' }}"
+                                             role="option"
+                                             tabindex="0"
+                                             data-id="{{ $c->id }}"
+                                             data-code="{{ strtolower($c->code) }}"
+                                             data-code-raw="{{ $c->code }}"
+                                             data-name="{{ strtolower($c->name) }}"
+                                             data-name-raw="{{ $c->name }}"
+                                             data-year="{{ $c->year ?? 1 }}"
+                                             data-semester="{{ $c->semester ?? 1 }}"
+                                             data-enrolled="{{ $c->enrollments_count ?? 0 }}"
+                                             data-full-display="{{ $c->code }} — {{ $c->name }}">
+                                            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                                <span class="course-code-badge inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-mono font-black bg-indigo-100 text-indigo-700 border border-indigo-200 shrink-0 shadow-2xs">
+                                                    {{ $c->code }}
+                                                </span>
+                                                <div class="min-w-0">
+                                                    <div class="text-xs sm:text-sm font-semibold text-gray-900 truncate course-title-text">{{ $c->name }}</div>
+                                                    <div class="text-[11px] text-gray-500 flex items-center gap-1.5 mt-0.5">
+                                                        <span class="font-medium text-gray-600">Yr {{ $c->year ?? 1 }} &bull; Sem {{ $c->semester ?? 1 }}</span>
+                                                        @if($c->department)
+                                                            <span class="text-gray-300">&bull;</span>
+                                                            <span class="truncate">{{ $c->department->name ?? 'Dept' }}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="shrink-0 flex items-center gap-2">
+                                                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ ($c->enrollments_count ?? 0) > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500' }}">
+                                                    {{ $c->enrollments_count ?? 0 }} enrolled
+                                                </span>
+                                                <span class="selected-checkmark {{ $selectedCourse && $selectedCourse->id === $c->id ? '' : 'hidden' }}">
+                                                    <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        @empty
+                                        <div class="p-6 text-center text-xs text-gray-400">
+                                            No courses available in this department
+                                        </div>
+                                        @endforelse
+
+                                        <div id="course_no_results" class="hidden p-6 text-center text-xs text-gray-500">
+                                            <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <p class="font-bold text-gray-700">No courses match your search</p>
+                                            <p class="text-[11px] text-gray-400 mt-1">Try typing another course code or keyword.</p>
+                                            <button type="button" id="course_reset_search_btn" class="mt-2.5 inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors cursor-pointer">
+                                                Show all courses
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             @if($selectedCourse)
@@ -169,7 +267,7 @@
                 </div>
 
                 <!-- Section 2: Metric Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div id="cohortMetricsCards" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <!-- Total Cohort Students -->
                     <div class="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-2xs hover:shadow-xs transition-all">
                         <div class="flex items-center justify-between">
@@ -219,85 +317,89 @@
                         <div class="flex items-center gap-2">
                             <span class="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">2</span>
                             <h3 class="text-sm sm:text-base font-bold text-gray-800">Filter Student Cohort</h3>
+                            <span id="liveFilterIndicator" class="hidden text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1.5 animate-pulse">
+                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                                Filtering live...
+                            </span>
                         </div>
-                        <a href="{{ route('academic.cohorts', ['course_id' => $selectedCourseId]) }}" class="text-xs font-semibold text-gray-500 hover:text-indigo-600 transition-colors">
+                        <a href="{{ route('academic.cohorts', ['course_id' => $selectedCourseId]) }}" id="resetFiltersLink" class="text-xs font-semibold text-gray-500 hover:text-indigo-600 transition-colors cursor-pointer">
                             Reset Filters
                         </a>
                     </div>
 
-                    <form action="{{ route('academic.cohorts') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 items-end">
-                        <input type="hidden" name="course_id" value="{{ $selectedCourseId }}">
+                    <!-- Unified Live Filter Form -->
+                    <form id="cohortLiveFilterForm" action="{{ route('academic.cohorts') }}" method="GET" class="space-y-3">
+                        <input type="hidden" name="course_id" id="filter_course_id" value="{{ $selectedCourseId }}">
 
-                        <!-- Year Filter -->
-                        <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">Academic Year</label>
-                            <select name="year" class="w-full h-10 px-3 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                                <option value="all" {{ $yearFilter === 'all' ? 'selected' : '' }}>All Years</option>
-                                <option value="1" {{ (string)$yearFilter === '1' ? 'selected' : '' }}>Year 1</option>
-                                <option value="2" {{ (string)$yearFilter === '2' ? 'selected' : '' }}>Year 2</option>
-                                <option value="3" {{ (string)$yearFilter === '3' ? 'selected' : '' }}>Year 3</option>
-                                <option value="4" {{ (string)$yearFilter === '4' ? 'selected' : '' }}>Year 4</option>
-                            </select>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 items-end">
+                            <!-- Year Filter -->
+                            <div>
+                                <label for="filter_year" class="block text-xs font-bold text-gray-600 mb-1">Academic Year</label>
+                                <select name="year" id="filter_year" class="no-tomselect w-full h-10 px-3 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer">
+                                    <option value="all" {{ $yearFilter === 'all' ? 'selected' : '' }}>All Years</option>
+                                    <option value="1" {{ (string)$yearFilter === '1' ? 'selected' : '' }}>Year 1</option>
+                                    <option value="2" {{ (string)$yearFilter === '2' ? 'selected' : '' }}>Year 2</option>
+                                    <option value="3" {{ (string)$yearFilter === '3' ? 'selected' : '' }}>Year 3</option>
+                                    <option value="4" {{ (string)$yearFilter === '4' ? 'selected' : '' }}>Year 4</option>
+                                </select>
+                            </div>
+
+                            <!-- Semester Filter -->
+                            <div>
+                                <label for="filter_semester" class="block text-xs font-bold text-gray-600 mb-1">Semester</label>
+                                <select name="semester" id="filter_semester" class="no-tomselect w-full h-10 px-3 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer">
+                                    <option value="all" {{ $semFilter === 'all' ? 'selected' : '' }}>All Semesters</option>
+                                    <option value="1" {{ (string)$semFilter === '1' ? 'selected' : '' }}>Semester 1</option>
+                                    <option value="2" {{ (string)$semFilter === '2' ? 'selected' : '' }}>Semester 2</option>
+                                </select>
+                            </div>
+
+                            <!-- Enrollment Status Filter -->
+                            <div>
+                                <label for="filter_status" class="block text-xs font-bold text-gray-600 mb-1">Enrollment Status</label>
+                                <select name="status" id="filter_status" class="no-tomselect w-full h-10 px-3 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all cursor-pointer">
+                                    <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>All Cohort Students</option>
+                                    <option value="not_enrolled" {{ $statusFilter === 'not_enrolled' ? 'selected' : '' }}>Only Not Enrolled ({{ $pendingCount }})</option>
+                                    <option value="enrolled" {{ $statusFilter === 'enrolled' ? 'selected' : '' }}>Already Enrolled ({{ $enrolledCount }})</option>
+                                </select>
+                            </div>
+
+                            <!-- Apply Filters Button -->
+                            <div>
+                                <button type="submit" id="applyFiltersBtn" class="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer">
+                                    <svg id="applyFilterIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                                    <span id="applyFilterText">Apply Filters</span>
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Semester Filter -->
-                        <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">Semester</label>
-                            <select name="semester" class="w-full h-10 px-3 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                                <option value="all" {{ $semFilter === 'all' ? 'selected' : '' }}>All Semesters</option>
-                                <option value="1" {{ (string)$semFilter === '1' ? 'selected' : '' }}>Semester 1</option>
-                                <option value="2" {{ (string)$semFilter === '2' ? 'selected' : '' }}>Semester 2</option>
-                            </select>
-                        </div>
-
-                        <!-- Enrollment Status Filter -->
-                        <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">Enrollment Status</label>
-                            <select name="status" class="w-full h-10 px-3 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
-                                <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>All Cohort Students</option>
-                                <option value="not_enrolled" {{ $statusFilter === 'not_enrolled' ? 'selected' : '' }}>Only Not Enrolled ({{ $pendingCount }})</option>
-                                <option value="enrolled" {{ $statusFilter === 'enrolled' ? 'selected' : '' }}>Already Enrolled ({{ $enrolledCount }})</option>
-                            </select>
-                        </div>
-
-                        <!-- Filter Button -->
-                        <div>
-                            <button type="submit" class="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                                <span>Apply Filters</span>
-                            </button>
-                        </div>
-                    </form>
-
-                    <!-- Search Input Bar -->
-                    <div class="mt-3 pt-3 border-t border-gray-100">
-                        <form action="{{ route('academic.cohorts') }}" method="GET" class="flex gap-2">
-                            <input type="hidden" name="course_id" value="{{ $selectedCourseId }}">
-                            <input type="hidden" name="year" value="{{ $yearFilter }}">
-                            <input type="hidden" name="semester" value="{{ $semFilter }}">
-                            <input type="hidden" name="status" value="{{ $statusFilter }}">
-
+                        <!-- Live Search Input Bar -->
+                        <div class="pt-3 border-t border-gray-100 flex gap-2">
                             <div class="relative flex-1">
                                 <input type="text" 
                                        name="search" 
+                                       id="filter_search"
                                        value="{{ $search }}" 
+                                       autocomplete="off"
                                        placeholder="Search student by Roll Number, Name, or Email..." 
-                                       class="w-full h-9.5 pl-9 pr-4 bg-gray-50 hover:bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                                       class="w-full h-9.5 pl-9 pr-9 bg-gray-50 hover:bg-white focus:bg-white border border-gray-200 focus:border-indigo-500 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                    <svg id="searchIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                    <svg id="searchSpinner" class="hidden animate-spin w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                 </div>
+                                <button type="button" 
+                                        id="clearSearchBtn" 
+                                        title="Clear search"
+                                        class="{{ $search ? '' : 'hidden' }} absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
                             </div>
 
                             <button type="submit" class="px-4 h-9.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer">
                                 Search
                             </button>
-                            @if($search)
-                            <a href="{{ route('academic.cohorts', ['course_id' => $selectedCourseId, 'year' => $yearFilter, 'semester' => $semFilter, 'status' => $statusFilter]) }}" class="px-3 h-9.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-bold flex items-center transition-all shrink-0">
-                                Clear
-                            </a>
-                            @endif
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Section 4: Cohort Student List Table & Bulk Action Form -->
@@ -314,7 +416,7 @@
                         @csrf
                         <input type="hidden" name="course_id" value="{{ $selectedCourse->id }}">
 
-                        <div class="bg-white rounded-2xl border border-gray-200/90 shadow-2xs overflow-hidden">
+                        <div id="cohortTableContainer" class="bg-white rounded-2xl border border-gray-200/90 shadow-2xs overflow-hidden transition-opacity duration-200">
                             <!-- Table Top Action Bar -->
                             <div class="p-4 sm:px-6 bg-slate-50/90 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3">
                                 <div class="flex items-center gap-3">
@@ -588,8 +690,460 @@
             document.getElementById('standaloneUnenrollForm').submit();
         }
 
+        // ----------------------------------------------------
+        // Step 1: Typeable Course Code Searchable Combobox
+        // ----------------------------------------------------
+        function initCourseCombobox() {
+            const wrapper = document.getElementById('courseComboboxWrapper');
+            if (!wrapper) return;
+
+            const searchInput = document.getElementById('course_search_input');
+            const hiddenIdInput = document.getElementById('course_id_input');
+            const form = document.getElementById('courseSelectionForm');
+            const menu = document.getElementById('course_dropdown_menu');
+            const toggleBtn = document.getElementById('course_dropdown_toggle');
+            const clearBtn = document.getElementById('course_clear_btn');
+            const arrowIcon = document.getElementById('course_dropdown_arrow');
+            const container = document.getElementById('course_options_container');
+            const items = Array.from(wrapper.querySelectorAll('.course-dropdown-item'));
+            const noResults = document.getElementById('course_no_results');
+            const countEl = document.getElementById('course_results_count');
+            const resetBtn = document.getElementById('course_reset_search_btn');
+
+            let activeIndex = -1;
+            let isOpen = false;
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function highlightMatches(text, query) {
+                if (!query) return escapeHtml(text);
+                const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escapedQuery})`, 'gi');
+                return escapeHtml(text).replace(regex, '<mark class="bg-amber-200 text-amber-900 rounded px-0.5">$1</mark>');
+            }
+
+            function openMenu() {
+                menu.classList.remove('hidden');
+                if (arrowIcon) arrowIcon.classList.add('rotate-180');
+                isOpen = true;
+                filterCourses(searchInput.value.trim());
+            }
+
+            function closeMenu() {
+                menu.classList.add('hidden');
+                if (arrowIcon) arrowIcon.classList.remove('rotate-180');
+                isOpen = false;
+                activeIndex = -1;
+                clearHighlight();
+            }
+
+            function selectCourse(item) {
+                const id = item.dataset.id;
+                const fullDisplay = item.dataset.fullDisplay;
+                hiddenIdInput.value = id;
+                searchInput.value = fullDisplay;
+                searchInput.dataset.defaultValue = fullDisplay;
+                closeMenu();
+                form.submit();
+            }
+
+            function filterCourses(query) {
+                const q = (query || '').toLowerCase().trim();
+                let visibleCount = 0;
+                let visibleItems = [];
+
+                items.forEach(item => {
+                    const code = item.dataset.code || '';
+                    const name = item.dataset.name || '';
+                    const codeRaw = item.dataset.codeRaw || '';
+                    const nameRaw = item.dataset.nameRaw || '';
+                    const codeBadge = item.querySelector('.course-code-badge');
+                    const titleText = item.querySelector('.course-title-text');
+
+                    const isCodePrefix = code.startsWith(q);
+                    const isCodeMatch = code.includes(q);
+                    const isNameMatch = name.includes(q);
+                    const matches = !q || isCodeMatch || isNameMatch;
+
+                    if (matches) {
+                        item.classList.remove('hidden');
+                        visibleCount++;
+
+                        // Highlight matching characters in code and name
+                        if (codeBadge) {
+                            codeBadge.innerHTML = q && isCodeMatch ? highlightMatches(codeRaw, q) : escapeHtml(codeRaw);
+                        }
+                        if (titleText) {
+                            titleText.innerHTML = q && isNameMatch ? highlightMatches(nameRaw, q) : escapeHtml(nameRaw);
+                        }
+
+                        visibleItems.push({
+                            item: item,
+                            isCodePrefix: isCodePrefix,
+                            isCodeMatch: isCodeMatch,
+                            code: code
+                        });
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                // Prioritize code matches to the top:
+                // 1. Code starts with query (e.g. typing "UPSC" matches "UPSC-CSAT" at the very top)
+                // 2. Code contains query
+                // 3. Name contains query
+                visibleItems.sort((a, b) => {
+                    if (a.isCodePrefix && !b.isCodePrefix) return -1;
+                    if (!a.isCodePrefix && b.isCodePrefix) return 1;
+                    if (a.isCodeMatch && !b.isCodeMatch) return -1;
+                    if (!a.isCodeMatch && b.isCodeMatch) return 1;
+                    return a.code.localeCompare(b.code);
+                });
+
+                if (container) {
+                    visibleItems.forEach(v => container.appendChild(v.item));
+                    if (noResults) container.appendChild(noResults);
+                }
+
+                if (countEl) {
+                    countEl.textContent = q 
+                        ? `Found ${visibleCount} course${visibleCount === 1 ? '' : 's'} matching "${query}"`
+                        : `Showing ${visibleCount} courses (type course code to filter)`;
+                }
+
+                if (noResults) {
+                    noResults.classList.toggle('hidden', visibleCount > 0);
+                }
+
+                if (clearBtn) {
+                    clearBtn.classList.toggle('hidden', !searchInput.value);
+                }
+
+                activeIndex = -1;
+                clearHighlight();
+                if (visibleCount > 0 && q) {
+                    highlightItem(0);
+                }
+            }
+
+            function getVisibleItems() {
+                return items.filter(el => !el.classList.contains('hidden'));
+            }
+
+            function clearHighlight() {
+                items.forEach(el => el.classList.remove('bg-indigo-100/90', 'ring-2', 'ring-indigo-500', 'ring-inset'));
+            }
+
+            function highlightItem(index) {
+                const visible = getVisibleItems();
+                if (visible.length === 0) return;
+                clearHighlight();
+                if (index < 0) index = 0;
+                if (index >= visible.length) index = visible.length - 1;
+                activeIndex = index;
+                const target = visible[activeIndex];
+                target.classList.add('bg-indigo-100/90', 'ring-2', 'ring-indigo-500', 'ring-inset');
+                target.scrollIntoView({ block: 'nearest' });
+            }
+
+            // Keyboard navigation and typing
+            searchInput.addEventListener('focus', function() {
+                openMenu();
+                this.select();
+            });
+
+            searchInput.addEventListener('input', function() {
+                if (!isOpen) openMenu();
+                filterCourses(this.value);
+            });
+
+            searchInput.addEventListener('keydown', function(e) {
+                const visible = getVisibleItems();
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (!isOpen) {
+                        openMenu();
+                        return;
+                    }
+                    highlightItem(activeIndex + 1);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (!isOpen) {
+                        openMenu();
+                        return;
+                    }
+                    highlightItem(activeIndex - 1);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (isOpen && visible.length > 0) {
+                        const target = activeIndex >= 0 ? visible[activeIndex] : visible[0];
+                        if (target) selectCourse(target);
+                    }
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeMenu();
+                    searchInput.value = searchInput.dataset.defaultValue || '';
+                }
+            });
+
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    selectCourse(this);
+                });
+            });
+
+            toggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (isOpen) {
+                    closeMenu();
+                } else {
+                    searchInput.focus();
+                    openMenu();
+                }
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    searchInput.value = '';
+                    searchInput.focus();
+                    openMenu();
+                    filterCourses('');
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    filterCourses('');
+                });
+            }
+
+            // Click outside closes the dropdown
+            document.addEventListener('click', function(e) {
+                if (!wrapper.contains(e.target)) {
+                    if (isOpen) {
+                        closeMenu();
+                        // Reset search field back to default if unselected
+                        searchInput.value = searchInput.dataset.defaultValue || '';
+                        if (clearBtn) {
+                            clearBtn.classList.toggle('hidden', !searchInput.value);
+                        }
+                    }
+                }
+            });
+        }
+
+        // ----------------------------------------------------
+        // Step 2 & Search: Live Student Cohort Filters
+        // ----------------------------------------------------
+        function initLiveFilters() {
+            const form = document.getElementById('cohortLiveFilterForm');
+            if (!form) return;
+
+            const yearSelect = document.getElementById('filter_year');
+            const semSelect = document.getElementById('filter_semester');
+            const statusSelect = document.getElementById('filter_status');
+            const searchInput = document.getElementById('filter_search');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            const resetFiltersBtn = document.getElementById('resetFiltersLink');
+            const searchIcon = document.getElementById('searchIcon');
+            const searchSpinner = document.getElementById('searchSpinner');
+            const liveIndicator = document.getElementById('liveFilterIndicator');
+            const tableContainer = document.getElementById('cohortTableContainer');
+            const metricsContainer = document.getElementById('cohortMetricsCards');
+
+            let debounceTimer = null;
+            let abortController = null;
+
+            function showLoading() {
+                if (tableContainer) {
+                    tableContainer.classList.add('opacity-50', 'pointer-events-none');
+                }
+                if (metricsContainer) {
+                    metricsContainer.classList.add('opacity-60');
+                }
+                if (searchIcon && searchSpinner) {
+                    searchIcon.classList.add('hidden');
+                    searchSpinner.classList.remove('hidden');
+                }
+                if (liveIndicator) {
+                    liveIndicator.classList.remove('hidden');
+                }
+            }
+
+            function hideLoading() {
+                if (tableContainer) {
+                    tableContainer.classList.remove('opacity-50', 'pointer-events-none');
+                }
+                if (metricsContainer) {
+                    metricsContainer.classList.remove('opacity-60');
+                }
+                if (searchIcon && searchSpinner) {
+                    searchIcon.classList.remove('hidden');
+                    searchSpinner.classList.add('hidden');
+                }
+                if (liveIndicator) {
+                    liveIndicator.classList.add('hidden');
+                }
+            }
+
+            function executeFilter() {
+                clearTimeout(debounceTimer);
+
+                if (abortController) {
+                    abortController.abort();
+                }
+                abortController = new AbortController();
+
+                const formData = new FormData(form);
+                const params = new URLSearchParams();
+
+                for (const [key, value] of formData.entries()) {
+                    if (value !== '' && value !== null) {
+                        params.append(key, value);
+                    }
+                }
+
+                const url = `${form.action}?${params.toString()}`;
+                showLoading();
+
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    signal: abortController.signal
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const newDoc = parser.parseFromString(html, 'text/html');
+
+                    // 1. Update Table Container
+                    const newTable = newDoc.getElementById('cohortTableContainer');
+                    if (newTable && tableContainer) {
+                        tableContainer.innerHTML = newTable.innerHTML;
+                    }
+
+                    // 2. Update Metric Cards
+                    const newMetrics = newDoc.getElementById('cohortMetricsCards');
+                    if (newMetrics && metricsContainer) {
+                        metricsContainer.innerHTML = newMetrics.innerHTML;
+                    }
+
+                    // 3. Update Status dropdown count options while keeping selection
+                    const newStatusSelect = newDoc.getElementById('filter_status');
+                    if (newStatusSelect && statusSelect) {
+                        const currentStatus = statusSelect.value;
+                        statusSelect.innerHTML = newStatusSelect.innerHTML;
+                        statusSelect.value = currentStatus;
+                    }
+
+                    // 4. Update browser URL history
+                    window.history.pushState({}, '', url);
+
+                    // 5. Update Selection Counters and button state
+                    updateSelectionCount();
+                })
+                .catch(err => {
+                    if (err.name !== 'AbortError') {
+                        console.error('Error fetching live cohort results:', err);
+                    }
+                })
+                .finally(() => {
+                    hideLoading();
+                });
+            }
+
+            function debouncedFilter(delay = 250) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(executeFilter, delay);
+            }
+
+            // Live Change Triggers on Dropdowns
+            if (yearSelect) {
+                yearSelect.addEventListener('change', () => executeFilter());
+            }
+            if (semSelect) {
+                semSelect.addEventListener('change', () => executeFilter());
+            }
+            if (statusSelect) {
+                statusSelect.addEventListener('change', () => executeFilter());
+            }
+
+            // Live Typing on Search Input
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    if (clearSearchBtn) {
+                        clearSearchBtn.classList.toggle('hidden', !this.value);
+                    }
+                    debouncedFilter(250);
+                });
+
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        executeFilter();
+                    }
+                });
+            }
+
+            // Clear Search Button
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', function() {
+                    if (searchInput) {
+                        searchInput.value = '';
+                        this.classList.add('hidden');
+                        searchInput.focus();
+                    }
+                    executeFilter();
+                });
+            }
+
+            // Prevent Form submit and run live filter
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                executeFilter();
+            });
+
+            // Reset Filters Link
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (yearSelect) yearSelect.value = 'all';
+                    if (semSelect) semSelect.value = 'all';
+                    if (statusSelect) statusSelect.value = 'all';
+                    if (searchInput) {
+                        searchInput.value = '';
+                        if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
+                    }
+                    executeFilter();
+                });
+            }
+
+            // Browser Back/Forward Navigation
+            window.addEventListener('popstate', function() {
+                location.reload();
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             updateSelectionCount();
+            initCourseCombobox();
+            initLiveFilters();
         });
     </script>
 </body>

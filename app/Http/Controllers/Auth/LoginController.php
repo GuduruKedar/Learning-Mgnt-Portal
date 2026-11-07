@@ -72,12 +72,10 @@ class LoginController extends Controller
             );
 
             $channels = [];
-            if ($dispatch['sms_sent'] && $dispatch['masked_phone']) {
-                $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
-            } elseif ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+            if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
                 $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
             }
-            if ($dispatch['email_sent'] && $dispatch['masked_email']) {
+            if ($dispatch['has_email'] && $dispatch['masked_email']) {
                 $channels[] = "email ({$dispatch['masked_email']})";
             }
             $channelText = !empty($channels) ? implode(' and ', $channels) : 'registered contact details';
@@ -122,6 +120,9 @@ class LoginController extends Controller
             }
             
             $request->session()->regenerate();
+
+            // Initialize user session duration tracking
+            \App\Services\UserSessionTracker::trackRequest($request);
 
             \App\Services\ActivityLogger::log(
                 'user_login',
@@ -176,6 +177,8 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         if (Auth::check()) {
+            \App\Services\UserSessionTracker::endSession($request->session()->getId(), Auth::id());
+
             \App\Services\ActivityLogger::log(
                 'user_logout',
                 'User Logged Out',
@@ -253,13 +256,10 @@ class LoginController extends Controller
         );
 
         $channels = [];
-        if ($dispatch['sms_sent'] && $dispatch['masked_phone']) {
-            $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
-        } elseif ($dispatch['has_phone'] && $dispatch['masked_phone']) {
+        if ($dispatch['has_phone'] && $dispatch['masked_phone']) {
             $channels[] = "registered mobile number ({$dispatch['masked_phone']}) via SMS";
         }
-
-        if ($dispatch['email_sent'] && $dispatch['masked_email']) {
+        if ($dispatch['has_email'] && $dispatch['masked_email']) {
             $channels[] = "email ({$dispatch['masked_email']})";
         }
 

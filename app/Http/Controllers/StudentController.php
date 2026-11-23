@@ -351,7 +351,7 @@ class StudentController extends Controller
         $studentUsername = $student->username;
         $studentDept = $student->profile->departments_id ?? null;
 
-        $hasCourseEnrollments = \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->exists();
+        $hasCourseEnrollments = \App\Models\Enrollment::where('user_id', $student->id)->exists();
         $hasCivilEnrollment = \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->exists();
 
         if ($hasCourseEnrollments || $hasCivilEnrollment) {

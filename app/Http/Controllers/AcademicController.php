@@ -895,23 +895,22 @@ class AcademicController extends Controller
         $deptId = $course->department_id;
 
         $staffCount = $course->staff()->count();
-        $enrollmentCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
+        $enrollmentCount = $course->enrollments()->count();
         $materialsCount = $course->materials()->count();
         $assignmentsCount = $course->assignments()->count();
 
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($course, $id) {
-                // 1. Un-enroll all students
-                \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+                // 1. Un-enroll all students via Eloquent relationship
+                $course->enrollments()->detach();
 
                 // Safety check: ensure ZERO enrollments remain
-                $remainingEnrollments = \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
+                $remainingEnrollments = $course->enrollments()->count();
                 if ($remainingEnrollments > 0) {
                     throw new \RuntimeException("Safety Check Failed: Unable to un-enroll all students ({$remainingEnrollments} enrollment(s) remain). Aborting course deletion.");
                 }
 
-                // 2. Detach allocated faculty / staff
-                \Illuminate\Support\Facades\DB::table('course_staff')->where('course_id', $course->id)->delete();
+                // 2. Detach allocated faculty / staff via Eloquent relationship
                 $course->staff()->detach();
 
                 // 3. Delete course materials and storage files
@@ -1124,7 +1123,7 @@ class AcademicController extends Controller
         });
 
         // Global KPI metrics
-        $totalEnrollments = \DB::table('enrollments')->count();
+        $totalEnrollments = \App\Models\Enrollment::count();
         $totalCoursesOffered = $courses->count();
         $totalAllocatedCourses = $courses->where('staff_count', '>', 0)->count();
         $overallAllocationRate = $totalCoursesOffered > 0 ? round(($totalAllocatedCourses / $totalCoursesOffered) * 100, 1) : 0;

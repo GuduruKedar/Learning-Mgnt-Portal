@@ -186,11 +186,11 @@
 
                                     <!-- Actions -->
                                     <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 text-center">
-                                        <div class="flex items-center justify-center gap-1.5">
-                                            <a href="{{ route('ssh.staff.edit', $member->id) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50/90 text-indigo-600 border border-indigo-200/70 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Faculty Profile">
+                                        <div class="flex items-center justify-center gap-1">
+                                            <a href="{{ route('ssh.staff.edit', $member->id) }}" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-colors cursor-pointer" title="Edit Faculty Profile">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                             </a>
-                                            <button type="button" onclick="openManualResetPasswordModal('{{ route('users.reset-password', $member->id) }}', '{{ $member->username }}', '{{ addslashes($member->profile->first_name ?? $member->username) }} {{ addslashes($member->profile->last_name ?? '') }}', 'Staff@852')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-50/90 text-amber-600 border border-amber-200/70 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Reset Password for {{ $member->username }}">
+                                            <button type="button" onclick="openManualResetPasswordModal('{{ route('users.reset-password', $member->id) }}', '{{ $member->username }}', '{{ addslashes($member->profile->first_name ?? $member->username) }} {{ addslashes($member->profile->last_name ?? '') }}', 'Staff@852')" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-500 hover:text-white transition-colors cursor-pointer" title="Reset Password for {{ $member->username }}">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                                             </button>
                                             @php
@@ -207,7 +207,7 @@
                                             @endphp
                                             <button type="button" 
                                                 onclick="openDeleteFacultyModal('{{ $fName }}', '{{ $fUser }}', '{{ $fEmail }}', '{{ $fDesignation }}', '{{ $fDept }}', '{{ $fSchool }}', {{ $fCoursesCount }}, {{ $fMaterialsCount }}, {{ $fAssignmentsCount }}, '{{ $fDelUrl }}')"
-                                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 cursor-pointer" 
+                                                class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer" 
                                                 title="Delete Faculty & Cascade All Related Data">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                             </button>

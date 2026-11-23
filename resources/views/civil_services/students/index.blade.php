@@ -274,26 +274,29 @@
                                             $stName = addslashes(trim(($student->profile->first_name ?? '') . ' ' . ($student->profile->last_name ?? '')));
                                             $unenrollUrl = route('civil.students.unenroll', $student->id);
                                         @endphp
-                                        <button type="button" 
-                                            onclick="openUniversalDeleteModal({
-                                                title: 'Unenroll Student from Civil Services',
-                                                subtitle: 'Confirm track unenrollment',
-                                                itemName: '{{ $stName }}',
-                                                itemCode: 'Reg: {{ $student->username }}',
-                                                itemBadge: 'Civil Services Coaching',
-                                                itemMeta: 'Batch: {{ $student->civilServiceEnrollment->batch_year ?? '2026' }} • Department: {{ addslashes($student->profile->department->name ?? 'N/A') }}',
-                                                cascadeItems: [
-                                                    { title: 'Civil Services Track', count: 'Active Enrollment Removed', icon: 'check' },
-                                                    { title: 'Degree Academic Record', count: '100% Intact & Preserved', icon: 'student' }
-                                                ],
-                                                warningTitle: 'Unenroll {{ $student->username }} from Civil Services?',
-                                                warningBody: 'Are you sure you want to remove {{ $student->username }} from the Civil Services coaching track? Their main academic record and degree credentials will remain safe and untouched.',
-                                                deleteUrl: '{{ $unenrollUrl }}',
-                                                submitBtnText: 'Yes, Unenroll Student'
-                                            })"
-                                            class="text-xs font-semibold text-red-600 hover:text-red-800 px-3 py-1 rounded-lg bg-red-50 hover:bg-red-100 transition-colors cursor-pointer">
-                                            Unenroll
-                                        </button>
+                                        <div class="flex items-center justify-end">
+                                            <button type="button" 
+                                                onclick="openUniversalDeleteModal({
+                                                    title: 'Unenroll Student from Civil Services',
+                                                    subtitle: 'Confirm track unenrollment',
+                                                    itemName: '{{ $stName }}',
+                                                    itemCode: 'Reg: {{ $student->username }}',
+                                                    itemBadge: 'Civil Services Coaching',
+                                                    itemMeta: 'Batch: {{ $student->civilServiceEnrollment->batch_year ?? '2026' }} • Department: {{ addslashes($student->profile->department->name ?? 'N/A') }}',
+                                                    cascadeItems: [
+                                                        { title: 'Civil Services Track', count: 'Active Enrollment Removed', icon: 'check' },
+                                                        { title: 'Degree Academic Record', count: '100% Intact & Preserved', icon: 'student' }
+                                                    ],
+                                                    warningTitle: 'Unenroll {{ $student->username }} from Civil Services?',
+                                                    warningBody: 'Are you sure you want to remove {{ $student->username }} from the Civil Services coaching track? Their main academic record and degree credentials will remain safe and untouched.',
+                                                    deleteUrl: '{{ $unenrollUrl }}',
+                                                    submitBtnText: 'Yes, Unenroll Student'
+                                                })"
+                                                class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
+                                                title="Unenroll Student from Civil Services">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path></svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty

@@ -15,6 +15,11 @@ class Program extends Model
         return $this->belongsTo(Department::class);
     }
 
+    public function profiles()
+    {
+        return $this->hasMany(Profile::class, 'programs_id', 'code');
+    }
+
     protected static function booted()
     {
         static::saved(function () {

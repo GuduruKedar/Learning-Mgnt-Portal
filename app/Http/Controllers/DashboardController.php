@@ -188,8 +188,7 @@ class DashboardController extends Controller
             $totalSubmissionsCount = \App\Models\AssignmentSubmission::whereIn('assignment_id', $assignmentIds)->count();
 
             // Total enrolled students across faculty's assigned courses
-            $totalEnrollmentsCount = \Illuminate\Support\Facades\DB::table('enrollments')
-                ->whereIn('course_id', $assignedCourseIds)
+            $totalEnrollmentsCount = \App\Models\Enrollment::whereIn('course_id', $assignedCourseIds)
                 ->distinct('user_id')
                 ->count('user_id');
 

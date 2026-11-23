@@ -164,12 +164,11 @@
                         @endif
                         
                         <div class="flex items-center gap-2 md:col-span-2 w-full">
-                            <button type="submit" class="flex-1 inline-flex items-center justify-center px-3.5 py-2 border border-transparent text-sm font-semibold rounded-lg shadow-sm text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
-                                Apply
+                            <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer">
+                                Filter
                             </button>
-                            <a href="{{ route('staff.index') }}" id="resetFiltersBtn" class="inline-flex items-center justify-center gap-1 px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors shadow-2xs" title="Reset all filters">
-                                <svg class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                <span>Reset</span>
+                            <a href="{{ route('staff.index') }}" id="resetFiltersBtn" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center" title="Reset all filters">
+                                Reset
                             </a>
                         </div>
                     </form>
@@ -234,11 +233,11 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-2.5 sm:px-6 sm:py-2.5 whitespace-nowrap text-sm font-medium text-center">
-                                    <div class="flex items-center justify-center gap-1.5">
-                                        <a href="{{ route('staff.edit', $staff->id) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50/90 text-indigo-600 border border-indigo-200/70 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Faculty Profile">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <a href="{{ route('staff.edit', $staff->id) }}" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-colors cursor-pointer" title="Edit Faculty Profile">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                         </a>
-                                        <button type="button" onclick="openResetUserPasswordModal('{{ route('users.reset-password', $staff->id) }}', '{{ $staff->username }}', '{{ addslashes($staff->first_name ?? $staff->username) }} {{ addslashes($staff->last_name ?? '') }}', 'Staff@852')" class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-50/90 text-amber-600 border border-amber-200/70 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Reset Password for {{ $staff->username }}">
+                                        <button type="button" onclick="openResetUserPasswordModal('{{ route('users.reset-password', $staff->id) }}', '{{ $staff->username }}', '{{ addslashes($staff->first_name ?? $staff->username) }} {{ addslashes($staff->last_name ?? '') }}', 'Staff@852')" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-500 hover:text-white transition-colors cursor-pointer" title="Reset Password for {{ $staff->username }}">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                                         </button>
                                         @if(Auth::user()->role === 'sa')
@@ -256,7 +255,7 @@
                                             @endphp
                                             <button type="button" 
                                                 onclick="openDeleteFacultyModal('{{ $fName }}', '{{ $fUser }}', '{{ $fEmail }}', '{{ $fDesignation }}', '{{ $fDept }}', '{{ $fSchool }}', {{ $fCoursesCount }}, {{ $fMaterialsCount }}, {{ $fAssignmentsCount }}, '{{ $fDelUrl }}')" 
-                                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50/90 text-rose-600 border border-rose-200/70 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 cursor-pointer" 
+                                                class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer" 
                                                 title="Delete Faculty & Cascade All Related Data">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                             </button>

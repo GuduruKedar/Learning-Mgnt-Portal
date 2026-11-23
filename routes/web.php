@@ -65,9 +65,9 @@ Route::middleware('auth')->group(function () {
     });
     
     // ==========================================
-    // 1. Super Admin & SSH Admin Analytics Routes (Role: sa, ssh_admin)
+    // 1. Super Admin, Admin & SSH Admin Analytics Routes (Role: sa, admin, ssh_admin)
     // ==========================================
-    Route::middleware('role:sa,ssh_admin')->group(function () {
+    Route::middleware('role:sa,admin,ssh_admin')->group(function () {
         Route::get('/coordinators/check-email', [\App\Http\Controllers\CoordinatorController::class, 'checkEmail'])->name('coordinators.check_email');
         Route::resource('coordinators', \App\Http\Controllers\CoordinatorController::class);
         Route::get('/department-coordinators', [\App\Http\Controllers\CoordinatorController::class, 'departmentCoordinators'])->name('coordinators.departments_list');
@@ -87,6 +87,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/academic/departments', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeDepartment'])->name('academic.departments.store');
         Route::put('/academic/departments/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateDepartment'])->name('academic.departments.update');
         Route::delete('/academic/departments/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyDepartment'])->name('academic.departments.destroy');
+        Route::post('/academic/programs', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeProgram'])->name('academic.programs.store');
+        Route::put('/academic/programs/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateProgram'])->name('academic.programs.update');
+        Route::delete('/academic/programs/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyProgram'])->name('academic.programs.destroy');
+
+        // Dynamic Register Number Parser Mappings & Live Testing
+        Route::post('/academic/dynamic-mappings', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeDynamicMapping'])->name('academic.dynamic_mappings.store');
+        Route::delete('/academic/dynamic-mappings', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyDynamicMapping'])->name('academic.dynamic_mappings.destroy');
+        Route::get('/academic/test-register-number', [\App\Http\Controllers\SchoolDepartmentController::class, 'testRegisterNumber'])->name('academic.register_number.test');
     });
 
     // ==========================================
@@ -255,6 +263,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/materials/{material}/download', [\App\Http\Controllers\CourseMaterialController::class, 'downloadFile'])->name('materials.download');
     Route::get('/storage/{path}', [\App\Http\Controllers\CourseMaterialController::class, 'serveStorage'])->where('path', '.*')->name('storage.serve');
 });
+
+// Student Portal User Manual & Documentation Routes (Public & Authenticated)
+Route::get('/student-manual', [\App\Http\Controllers\StudentManualController::class, 'show'])->name('student.manual.show');
+Route::get('/student-manual/download-pdf', [\App\Http\Controllers\StudentManualController::class, 'downloadPdf'])->name('student.manual.download_pdf');
+Route::get('/student-manual/download', [\App\Http\Controllers\StudentManualController::class, 'downloadMarkdown'])->name('student.manual.download');
+Route::get('/student-manual/download-html', [\App\Http\Controllers\StudentManualController::class, 'downloadHtml'])->name('student.manual.download_html');
 
 // Maintenance Mode Preview Route
 Route::get('/maintenance-preview', function () {

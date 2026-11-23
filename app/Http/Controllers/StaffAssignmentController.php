@@ -1334,7 +1334,7 @@ class StaffAssignmentController extends Controller
                 if ($sub->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($sub->file_path)) {
                     \Illuminate\Support\Facades\Storage::disk('public')->delete($sub->file_path);
                 }
-                \Illuminate\Support\Facades\DB::table('assignment_answers')->where('submission_id', $sub->id)->delete();
+                \App\Models\AssignmentAnswer::where('submission_id', $sub->id)->delete();
                 $sub->delete();
             }
 

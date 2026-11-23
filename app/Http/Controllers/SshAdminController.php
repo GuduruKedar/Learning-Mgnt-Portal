@@ -390,7 +390,7 @@ class SshAdminController extends Controller
         $submissionsCount = \App\Models\AssignmentSubmission::where('student_id', $student->id)->count();
         $submissionIds = \App\Models\AssignmentSubmission::where('student_id', $student->id)->pluck('id');
         $answersCount = \App\Models\AssignmentAnswer::whereIn('submission_id', $submissionIds)->count();
-        $enrollmentsCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->count();
+        $enrollmentsCount = \App\Models\Enrollment::where('user_id', $student->id)->count();
         $civilEnrollmentCount = \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->count();
         $deptId = $student->profile->departments_id ?? 'ssh';
 
@@ -406,7 +406,7 @@ class SshAdminController extends Controller
             }
 
             // 2. Detach / delete enrollments
-            \Illuminate\Support\Facades\DB::table('enrollments')->where('user_id', $student->id)->delete();
+            \App\Models\Enrollment::where('user_id', $student->id)->delete();
 
             // 3. Remove civil service enrollment
             \App\Models\CivilServiceEnrollment::where('user_id', $student->id)->delete();
@@ -602,7 +602,7 @@ class SshAdminController extends Controller
         $deptId = $course->department_id;
 
         $staffCount = $course->staff()->count();
-        $enrollmentCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
+        $enrollmentCount = $course->enrollments()->count();
         $materialsCount = $course->materials()->count();
         $assignmentsCount = $course->assignments()->count();
 
@@ -633,7 +633,7 @@ class SshAdminController extends Controller
                 $assignment->delete();
             }
 
-            \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+            $course->enrollments()->detach();
             $course->staff()->detach();
             $course->delete();
         });
@@ -1365,7 +1365,7 @@ class SshAdminController extends Controller
                 if ($sub->file_path && Storage::disk('public')->exists($sub->file_path)) {
                     Storage::disk('public')->delete($sub->file_path);
                 }
-                \Illuminate\Support\Facades\DB::table('assignment_answers')->where('submission_id', $sub->id)->delete();
+                \App\Models\AssignmentAnswer::where('submission_id', $sub->id)->delete();
                 $sub->delete();
             }
 

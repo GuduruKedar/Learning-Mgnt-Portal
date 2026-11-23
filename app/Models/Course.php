@@ -79,7 +79,7 @@ class Course extends Model
             }
 
             // Un-enroll students and detach staff allocations
-            \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+            $course->enrollments()->detach();
             $course->staff()->detach();
         });
 

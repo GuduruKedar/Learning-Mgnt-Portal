@@ -275,7 +275,7 @@
 
                                     <!-- Actions -->
                                     <td class="px-4 py-2 sm:px-5 sm:py-2 whitespace-nowrap text-right text-xs font-medium">
-                                        <div class="flex items-center justify-end gap-1.5">
+                                        <div class="flex items-center justify-end gap-1">
                                             <button type="button" 
                                                 onclick="openCoordinatorDetails({
                                                      username: '{{ $coordinator->username }}',
@@ -290,14 +290,14 @@
                                                     editUrl: '{{ route('coordinators.edit', $coordinator->id) }}',
                                                     resetUrl: '{{ route('coordinators.index', ['action' => 'reset_password', 'search' => $coordinator->username]) }}'
                                                 })"
-                                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-sky-50/80 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400 border border-sky-200/80 dark:border-sky-800/40 hover:bg-sky-600 hover:text-white hover:border-sky-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Quick View">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-sky-50 text-sky-600 border border-sky-200 hover:bg-sky-600 hover:text-white transition-colors cursor-pointer" title="Quick View">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </button>
-                                            <a href="{{ route('coordinators.edit', $coordinator->id) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-50/80 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-200/80 dark:border-indigo-800/40 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Coordinator">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                            <a href="{{ route('coordinators.edit', $coordinator->id) }}" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-colors cursor-pointer" title="Edit Coordinator">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                             </a>
-                                            <a href="{{ route('coordinators.index', ['action' => 'reset_password', 'search' => $coordinator->username]) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-50/80 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/40 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Reset Password">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                                            <a href="{{ route('coordinators.index', ['action' => 'reset_password', 'search' => $coordinator->username]) }}" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-500 hover:text-white transition-colors cursor-pointer" title="Reset Password">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                                             </a>
                                         </div>
                                     </td>

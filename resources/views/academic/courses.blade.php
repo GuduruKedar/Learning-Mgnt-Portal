@@ -139,12 +139,11 @@
                         
                         <!-- Buttons in responsive flex / dual grid -->
                         <div class="grid grid-cols-2 gap-3 w-full sm:w-auto sm:flex sm:items-center sm:gap-2.5 shrink-0">
-                            <button type="submit" class="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-xs sm:text-sm font-semibold rounded-xl shadow-xs text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors">
-                                Apply Filters
+                            <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer">
+                                Filter
                             </button>
-                            <a href="{{ route('academic.courses') }}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-slate-200 text-xs sm:text-sm font-medium rounded-xl text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-xs" title="Reset all filters">
-                                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                <span>Reset</span>
+                            <a href="{{ route('academic.courses') }}" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center" title="Reset all filters">
+                                Reset
                             </a>
                         </div>
                     </form>
@@ -297,15 +296,15 @@
                                             </td>
 
                                             <td class="px-5 py-3 whitespace-nowrap text-sm font-medium text-center min-w-[110px]">
-                                                <div class="flex items-center justify-center gap-1.5">
-                                                    <a href="{{ route('academic.cohorts', ['course_id' => $course->id]) }}" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-200/80 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Enroll Student Cohorts in Bulk">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                                <div class="flex items-center justify-center gap-1">
+                                                    <a href="{{ route('academic.cohorts', ['course_id' => $course->id]) }}" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-600 hover:text-white transition-colors cursor-pointer" title="Enroll Student Cohorts in Bulk">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                                     </a>
-                                                    <a href="{{ route('staff.courses.materials', $course->id) }}" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/80 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="View Course Materials (All Faculty Uploads)">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                                    <a href="{{ route('staff.courses.materials', $course->id) }}" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-600 hover:text-white transition-colors cursor-pointer" title="View Course Materials (All Faculty Uploads)">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                                     </a>
-                                                    <a href="{{ route('academic.courses.edit', $course->id) }}" class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200/80 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5" title="Edit Course">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                    <a href="{{ route('academic.courses.edit', $course->id) }}" class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-colors cursor-pointer" title="Edit Course">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                     </a>
                                                     @php
                                                         $cCode = addslashes($course->code);
@@ -322,9 +321,9 @@
                                                     @endphp
                                                     <button type="button" 
                                                         onclick="openDeleteCourseModal('{{ $cCode }}', '{{ $cName }}', '{{ $cDept }}', '{{ $cReg }}', '{{ $cYear }}', '{{ $cSem }}', {{ $cStaffCount }}, {{ $cEnrollCount }}, {{ $cMatCount }}, {{ $cAssignCount }}, '{{ $cDelUrl }}')"
-                                                        class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-150 shadow-2xs hover:shadow-xs hover:-translate-y-0.5 cursor-pointer" 
+                                                        class="w-7 h-7 p-1.5 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer" 
                                                         title="Delete Course & All Linked Data">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                     </button>
                                                 </div>
                                             </td>

@@ -114,7 +114,7 @@ class CivilCourseController extends Controller
         $courseName = $course->name;
         $courseCode = $course->code;
         $materialsCount = $course->materials()->count();
-        $enrollmentCount = \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->count();
+        $enrollmentCount = $course->enrollments()->count();
         $staffCount = $course->staff()->count();
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($course) {
@@ -128,7 +128,7 @@ class CivilCourseController extends Controller
                 $mat->delete();
             }
 
-            \Illuminate\Support\Facades\DB::table('enrollments')->where('course_id', $course->id)->delete();
+            $course->enrollments()->detach();
             $course->staff()->detach();
             $course->delete();
         });

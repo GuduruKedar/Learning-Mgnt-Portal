@@ -45,10 +45,6 @@
                         </div>
 
                         <div class="flex flex-wrap items-center gap-3">
-                            <a href="{{ route('student.manual.show') }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/10 hover:bg-white/20 border border-white/20 text-white backdrop-blur-xs transition-all duration-200" title="View & Download Student User Manual">
-                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                                <span>Student Manual (PDF / Download)</span>
-                            </a>
                             <a href="{{ route('student.enrollment.create') }}" class="btn-theme-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold hover:-translate-y-0.5 transition-all duration-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                 <span>Enroll in Courses</span>

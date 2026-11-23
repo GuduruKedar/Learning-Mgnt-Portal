@@ -79,22 +79,24 @@ Route::middleware('auth')->group(function () {
         Route::get('/activity-logs/export', [\App\Http\Controllers\ActivityLogController::class, 'export'])->name('activity_logs.export');
         Route::get('/activity-logs/{id}', [\App\Http\Controllers\ActivityLogController::class, 'show'])->name('activity_logs.show');
 
-        // Dynamic Schools & Departments Management
-        Route::get('/academic/departments-schools', [\App\Http\Controllers\SchoolDepartmentController::class, 'index'])->name('academic.departments.index');
-        Route::post('/academic/schools', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeSchool'])->name('academic.schools.store');
-        Route::put('/academic/schools/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateSchool'])->name('academic.schools.update');
-        Route::delete('/academic/schools/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroySchool'])->name('academic.schools.destroy');
-        Route::post('/academic/departments', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeDepartment'])->name('academic.departments.store');
-        Route::put('/academic/departments/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateDepartment'])->name('academic.departments.update');
-        Route::delete('/academic/departments/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyDepartment'])->name('academic.departments.destroy');
-        Route::post('/academic/programs', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeProgram'])->name('academic.programs.store');
-        Route::put('/academic/programs/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateProgram'])->name('academic.programs.update');
-        Route::delete('/academic/programs/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyProgram'])->name('academic.programs.destroy');
+        // Dynamic Schools & Departments Management (Super Admin & SSH Admin only)
+        Route::middleware('role:sa,ssh_admin')->group(function () {
+            Route::get('/academic/departments-schools', [\App\Http\Controllers\SchoolDepartmentController::class, 'index'])->name('academic.departments.index');
+            Route::post('/academic/schools', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeSchool'])->name('academic.schools.store');
+            Route::put('/academic/schools/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateSchool'])->name('academic.schools.update');
+            Route::delete('/academic/schools/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroySchool'])->name('academic.schools.destroy');
+            Route::post('/academic/departments', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeDepartment'])->name('academic.departments.store');
+            Route::put('/academic/departments/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateDepartment'])->name('academic.departments.update');
+            Route::delete('/academic/departments/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyDepartment'])->name('academic.departments.destroy');
+            Route::post('/academic/programs', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeProgram'])->name('academic.programs.store');
+            Route::put('/academic/programs/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'updateProgram'])->name('academic.programs.update');
+            Route::delete('/academic/programs/{id}', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyProgram'])->name('academic.programs.destroy');
 
-        // Dynamic Register Number Parser Mappings & Live Testing
-        Route::post('/academic/dynamic-mappings', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeDynamicMapping'])->name('academic.dynamic_mappings.store');
-        Route::delete('/academic/dynamic-mappings', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyDynamicMapping'])->name('academic.dynamic_mappings.destroy');
-        Route::get('/academic/test-register-number', [\App\Http\Controllers\SchoolDepartmentController::class, 'testRegisterNumber'])->name('academic.register_number.test');
+            // Dynamic Register Number Parser Mappings & Live Testing
+            Route::post('/academic/dynamic-mappings', [\App\Http\Controllers\SchoolDepartmentController::class, 'storeDynamicMapping'])->name('academic.dynamic_mappings.store');
+            Route::delete('/academic/dynamic-mappings', [\App\Http\Controllers\SchoolDepartmentController::class, 'destroyDynamicMapping'])->name('academic.dynamic_mappings.destroy');
+            Route::get('/academic/test-register-number', [\App\Http\Controllers\SchoolDepartmentController::class, 'testRegisterNumber'])->name('academic.register_number.test');
+        });
     });
 
     // ==========================================
